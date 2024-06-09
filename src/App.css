@@ -1,0 +1,63 @@
+.topDiv {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.viewDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-grow: 1;
+}
+
+.headerViewDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.undoRedoButtonWrapper {
+  display: flex;
+  flex-direction: row;
+  column-gap: 1em;
+}
+
+.screenView {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.undoRedoButton {
+  height: 3em;
+  width: 10em;
+}
+
+.activeViewButton {
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .inactiveViewForMobile {
+    display: none;
+  }
+
+  .activeViewButton {
+    display: inline;
+    height: 3em;
+    width: 15em;
+    margin-bottom: 2em;
+  }
+}

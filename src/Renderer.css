@@ -1,0 +1,19 @@
+.baseStats {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.mobileDivider {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+@media only screen and (max-width: 900px) {
+    .mobileDivider {
+        flex-direction: column;
+    }
+}
