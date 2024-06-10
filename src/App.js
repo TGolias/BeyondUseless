@@ -12,7 +12,11 @@ const defaultPlayerConfiguration = {
   classes: [
     {
       name: "Fighter",
-      levels: 10
+      levels: 7
+    },
+    {
+      name: "Cleric",
+      levels: 3
     }
   ],
   baseStats: {

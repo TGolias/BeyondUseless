@@ -2,7 +2,7 @@ import React from "react";
 import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
 import { onInputChangeHandler } from "../SharedFunctions/ComponentFunctions";
 
-export function SelectList({options, baseStateObject, pathToProperty, inputHandler}) {
+export function SelectList({options, isNumberValue, baseStateObject, pathToProperty, inputHandler}) {
     const startingValue = getValueFromBaseStateAndPath(baseStateObject, pathToProperty);
 
     const rows = [];
@@ -12,5 +12,12 @@ export function SelectList({options, baseStateObject, pathToProperty, inputHandl
             rows.push(startingValue === option ? <option value={option} selected={true}>{option}</option> : <option value={option}>{option}</option>);
         }
     }
-    return <select onInput={(event) => onInputChangeHandler(baseStateObject, pathToProperty, event.currentTarget.value, inputHandler)}>{rows}</select>
+    return <select onInput={(event) => {
+        let value = null; // Get the linter off my ass about this being a string.
+        value = event.currentTarget.value;
+        if (isNumberValue) {
+            value = Number.parseInt(value);
+        }
+        return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
+    }}>{rows}</select>
 }
