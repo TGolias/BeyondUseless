@@ -1,6 +1,7 @@
 import { StatDisplay } from "./Components/StatDisplay";
 import { calculateHPMax } from "./SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
+import React from "react";
 
 export function Renderer({playerConfigs}) {
     return (

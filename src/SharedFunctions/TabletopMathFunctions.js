@@ -5,7 +5,7 @@ export function calculateModifierForBaseStat(baseStatValue) {
 }
 
 export function calculateHPMax(playerConfigs) {
-    const dndclass = classes.find(x => x.name === playerConfigs.class);
+    const dndclass = classes.find(x => x.name === playerConfigs.classes[0].name); // TODO: FOR NOW WE'RE JUST DOING THE FIRST CLASS, WE'LL FIX THIS LATER
     const hpFromClassPerLevelAfter1 = (dndclass.hitDie / 2) + 1;
     const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.baseStats.constitution);
     const hpAtLevel1 = dndclass.hitDie + hpFromConsitutionPerLevel

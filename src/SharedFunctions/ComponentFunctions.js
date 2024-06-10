@@ -1,8 +1,9 @@
 export function getValueFromBaseStateAndPath(baseStateObject, pathToProperty) {
-    const totalPath = pathToProperty.split('.');
+    const totalPath = pathToProperty.split(/\]\.|\.|\[/);
     let propertyValue = baseStateObject;
     for (let i = 0; i < totalPath.length; i++) {
-        propertyValue = propertyValue[totalPath[i]];
+        let pathSegment = totalPath[i];
+        propertyValue = propertyValue[pathSegment];
     }
     return propertyValue;
 }

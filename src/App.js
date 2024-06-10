@@ -1,14 +1,20 @@
 import { useState } from "react";
-import { Designer } from "./Designer";
 import { Renderer } from "./Renderer";
 import './App.css';
+import React from "react";
+import { Designer } from "./Designer";
 
 const timeoutBeforeAddedToHistory = 5000;
 
 const defaultPlayerConfiguration = {
   name: "Default",
-  class: "Fighter",
   level: 10,
+  classes: [
+    {
+      name: "Fighter",
+      levels: 10
+    }
+  ],
   baseStats: {
     strength: 10,
     dexterity: 10,
@@ -106,7 +112,7 @@ export default function App() {
     }
 
     // Now do the actual logic.
-    const totalPath = pathToProperty.split('.');
+    const totalPath = pathToProperty.split(/\]\.|\.|\[/);
 
     // We are traversing the path, but also making shallow copies all the way down for the new version of the state as we go.
     let newBaseStateObject = Object.assign({}, currentState);
@@ -114,10 +120,19 @@ export default function App() {
 
     // We do - 1 to the length because we don't want to end up with the actual property at the end, just right before.
     for (let i = 0; i < totalPath.length - 1; i++) {
-        const nextPropertyObject = newPropertyObject[totalPath[i]];
-        const newNextPropertyObject = Object.assign({}, nextPropertyObject);
-        newPropertyObject[totalPath[i]] = newNextPropertyObject;
-        newPropertyObject = newNextPropertyObject
+      let pathSegment = totalPath[i];
+      const nextPropertyObject = newPropertyObject[pathSegment];
+
+      let newNextPropertyObject
+      // Sometimes some slippery arrays make their way in here... those get cloned differently.
+      if (Array.isArray(nextPropertyObject)) {
+        newNextPropertyObject = [...nextPropertyObject]
+      } else {
+        newNextPropertyObject = Object.assign({}, nextPropertyObject);
+      }
+      
+      newPropertyObject[pathSegment] = newNextPropertyObject;
+      newPropertyObject = newNextPropertyObject
     }
 
     // Check if the value is going to change when we set it. Important for later.

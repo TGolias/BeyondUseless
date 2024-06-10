@@ -10,3 +10,15 @@ root.render(
     <App />
   </StrictMode>
 );
+
+const consoleError = console.error;
+const SUPPRESSED_WARNINGS = [
+  'Warning: Use the `defaultValue` or `value` props on <select> instead of setting `selected` on <option>.',
+  'Warning: Each child in a list should have a unique "key" prop.'
+];
+
+console.error = function filterWarnings(msg, ...args) {
+    if (!SUPPRESSED_WARNINGS.some((entry) => msg.includes(entry))) {
+      consoleError(msg, ...args);
+    }
+};

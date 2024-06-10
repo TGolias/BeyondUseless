@@ -1,3 +1,4 @@
+import React from "react";
 import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
 import { onInputChangeHandler } from "../SharedFunctions/ComponentFunctions";
 
@@ -8,8 +9,8 @@ export function SelectList({options, baseStateObject, pathToProperty, inputHandl
     if (options) {
         for (let i = 0; i < options.length; i++) {
             const option = options[i];
-            rows.push(startingValue === option ? <option value={option} selected="selected">{option}</option> : <option value={option}>{option}</option>);
+            rows.push(startingValue === option ? <option value={option} selected={true}>{option}</option> : <option value={option}>{option}</option>);
         }
     }
-    return <select onInput={(event) => onInputChangeHandler(baseStateObject, pathToProperty, event.target.value, inputHandler)}>{rows}</select>
+    return <select onInput={(event) => onInputChangeHandler(baseStateObject, pathToProperty, event.currentTarget.value, inputHandler)}>{rows}</select>
 }
