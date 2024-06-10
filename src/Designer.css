@@ -1,0 +1,9 @@
+.fieldHolder {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+}
+
+.label {
+    padding-bottom: 0.2em;
+}

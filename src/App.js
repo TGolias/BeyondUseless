@@ -95,8 +95,11 @@ export default function App() {
       clearTimeout(addChangesToHistoryTimeout.timeout)
       setAddChangesToHistoryTimeout(null);
 
-      // Now if this ISN'T our property being changed, we need it to add those changes to history before we start.
-      if (addChangesToHistoryTimeout.pathToProperty !== pathToProperty) {
+      if (addChangesToHistoryTimeout.pathToProperty === pathToProperty) {
+        // If it IS our property being changed, since we just threw away the previous state, we want to make sure our current state is back to what it originally was so we don't add to the history when a value doesn't change at all.
+        currentState = history[currentHistoryIndex];
+      } else {
+        // Now if this ISN'T our property being changed, we need it to add those changes to history before we start.
         addChangesToHistory(addChangesToHistoryTimeout.newState);
         currentState = addChangesToHistoryTimeout.newState;
       }
@@ -117,17 +120,23 @@ export default function App() {
         newPropertyObject = newNextPropertyObject
     }
 
+    // Check if the value is going to change when we set it. Important for later.
+    const valueChanged = newPropertyObject[totalPath[totalPath.length - 1]] !== newValue;
+
     // Now we have the property object right at the end of the path and have done our shallow clones all the way to it.
     newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
     setPlayerConfigs(newBaseStateObject);
 
-    // We want to add these changes to the history... but only after a timeout, in case they're still typing!
-    const addToHistoryTimeout = setTimeout(() => { 
-      addChangesToHistory(newBaseStateObject);
-      // Once the timeout has done its thing, we set it to null.
-      setAddChangesToHistoryTimeout(null);
-    }, timeoutBeforeAddedToHistory);
-    setAddChangesToHistoryTimeout({ pathToProperty: pathToProperty, newState: newBaseStateObject, timeout: addToHistoryTimeout });
+    // We only want want to add to the undo / redo stack if the value changed.
+    if (valueChanged) {
+      // We want to add these changes to the history... but only after a timeout, in case they're still typing!
+      const addToHistoryTimeout = setTimeout(() => { 
+        addChangesToHistory(newBaseStateObject);
+        // Once the timeout has done its thing, we set it to null.
+        setAddChangesToHistoryTimeout(null);
+      }, timeoutBeforeAddedToHistory);
+      setAddChangesToHistoryTimeout({ pathToProperty: pathToProperty, newState: newBaseStateObject, timeout: addToHistoryTimeout });
+    }
   }
 
   function addChangesToHistory(newBaseStateObject) {
@@ -147,7 +156,7 @@ export default function App() {
   return (
     <>
       <div className="topDiv">
-        <button className="activeViewButton" onClick={toggleViewActive}>{ isRendererViewActiveForMobile ? "Edit My Character" : "View My Character Sheet"}</button>
+        <button className="activeViewButton" onClick={toggleViewActive}>{ isRendererViewActiveForMobile ? "Edit My Character" : "View Character Sheet"}</button>
         <div className="viewDiv">
           <div className={"headerViewDiv" + (isRendererViewActiveForMobile ? " inactiveViewForMobile" : "")}>
             <div className="undoRedoButtonWrapper">

@@ -6,7 +6,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+}
+
+.statName {
+    padding-top: 1em;
+    font-size: 12px;
+    /* This fucking fatass font, man... */
+    letter-spacing: -3px;
 }
 
 .modifier {
@@ -14,11 +21,18 @@
     padding: .1em;
 }
 
-.abilityScore {
+.circleAroundScore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     height: 1.5em;
     width: 1.5em;
     text-align: center;
     border: .1em solid black;
     border-radius: 50%;
-    line-height: 1.5;
+}
+
+.abilityScore {
+    font-size: 0.6em;
 }

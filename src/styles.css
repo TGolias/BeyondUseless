@@ -1,4 +1,13 @@
+@font-face {
+    font-family: 'font-of-the-mans';
+    src: local('font-of-the-mans'), url('./Fonts/font-of-the-mans.ttf') format('truetype');
+}
+
 * {
-    font-family: Roboto Condensed,Roboto,Helvetica,sans-serif;
+    font-family: 'font-of-the-mans'; /*Roboto Condensed,Roboto,Helvetica,sans-serif;*/
     font-size: 20px;
+}
+
+h2 {
+    font-size: 32px;
 }

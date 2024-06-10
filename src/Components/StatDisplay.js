@@ -6,9 +6,11 @@ export function StatDisplay({name, value}) {
     return (
         <>
             <div className='outerbox'>
-                <div>{name}</div>
+                <div class="statName">{name}</div>
                 <div className='modifier'>{(modifierAmount <= 0 ? "" : "+") + calculateModifierForBaseStat(value)}</div>
-                <div className='abilityScore'>{value}</div>
+                <div className='circleAroundScore'>
+                    <div className='abilityScore'>{value}</div>
+                </div>
             </div>
         </>
     )
