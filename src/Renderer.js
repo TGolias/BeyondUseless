@@ -11,14 +11,14 @@ export function Renderer({playerConfigs}) {
                 <div>HP: {calculateHPMax(playerConfigs)}</div>
                 <div className="mobileDivider">
                     <div className="baseStats">
-                        <StatDisplay name="Strength" value={playerConfigs.baseStats.strength}/>
-                        <StatDisplay name="Dexterity" value={playerConfigs.baseStats.dexterity}/>
-                        <StatDisplay name="Constitution" value={playerConfigs.baseStats.constitution}/>
+                        <StatDisplay name="STRENGTH" value={playerConfigs.baseStats.strength}/>
+                        <StatDisplay name="DEXTERITY" value={playerConfigs.baseStats.dexterity}/>
+                        <StatDisplay name="CONSTITUTION" value={playerConfigs.baseStats.constitution}/>
                     </div>
                     <div className="baseStats">
-                        <StatDisplay name="Intelligence" value={playerConfigs.baseStats.intelligence}/>
-                        <StatDisplay name="Wisdom" value={playerConfigs.baseStats.wisdom}/>
-                        <StatDisplay name="Charisma" value={playerConfigs.baseStats.charisma}/>
+                        <StatDisplay name="INTELLIGENCE" value={playerConfigs.baseStats.intelligence}/>
+                        <StatDisplay name="WISDOM" value={playerConfigs.baseStats.wisdom}/>
+                        <StatDisplay name="CHARISMA" value={playerConfigs.baseStats.charisma}/>
                     </div>
                 </div>
             </div>

@@ -11,9 +11,10 @@
 
 .statName {
     padding-top: 1em;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: bold;
     /* This fucking fatass font, man... */
-    letter-spacing: -3px;
+    transform: scale(0.5,1);
 }
 
 .modifier {
