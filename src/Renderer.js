@@ -8,7 +8,7 @@ export function Renderer({playerConfigs}) {
         <>
             <div className="outerDiv">
                 <h2>{playerConfigs.name}</h2>
-                <div className="lvl">:L{playerConfigs.level}</div>
+                <div className="lvl">LVL{playerConfigs.level}</div>
                 <div className="hp">HP: {calculateHPMax(playerConfigs)}</div>
                 <div className="mobileDivider">
                     <div className="baseStats">
