@@ -6,9 +6,10 @@ import React from "react";
 export function Renderer({playerConfigs}) {
     return (
         <>
-            <div>
+            <div className="outerDiv">
                 <h2>{playerConfigs.name}</h2>
-                <div>HP: {calculateHPMax(playerConfigs)}</div>
+                <div className="lvl">:L{playerConfigs.level}</div>
+                <div className="hp">HP: {calculateHPMax(playerConfigs)}</div>
                 <div className="mobileDivider">
                     <div className="baseStats">
                         <StatDisplay name="STRENGTH" value={playerConfigs.baseStats.strength}/>

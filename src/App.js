@@ -7,7 +7,7 @@ import { Designer } from "./Designer";
 const timeoutBeforeAddedToHistory = 5000;
 
 const defaultPlayerConfiguration = {
-  name: "Default",
+  name: "Bunni Grandin",
   level: 10,
   classes: [
     {
@@ -15,17 +15,17 @@ const defaultPlayerConfiguration = {
       levels: 7
     },
     {
-      name: "Cleric",
+      name: "Barbarian",
       levels: 3
     }
   ],
   baseStats: {
-    strength: 10,
-    dexterity: 10,
-    constitution: 10,
-    intelligence: 10,
-    wisdom: 10,
-    charisma: 10
+    strength: 15,
+    dexterity: 13,
+    constitution: 13,
+    intelligence: 8,
+    wisdom: 11,
+    charisma: 13
   }
 }
 
@@ -60,7 +60,7 @@ export const spells = []
 
 export default function App() {
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);
-  const [isRendererViewActiveForMobile, setIsRendererViewActiveForMobile] = useState(true);
+  const [isRendererViewActiveForMobile, setIsRendererViewActiveForMobile] = useState(false);
   const [history, setHistory] = useState([defaultPlayerConfiguration]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
@@ -175,7 +175,9 @@ export default function App() {
   return (
     <>
       <div className="topDiv">
-        <button className="activeViewButton" onClick={toggleViewActive}>{ isRendererViewActiveForMobile ? "Edit My Character" : "View Character Sheet"}</button>
+        <div className="activeViewButtonWrapper">
+          <button className="activeViewButton" onClick={toggleViewActive}>{ isRendererViewActiveForMobile ? "Edit My Character" : "View Character Sheet"}</button>
+        </div>
         <div className="viewDiv">
           <div className={"headerViewDiv" + (isRendererViewActiveForMobile ? " inactiveViewForMobile" : "")}>
             <div className="undoRedoButtonWrapper">
