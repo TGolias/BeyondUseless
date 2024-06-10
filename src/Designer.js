@@ -12,6 +12,10 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <TextInput baseStateObject={playerConfigs} pathToProperty={"name"} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
+                    <div>Level</div>
+                    <SelectList options={Array.from({length: 20}, (_, i) => i + 1)} baseStateObject={playerConfigs} pathToProperty={"level"} inputHandler={inputChangeHandler}/>
+                </div>
+                <div>
                     <div>Class</div>
                     <SelectList options={classes.map(x => x.name)} baseStateObject={playerConfigs} pathToProperty={"class"} inputHandler={inputChangeHandler}/>
                 </div>
