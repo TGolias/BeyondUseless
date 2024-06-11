@@ -11,8 +11,7 @@
     padding-top: 1em;
     font-size: 16px;
     font-weight: bold;
-    /* This fucking fatass font, man... */
-    transform: scale(0.5,1);
+    /* I used to scale this fucking fatass font, but then I got smart and used the shortened versions: transform: scale(0.5,1); */
 }
 
 .modifier {

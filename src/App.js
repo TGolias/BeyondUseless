@@ -61,10 +61,11 @@ export const spells = []
 
 export default function App() {
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);
-  const [hideEditor, setHideEditor] = useState(false);
-  const [showStartMenu, setShowStartMenu] = useState(false);
   const [history, setHistory] = useState([defaultPlayerConfiguration]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
+
+  const [hideEditor, setHideEditor] = useState(false);
+  const [showStartMenu, setShowStartMenu] = useState(false);
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
 
   function toggleViewActive() {
@@ -191,6 +192,34 @@ export default function App() {
       text: "REDO",
       disabled: (currentHistoryIndex + 1) === history.length || addChangesToHistoryTimeout,
       clickHandler: redoPlayerConfigs
+    },
+    {
+      text: "SAVE",
+      clickHandler: () => {
+        localStorage.setItem("SAVED_CHARACTER", JSON.stringify(playerConfigs));
+        setShowStartMenu(false);
+      }
+    },
+    {
+      text: "LOAD",
+      clickHandler: () => {
+        const newPlayerConfigsJsonString = localStorage.getItem("SAVED_CHARACTER");
+
+        // See if we even have a character to load.
+        if (newPlayerConfigsJsonString) {
+          // Before we load, we want to make sure there aren't any pending changes waiting to be added to history, that would be tragic.
+          if (addChangesToHistoryTimeout) {
+            clearTimeout(addChangesToHistoryTimeout.timeout)
+            setAddChangesToHistoryTimeout(null);
+          }
+
+          const newPlayerConfigs = JSON.parse(newPlayerConfigsJsonString);
+          setPlayerConfigs(newPlayerConfigs);
+          setHistory([newPlayerConfigs]);
+          setCurrentHistoryIndex(0);
+          setShowStartMenu(false);
+        }
+      }
     },
     {
       text: "GITHUB",

@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "./static/css/main.43147ca3.css",
-    "main.js": "./static/js/main.372d45cc.js",
+    "main.css": "./static/css/main.033e71bd.css",
+    "main.js": "./static/js/main.1e0974e0.js",
     "static/media/font-of-the-mans.ttf": "./static/media/font-of-the-mans.c5cea637f871320c45f5.ttf",
     "index.html": "./index.html",
-    "main.43147ca3.css.map": "./static/css/main.43147ca3.css.map",
-    "main.372d45cc.js.map": "./static/js/main.372d45cc.js.map"
+    "main.033e71bd.css.map": "./static/css/main.033e71bd.css.map",
+    "main.1e0974e0.js.map": "./static/js/main.1e0974e0.js.map"
   },
   "entrypoints": [
-    "static/css/main.43147ca3.css",
-    "static/js/main.372d45cc.js"
+    "static/css/main.033e71bd.css",
+    "static/js/main.1e0974e0.js"
   ]
 }
