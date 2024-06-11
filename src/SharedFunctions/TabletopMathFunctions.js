@@ -5,11 +5,29 @@ export function calculateModifierForBaseStat(baseStatValue) {
 }
 
 export function calculateHPMax(playerConfigs) {
-    const dndclass = classes.find(x => x.name === playerConfigs.classes[0].name); // TODO: FOR NOW WE'RE JUST DOING THE FIRST CLASS, WE'LL FIX THIS LATER
-    const hpFromClassPerLevelAfter1 = (dndclass.hitDie / 2) + 1;
+    const dndClasses = []
+    for (let i = 0; i < playerConfigs.classes.length; i++) {
+        const dndClass = classes.find(x => x.name === playerConfigs.classes[i].name);
+        dndClasses.push(dndClass);
+    }
+
+    // First do the level 1 calculation. We use the first class for this.
     const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.baseStats.constitution);
-    const hpAtLevel1 = dndclass.hitDie + hpFromConsitutionPerLevel
-    
-    const maxHp = hpAtLevel1 + ((playerConfigs.level - 1) * (hpFromClassPerLevelAfter1 + hpFromConsitutionPerLevel));
-    return maxHp;
+    let maxHpSoFar = dndClasses[0].hitDie + hpFromConsitutionPerLevel
+
+    // Now calculate for each player class.
+    for (let i = 0; i < dndClasses.length; i++) {
+        const dndClass = dndClasses[i];
+        let levelsToCalculate = playerConfigs.classes[i].levels;
+        if (i === 0) {
+            // The first class already got it's HP from the first level above, remember? No cheating...
+            levelsToCalculate--;
+        }
+
+        if (levelsToCalculate > 0) {
+            const hpFromClassPerLevelAfter1 = (dndClass.hitDie / 2) + 1;
+            maxHpSoFar += levelsToCalculate * (hpFromClassPerLevelAfter1 + hpFromConsitutionPerLevel);
+        }
+    }
+    return maxHpSoFar;
 }
