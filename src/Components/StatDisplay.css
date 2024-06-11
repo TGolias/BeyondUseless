@@ -1,8 +1,6 @@
 .outerbox {
-    border: .15em solid black;
     width: 5.5em;
     height: 6em;
-    border-radius: .5em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -27,11 +25,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 1.5em;
-    width: 1.5em;
+    min-height: 14px;
+    width: 30px;
     text-align: center;
-    border: .1em solid black;
-    border-radius: 50%;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .abilityScore {
