@@ -3,6 +3,7 @@ import { Renderer } from "./Renderer";
 import './App.css';
 import React from "react";
 import { Designer } from "./Designer";
+import { StartMenu } from "./StartMenu";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -60,13 +61,14 @@ export const spells = []
 
 export default function App() {
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);
-  const [isRendererViewActiveForMobile, setIsRendererViewActiveForMobile] = useState(false);
+  const [hideEditor, setHideEditor] = useState(false);
+  const [showStartMenu, setShowStartMenu] = useState(false);
   const [history, setHistory] = useState([defaultPlayerConfiguration]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
 
   function toggleViewActive() {
-    setIsRendererViewActiveForMobile(!isRendererViewActiveForMobile);
+    setHideEditor(!hideEditor);
   }
 
   function undoPlayerConfigs() {
@@ -172,26 +174,52 @@ export default function App() {
     setCurrentHistoryIndex(currentHistoryIndex + 1);
   }
 
+  const startMenuItems = [
+    {
+      text: (matchMedia('only screen and (max-width: 800px)').matches ? (hideEditor ? "EDIT CHAR" : "VIEW CHAR") : (hideEditor ? "SHOW EDIT" : "HIDE EDIT")),
+      clickHandler: () => { 
+        toggleViewActive();
+        setShowStartMenu(false);
+      }
+    },
+    {
+      text: "UNDO",
+      disabled: (currentHistoryIndex === 0 && !addChangesToHistoryTimeout),
+      clickHandler: undoPlayerConfigs
+    },
+    {
+      text: "REDO",
+      disabled: (currentHistoryIndex + 1) === history.length || addChangesToHistoryTimeout,
+      clickHandler: redoPlayerConfigs
+    },
+    {
+      text: "GITHUB",
+      clickHandler: () => window.open("https://github.com/TGolias/BeyondUseless")
+    },
+    {
+      text: "EXIT",
+      clickHandler: () => setShowStartMenu(false)
+    }
+  ]
+
   return (
     <>
       <div className="topDiv">
-        <div className="activeViewButtonWrapper">
-          <button className="activeViewButton" onClick={toggleViewActive}>{ isRendererViewActiveForMobile ? "Edit My Character" : "View Character Sheet"}</button>
+        <div className="topBar">
+          <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
+          <div className="startMenuButton" onClick={() => setShowStartMenu(true)}><div></div>START</div>
         </div>
         <div className="viewDiv">
-          <div className={"headerViewDiv" + (isRendererViewActiveForMobile ? " inactiveViewForMobile" : "")}>
-            <div className="undoRedoButtonWrapper">
-              <button className="undoRedoButton" onClick={undoPlayerConfigs} disabled={currentHistoryIndex === 0 && !addChangesToHistoryTimeout}>Undo</button>
-              <button className="undoRedoButton" onClick={redoPlayerConfigs} disabled={(currentHistoryIndex + 1) === history.length || addChangesToHistoryTimeout}>Redo</button>
-            </div>
-            <div className="screenView">
-              <Designer playerConfigs={playerConfigs} inputChangeHandler={designerChangeHandler}></Designer>
-            </div>
+          <div className={"screenView" + (hideEditor ? " inactiveView" : "")}>
+            <Designer playerConfigs={playerConfigs} inputChangeHandler={designerChangeHandler}></Designer>
           </div>
-          <div className={"screenView" + (isRendererViewActiveForMobile ? "" : " inactiveViewForMobile")}>
+          <div className={"screenView" + (hideEditor ? "" : " inactiveViewForMobile")}>
             <Renderer playerConfigs={playerConfigs}></Renderer>
           </div>
         </div>
+      </div>
+      <div className={"startMenu" + (showStartMenu ? "" : " hide")}>
+        <StartMenu menuItems={startMenuItems}></StartMenu>
       </div>
     </>
   );

@@ -9,6 +9,52 @@
   align-items: center;
 }
 
+.topBar {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  justify-content: space-between;
+  border-bottom: 4px solid black;
+  background-color: lightgrey;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.appname {
+  user-select: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding-left: 5px;
+}
+
+.appname:hover {
+  font-weight: bold;
+}
+
+.startMenuButton {
+  user-select: none;
+  cursor: pointer;
+  font-size: 32px;
+  padding-right: 5px;
+}
+
+.startMenuButton:hover {
+  font-weight: bold;
+}
+
+.startMenu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 2px;
+  margin-right: 2px;
+}
+
+.hide {
+  display: none;
+}
+
 .viewDiv {
   width: 100%;
   height: 100%;
@@ -44,13 +90,13 @@
   width: 10em;
 }
 
-.activeViewButtonWrapper {
-  display: none;
-}
-
 .activeViewButton {
   height: 3em;
   width: 15em;
+}
+
+.inactiveView {
+  display: none;
 }
 
 @media only screen and (max-width: 800px) {
@@ -60,9 +106,5 @@
 
   .undoRedoButtonWrapper {
     padding-top: 1em;
-  }
-
-  .activeViewButtonWrapper {
-    display: block;
   }
 }

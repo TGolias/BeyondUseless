@@ -1,0 +1,31 @@
+.menuItemWrapper {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    display: flex;
+    user-select: none;
+    cursor: pointer;
+}
+
+.menuItemWrapper * {
+    font-size: 42px;
+    white-space: nowrap;
+}
+
+.disabled {
+    pointer-events: none;
+    text-decoration: line-through;
+    color: darkgrey;
+}
+
+.triangle {
+    visibility: hidden;
+}
+
+.menuItemWrapper:hover .triangle {
+    visibility: visible;
+}
+
+.menuItemWrapper:hover .menuText {
+    text-decoration: underline;
+}
+
