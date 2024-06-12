@@ -4,6 +4,7 @@ import { TextInput } from './Components/TextInput';
 import { ArrayInput } from './Components/ArrayInput';
 import './Designer.css';
 import React from 'react';
+import { CanMulticlass, GetValidMulticlassDefault } from './SharedFunctions/MulticlassFunctions';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
@@ -21,7 +22,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 </div>
                 <div>
                     <div className="label">Class</div>
-                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} inputHandler={inputChangeHandler} />
+                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} />
                 </div>
                 <div>
                     <div className="label">Strength</div>

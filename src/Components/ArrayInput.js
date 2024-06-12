@@ -2,20 +2,28 @@ import React from "react";
 import { classes } from "../App";
 import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
 import { SelectList } from "./SelectList";
+import "./ArrayInput.css"
+import { RetroButton } from "./RetroButton";
+import { GetValidClassLevelsArray, GetValidClassesArray } from "../SharedFunctions/MulticlassFunctions";
 
-
-export function ArrayInput({baseStateObject, pathToProperty, inputHandler}) {
+export function ArrayInput({baseStateObject, pathToProperty, inputHandler, allowAdd, addText, generateAddedItem}) {
     const exampleConfig = [
         {
             pathToProperty: "name",
             componentType: "SelectList",
-            options: classes.map(x => x.name),
+            options: (baseStateObject, i) => {
+                const className = baseStateObject.classes[i].name;
+                return GetValidClassesArray(baseStateObject, className);
+            },
             isNumber: false
         },
         {
             pathToProperty: "levels",
             componentType: "SelectList",
-            options: Array.from({length: 20}, (_, i) => i + 1),
+            options: (baseStateObject, i) => {
+                const className = baseStateObject.classes[i].name;
+                return GetValidClassLevelsArray(baseStateObject, className);
+            },
             isNumber: true
         }
     ]
@@ -30,7 +38,7 @@ export function ArrayInput({baseStateObject, pathToProperty, inputHandler}) {
             if (configEntry.componentType === "SelectList") {
                 columns.push((
                     <>
-                        <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options} baseStateObject={baseStateObject} pathToProperty={pathToProperty + "[" + i + "]." + configEntry.pathToProperty} inputHandler={inputHandler}/>
+                        <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options(baseStateObject, i)} baseStateObject={baseStateObject} pathToProperty={pathToProperty + "[" + i + "]." + configEntry.pathToProperty} inputHandler={inputHandler}/>
                     </>
                 ));
             }
@@ -41,5 +49,15 @@ export function ArrayInput({baseStateObject, pathToProperty, inputHandler}) {
             </>
         ))
     }
+    if (allowAdd) {
+        rows.push(<>
+            <RetroButton text={addText} onClickHandler={() => {
+                const newValue = [...startingValue];
+                newValue.push(generateAddedItem());
+                inputHandler(baseStateObject, pathToProperty, newValue);
+            }} disabled={false}></RetroButton>
+        </>);
+    }
+
     return <div>{rows}</div>
 }

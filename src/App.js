@@ -13,11 +13,7 @@ const defaultPlayerConfiguration = {
   classes: [
     {
       name: "Fighter",
-      levels: 7
-    },
-    {
-      name: "Barbarian",
-      levels: 3
+      levels: 10
     }
   ],
   baseStats: {
@@ -37,15 +33,18 @@ const defaultPlayerState = {
 export const classes = [
   {
     name: "Barbarian",
-    hitDie: 12
+    hitDie: 12,
+    saves: ["strength", "constitution"]
   },
   {
     name: "Cleric",
-    hitDie: 8
+    hitDie: 8,
+    saves: ["wisdom", "charisma"]
   },
   {
     name: "Fighter",
-    hitDie: 10
+    hitDie: 10,
+    saves: ["strength", "constitution"]
   }
 ]
 

@@ -1,0 +1,29 @@
+.retroButtonWrapper {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    display: flex;
+    user-select: none;
+    cursor: pointer;
+}
+
+.retroButtonWrapper * {
+    white-space: nowrap;
+}
+
+.triangle {
+    visibility: hidden;
+}
+
+.retroButtonWrapper:hover .triangle {
+    visibility: visible;
+}
+
+.retroButtonWrapper:hover .retroButtonText {
+    text-decoration: underline;
+}
+
+.disabled {
+    pointer-events: none;
+    text-decoration: line-through;
+    color: darkgrey;
+}
