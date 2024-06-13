@@ -1,12 +1,32 @@
-import { classes } from './App';
 import { SelectList } from './Components/SelectList';
 import { TextInput } from './Components/TextInput';
 import { ArrayInput } from './Components/ArrayInput';
 import './Designer.css';
 import React from 'react';
-import { CanMulticlass, GetValidMulticlassDefault } from './SharedFunctions/MulticlassFunctions';
+import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from './SharedFunctions/MulticlassFunctions';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
+
+    const classSelectionConfig = [
+        {
+            pathToProperty: "name",
+            componentType: "SelectList",
+            options: (baseStateObject, i) => {
+                const className = baseStateObject.classes[i].name;
+                return GetValidClassesArray(baseStateObject, className);
+            },
+            isNumber: false
+        },
+        {
+            pathToProperty: "levels",
+            componentType: "SelectList",
+            options: (baseStateObject, i) => {
+                const className = baseStateObject.classes[i].name;
+                return GetValidClassLevelsArray(baseStateObject, className);
+            },
+            isNumber: true
+        }
+    ]
 
     return (
         <>
@@ -22,7 +42,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 </div>
                 <div>
                     <div className="label">Class</div>
-                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} />
+                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
                 <div>
                     <div className="label">Strength</div>

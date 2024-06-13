@@ -4,6 +4,7 @@ import './App.css';
 import React from "react";
 import { Designer } from "./Designer";
 import { StartMenu } from "./StartMenu";
+import { applyEffects } from "./SharedFunctions/Effects";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -37,14 +38,54 @@ export const classes = [
     saves: ["strength", "constitution"]
   },
   {
+    name: "Bard",
+    hitDie: 8,
+    saves: ["dexterity", "charisma"]
+  },
+  {
     name: "Cleric",
     hitDie: 8,
     saves: ["wisdom", "charisma"]
   },
   {
+    name: "Druid",
+    hitDie: 8,
+    saves: ["intelligence", "wisdom"]
+  },
+  {
     name: "Fighter",
     hitDie: 10,
     saves: ["strength", "constitution"]
+  },
+  {
+    name: "Paladin",
+    hitDie: 10,
+    saves: ["wisdom", "charisma"]
+  },
+  {
+    name: "Ranger",
+    hitDie: 10,
+    saves: ["strength", "dexterity"]
+  },
+  {
+    name: "Rogue",
+    hitDie: 8,
+    saves: ["dexterity", "intelligence"]
+  },
+  {
+    name: "Sorcerer",
+    hitDie: 6,
+    saves: ["constitution", "charisma"]
+  },
+  {
+    name: "Warlock",
+    hitDie: 8,
+    saves: ["wisdom", "charisma"]
+  },
+  {
+    name: "Wizard",
+    hitDie: 6,
+    saves: ["intelligence", "wisdom"]
   }
 ]
 
@@ -146,6 +187,11 @@ export default function App() {
 
     // Now we have the property object right at the end of the path and have done our shallow clones all the way to it.
     newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
+
+    // For certain properties, we may want to apply some effects to the state before we do the final calculations and throw it in the store. For example, if the level is pulled below what the classes have, we want to fix that up.
+    applyEffects(newBaseStateObject, pathToProperty, newValue);
+
+    // Now we can set the new configs!
     setPlayerConfigs(newBaseStateObject);
 
     // We only want want to add to the undo / redo stack if the value changed.

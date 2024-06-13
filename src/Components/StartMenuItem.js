@@ -6,7 +6,7 @@ export function StartMenuItem({menuText, onClickHandler, disabled}) {
     return (
         <>
             <div className="startMenuItem">
-                <RetroButton text={menuText} onClickHandler={onClickHandler} disabled={disabled}></RetroButton>
+                <RetroButton text={menuText} onClickHandler={onClickHandler} showTriangle={true} disabled={disabled}></RetroButton>
             </div>
         </>
     )

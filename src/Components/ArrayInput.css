@@ -1,19 +1,16 @@
-.multiClassButton {
+.arrayGrid {
+    display: grid;
+    justify-items: stretch;
+    column-gap: 0.5em;
+    row-gap: 5px;
+    margin-right: 8px;
+}
+
+.removeButtonWrapper * {
+    font-size: 32px;
+    margin-left: auto;
+}
+
+.addButtonWrapper {
     padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    display: flex;
-    user-select: none;
-    cursor: pointer;
-}
-
-.triangle {
-    visibility: hidden;
-}
-
-.multiClassButton:hover .triangle {
-    visibility: visible;
-}
-
-.multiClassButton:hover .multiClassButtonText {
-    text-decoration: underline;
 }

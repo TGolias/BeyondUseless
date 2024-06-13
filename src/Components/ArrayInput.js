@@ -1,40 +1,17 @@
 import React from "react";
-import { classes } from "../App";
 import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
 import { SelectList } from "./SelectList";
 import "./ArrayInput.css"
 import { RetroButton } from "./RetroButton";
-import { GetValidClassLevelsArray, GetValidClassesArray } from "../SharedFunctions/MulticlassFunctions";
 
-export function ArrayInput({baseStateObject, pathToProperty, inputHandler, allowAdd, addText, generateAddedItem}) {
-    const exampleConfig = [
-        {
-            pathToProperty: "name",
-            componentType: "SelectList",
-            options: (baseStateObject, i) => {
-                const className = baseStateObject.classes[i].name;
-                return GetValidClassesArray(baseStateObject, className);
-            },
-            isNumber: false
-        },
-        {
-            pathToProperty: "levels",
-            componentType: "SelectList",
-            options: (baseStateObject, i) => {
-                const className = baseStateObject.classes[i].name;
-                return GetValidClassLevelsArray(baseStateObject, className);
-            },
-            isNumber: true
-        }
-    ]
-
+export function ArrayInput({baseStateObject, pathToProperty, config, inputHandler, allowAdd, addText, generateAddedItem, allowRemove}) {
     const startingValue = getValueFromBaseStateAndPath(baseStateObject, pathToProperty);
 
     const rows = [];
     for (let i = 0; i < startingValue.length; i++) {
         const columns = [];
-        for (let j = 0; j < exampleConfig.length; j++) {
-            const configEntry = exampleConfig[j];
+        for (let j = 0; j < config.length; j++) {
+            const configEntry = config[j];
             if (configEntry.componentType === "SelectList") {
                 columns.push((
                     <>
@@ -43,21 +20,58 @@ export function ArrayInput({baseStateObject, pathToProperty, inputHandler, allow
                 ));
             }
         }
+        if (allowRemove) {
+            columns.push((
+                <>
+                    <div className="removeButtonWrapper">
+                        <RetroButton text="X" onClickHandler={() => {
+                            const newValue = [...startingValue];
+                            newValue.splice(i, 1);
+                            inputHandler(baseStateObject, pathToProperty, newValue);
+                        }} showTriangle={false} disabled={false}></RetroButton>
+                    </div>
+                </>
+            ));
+        }
         rows.push((
             <>
-                <div>{columns}</div>
+                {columns}
             </>
         ))
     }
-    if (allowAdd) {
-        rows.push(<>
-            <RetroButton text={addText} onClickHandler={() => {
-                const newValue = [...startingValue];
-                newValue.push(generateAddedItem());
-                inputHandler(baseStateObject, pathToProperty, newValue);
-            }} disabled={false}></RetroButton>
-        </>);
+
+    const htmlToReturn = [];
+
+    // Calculate Grid template columns value.
+    let gridTemplateColumnsValue = "";
+    for (let i = 0; i < config.length; i++) {
+        if (i === 0) {
+            gridTemplateColumnsValue += "auto";
+        } else {
+            gridTemplateColumnsValue += " auto";
+        }
+    }
+    if (allowRemove) {
+        gridTemplateColumnsValue += " 36px";
     }
 
-    return <div>{rows}</div>
+    htmlToReturn.push(<>
+        <div className="arrayGrid" style={{gridTemplateColumns: gridTemplateColumnsValue}}>{rows}</div>
+    </>);
+
+    if (allowAdd) {
+        htmlToReturn.push(<>
+            <div className="addButtonWrapper">
+                <RetroButton text={addText} onClickHandler={() => {
+                    const newValue = [...startingValue];
+                    newValue.push(generateAddedItem());
+                    inputHandler(baseStateObject, pathToProperty, newValue);
+                }} showTriangle={true} disabled={false}></RetroButton>
+            </div>
+        </>);
+    }
+    
+    return (<>
+        <div>{htmlToReturn}</div>
+    </>)
 }
