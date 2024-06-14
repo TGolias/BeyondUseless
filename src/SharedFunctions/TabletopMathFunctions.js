@@ -1,15 +1,25 @@
-import { classes } from "../App";
+import { classes, races } from "../App";
+import { getItemSource } from "./ComponentFunctions";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
 
 export function calculateModifierForBaseStat(baseStatValue) {
     return Math.floor((baseStatValue - 10) / 2);
 }
 
-export function calculateHPMax(playerConfigs) {
-    const dndClasses = []
+export function getAllPlayerDNDClasses(playerConfigs) {
+    const dndClasses = [];
+    const dndClassDict = convertArrayToDictionary(classes, "name");
+
     for (let i = 0; i < playerConfigs.classes.length; i++) {
-        const dndClass = classes.find(x => x.name === playerConfigs.classes[i].name);
+        const playerClass = playerConfigs.classes[i];
+        const dndClass = dndClassDict[playerClass.name];
         dndClasses.push(dndClass);
     }
+    return dndClasses;
+}
+
+export function calculateHPMax(playerConfigs) {
+    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
 
     // First do the level 1 calculation. We use the first class for this.
     const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.baseStats.constitution);
@@ -30,4 +40,94 @@ export function calculateHPMax(playerConfigs) {
         }
     }
     return maxHpSoFar;
+}
+
+export function calculateBaseStat(playerConfigs, statToCalculate) {
+    let baseStatValue = playerConfigs.baseStats[statToCalculate];
+
+    const dndRace = races.find(x => x.name === playerConfigs.race.name);
+    if (dndRace.abilityIncrease[statToCalculate]) {
+        baseStatValue += dndRace.abilityIncrease[statToCalculate];
+    }
+
+    return baseStatValue;
+}
+
+export function calculateLanguages(playerConfigs) {
+    let knownLanguagesHashMap = {};
+    const dndRace = races.find(x => x.name === playerConfigs.race.name);
+    if (dndRace.languages) {
+        for (const resistance of dndRace.languages) {
+            knownLanguagesHashMap[resistance] = true;
+        }
+    }
+
+    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+}
+
+export function calculateAspectCollection(playerConfigs, aspectName) {
+    // Aspects are things like Language, Resistance, etc that are added from various Races, Class, Feats or Magical Effects.
+    let aspectCollection = {};
+
+    // Check the race for the aspect.
+    const dndRace = races.find(x => x.name === playerConfigs.race.name);
+    setAspectCollectionFromArrayOrProperty(aspectCollection, dndRace[aspectName]);
+
+    // Check the race choices for the aspect.
+    for (const choice of dndRace.choices) {
+        const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[aspectName];
+        if (choiceToAttributeMappingForAspect) {
+            // This choice affects the aspect... Goddamnit, time to do some work.
+            const playerChoice = playerConfigs.race.choices[choice.property];
+            if (playerChoice) {
+                let sourceOptions = [];
+                if (choice.optionsSource === "CUSTOM") {
+                    sourceOptions = choice.options;
+                } else {
+                    sourceOptions = getItemSource(choice.optionsSource);
+                }
+
+                let optionObject = undefined;
+                if (choice.optionDisplayProperty === "$VALUE") {
+                    optionObject = sourceOptions.find(x => x === playerChoice);
+                } else {
+                    optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
+                }
+
+                let aspectValue = undefined;
+                if (choiceToAttributeMappingForAspect === "$VALUE") {
+                    aspectValue = optionObject;
+                } else {
+                    aspectValue = optionObject[choiceToAttributeMappingForAspect];
+                }
+
+                setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
+            }
+        }
+
+    }
+    
+    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+    for (const dndClass of dndClasses) {
+        // Check each of the classes for the aspect.
+        setAspectCollectionFromArrayOrProperty(aspectCollection, dndClass[aspectName]);
+
+        // TODO: Check each of the class choices for the aspect.
+    }
+
+    return convertHashMapToArrayOfStrings(aspectCollection);
+}
+
+export function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrProperty) {
+    if (arrayOrProperty) {
+        if (Array.isArray(arrayOrProperty)) {
+            // It is an array.
+            for (const aspect of arrayOrProperty) {
+                totalAspectCollection[aspect] = true;
+            }
+        } else {
+            // It is a property
+            totalAspectCollection[arrayOrProperty] = true;
+        }
+    }
 }

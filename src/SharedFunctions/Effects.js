@@ -2,6 +2,9 @@ export function applyEffects(newBaseStateObject, pathToProperty, newValue) {
     switch (pathToProperty) {
         case "level":
             return onLevelChangeHandler(newBaseStateObject, newValue);
+        case "race.name": {
+            return onRaceNameChangeHandler(newBaseStateObject, newValue);
+        }
     }
 }
 
@@ -32,4 +35,10 @@ function onLevelChangeHandler(newBaseStateObject, newLevelValue) {
     }
 
     newBaseStateObject.classes = newClasses;
+}
+
+function onRaceNameChangeHandler(newBaseStateObject, newRaceNameValue) {
+    if (newBaseStateObject.race.name !== newRaceNameValue) {
+        newBaseStateObject.race.choices = {};
+    }
 }

@@ -1,12 +1,15 @@
 import React from "react";
-import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
+import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
 import { onInputChangeHandler } from "../SharedFunctions/ComponentFunctions";
 
 export function SelectList({options, isNumberValue, baseStateObject, pathToProperty, inputHandler}) {
-    const startingValue = getValueFromBaseStateAndPath(baseStateObject, pathToProperty);
+    const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
     const rows = [];
     if (options) {
+        if (!startingValue) {
+            rows.push(<option disabled selected={true}></option>)
+        }
         for (let i = 0; i < options.length; i++) {
             const option = options[i];
             rows.push(startingValue === option ? <option value={option} selected={true}>{option}</option> : <option value={option}>{option}</option>);

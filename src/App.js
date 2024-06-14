@@ -11,6 +11,12 @@ const timeoutBeforeAddedToHistory = 5000;
 const defaultPlayerConfiguration = {
   name: "Bunni Grandin",
   level: 10,
+  race: {
+    name: "Human",
+    choices: {
+      additionalLanguage: "Abyssal"
+    }
+  },
   classes: [
     {
       name: "Fighter",
@@ -30,6 +36,97 @@ const defaultPlayerConfiguration = {
 const defaultPlayerState = {
   currentHp: 0
 }
+
+export const races = [
+  {
+    name: "Dragonborn",
+    speed: 30,
+    size: "Medium",
+    languages: ["Common", "Draconic"],
+    abilityIncrease: {
+      strength: 2,
+      charisma: 1
+    },
+    choices: [
+      {
+        property: "dragonType",
+        description: "Dragon Type:",
+        optionsSource: "CUSTOM",
+        optionDisplayProperty: "name",
+        choiceToAttributesMapping: {
+          resistances: "resistance"
+        },
+        options: [
+          {
+            name: 'Black',
+            resistance: 'Acid'
+          },
+          {
+            name: 'Blue',
+            resistance: 'Lightning'
+          },
+          {
+            name: 'Brass',
+            resistance: 'Fire'
+          },
+          {
+            name: 'Bronze',
+            resistance: 'Lightning'
+          },
+          {
+            name: 'Copper',
+            resistance: 'Acid'
+          },
+          {
+            name: 'Gold',
+            resistance: 'Fire'
+          },
+          {
+            name: 'Green',
+            resistance: 'Poison'
+          },
+          {
+            name: 'Red',
+            resistance: 'Fire'
+          },
+          {
+            name: 'Silver',
+            resistance: 'Cold'
+          },
+          {
+            name: 'White',
+            resistance: 'Cold'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Human",
+    speed: 30,
+    size: "Medium",
+    abilityIncrease: {
+      strength: 1,
+      dexterity: 1,
+      constitution: 1,
+      intelligence: 1,
+      wisdom: 1,
+      charisma: 1
+    },
+    languages: ["Common"],
+    choices: [
+      {
+        property: "additionalLanguage",
+        description: "Additional Language:",
+        optionsSource: "LANGUAGES",
+        optionDisplayProperty: "$VALUE",
+        choiceToAttributesMapping: {
+          languages: "$VALUE"
+        }
+      }
+    ]
+  }
+];
 
 export const classes = [
   {
@@ -87,17 +184,21 @@ export const classes = [
     hitDie: 6,
     saves: ["intelligence", "wisdom"]
   }
-]
+];
 
-export const backgrounds = []
+export const backgrounds = [];
 
-export const subclasses = []
+export const subclasses = [];
 
-export const items = []
+export const items = [];
 
-export const proficiencies = []
+export const proficiencies = [];
 
-export const spells = []
+export const spells = [];
+
+export const feats = [];
+
+export const languages = ["Common", "Dwarvish", "Elvish", "Giant", "Gnomish", "Goblin", "Halfling", "Orc", "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial", "Sylvan", "Undercommon"];
 
 export default function App() {
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);
@@ -185,11 +286,11 @@ export default function App() {
     // Check if the value is going to change when we set it. Important for later.
     const valueChanged = newPropertyObject[totalPath[totalPath.length - 1]] !== newValue;
 
+    // For certain properties, we may want to apply some effects to the state before we do the final calculations. For example, if the level is pulled below what the classes have, we want to fix that up. We do this before the value is set so that comparisons can be done.
+    applyEffects(newBaseStateObject, pathToProperty, newValue);
+
     // Now we have the property object right at the end of the path and have done our shallow clones all the way to it.
     newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
-
-    // For certain properties, we may want to apply some effects to the state before we do the final calculations and throw it in the store. For example, if the level is pulled below what the classes have, we want to fix that up.
-    applyEffects(newBaseStateObject, pathToProperty, newValue);
 
     // Now we can set the new configs!
     setPlayerConfigs(newBaseStateObject);

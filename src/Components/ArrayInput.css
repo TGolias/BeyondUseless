@@ -3,7 +3,7 @@
     justify-items: stretch;
     column-gap: 0.5em;
     row-gap: 5px;
-    margin-right: 8px;
+    max-width: 408px;
 }
 
 .removeButtonWrapper * {

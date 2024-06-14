@@ -1,11 +1,11 @@
 import React from "react";
-import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
+import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
 import { SelectList } from "./SelectList";
 import "./ArrayInput.css"
 import { RetroButton } from "./RetroButton";
 
 export function ArrayInput({baseStateObject, pathToProperty, config, inputHandler, allowAdd, addText, generateAddedItem, allowRemove}) {
-    const startingValue = getValueFromBaseStateAndPath(baseStateObject, pathToProperty);
+    const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
     const rows = [];
     for (let i = 0; i < startingValue.length; i++) {

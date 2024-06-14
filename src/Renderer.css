@@ -34,3 +34,7 @@
         row-gap: 0.5em;
     }
 }
+
+.underConstruction {
+    padding-top: 1em;
+}

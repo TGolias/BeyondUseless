@@ -4,6 +4,8 @@ import { ArrayInput } from './Components/ArrayInput';
 import './Designer.css';
 import React from 'react';
 import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from './SharedFunctions/MulticlassFunctions';
+import { races } from './App';
+import { RaceDisplay } from './Components/RaceDisplay';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
@@ -35,6 +37,14 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 <div>
                     <div className="label">Name</div>
                     <TextInput isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"name"} inputHandler={inputChangeHandler}/>
+                </div>
+                <div>
+                    <div className="label">Race</div>
+                    <SelectList options={races.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"race.name"} inputHandler={inputChangeHandler}/>
+                </div>
+                <div>
+                    <div className='label'>{playerConfigs.race.name}</div>
+                    <RaceDisplay baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></RaceDisplay>
                 </div>
                 <div>
                     <div className="label">Level</div>

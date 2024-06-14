@@ -1,9 +1,9 @@
 import React from "react";
-import { getValueFromBaseStateAndPath } from "../SharedFunctions/ComponentFunctions";
+import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
 import { onInputChangeHandler } from "../SharedFunctions/ComponentFunctions";
 
 export function TextInput({isNumberValue, baseStateObject, pathToProperty, inputHandler}) {
-    const startingValue = getValueFromBaseStateAndPath(baseStateObject, pathToProperty);
+    const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
     return <input value={startingValue} onInput={(event) => {
         let value = null; // Get the linter off my ass about this being a string.

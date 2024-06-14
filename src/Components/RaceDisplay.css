@@ -1,14 +1,10 @@
-.fieldHolder {
+.raceDisplayer {
     display: flex;
     flex-direction: column;
     row-gap: 1em;
     padding: 1em;
 }
 
-.fieldHolder > :last-child {
-    padding-bottom: 1em;
-}
-
-.label {
+.raceAttributeLabel {
     padding-bottom: 0.2em;
 }
