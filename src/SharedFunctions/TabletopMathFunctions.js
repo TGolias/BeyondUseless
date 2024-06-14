@@ -50,6 +50,43 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
         baseStatValue += dndRace.abilityIncrease[statToCalculate];
     }
 
+    // Check the race choices for the aspect.
+    if (dndRace.choices) {
+        for (const choice of dndRace.choices) {
+            const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[statToCalculate];
+            if (choiceToAttributeMappingForAspect) {
+                // This choice affects the stat... Goddamnit, time to do some work.
+                const playerChoice = playerConfigs.race.choices[choice.property];
+                if (playerChoice) {
+                    let sourceOptions = [];
+                    if (choice.optionsSource === "CUSTOM") {
+                        sourceOptions = choice.options;
+                    } else {
+                        sourceOptions = getItemSource(choice.optionsSource);
+                    }
+
+                    let optionObject = undefined;
+                    if (choice.optionDisplayProperty === "$VALUE") {
+                        optionObject = sourceOptions.find(x => x === playerChoice);
+                    } else {
+                        optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
+                    }
+
+                    let aspectValue = undefined;
+                    if (choiceToAttributeMappingForAspect === "$VALUE") {
+                        aspectValue = optionObject;
+                    } else {
+                        aspectValue = optionObject[choiceToAttributeMappingForAspect];
+                    }
+                    
+                    if (aspectValue) {
+                        baseStatValue += aspectValue;
+                    }
+                }
+            }
+        }
+    }
+
     return baseStatValue;
 }
 
@@ -73,38 +110,39 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
     const dndRace = races.find(x => x.name === playerConfigs.race.name);
     setAspectCollectionFromArrayOrProperty(aspectCollection, dndRace[aspectName]);
 
-    // Check the race choices for the aspect.
-    for (const choice of dndRace.choices) {
-        const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[aspectName];
-        if (choiceToAttributeMappingForAspect) {
-            // This choice affects the aspect... Goddamnit, time to do some work.
-            const playerChoice = playerConfigs.race.choices[choice.property];
-            if (playerChoice) {
-                let sourceOptions = [];
-                if (choice.optionsSource === "CUSTOM") {
-                    sourceOptions = choice.options;
-                } else {
-                    sourceOptions = getItemSource(choice.optionsSource);
-                }
+    if (dndRace.choices) {
+        // Check the race choices for the aspect.
+        for (const choice of dndRace.choices) {
+            const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[aspectName];
+            if (choiceToAttributeMappingForAspect) {
+                // This choice affects the aspect... Goddamnit, time to do some work.
+                const playerChoice = playerConfigs.race.choices[choice.property];
+                if (playerChoice) {
+                    let sourceOptions = [];
+                    if (choice.optionsSource === "CUSTOM") {
+                        sourceOptions = choice.options;
+                    } else {
+                        sourceOptions = getItemSource(choice.optionsSource);
+                    }
 
-                let optionObject = undefined;
-                if (choice.optionDisplayProperty === "$VALUE") {
-                    optionObject = sourceOptions.find(x => x === playerChoice);
-                } else {
-                    optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
-                }
+                    let optionObject = undefined;
+                    if (choice.optionDisplayProperty === "$VALUE") {
+                        optionObject = sourceOptions.find(x => x === playerChoice);
+                    } else {
+                        optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
+                    }
 
-                let aspectValue = undefined;
-                if (choiceToAttributeMappingForAspect === "$VALUE") {
-                    aspectValue = optionObject;
-                } else {
-                    aspectValue = optionObject[choiceToAttributeMappingForAspect];
-                }
+                    let aspectValue = undefined;
+                    if (choiceToAttributeMappingForAspect === "$VALUE") {
+                        aspectValue = optionObject;
+                    } else {
+                        aspectValue = optionObject[choiceToAttributeMappingForAspect];
+                    }
 
-                setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
+                    setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
+                }
             }
         }
-
     }
     
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);

@@ -102,6 +102,156 @@ export const races = [
     ]
   },
   {
+    name: "Dwarf",
+    speed: 25,
+    size: "Medium",
+    abilityIncrease: {
+      constitution: 2
+    },
+    languages: ["Common", "Dwarvish"],
+    resistances: ["Poison"]
+  },
+  {
+    name: "Elf",
+    speed: 30,
+    size: "Medium",
+    abilityIncrease: {
+      dexterity: 2
+    },
+    languages: ["Common", "Elvish"],
+    choices: [
+      {
+        property: "subrace",
+        description: "Subrace:",
+        optionsSource: "CUSTOM",
+        optionDisplayProperty: "name",
+        choiceToAttributesMapping: {
+          intelligence: "intelligence",
+          wisdom: "wisdom"
+        },
+        options: [
+          {
+            name: 'High Elf',
+            intelligence: 1
+          },
+          {
+            name: 'Wood Elf',
+            wisdom: 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Gnome",
+    speed: 25,
+    size: "Small",
+    abilityIncrease: {
+      intelligence: 2
+    },
+    languages: ["Common", "Gnomish"]
+  },
+  {
+    name: "Half-Elf",
+    speed: 30,
+    size: "Medium",
+    abilityIncrease: {
+      charisma: 2
+    },
+    languages: ["Common", "Elvish"],
+    choices: [
+      {
+        property: "firstAdditionalStat",
+        description: "+1 Stat Increase:",
+        optionsSource: "CUSTOM",
+        optionDisplayProperty: "name",
+        choiceToAttributesMapping: {
+          strength: "strength",
+          dexterity: "dexterity",
+          constitution: "constitution",
+          intelligence: "intelligence",
+          wisdom: "wisdom",
+          charisma: "charisma"
+        },
+        options: [
+          {
+            name: 'Strength',
+            strength: 1
+          },
+          {
+            name: 'Dexterity',
+            dexterity: 1
+          },
+          {
+            name: 'Constitution',
+            constitution: 1
+          },
+          {
+            name: 'Intelligence',
+            intelligence: 1
+          },
+          {
+            name: 'Wisdom',
+            wisdom: 1
+          },
+          {
+            name: 'Charisma',
+            charisma: 1
+          }
+        ]
+      },
+      {
+        property: "secondAdditionalStat",
+        description: "+1 Stat Increase:",
+        optionsSource: "CUSTOM",
+        optionDisplayProperty: "name",
+        choiceToAttributesMapping: {
+          strength: "strength",
+          dexterity: "dexterity",
+          constitution: "constitution",
+          intelligence: "intelligence",
+          wisdom: "wisdom",
+          charisma: "charisma"
+        },
+        options: [
+          {
+            name: 'Strength',
+            strength: 1
+          },
+          {
+            name: 'Dexterity',
+            dexterity: 1
+          },
+          {
+            name: 'Constitution',
+            constitution: 1
+          },
+          {
+            name: 'Intelligence',
+            intelligence: 1
+          },
+          {
+            name: 'Wisdom',
+            wisdom: 1
+          },
+          {
+            name: 'Charisma',
+            charisma: 1
+          }
+        ]
+      },
+      {
+        property: "additionalLanguage",
+        description: "Additional Language:",
+        optionsSource: "LANGUAGES",
+        optionDisplayProperty: "$VALUE",
+        choiceToAttributesMapping: {
+          languages: "$VALUE"
+        }
+      }
+    ]
+  },
+  {
     name: "Human",
     speed: 30,
     size: "Medium",
