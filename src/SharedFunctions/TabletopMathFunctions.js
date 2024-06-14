@@ -43,7 +43,8 @@ export function calculateHPMax(playerConfigs) {
 }
 
 export function calculateBaseStat(playerConfigs, statToCalculate) {
-    let baseStatValue = playerConfigs.baseStats[statToCalculate];
+    // TODO: Fix the stats turning into strings somehow.
+    let baseStatValue = Number.parseInt(playerConfigs.baseStats[statToCalculate]);
 
     const dndRace = races.find(x => x.name === playerConfigs.race.name);
     if (dndRace.abilityIncrease[statToCalculate]) {
@@ -80,7 +81,7 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
                     }
                     
                     if (aspectValue) {
-                        baseStatValue += aspectValue;
+                        baseStatValue += Number.parseInt(aspectValue);
                     }
                 }
             }
