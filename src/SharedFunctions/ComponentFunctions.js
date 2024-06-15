@@ -15,14 +15,3 @@ export function getValueFromObjectAndPath(baseStateObject, pathToProperty) {
 export function onInputChangeHandler(baseStateObject, pathToProperty, newValue, onInputHandler) {
     return onInputHandler(baseStateObject, pathToProperty, newValue)
 }
-
-export function getItemSource(itemSourceName) {
-    switch (itemSourceName) {
-        case "CUSTOM":
-            // They'll provide their own values.
-            return [];
-        case "LANGUAGES":
-            return languages;
-    }
-    return [];
-}

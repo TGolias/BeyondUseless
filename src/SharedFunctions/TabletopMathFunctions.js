@@ -1,6 +1,5 @@
-import { classes, races } from "../App";
-import { getItemSource } from "./ComponentFunctions";
-import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
+import { classes, languages, races, resistances } from "../App";
+import { convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
 
 export function calculateModifierForBaseStat(baseStatValue) {
     return Math.floor((baseStatValue - 10) / 2);
@@ -63,7 +62,7 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
                     if (choice.optionsSource === "CUSTOM") {
                         sourceOptions = choice.options;
                     } else {
-                        sourceOptions = getItemSource(choice.optionsSource);
+                        sourceOptions = getAllAspectOptions(choice.optionsSource);
                     }
 
                     let optionObject = undefined;
@@ -91,16 +90,17 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
     return baseStatValue;
 }
 
-export function calculateLanguages(playerConfigs) {
-    let knownLanguagesHashMap = {};
-    const dndRace = races.find(x => x.name === playerConfigs.race.name);
-    if (dndRace.languages) {
-        for (const resistance of dndRace.languages) {
-            knownLanguagesHashMap[resistance] = true;
-        }
+export function getAllAspectOptions(aspectName) {
+    switch (aspectName) {
+        case "CUSTOM":
+            // They'll provide their own values.
+            return [];
+        case "languages":
+            return languages;
+        case "resistances":
+            return resistances;
     }
-
-    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+    return [];
 }
 
 export function calculateAspectCollection(playerConfigs, aspectName) {
@@ -123,7 +123,7 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
                     if (choice.optionsSource === "CUSTOM") {
                         sourceOptions = choice.options;
                     } else {
-                        sourceOptions = getItemSource(choice.optionsSource);
+                        sourceOptions = getAllAspectOptions(choice.optionsSource);
                     }
 
                     let optionObject = undefined;

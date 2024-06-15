@@ -243,7 +243,7 @@ export const races = [
       {
         property: "additionalLanguage",
         description: "Additional Language:",
-        optionsSource: "LANGUAGES",
+        optionsSource: "languages",
         optionDisplayProperty: "$VALUE",
         choiceToAttributesMapping: {
           languages: "$VALUE"
@@ -268,7 +268,7 @@ export const races = [
       {
         property: "additionalLanguage",
         description: "Additional Language:",
-        optionsSource: "LANGUAGES",
+        optionsSource: "languages",
         optionDisplayProperty: "$VALUE",
         choiceToAttributesMapping: {
           languages: "$VALUE"
@@ -349,6 +349,8 @@ export const spells = [];
 export const feats = [];
 
 export const languages = ["Common", "Dwarvish", "Elvish", "Giant", "Gnomish", "Goblin", "Halfling", "Orc", "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial", "Sylvan", "Undercommon"];
+
+export const resistances = ["Acid", "Bludgeoning", "Cold", "Fire", "Force", "Lightning", "Necrotic", "Piercing", "Poison", "Psychic", "Radiant", "Slashing", "Thunder"]
 
 export default function App() {
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);

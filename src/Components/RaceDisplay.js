@@ -2,9 +2,9 @@ import React from "react";
 import './RaceDisplay.css'
 import { races } from "../App";
 import { SelectList } from "./SelectList";
-import { getItemSource, getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
+import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
 import { convertArrayOfStringsToHashMap } from "../SharedFunctions/Utils";
-import { calculateAspectCollection } from "../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, getAllAspectOptions } from "../SharedFunctions/TabletopMathFunctions";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -43,17 +43,30 @@ export function RaceDisplay({baseStateObject, inputHandler}) {
             const choice = dndrace.choices[i];
             const pathToProperty = "race.choices." + choice.property;
 
-            const sourceOptions = getItemSource(choice.optionsSource);
+            const sourceOptions = getAllAspectOptions(choice.optionsSource);
             let optionDisplayStrings = sourceOptions.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
+
+            // We don't want to be able to select any aspect values that we currently already have selected through other means.
+            const alreadySelectedValues = calculateAspectCollection(baseStateObject, choice.optionsSource);
+            const alreadySelectedValueDisplayStrings = alreadySelectedValues.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
+            const alreadySelectedValueDisplayStringsHashMap = convertArrayOfStringsToHashMap(alreadySelectedValueDisplayStrings);
+            // -But, we want to include the current value in the array in the case of multiple selections.
+            const currentChoiceValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
+
+            const optionDisplayStringsThatHaventBeenSelected = [];
+            for (const optionDisplayString of optionDisplayStrings) {
+                if (!alreadySelectedValueDisplayStringsHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
+                    optionDisplayStringsThatHaventBeenSelected.push(optionDisplayString);
+                }
+            }
+            optionDisplayStrings = optionDisplayStringsThatHaventBeenSelected;
+
             if (choice.options) {
                 let constrainedOptionDisplayStrings = choice.options.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
                 if (choice.optionsSource === "CUSTOM") {
                     optionDisplayStrings = constrainedOptionDisplayStrings;
                 } else {
-                    // We want to include the current value in the array in the case of multiple selections.\
-                    const currentChoiceValue = getValueFromObjectAndPath(baseStateObject, pathToProperty)
-
-                    // Filter our source options based on what is in the constrained options.
+                    // We also want to filter our source options based on what is in the constrained options.
                     const constrainedOptionDisplayStringsHashMap = convertArrayOfStringsToHashMap(constrainedOptionDisplayStrings);
                     const filteredOptionDisplayStrings = []
                     for (let j = 0; j < optionDisplayStrings.length; j++) {
