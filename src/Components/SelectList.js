@@ -7,12 +7,10 @@ export function SelectList({options, isNumberValue, baseStateObject, pathToPrope
 
     const rows = [];
     if (options) {
-        if (!startingValue) {
-            rows.push(<option disabled selected={true}></option>)
-        }
+        rows.push(<option disabled={true} hidden={true} selected={!startingValue}></option>);
         for (let i = 0; i < options.length; i++) {
             const option = options[i];
-            rows.push(startingValue === option ? <option value={option} selected={true}>{option}</option> : <option value={option}>{option}</option>);
+            rows.push(<option value={option} selected={startingValue === option}>{option}</option>);
         }
     }
     return <select onInput={(event) => {
