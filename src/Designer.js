@@ -43,7 +43,6 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <SelectList options={races.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"race.name"} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
-                    <div className='label'>{playerConfigs.race.name}</div>
                     <RaceDisplay baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></RaceDisplay>
                 </div>
                 <div>

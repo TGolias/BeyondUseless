@@ -164,14 +164,14 @@ export const races = [
         property: "firstAdditionalStat",
         description: "+1 Stat Increase:",
         optionsSource: "CUSTOM",
+        constrainToOtherChoices: ["secondAdditionalStat"],
         optionDisplayProperty: "name",
         choiceToAttributesMapping: {
           strength: "strength",
           dexterity: "dexterity",
           constitution: "constitution",
           intelligence: "intelligence",
-          wisdom: "wisdom",
-          charisma: "charisma"
+          wisdom: "wisdom"
         },
         options: [
           {
@@ -193,10 +193,6 @@ export const races = [
           {
             name: 'Wisdom',
             wisdom: 1
-          },
-          {
-            name: 'Charisma',
-            charisma: 1
           }
         ]
       },
@@ -204,14 +200,14 @@ export const races = [
         property: "secondAdditionalStat",
         description: "+1 Stat Increase:",
         optionsSource: "CUSTOM",
+        constrainToOtherChoices: ["firstAdditionalStat"],
         optionDisplayProperty: "name",
         choiceToAttributesMapping: {
           strength: "strength",
           dexterity: "dexterity",
           constitution: "constitution",
           intelligence: "intelligence",
-          wisdom: "wisdom",
-          charisma: "charisma"
+          wisdom: "wisdom"
         },
         options: [
           {
@@ -233,10 +229,6 @@ export const races = [
           {
             name: 'Wisdom',
             wisdom: 1
-          },
-          {
-            name: 'Charisma',
-            charisma: 1
           }
         ]
       },
@@ -350,7 +342,7 @@ export const feats = [];
 
 export const languages = ["Common", "Dwarvish", "Elvish", "Giant", "Gnomish", "Goblin", "Halfling", "Orc", "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial", "Sylvan", "Undercommon"];
 
-export const resistances = ["Acid", "Bludgeoning", "Cold", "Fire", "Force", "Lightning", "Necrotic", "Piercing", "Poison", "Psychic", "Radiant", "Slashing", "Thunder"]
+export const resistances = ["Acid", "Bludgeoning", "Cold", "Fire", "Force", "Lightning", "Necrotic", "Piercing", "Poison", "Psychic", "Radiant", "Slashing", "Thunder"];
 
 export default function App() {
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);

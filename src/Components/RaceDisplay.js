@@ -78,6 +78,24 @@ export function RaceDisplay({baseStateObject, inputHandler}) {
                     optionDisplayStrings = filteredOptionDisplayStrings;
                 }
             }
+
+            if (choice.constrainToOtherChoices) {
+                // If we constrain this against other choices we need to remove already selected values.
+                const choiceConstrainedHashMap = {};
+                for (const choiceToConstrain of choice.constrainToOtherChoices) {
+                    const choiceDisplayText = baseStateObject.race.choices[choiceToConstrain];
+                    choiceConstrainedHashMap[choiceDisplayText] = true;
+                }
+
+                const optionDisplayStringsThatAreNotConstrainted = [];
+                for (const optionDisplayString of optionDisplayStrings) {
+                    if (!choiceConstrainedHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
+                        optionDisplayStringsThatAreNotConstrainted.push(optionDisplayString);
+                    }
+                }
+                optionDisplayStrings = optionDisplayStringsThatAreNotConstrainted;
+            }
+
             choices.push(<>
                 <div className="raceAttributeLabel" style={{display: (choice.description ? "block" : "none")}}>{choice.description}</div>
                 <SelectList options={optionDisplayStrings} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToProperty} inputHandler={inputHandler}></SelectList>
