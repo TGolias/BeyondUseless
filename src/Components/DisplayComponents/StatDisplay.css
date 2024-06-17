@@ -8,7 +8,7 @@
 }
 
 .statName {
-    padding-top: 1em;
+    padding-top: 0.5em;
     font-size: 16px;
     font-weight: bold;
     /* I used to scale this fucking fatass font, but then I got smart and used the shortened versions: transform: scale(0.5,1); */
@@ -24,8 +24,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 14px;
-    width: 26px;
+    height: 32px;
+    width: 32px;
     text-align: center;
     padding-top: 5px;
     padding-bottom: 5px;

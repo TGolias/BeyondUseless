@@ -17,6 +17,9 @@ const defaultPlayerConfiguration = {
       additionalLanguage: "Abyssal"
     }
   },
+  background: {
+    name: "Outlander"
+  },
   classes: [
     {
       name: "Fighter",
@@ -52,6 +55,7 @@ export const races = [
         property: "dragonType",
         description: "Dragon Type:",
         optionsSource: "CUSTOM",
+        generateCustomOptionSummary: true,
         optionDisplayProperty: "name",
         choiceToAttributesMapping: {
           resistances: "resistance"
@@ -124,6 +128,7 @@ export const races = [
         property: "subrace",
         description: "Subrace:",
         optionsSource: "CUSTOM",
+        generateCustomOptionSummary: true,
         optionDisplayProperty: "name",
         choiceToAttributesMapping: {
           intelligence: "intelligence",
@@ -260,6 +265,50 @@ export const races = [
     ]
   },
   {
+    name: "Halfling",
+    speed: 25,
+    size: "Small",
+    abilityIncrease: {
+      dexterity: 2
+    },
+    languages: ["Common", "Halfling"],
+    choices: [
+      {
+        property: "halflingType",
+        description: "Halfling Type:",
+        optionsSource: "CUSTOM",
+        generateCustomOptionSummary: true,
+        optionDisplayProperty: "name",
+        choiceToAttributesMapping: {
+          resistances: "resistance",
+          constitution : "constitution",
+          charisma: "charisma",
+        },
+        options: [
+          {
+            name: 'Lightfoot',
+            charisma: 1
+          },
+          {
+            name: 'Stout',
+            constitution: 1,
+            resistance: "Poison"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Half-Orc",
+    speed: 30,
+    size: "Medium",
+    abilityIncrease: {
+      strength: 2,
+      constitution: 1
+    },
+    languages: ["Common", "Orc"]
+  },
+  {
     name: "Human",
     speed: 30,
     size: "Medium",
@@ -283,7 +332,18 @@ export const races = [
         }
       }
     ]
-  }
+  },
+  {
+    name: "Tiefling",
+    speed: 30,
+    size: "Medium",
+    abilityIncrease: {
+      intelligence: 1,
+      charisma: 2
+    },
+    languages: ["Common", "Infernal"],
+    resistances: ["Fire"]
+  },
 ];
 
 export const classes = [
@@ -542,7 +602,7 @@ export default function App() {
       <div className="topDiv">
         <div className="topBar">
           <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
-          <div className="startMenuButton" onClick={() => setShowStartMenu(true)}><div></div>START</div>
+          <div className="startMenuButton" onClick={() => setShowStartMenu(true)}><div></div>MENU</div>
         </div>
         <div className="viewDiv">
           <div className={"screenView" + (hideEditor ? " inactiveView" : "")}>
