@@ -1,11 +1,11 @@
-import { SelectList } from './Components/SelectList';
-import { TextInput } from './Components/TextInput';
-import { ArrayInput } from './Components/ArrayInput';
 import './Designer.css';
 import React from 'react';
-import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from './SharedFunctions/MulticlassFunctions';
-import { races } from './App';
-import { RaceDisplay } from './Components/RaceDisplay';
+import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from '../../SharedFunctions/MulticlassFunctions';
+import { races } from '../../App';
+import { RaceDisplay } from '../DesignerComponents/RaceDisplay';
+import { ArrayInput } from '../SimpleComponents/ArrayInput';
+import { TextInput } from '../SimpleComponents/TextInput';
+import { SelectList } from '../SimpleComponents/SelectList';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 

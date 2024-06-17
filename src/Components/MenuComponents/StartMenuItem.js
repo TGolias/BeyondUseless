@@ -1,6 +1,6 @@
 import React from "react";
 import './StartMenuItem.css'
-import { RetroButton } from "./RetroButton";
+import { RetroButton } from "../SimpleComponents/RetroButton";
 
 export function StartMenuItem({menuText, onClickHandler, disabled}) {
     return (

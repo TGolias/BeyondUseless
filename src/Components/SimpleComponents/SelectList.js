@@ -1,6 +1,5 @@
 import React from "react";
-import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
-import { onInputChangeHandler } from "../SharedFunctions/ComponentFunctions";
+import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 
 export function SelectList({options, isNumberValue, baseStateObject, pathToProperty, inputHandler}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);

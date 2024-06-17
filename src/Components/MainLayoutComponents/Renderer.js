@@ -1,7 +1,7 @@
-import { StatDisplay } from "./Components/StatDisplay";
-import { calculateAspectCollection, calculateBaseStat, calculateHPMax } from "./SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
+import { StatDisplay } from "../DisplayComponents/StatDisplay";
 
 export function Renderer({playerConfigs}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");

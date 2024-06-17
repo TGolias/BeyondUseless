@@ -1,6 +1,6 @@
 import React from "react";
 import './StartMenu.css';
-import { StartMenuItem } from "./Components/StartMenuItem";
+import { StartMenuItem } from "../MenuComponents/StartMenuItem";
 
 export function StartMenu({menuItems}) {
     const rows = []

@@ -1,8 +1,8 @@
 import React from "react";
-import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
-import { SelectList } from "./SelectList";
 import "./ArrayInput.css"
 import { RetroButton } from "./RetroButton";
+import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
+import { SelectList } from "./SelectList";
 
 export function ArrayInput({baseStateObject, pathToProperty, config, inputHandler, allowAdd, addText, generateAddedItem, allowRemove}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);

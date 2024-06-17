@@ -1,6 +1,6 @@
 import React from 'react';
-import { calculateModifierForBaseStat } from '../SharedFunctions/TabletopMathFunctions';
 import './StatDisplay.css';
+import { calculateModifierForBaseStat } from '../../SharedFunctions/TabletopMathFunctions';
 
 export function StatDisplay({name, value}) {
     const modifierAmount = calculateModifierForBaseStat(value);

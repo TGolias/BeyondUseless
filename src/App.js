@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Renderer } from "./Renderer";
+import { Renderer } from "./Components/MainLayoutComponents/Renderer";
 import './App.css';
 import React from "react";
-import { Designer } from "./Designer";
-import { StartMenu } from "./StartMenu";
+import { Designer } from "./Components/MainLayoutComponents/Designer";
+import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffects } from "./SharedFunctions/Effects";
 
 const timeoutBeforeAddedToHistory = 5000;
@@ -127,12 +127,28 @@ export const races = [
         optionDisplayProperty: "name",
         choiceToAttributesMapping: {
           intelligence: "intelligence",
-          wisdom: "wisdom"
+          wisdom: "wisdom",
+          charisma: "charisma",
         },
         options: [
           {
+            name: 'Drow',
+            charisma: 1
+          },
+          {
             name: 'High Elf',
-            intelligence: 1
+            intelligence: 1,
+            choices: [
+              {
+                property: "additionalLanguage",
+                description: "Additional Language:",
+                optionsSource: "languages",
+                optionDisplayProperty: "$VALUE",
+                choiceToAttributesMapping: {
+                  languages: "$VALUE"
+                }
+              }
+            ]
           },
           {
             name: 'Wood Elf',

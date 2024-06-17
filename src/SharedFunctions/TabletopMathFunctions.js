@@ -1,4 +1,5 @@
 import { classes, languages, races, resistances } from "../App";
+import { getValueFromObjectAndPath } from "./ComponentFunctions";
 import { convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
 
 export function calculateModifierForBaseStat(baseStatValue) {
@@ -42,50 +43,11 @@ export function calculateHPMax(playerConfigs) {
 }
 
 export function calculateBaseStat(playerConfigs, statToCalculate) {
-    // TODO: Fix the stats turning into strings somehow.
-    let baseStatValue = Number.parseInt(playerConfigs.baseStats[statToCalculate]);
+    let baseStatValue = playerConfigs.baseStats[statToCalculate];
 
-    const dndRace = races.find(x => x.name === playerConfigs.race.name);
-    if (dndRace.abilityIncrease[statToCalculate]) {
-        baseStatValue += dndRace.abilityIncrease[statToCalculate];
-    }
-
-    // Check the race choices for the aspect.
-    if (dndRace.choices) {
-        for (const choice of dndRace.choices) {
-            const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[statToCalculate];
-            if (choiceToAttributeMappingForAspect) {
-                // This choice affects the stat... Goddamnit, time to do some work.
-                const playerChoice = playerConfigs.race.choices[choice.property];
-                if (playerChoice) {
-                    let sourceOptions = [];
-                    if (choice.optionsSource === "CUSTOM") {
-                        sourceOptions = choice.options;
-                    } else {
-                        sourceOptions = getAllAspectOptions(choice.optionsSource);
-                    }
-
-                    let optionObject = undefined;
-                    if (choice.optionDisplayProperty === "$VALUE") {
-                        optionObject = sourceOptions.find(x => x === playerChoice);
-                    } else {
-                        optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
-                    }
-
-                    let aspectValue = undefined;
-                    if (choiceToAttributeMappingForAspect === "$VALUE") {
-                        aspectValue = optionObject;
-                    } else {
-                        aspectValue = optionObject[choiceToAttributeMappingForAspect];
-                    }
-                    
-                    if (aspectValue) {
-                        baseStatValue += Number.parseInt(aspectValue);
-                    }
-                }
-            }
-        }
-    }
+    findAllConfiguredAspects(playerConfigs, "abilityIncrease.", statToCalculate, (aspectValue) => {
+        baseStatValue += aspectValue;
+    });
 
     return baseStatValue;
 }
@@ -107,57 +69,14 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
     // Aspects are things like Language, Resistance, etc that are added from various Races, Class, Feats or Magical Effects.
     let aspectCollection = {};
 
-    // Check the race for the aspect.
-    const dndRace = races.find(x => x.name === playerConfigs.race.name);
-    setAspectCollectionFromArrayOrProperty(aspectCollection, dndRace[aspectName]);
-
-    if (dndRace.choices) {
-        // Check the race choices for the aspect.
-        for (const choice of dndRace.choices) {
-            const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[aspectName];
-            if (choiceToAttributeMappingForAspect) {
-                // This choice affects the aspect... Goddamnit, time to do some work.
-                const playerChoice = playerConfigs.race.choices[choice.property];
-                if (playerChoice) {
-                    let sourceOptions = [];
-                    if (choice.optionsSource === "CUSTOM") {
-                        sourceOptions = choice.options;
-                    } else {
-                        sourceOptions = getAllAspectOptions(choice.optionsSource);
-                    }
-
-                    let optionObject = undefined;
-                    if (choice.optionDisplayProperty === "$VALUE") {
-                        optionObject = sourceOptions.find(x => x === playerChoice);
-                    } else {
-                        optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
-                    }
-
-                    let aspectValue = undefined;
-                    if (choiceToAttributeMappingForAspect === "$VALUE") {
-                        aspectValue = optionObject;
-                    } else {
-                        aspectValue = optionObject[choiceToAttributeMappingForAspect];
-                    }
-
-                    setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
-                }
-            }
-        }
-    }
-    
-    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
-    for (const dndClass of dndClasses) {
-        // Check each of the classes for the aspect.
-        setAspectCollectionFromArrayOrProperty(aspectCollection, dndClass[aspectName]);
-
-        // TODO: Check each of the class choices for the aspect.
-    }
+    findAllConfiguredAspects(playerConfigs, "", aspectName, (aspectValue) => {
+        setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
+    });
 
     return convertHashMapToArrayOfStrings(aspectCollection);
 }
 
-export function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrProperty) {
+function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrProperty) {
     if (arrayOrProperty) {
         if (Array.isArray(arrayOrProperty)) {
             // It is an array.
@@ -167,6 +86,72 @@ export function setAspectCollectionFromArrayOrProperty(totalAspectCollection, ar
         } else {
             // It is a property
             totalAspectCollection[arrayOrProperty] = true;
+        }
+    }
+}
+
+function findAllConfiguredAspects(playerConfigs, raceAspectSubCollection, aspectName, onAspectFound) {
+    // Check the race for the aspect.
+    const dndRace = races.find(x => x.name === playerConfigs.race.name);
+    const raceAspectValue = getValueFromObjectAndPath(dndRace, raceAspectSubCollection + aspectName)
+    if (raceAspectValue) {
+        onAspectFound(raceAspectValue);
+    }
+
+    if (dndRace.choices) {
+        findAspectsFromChoice(playerConfigs, dndRace, "race.choices.", aspectName, onAspectFound);
+    }
+    
+    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+    for (const dndClass of dndClasses) {
+        // Check each of the classes for the aspect.
+        const classAspectValue = dndClass[aspectName];
+        if (classAspectValue) {
+            onAspectFound(classAspectValue);
+        }
+
+        // TODO: Check each of the class choices for the aspect.
+    }
+}
+
+function findAspectsFromChoice(playerConfigs, choiceObject, pathToPlayerChoices, aspectName, onAspectFound) {
+    // Check the race choices for the aspect.
+    for (const choice of choiceObject.choices) {
+        const pathToProperty = pathToPlayerChoices + choice.property;
+        const playerChoice = getValueFromObjectAndPath(playerConfigs, pathToProperty);
+
+        if (playerChoice) {
+            let sourceOptions = [];
+            if (choice.optionsSource === "CUSTOM") {
+                sourceOptions = choice.options;
+            } else {
+                sourceOptions = getAllAspectOptions(choice.optionsSource);
+            }
+
+            let optionObject = undefined;
+            if (choice.optionDisplayProperty === "$VALUE") {
+                optionObject = sourceOptions.find(x => x === playerChoice);
+            } else {
+                optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
+            }
+
+            const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[aspectName];
+            if (choiceToAttributeMappingForAspect) {
+                let aspectValue = undefined;
+                if (choiceToAttributeMappingForAspect === "$VALUE") {
+                    aspectValue = optionObject;
+                } else {
+                    aspectValue = optionObject[choiceToAttributeMappingForAspect];
+                }
+
+                if (aspectValue) {
+                    onAspectFound(aspectValue);
+                }
+            }
+
+            if (optionObject.choices) {
+                findAspectsFromChoice(playerConfigs, optionObject, pathToPlayerChoices, aspectName, onAspectFound);
+            }
         }
     }
 }

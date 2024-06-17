@@ -1,6 +1,5 @@
 import React from "react";
-import { getValueFromObjectAndPath } from "../SharedFunctions/ComponentFunctions";
-import { onInputChangeHandler } from "../SharedFunctions/ComponentFunctions";
+import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 
 export function TextInput({isNumberValue, baseStateObject, pathToProperty, inputHandler}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
@@ -11,6 +10,6 @@ export function TextInput({isNumberValue, baseStateObject, pathToProperty, input
         if (isNumberValue) {
             value = Number.parseInt(value);
         }
-        return onInputChangeHandler(baseStateObject, pathToProperty, event.currentTarget.value, inputHandler);
+        return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
     }}></input>
 }
