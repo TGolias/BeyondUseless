@@ -1,4 +1,4 @@
-import { classes, languages, races, resistances } from "../App";
+import { getCollection } from "../Collections";
 import { getValueFromObjectAndPath } from "./ComponentFunctions";
 import { convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
 
@@ -7,6 +7,8 @@ export function calculateModifierForBaseStat(baseStatValue) {
 }
 
 export function getAllPlayerDNDClasses(playerConfigs) {
+    const classes = getCollection("classes");
+    
     const dndClasses = [];
     const dndClassDict = convertArrayToDictionary(classes, "name");
 
@@ -58,9 +60,9 @@ export function getAllAspectOptions(aspectName) {
             // They'll provide their own values.
             return [];
         case "languages":
-            return languages;
+            return getCollection("languages");
         case "resistances":
-            return resistances;
+            return getCollection("damagetypes");
     }
     return [];
 }
@@ -91,6 +93,8 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
 }
 
 function findAllConfiguredAspects(playerConfigs, raceAspectSubCollection, aspectName, onAspectFound) {
+    const races = getCollection("races");
+
     // Check the race for the aspect.
     const dndRace = races.find(x => x.name === playerConfigs.race.name);
     const raceAspectValue = getValueFromObjectAndPath(dndRace, raceAspectSubCollection + aspectName)

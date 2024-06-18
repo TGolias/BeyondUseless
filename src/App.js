@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Renderer } from "./Components/MainLayoutComponents/Renderer";
 import './App.css';
 import React from "react";
 import { Designer } from "./Components/MainLayoutComponents/Designer";
 import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffects } from "./SharedFunctions/Effects";
+import { fetchAllCollections } from "./Collections";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -40,398 +41,11 @@ const defaultPlayerState = {
   currentHp: 0
 }
 
-export const races = [
-  {
-    name: "Dragonborn",
-    speed: 30,
-    size: "Medium",
-    languages: ["Common", "Draconic"],
-    abilityIncrease: {
-      strength: 2,
-      charisma: 1
-    },
-    choices: [
-      {
-        property: "dragonType",
-        description: "Dragon Type:",
-        optionsSource: "CUSTOM",
-        generateCustomOptionSummary: true,
-        optionDisplayProperty: "name",
-        choiceToAttributesMapping: {
-          resistances: "resistance"
-        },
-        options: [
-          {
-            name: 'Black',
-            resistance: 'Acid'
-          },
-          {
-            name: 'Blue',
-            resistance: 'Lightning'
-          },
-          {
-            name: 'Brass',
-            resistance: 'Fire'
-          },
-          {
-            name: 'Bronze',
-            resistance: 'Lightning'
-          },
-          {
-            name: 'Copper',
-            resistance: 'Acid'
-          },
-          {
-            name: 'Gold',
-            resistance: 'Fire'
-          },
-          {
-            name: 'Green',
-            resistance: 'Poison'
-          },
-          {
-            name: 'Red',
-            resistance: 'Fire'
-          },
-          {
-            name: 'Silver',
-            resistance: 'Cold'
-          },
-          {
-            name: 'White',
-            resistance: 'Cold'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    name: "Dwarf",
-    speed: 25,
-    size: "Medium",
-    abilityIncrease: {
-      constitution: 2
-    },
-    languages: ["Common", "Dwarvish"],
-    resistances: ["Poison"]
-  },
-  {
-    name: "Elf",
-    speed: 30,
-    size: "Medium",
-    abilityIncrease: {
-      dexterity: 2
-    },
-    languages: ["Common", "Elvish"],
-    choices: [
-      {
-        property: "subrace",
-        description: "Subrace:",
-        optionsSource: "CUSTOM",
-        generateCustomOptionSummary: true,
-        optionDisplayProperty: "name",
-        choiceToAttributesMapping: {
-          intelligence: "intelligence",
-          wisdom: "wisdom",
-          charisma: "charisma",
-        },
-        options: [
-          {
-            name: 'Drow',
-            charisma: 1
-          },
-          {
-            name: 'High Elf',
-            intelligence: 1,
-            choices: [
-              {
-                property: "additionalLanguage",
-                description: "Additional Language:",
-                optionsSource: "languages",
-                optionDisplayProperty: "$VALUE",
-                choiceToAttributesMapping: {
-                  languages: "$VALUE"
-                }
-              }
-            ]
-          },
-          {
-            name: 'Wood Elf',
-            wisdom: 1
-          }
-        ]
-      }
-    ]
-  },
-  {
-    name: "Gnome",
-    speed: 25,
-    size: "Small",
-    abilityIncrease: {
-      intelligence: 2
-    },
-    languages: ["Common", "Gnomish"]
-  },
-  {
-    name: "Half-Elf",
-    speed: 30,
-    size: "Medium",
-    abilityIncrease: {
-      charisma: 2
-    },
-    languages: ["Common", "Elvish"],
-    choices: [
-      {
-        property: "firstAdditionalStat",
-        description: "+1 Stat Increase:",
-        optionsSource: "CUSTOM",
-        constrainToOtherChoices: ["secondAdditionalStat"],
-        optionDisplayProperty: "name",
-        choiceToAttributesMapping: {
-          strength: "strength",
-          dexterity: "dexterity",
-          constitution: "constitution",
-          intelligence: "intelligence",
-          wisdom: "wisdom"
-        },
-        options: [
-          {
-            name: 'Strength',
-            strength: 1
-          },
-          {
-            name: 'Dexterity',
-            dexterity: 1
-          },
-          {
-            name: 'Constitution',
-            constitution: 1
-          },
-          {
-            name: 'Intelligence',
-            intelligence: 1
-          },
-          {
-            name: 'Wisdom',
-            wisdom: 1
-          }
-        ]
-      },
-      {
-        property: "secondAdditionalStat",
-        description: "+1 Stat Increase:",
-        optionsSource: "CUSTOM",
-        constrainToOtherChoices: ["firstAdditionalStat"],
-        optionDisplayProperty: "name",
-        choiceToAttributesMapping: {
-          strength: "strength",
-          dexterity: "dexterity",
-          constitution: "constitution",
-          intelligence: "intelligence",
-          wisdom: "wisdom"
-        },
-        options: [
-          {
-            name: 'Strength',
-            strength: 1
-          },
-          {
-            name: 'Dexterity',
-            dexterity: 1
-          },
-          {
-            name: 'Constitution',
-            constitution: 1
-          },
-          {
-            name: 'Intelligence',
-            intelligence: 1
-          },
-          {
-            name: 'Wisdom',
-            wisdom: 1
-          }
-        ]
-      },
-      {
-        property: "additionalLanguage",
-        description: "Additional Language:",
-        optionsSource: "languages",
-        optionDisplayProperty: "$VALUE",
-        choiceToAttributesMapping: {
-          languages: "$VALUE"
-        }
-      }
-    ]
-  },
-  {
-    name: "Halfling",
-    speed: 25,
-    size: "Small",
-    abilityIncrease: {
-      dexterity: 2
-    },
-    languages: ["Common", "Halfling"],
-    choices: [
-      {
-        property: "halflingType",
-        description: "Halfling Type:",
-        optionsSource: "CUSTOM",
-        generateCustomOptionSummary: true,
-        optionDisplayProperty: "name",
-        choiceToAttributesMapping: {
-          resistances: "resistance",
-          constitution : "constitution",
-          charisma: "charisma",
-        },
-        options: [
-          {
-            name: 'Lightfoot',
-            charisma: 1
-          },
-          {
-            name: 'Stout',
-            constitution: 1,
-            resistance: "Poison"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    name: "Half-Orc",
-    speed: 30,
-    size: "Medium",
-    abilityIncrease: {
-      strength: 2,
-      constitution: 1
-    },
-    languages: ["Common", "Orc"]
-  },
-  {
-    name: "Human",
-    speed: 30,
-    size: "Medium",
-    abilityIncrease: {
-      strength: 1,
-      dexterity: 1,
-      constitution: 1,
-      intelligence: 1,
-      wisdom: 1,
-      charisma: 1
-    },
-    languages: ["Common"],
-    choices: [
-      {
-        property: "additionalLanguage",
-        description: "Additional Language:",
-        optionsSource: "languages",
-        optionDisplayProperty: "$VALUE",
-        choiceToAttributesMapping: {
-          languages: "$VALUE"
-        }
-      }
-    ]
-  },
-  {
-    name: "Tiefling",
-    speed: 30,
-    size: "Medium",
-    abilityIncrease: {
-      intelligence: 1,
-      charisma: 2
-    },
-    languages: ["Common", "Infernal"],
-    resistances: ["Fire"]
-  },
-];
-
-export const classes = [
-  {
-    name: "Barbarian",
-    hitDie: 12,
-    saves: ["strength", "constitution"]
-  },
-  {
-    name: "Bard",
-    hitDie: 8,
-    saves: ["dexterity", "charisma"]
-  },
-  {
-    name: "Cleric",
-    hitDie: 8,
-    saves: ["wisdom", "charisma"]
-  },
-  {
-    name: "Druid",
-    hitDie: 8,
-    saves: ["intelligence", "wisdom"]
-  },
-  {
-    name: "Fighter",
-    hitDie: 10,
-    saves: ["strength", "constitution"]
-  },
-  {
-    name: "Monk",
-    hitDie: 8,
-    saves: ["strength", "dexterity"]
-  },
-  {
-    name: "Paladin",
-    hitDie: 10,
-    saves: ["wisdom", "charisma"]
-  },
-  {
-    name: "Ranger",
-    hitDie: 10,
-    saves: ["strength", "dexterity"]
-  },
-  {
-    name: "Rogue",
-    hitDie: 8,
-    saves: ["dexterity", "intelligence"]
-  },
-  {
-    name: "Sorcerer",
-    hitDie: 6,
-    saves: ["constitution", "charisma"]
-  },
-  {
-    name: "Warlock",
-    hitDie: 8,
-    saves: ["wisdom", "charisma"]
-  },
-  {
-    name: "Wizard",
-    hitDie: 6,
-    saves: ["intelligence", "wisdom"]
-  }
-];
-
-export const backgrounds = [
-  {
-    name: "Acolyte",
-    skillProficiencies: [],
-    languages: []
-  }
-];
-
-export const subclasses = [];
-
-export const items = [];
-
-export const spells = [];
-
-export const feats = [];
-
-export const skillProficiencies = [];
-
-export const languages = ["Common", "Dwarvish", "Elvish", "Giant", "Gnomish", "Goblin", "Halfling", "Orc", "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial", "Sylvan", "Undercommon"];
-
-export const resistances = ["Acid", "Bludgeoning", "Cold", "Fire", "Force", "Lightning", "Necrotic", "Piercing", "Poison", "Psychic", "Radiant", "Slashing", "Thunder"];
+let needsToLoad = true;
 
 export default function App() {
+  const [isLoading, setLoading] = useState(false);
+
   const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);
   const [history, setHistory] = useState([defaultPlayerConfiguration]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
@@ -439,6 +53,16 @@ export default function App() {
   const [hideEditor, setHideEditor] = useState(false);
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
+
+  useEffect(() => {
+    if (needsToLoad) {
+      setLoading(true);
+      needsToLoad = false;
+      fetchAllCollections().then(() => {
+        setLoading(false);
+      });
+    }
+  });
 
   function toggleViewActive() {
     setHideEditor(!hideEditor);
@@ -607,6 +231,12 @@ export default function App() {
       clickHandler: () => setShowStartMenu(false)
     }
   ]
+
+  if (needsToLoad || isLoading) {
+    return (<>
+      <div>Loading...</div>
+    </>)
+  }
 
   return (
     <>

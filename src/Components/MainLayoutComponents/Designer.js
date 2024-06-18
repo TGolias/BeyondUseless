@@ -1,14 +1,16 @@
 import './Designer.css';
 import React from 'react';
 import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from '../../SharedFunctions/MulticlassFunctions';
-import { races } from '../../App';
 import { RaceDisplay } from '../DesignerComponents/RaceDisplay';
 import { ArrayInput } from '../SimpleComponents/ArrayInput';
 import { TextInput } from '../SimpleComponents/TextInput';
 import { SelectList } from '../SimpleComponents/SelectList';
+import { getCollection } from '../../Collections';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
+    const races = getCollection("races");
+    
     const classSelectionConfig = [
         {
             pathToProperty: "name",

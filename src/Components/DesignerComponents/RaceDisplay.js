@@ -1,7 +1,7 @@
 import React from "react";
 import './RaceDisplay.css'
-import { races } from "../../App";
 import { ChoiceDisplay } from "./ChoiceDisplay";
+import { getCollection } from "../../Collections";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -15,6 +15,7 @@ const capitalizedAbilityScoreNames = {
 }
 
 export function RaceDisplay({baseStateObject, inputHandler}) {
+    const races = getCollection("races");
     const dndrace = races.find(x => x.name === baseStateObject.race.name);
 
     const languageRows = [];
