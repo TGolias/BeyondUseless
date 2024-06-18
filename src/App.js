@@ -373,6 +373,11 @@ export const classes = [
     saves: ["strength", "constitution"]
   },
   {
+    name: "Monk",
+    hitDie: 8,
+    saves: ["strength", "dexterity"]
+  },
+  {
     name: "Paladin",
     hitDie: 10,
     saves: ["wisdom", "charisma"]
@@ -404,17 +409,23 @@ export const classes = [
   }
 ];
 
-export const backgrounds = [];
+export const backgrounds = [
+  {
+    name: "Acolyte",
+    skillProficiencies: [],
+    languages: []
+  }
+];
 
 export const subclasses = [];
 
 export const items = [];
 
-export const proficiencies = [];
-
 export const spells = [];
 
 export const feats = [];
+
+export const skillProficiencies = [];
 
 export const languages = ["Common", "Dwarvish", "Elvish", "Giant", "Gnomish", "Goblin", "Halfling", "Orc", "Abyssal", "Celestial", "Draconic", "Deep Speech", "Infernal", "Primordial", "Sylvan", "Undercommon"];
 
