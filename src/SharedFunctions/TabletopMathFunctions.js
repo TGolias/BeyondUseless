@@ -1,6 +1,10 @@
 import { getCollection } from "../Collections";
 import { getValueFromObjectAndPath } from "./ComponentFunctions";
-import { convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
+
+export function calculateProficiencyBonus(playerConfigs) {
+    return 2 + Math.floor((playerConfigs.level - 1) / 4);
+}
 
 export function calculateModifierForBaseStat(baseStatValue) {
     return Math.floor((baseStatValue - 10) / 2);
@@ -54,6 +58,19 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
     return baseStatValue;
 }
 
+export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise) {
+    let skillBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, dndSkillProficiency.modifier));
+    if (hasProficiency) {
+        let proficencyBonus = calculateProficiencyBonus(playerConfigs);
+        skillBonus += proficencyBonus;
+        if (hasExpertise) {
+            // Add it again!!!
+            skillBonus += proficencyBonus;
+        }
+    }
+    return skillBonus;;
+}
+
 export function getAllAspectOptions(aspectName) {
     switch (aspectName) {
         case "CUSTOM":
@@ -93,6 +110,7 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
 }
 
 function findAllConfiguredAspects(playerConfigs, raceAspectSubCollection, aspectName, onAspectFound) {
+    const backgrounds = getCollection("backgrounds");
     const races = getCollection("races");
 
     // Check the race for the aspect.
@@ -115,6 +133,17 @@ function findAllConfiguredAspects(playerConfigs, raceAspectSubCollection, aspect
         }
 
         // TODO: Check each of the class choices for the aspect.
+    }
+
+    // Check the background for the aspect.
+    const dndBackground = backgrounds.find(x => x.name === playerConfigs.background.name);
+    const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName)
+    if (backgroundAspectValue) {
+        onAspectFound(backgroundAspectValue);
+    }
+
+    if (dndBackground.choices) {
+        findAspectsFromChoice(playerConfigs, dndBackground, "background.choices.", aspectName, onAspectFound);
     }
 }
 

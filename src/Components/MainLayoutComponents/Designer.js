@@ -6,10 +6,12 @@ import { ArrayInput } from '../SimpleComponents/ArrayInput';
 import { TextInput } from '../SimpleComponents/TextInput';
 import { SelectList } from '../SimpleComponents/SelectList';
 import { getCollection } from '../../Collections';
+import { BackgroundDisplay } from '../DesignerComponents/BackgroundDisplay';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
     const races = getCollection("races");
+    const backgrounds = getCollection("backgrounds");
     
     const classSelectionConfig = [
         {
@@ -80,6 +82,13 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 <div>
                     <div className="label">Class</div>
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
+                </div>
+                <div>
+                    <div className="label">Background</div>
+                    <SelectList options={backgrounds.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"background.name"} inputHandler={inputChangeHandler}/>
+                </div>
+                <div>
+                    <BackgroundDisplay baseStateObject={playerConfigs} inputHandler={inputChangeHandler}/>
                 </div>
             </div>
         </>

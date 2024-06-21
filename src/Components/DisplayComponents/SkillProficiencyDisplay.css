@@ -1,0 +1,25 @@
+.proficienciesWrapper {
+    padding: 0.5em;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: 0.5em;
+    row-gap: 5px;
+}
+
+.outer-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 33px;
+    width: 33px;
+}
+
+.dot {
+    height: 23px;
+    width: 23px;
+}
+
+.fill {
+    background-color: black;
+}

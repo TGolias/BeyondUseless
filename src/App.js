@@ -19,7 +19,10 @@ const defaultPlayerConfiguration = {
     }
   },
   background: {
-    name: "Outlander"
+    name: "Outlander",
+    choices: {
+      additionalLanguage: "Undercommon"
+    }
   },
   classes: [
     {

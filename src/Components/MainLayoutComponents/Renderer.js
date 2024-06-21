@@ -1,7 +1,8 @@
-import { calculateAspectCollection, calculateBaseStat, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateHPMax, calculateProficiencyBonus } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
+import { SkillProficiencyDisplay } from "../DisplayComponents/SkillProficiencyDisplay";
 
 export function Renderer({playerConfigs}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -11,7 +12,7 @@ export function Renderer({playerConfigs}) {
         <>
             <div className="outerDiv">
                 <h2>{playerConfigs.name}</h2>
-                <div className="lvl">LVL{playerConfigs.level}</div>
+                <div className="lvl"><span>LVL{playerConfigs.level}</span><span className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</span></div>
                 <div className="hp">HP: {calculateHPMax(playerConfigs)}</div>
                 <div className="mobileDivider">
                     <div className="baseStats">
@@ -24,6 +25,9 @@ export function Renderer({playerConfigs}) {
                         <StatDisplay name="WIS" value={calculateBaseStat(playerConfigs, "wisdom")}/>
                         <StatDisplay name="CHA" value={calculateBaseStat(playerConfigs, "charisma")}/>
                     </div>
+                </div>
+                <div className="skillProficiency">
+                    <SkillProficiencyDisplay playerConfigs={playerConfigs}></SkillProficiencyDisplay>
                 </div>
                 <div style={{display: (languagesString ? "block" : "none")}} className="underConstruction">
                     <div>Languages: {languagesString}</div>

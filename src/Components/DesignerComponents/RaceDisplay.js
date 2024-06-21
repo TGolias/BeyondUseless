@@ -2,17 +2,9 @@ import React from "react";
 import './RaceDisplay.css'
 import { ChoiceDisplay } from "./ChoiceDisplay";
 import { getCollection } from "../../Collections";
+import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 
 const rightTriangleUnicode = '\u25B6';
-
-const capitalizedAbilityScoreNames = {
-    strength: "Strength",
-    dexterity: "Dexterity",
-    constitution: "Constitution",
-    intelligence: "Intelligence",
-    wisdom: "Wisdom",
-    charisma: "Charisma"
-}
 
 export function RaceDisplay({baseStateObject, inputHandler}) {
     const races = getCollection("races");
@@ -37,9 +29,18 @@ export function RaceDisplay({baseStateObject, inputHandler}) {
     const abilityScoreIncreases = [];
     if (dndrace.abilityIncrease) {
         for (const [key, value] of Object.entries(dndrace.abilityIncrease)) {
-            const capitalizeValueForDisplay = capitalizedAbilityScoreNames[key];
+            const capitalizeValueForDisplay = getCapitalizedAbilityScoreName(key);
             abilityScoreIncreases.push(<>
                 <div>{rightTriangleUnicode}{capitalizeValueForDisplay} +{value}</div>
+            </>)
+        }
+    }
+
+    const skillProficienciesRows = [];
+    if (dndrace.skillProficiencies) {
+        for (let i = 0; i < dndrace.skillProficiencies.length; i++) {
+            skillProficienciesRows.push(<>
+                <div>{rightTriangleUnicode + dndrace.skillProficiencies[i]}</div>
             </>)
         }
     }
@@ -59,6 +60,10 @@ export function RaceDisplay({baseStateObject, inputHandler}) {
             <div style={{display: (abilityScoreIncreases.length ? "block" : "none")}}>
                 <div className="raceAttributeLabel">Stat Increases:</div>
                 <div>{abilityScoreIncreases}</div>
+            </div>
+            <div style={{display: (skillProficienciesRows.length ? "block" : "none")}}>
+                <div className="raceAttributeLabel">Skills:</div>
+                <div>{skillProficienciesRows}</div>
             </div>
             <div style={{display: (dndrace.choices ? "block" : "none")}}>
                 <ChoiceDisplay baseStateObject={baseStateObject} choiceObject={dndrace} pathToPlayerChoices={"race.choices."} inputHandler={inputHandler}></ChoiceDisplay>
