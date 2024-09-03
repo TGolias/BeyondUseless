@@ -54,6 +54,7 @@
   margin-top: 2px;
   margin-right: 2px;
   /* Make sure Start Menu shows above top bar */
+  position: fixed;
   z-index: 2;
 }
 
