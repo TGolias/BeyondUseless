@@ -1,6 +1,4 @@
 .outerbox {
-    width: 5.5em;
-    height: 6em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -8,15 +6,31 @@
 }
 
 .statName {
-    padding-top: 0.5em;
     font-size: 1em;
     font-weight: bold;
+    text-transform: uppercase;
     /* I used to scale this fucking fatass font, but then I got smart and used the shortened versions: transform: scale(0.5,1); */
+    padding: 0.5em;
+}
+
+.baseStatContainer {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    padding: 0.5em;
+    border-top: 2px solid black;
 }
 
 .modifier {
     font-size: 1.5em;
     padding: .1em;
+}
+
+.scoreContainer {
+    display: flex;
+    justify-content: center;
 }
 
 .circleAroundScore {
@@ -33,4 +47,65 @@
 
 .abilityScore {
     font-size: 0.6em;
+}
+
+.saveAndSkillsWrapper {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    row-gap: 5px;
+    width: 100%;
+}
+
+.saveAndSkillsWrapper > * {
+    border-top: 2px solid black;
+}
+
+.proficencyCircleWrapper {
+    display: flex;
+    align-items: end;
+    padding-left: 0.5em;
+    padding-right: 0.25em;
+    height: 2.0em;
+}
+
+.outer-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1.8em;
+    width: 1.8em;
+}
+
+.dot {
+    height: 1.25em;
+    width: 1.25em;
+}
+
+.fill {
+    background-color: black;
+}
+
+.half-fill {
+    margin-top: 50%;
+    height: 50%;
+    background-color: black;
+}
+
+.skillModifier {
+    text-align: end;
+    height: 2.0em;
+    line-height: 2.0em;
+}
+
+.proficencyScore {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    height: 2.0em;
+    line-height: 2.1em;
+}
+
+.proficencyScoreText {
+    font-size: 0.75em;
+    text-wrap: nowrap;
 }

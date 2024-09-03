@@ -2,7 +2,6 @@ import { calculateAspectCollection, calculateBaseStat, calculateHPMax, calculate
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
-import { SkillProficiencyDisplay } from "../DisplayComponents/SkillProficiencyDisplay";
 
 export function Renderer({playerConfigs}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -15,15 +14,12 @@ export function Renderer({playerConfigs}) {
                 <div className="lvl"><span>LVL{playerConfigs.level}</span><span className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</span></div>
                 <div className="hp">HP: {calculateHPMax(playerConfigs)}</div>
                 <div className="baseStats">
-                    <StatDisplay name="STR" value={calculateBaseStat(playerConfigs, "strength")}/>
-                    <StatDisplay name="DEX" value={calculateBaseStat(playerConfigs, "dexterity")}/>
-                    <StatDisplay name="CON" value={calculateBaseStat(playerConfigs, "constitution")}/>
-                    <StatDisplay name="INT" value={calculateBaseStat(playerConfigs, "intelligence")}/>
-                    <StatDisplay name="WIS" value={calculateBaseStat(playerConfigs, "wisdom")}/>
-                    <StatDisplay name="CHA" value={calculateBaseStat(playerConfigs, "charisma")}/>
-                </div>
-                <div className="skillProficiency">
-                    <SkillProficiencyDisplay playerConfigs={playerConfigs}></SkillProficiencyDisplay>
+                    <StatDisplay name="strength" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "strength")}/>
+                    <StatDisplay name="dexterity" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "dexterity")}/>
+                    <StatDisplay name="constitution" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "constitution")}/>
+                    <StatDisplay name="intelligence" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "intelligence")}/>
+                    <StatDisplay name="wisdom" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "wisdom")}/>
+                    <StatDisplay name="charisma" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "charisma")}/>
                 </div>
                 <div style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>
