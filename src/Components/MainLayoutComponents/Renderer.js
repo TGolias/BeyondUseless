@@ -11,28 +11,24 @@ export function Renderer({playerConfigs}) {
     return (
         <>
             <div className="outerDiv">
-                <h2>{playerConfigs.name}</h2>
+                <div className="playerName">{playerConfigs.name}</div>
                 <div className="lvl"><span>LVL{playerConfigs.level}</span><span className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</span></div>
                 <div className="hp">HP: {calculateHPMax(playerConfigs)}</div>
-                <div className="mobileDivider">
-                    <div className="baseStats">
-                        <StatDisplay name="STR" value={calculateBaseStat(playerConfigs, "strength")}/>
-                        <StatDisplay name="DEX" value={calculateBaseStat(playerConfigs, "dexterity")}/>
-                        <StatDisplay name="CON" value={calculateBaseStat(playerConfigs, "constitution")}/>
-                    </div>
-                    <div className="baseStats">
-                        <StatDisplay name="INT" value={calculateBaseStat(playerConfigs, "intelligence")}/>
-                        <StatDisplay name="WIS" value={calculateBaseStat(playerConfigs, "wisdom")}/>
-                        <StatDisplay name="CHA" value={calculateBaseStat(playerConfigs, "charisma")}/>
-                    </div>
+                <div className="baseStats">
+                    <StatDisplay name="STR" value={calculateBaseStat(playerConfigs, "strength")}/>
+                    <StatDisplay name="DEX" value={calculateBaseStat(playerConfigs, "dexterity")}/>
+                    <StatDisplay name="CON" value={calculateBaseStat(playerConfigs, "constitution")}/>
+                    <StatDisplay name="INT" value={calculateBaseStat(playerConfigs, "intelligence")}/>
+                    <StatDisplay name="WIS" value={calculateBaseStat(playerConfigs, "wisdom")}/>
+                    <StatDisplay name="CHA" value={calculateBaseStat(playerConfigs, "charisma")}/>
                 </div>
                 <div className="skillProficiency">
                     <SkillProficiencyDisplay playerConfigs={playerConfigs}></SkillProficiencyDisplay>
                 </div>
-                <div style={{display: (languagesString ? "block" : "none")}} className="underConstruction">
+                <div style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>
                 </div>
-                <div style={{display: (resistancesString ? "block" : "none")}} className="underConstruction">
+                <div style={{display: (resistancesString ? "block" : "none")}}>
                     <div>Resistances: {resistancesString}</div>
                 </div>
             </div>

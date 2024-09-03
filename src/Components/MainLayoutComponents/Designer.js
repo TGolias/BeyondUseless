@@ -37,7 +37,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
     return (
         <>
             <div className="fieldHolder">
-                <h2>Character Editor</h2>
+                <div className="title">Character Editor</div>
                 <div>
                     <div className="label">Name</div>
                     <TextInput isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"name"} inputHandler={inputChangeHandler}/>

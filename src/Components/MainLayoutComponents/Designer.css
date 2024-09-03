@@ -5,6 +5,11 @@
     padding: 1em;
 }
 
+.title {
+    padding-top: 0.5em;
+    font-weight: bold;
+}
+
 .statHolder {
     display: flex;
     flex-direction: column;
