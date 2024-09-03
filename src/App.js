@@ -181,7 +181,7 @@ export default function App() {
 
   const startMenuItems = [
     {
-      text: (matchMedia('only screen and (max-width: 1000px)').matches ? (hideEditor ? "EDIT CHAR" : "VIEW CHAR") : (hideEditor ? "SHOW EDIT" : "HIDE EDIT")),
+      text: (matchMedia('only screen and (max-width: 1200px)').matches ? (hideEditor ? "EDIT CHAR" : "VIEW CHAR") : (hideEditor ? "SHOW EDIT" : "HIDE EDIT")),
       clickHandler: () => { 
         toggleViewActive();
         setShowStartMenu(false);
