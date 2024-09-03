@@ -19,6 +19,10 @@
   background-color: lightgrey;
   padding-top: 5px;
   padding-bottom: 5px;
+  /* Make top bar fixed in position. */
+  position: fixed;
+  top: 0;
+  z-index: 1;
 }
 
 .appname {
@@ -49,6 +53,8 @@
   right: 0;
   margin-top: 2px;
   margin-right: 2px;
+  /* Make sure Start Menu shows above top bar */
+  z-index: 2;
 }
 
 .hide {
@@ -62,6 +68,8 @@
   flex-direction: row;
   justify-content: space-around;
   flex-grow: 1;
+  /* Since top bar is fixed in position, make sure all content shows. */
+  margin-top: 2em;
 }
 
 .headerViewDiv {
