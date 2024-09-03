@@ -52,7 +52,7 @@ export function ArrayInput({baseStateObject, pathToProperty, config, inputHandle
         }
     }
     if (allowRemove) {
-        gridTemplateColumnsValue += " 36px";
+        gridTemplateColumnsValue += " 1.3em";
     }
 
     htmlToReturn.push(<>

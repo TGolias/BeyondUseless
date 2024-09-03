@@ -16,7 +16,9 @@ export function SkillProficiencyDisplay({playerConfigs}) {
         const skillBonus = calculateSkillBonus(playerConfigs, skillProficiency, playerSkillProficienciesMap[skillProficiency.name], playerExpertiseMap[skillProficiency.name]);
         skillproficiencyRows.push(<>
             <div className={"outer-circle" + (playerExpertiseMap[skillProficiency.name] ? " pixel-corners" : "")}>
-                <div className={"dot pixel-corners" + (playerSkillProficienciesMap[skillProficiency.name] ? " fill" : "")}></div>
+                <div className={"dot pixel-corners" + (playerSkillProficienciesMap[skillProficiency.name] ? " fill" : "")}>
+                    <div className={(false /*TODO: Later on we need to be able to calculate half proficency for bards*/) ? "half-fill" : ""}></div>
+                </div>
             </div>
             <div className="proficencyScore">{skillProficiency.name}</div>
             <div className="score">{(skillBonus <= 0 ? "" : "+") + skillBonus}</div>

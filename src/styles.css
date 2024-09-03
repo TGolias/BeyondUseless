@@ -10,7 +10,7 @@
 }
 
 h2 {
-    font-size: 26px;
+    font-size: 1.25em;
 }
 
 input, select {
@@ -113,4 +113,12 @@ input, select {
 }
 .pixel-corners::after {
   margin: -4px;
+}
+
+@media only screen and (max-width: 1000px) {
+  * {
+    font-family: 'font-of-the-mans'; /*Roboto Condensed,Roboto,Helvetica,sans-serif;*/
+    font-size: 16px;
+    box-sizing: border-box;
+  }
 }
