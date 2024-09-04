@@ -21,10 +21,10 @@ export function Renderer({playerConfigs}) {
                     <StatDisplay name="wisdom" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "wisdom")}/>
                     <StatDisplay name="charisma" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "charisma")}/>
                 </div>
-                <div style={{display: (languagesString ? "block" : "none")}}>
+                <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>
                 </div>
-                <div style={{display: (resistancesString ? "block" : "none")}}>
+                <div className="textEntry" style={{display: (resistancesString ? "block" : "none")}}>
                     <div>Resistances: {resistancesString}</div>
                 </div>
             </div>

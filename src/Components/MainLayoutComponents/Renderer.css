@@ -24,34 +24,22 @@
 
 .baseStats {
     width: 100%;
-    display: grid;
-    grid-template-columns: auto auto auto;
-    justify-content: space-between;
-    align-items: baseline;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
     row-gap: 1em;
+    column-gap: 1em;
+    max-height: 55em;
 }
 
-@media only screen and (max-width: 1400px) {
-    .baseStats {
-        grid-template-columns: auto auto;
-    }
-}
-
-@media only screen and (max-width: 1200px) {
-    .baseStats {
-        grid-template-columns: auto auto auto;
-    }
-}
-
-@media only screen and (max-width: 900px) {
-    .baseStats {
-        grid-template-columns: auto auto;
-    }
+.textEntry {
+    width: 0;
+    min-width: 100%;
 }
 
 @media only screen and (max-width: 600px) {
     .baseStats {
-        grid-template-columns: auto;
-        justify-content: center;
+        max-height: none;
     }
 }
