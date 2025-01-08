@@ -10,33 +10,31 @@ import { fetchAllCollections } from "./Collections";
 const timeoutBeforeAddedToHistory = 5000;
 
 const defaultPlayerConfiguration = {
-  name: "Bunni Grandin",
-  level: 10,
+  name: "Amantine Jaune Francina",
+  level: 3,
   race: {
-    name: "Human",
+    name: "Elf",
     choices: {
-      additionalLanguage: "Abyssal"
+      subrace: "High Elf",
+      additionalLanguage: "Giant"
     }
   },
   background: {
-    name: "Outlander",
-    choices: {
-      additionalLanguage: "Undercommon"
-    }
+    name: "Francina Family Pedigree"
   },
   classes: [
     {
-      name: "Fighter",
-      levels: 10
+      name: "Paladin",
+      levels: 3
     }
   ],
   baseStats: {
-    strength: 15,
-    dexterity: 13,
-    constitution: 13,
-    intelligence: 8,
-    wisdom: 11,
-    charisma: 13
+    strength: 8,
+    dexterity: 15,
+    constitution: 8,
+    intelligence: 10,
+    wisdom: 14,
+    charisma: 15
   }
 }
 
@@ -152,6 +150,9 @@ export default function App() {
 
     // Now we can set the new configs!
     setPlayerConfigs(newBaseStateObject);
+
+    console.log("New State:");
+    console.log(newBaseStateObject);
 
     // We only want want to add to the undo / redo stack if the value changed.
     if (valueChanged) {

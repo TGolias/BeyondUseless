@@ -173,7 +173,6 @@ export function ChoiceDisplay({baseStateObject, choiceObject, pathToPlayerChoice
 
                 // Your choice can have choices... Yo dawg...
                 if (chosenOption && chosenOption.choices) {
-                    console.log(chosenOption);
                     choices.push(<>
                         <div>
                             <ChoiceDisplay baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDisplay>
