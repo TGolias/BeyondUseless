@@ -2,7 +2,7 @@
 
 ## A Free Tabletop RPG Character Builder
 
-This is a little hobby project I started out of the frustration of finding that the current Tabletop RPG Character builder offerings on the market to were... -we'll say, "less than useful" and "price gouging". For the amount of money these TTRPG Character builders asked for, I felt they missed out on helpful features and reminders while playing. I also felt they lacked the kinds of customization options that my TTRPG group needed for our heavily homebrewed campaign. I'd like to some day get this tool to that point, but I gotta crawl before I can walk.
+This is a little hobby project I started out of the frustration of finding that the current Tabletop RPG Character builder offerings on the market to were... -we'll say, "less than useful". For the amount that many of these TTRPG Character builders ask players to pay, I feel they either miss out on a lot, or ask for a lot in terms of payment in order to get satisfactory functionality. I also feel they lack the kinds of customization options that my TTRPG group needed for our campaigns with use a bit of homebrew.
 
 ## Legal Stuff
 
