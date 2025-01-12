@@ -1,5 +1,5 @@
 import React from "react";
-import "./ChoiceDisplay.css"
+import "./ChoiceDesign.css"
 import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
 import { calculateAspectCollection, getAllAspectOptions } from "../../SharedFunctions/TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "../../SharedFunctions/Utils";
@@ -57,7 +57,7 @@ const customOptionDisplays = [
     }
 ]
 
-export function ChoiceDisplay({baseStateObject, choiceObject, pathToPlayerChoices, inputHandler}) {
+export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices, inputHandler}) {
     const choices = [];
     if (choiceObject.choices) {
         for (let i = 0; i < choiceObject.choices.length; i++) {
@@ -175,7 +175,7 @@ export function ChoiceDisplay({baseStateObject, choiceObject, pathToPlayerChoice
                 if (chosenOption && chosenOption.choices) {
                     choices.push(<>
                         <div>
-                            <ChoiceDisplay baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDisplay>
+                            <ChoiceDesign baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDesign>
                         </div>
                     </>);
                 }

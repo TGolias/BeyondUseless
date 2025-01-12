@@ -10,13 +10,6 @@
     font-weight: bold;
 }
 
-.statHolder {
-    display: flex;
-    flex-direction: column;
-    row-gap: 1em;
-    padding-left: 1em;
-}
-
 .fieldHolder > :last-child {
     padding-bottom: 1em;
 }

@@ -1,11 +1,11 @@
 import React from "react";
-import "./BackgroundDisplay.css";
+import "./BackgroundDesign.css";
 import { getCollection } from "../../Collections";
-import { ChoiceDisplay } from "./ChoiceDisplay";
+import { ChoiceDesign } from "./ChoiceDesign";
 
 const rightTriangleUnicode = '\u25B6';
 
-export function BackgroundDisplay({baseStateObject, inputHandler}) {
+export function BackgroundDesign({baseStateObject, inputHandler}) {
     const backgrounds = getCollection("backgrounds");
     const dndbackground = backgrounds.find(x => x.name === baseStateObject.background.name);
 
@@ -38,7 +38,7 @@ export function BackgroundDisplay({baseStateObject, inputHandler}) {
                 <div>{skillProficienciesRows}</div>
             </div>
             <div style={{display: (dndbackground.choices ? "block" : "none")}}>
-                <ChoiceDisplay baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerChoices={"background.choices."} inputHandler={inputHandler}></ChoiceDisplay>
+                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerChoices={"background.choices."} inputHandler={inputHandler}></ChoiceDesign>
             </div>
         </div>
     </>)

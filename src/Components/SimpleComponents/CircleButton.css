@@ -1,0 +1,38 @@
+.circleButtonWrapper {
+    display: flex;
+    user-select: none;
+    cursor: pointer;
+}
+
+.circleButtonWrapper * {
+    white-space: nowrap;
+}
+
+.circleAroundButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 1.7em;
+    width: 1.7em;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.circleButtonWrapper.disabled .circleButtonText {
+    color: white;
+    font-weight: bold;
+}
+
+.circleButtonWrapper.disabled .circleAroundButton {
+    background-color: grey;
+}
+
+.circleButtonWrapper:hover .circleButtonText {
+    font-weight: bold;
+}
+
+.circleButtonWrapper:hover .circleAroundButton {
+    background-color: lightgrey;
+}

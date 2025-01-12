@@ -1,12 +1,12 @@
 import React from "react";
-import './RaceDisplay.css'
-import { ChoiceDisplay } from "./ChoiceDisplay";
+import './RaceDesign.css'
+import { ChoiceDesign } from "./ChoiceDesign";
 import { getCollection } from "../../Collections";
 import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 
 const rightTriangleUnicode = '\u25B6';
 
-export function RaceDisplay({baseStateObject, inputHandler}) {
+export function RaceDesign({baseStateObject, inputHandler}) {
     const races = getCollection("races");
     const dndrace = races.find(x => x.name === baseStateObject.race.name);
 
@@ -66,7 +66,7 @@ export function RaceDisplay({baseStateObject, inputHandler}) {
                 <div>{skillProficienciesRows}</div>
             </div>
             <div style={{display: (dndrace.choices ? "block" : "none")}}>
-                <ChoiceDisplay baseStateObject={baseStateObject} choiceObject={dndrace} pathToPlayerChoices={"race.choices."} inputHandler={inputHandler}></ChoiceDisplay>
+                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndrace} pathToPlayerChoices={"race.choices."} inputHandler={inputHandler}></ChoiceDesign>
             </div>
         </div>
     </>)

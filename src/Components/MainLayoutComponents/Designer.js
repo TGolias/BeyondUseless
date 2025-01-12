@@ -1,12 +1,14 @@
 import './Designer.css';
 import React from 'react';
 import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from '../../SharedFunctions/MulticlassFunctions';
-import { RaceDisplay } from '../DesignerComponents/RaceDisplay';
+import { RaceDesign } from '../DesignerComponents/RaceDesign';
 import { ArrayInput } from '../SimpleComponents/ArrayInput';
 import { TextInput } from '../SimpleComponents/TextInput';
 import { SelectList } from '../SimpleComponents/SelectList';
 import { getCollection } from '../../Collections';
-import { BackgroundDisplay } from '../DesignerComponents/BackgroundDisplay';
+import { BackgroundDesign } from '../DesignerComponents/BackgroundDesign';
+import { CircleButton } from '../SimpleComponents/CircleButton';
+import { PointBuyDesign } from '../DesignerComponents/PointBuyDesign';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
@@ -34,6 +36,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         }
     ]
 
+    // NEXT TIME: Make point buy work with + and - buttons
     return (
         <>
             <div className="fieldHolder">
@@ -42,38 +45,15 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <div className="label">Name</div>
                     <TextInput isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"name"} inputHandler={inputChangeHandler}/>
                 </div>
-                <div className="statHolder">
-                    <div>
-                        <div className="label">Strength</div>
-                        <TextInput isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"baseStats.strength"} inputHandler={inputChangeHandler}/>
-                    </div>
-                    <div>
-                        <div className="label">Dexterity</div>
-                        <TextInput isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"baseStats.dexterity"} inputHandler={inputChangeHandler}/>
-                    </div>
-                    <div>
-                        <div className="label">Constitution</div>
-                        <TextInput isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"baseStats.constitution"} inputHandler={inputChangeHandler}/>
-                    </div>
-                    <div>
-                        <div className="label">Intelligence</div>
-                        <TextInput isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"baseStats.intelligence"} inputHandler={inputChangeHandler}/>
-                    </div>
-                    <div>
-                        <div className="label">Wisdom</div>
-                        <TextInput isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"baseStats.wisdom"} inputHandler={inputChangeHandler}/>
-                    </div>
-                    <div>
-                        <div className="label">Charisma</div>
-                        <TextInput isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"baseStats.charisma"} inputHandler={inputChangeHandler}/>
-                    </div>
+                <div>
+                    <PointBuyDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></PointBuyDesign>
                 </div>
                 <div>
                     <div className="label">Race</div>
                     <SelectList options={races.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"race.name"} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
-                    <RaceDisplay baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></RaceDisplay>
+                    <RaceDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></RaceDesign>
                 </div>
                 <div>
                     <div className="label">Level</div>
@@ -88,7 +68,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <SelectList options={backgrounds.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"background.name"} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
-                    <BackgroundDisplay baseStateObject={playerConfigs} inputHandler={inputChangeHandler}/>
+                    <BackgroundDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}/>
                 </div>
             </div>
         </>

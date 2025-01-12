@@ -1,6 +1,6 @@
 import { getCollection } from "../Collections";
 import { getValueFromObjectAndPath } from "./ComponentFunctions";
-import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
+import { convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
     return 2 + Math.floor((playerConfigs.level - 1) / 4);
@@ -46,6 +46,19 @@ export function calculateHPMax(playerConfigs) {
         }
     }
     return maxHpSoFar;
+}
+
+export function calculateStatPointsBought(playerConfigs) {
+    let totalPoints = 0;
+    for (const abilityScoreKey of Object.keys(playerConfigs.baseStats)) {
+        const abilityScoreAmount = playerConfigs.baseStats[abilityScoreKey];
+        const amountThatCostsNormal = abilityScoreAmount - 8;
+        let amountThatCostsAnExtraPoint = abilityScoreAmount - 13;
+        amountThatCostsAnExtraPoint = amountThatCostsAnExtraPoint < 0 ? 0 : amountThatCostsAnExtraPoint;
+
+        totalPoints += amountThatCostsNormal + amountThatCostsAnExtraPoint;
+    }
+    return totalPoints;
 }
 
 export function calculateBaseStat(playerConfigs, statToCalculate) {
