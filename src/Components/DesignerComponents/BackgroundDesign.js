@@ -61,23 +61,16 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
 
     return (<>
         <div className="backgroundDisplayer">
-            <div>
-                <div className="backgroundAttributeLabel">Ability Scores</div>
-                <div className="backgroundIndent">
-                    <div className="backgroundAttributeLabel backgroundNewSection">{"Total: " + abilityScorePointsBought + "/" + maxAbilityScorePoints}</div>
-                    <>
-                        {backgroundAbilityScores}
-                    </>
-                </div>
+            <div className="backgroundAttributeLabel">{"Ability Scores Total: " + abilityScorePointsBought + "/" + maxAbilityScorePoints}</div>
+            <div className="backgroundIndent backgroundEndOfSection">
+                <>
+                    {backgroundAbilityScores}
+                </>
             </div>
-            <div>
-                <div className="backgroundAttributeLabel">Skill Proficiencies</div>
-                <div>{skillProficienciesRows}</div>
-            </div>
-            <div>
-                <div className="backgroundAttributeLabel">Tool Proficiencies</div>
-                <div>{toolProficienciesRows}</div>
-            </div>
+            <div className="backgroundAttributeLabel">Skill Proficiencies</div>
+            <div className="backgroundEndOfSection">{skillProficienciesRows}</div>
+            <div className="backgroundAttributeLabel">Tool Proficiencies</div>
+            <div className="backgroundEndOfSection">{toolProficienciesRows}</div>
             <div style={{display: (dndbackground.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerChoices={"background.choices."} inputHandler={inputHandler}></ChoiceDesign>
             </div>

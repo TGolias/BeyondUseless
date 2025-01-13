@@ -120,7 +120,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
             }
 
             choices.push(<>
-                <div>
+                <div className="singleChoiceWrapper">
                     <div className="choiceLabel" style={{display: (choice.description ? "block" : "none")}}>{choice.description}</div>
                     <SelectList options={optionDisplayStrings} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToProperty} inputHandler={inputHandler}></SelectList>
                 </div>
@@ -158,9 +158,9 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                                 <div className="choiceLabel">{customOptionDisplay.displayName}</div>
                             </>);
                             for (const collectionValue of collectionValues) {
-                                aspectDisplay.push(<>
+                                aspectDisplay.push(<><div className="singleChoiceWrapper">
                                     <div>{rightTriangleUnicode + collectionValue}</div>
-                                </>);
+                                </div></>);
                             }
 
                             choices.push(<>
@@ -173,7 +173,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                 // Your choice can have choices... Yo dawg...
                 if (chosenOption && chosenOption.choices) {
                     choices.push(<>
-                        <div>
+                        <div className="singleChoiceWrapper">
                             <ChoiceDesign baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDesign>
                         </div>
                     </>);

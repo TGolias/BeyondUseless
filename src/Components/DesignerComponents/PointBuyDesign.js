@@ -38,14 +38,11 @@ export function PointBuyDesign({baseStateObject, inputHandler}) {
     }
 
     return (<>
-        <div className='pointBuyWrapper'>
-            <div className='pointBuyLabel'>Base Ability Scores</div>
-            <div className='pointBuyIndent'>
-                <div className='pointBuyLabel pointBuyNewSection'>{"Point Buy Total: " + totalPointsBought + "/" + maxPoints}</div>
-                <>
-                    {statChangers}
-                </>
-            </div>
+        <div className='pointBuyCenter'>
+            <div className='pointBuyLabel pointBuyNewSection'>{"Point Buy Total: " + totalPointsBought + "/" + maxPoints}</div>
+            <>
+                {statChangers}
+            </>
         </div>
     </>)
 }

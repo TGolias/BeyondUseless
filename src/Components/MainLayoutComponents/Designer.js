@@ -8,6 +8,8 @@ import { getCollection } from '../../Collections';
 import { BackgroundDesign } from '../DesignerComponents/BackgroundDesign';
 import { PointBuyDesign } from '../DesignerComponents/PointBuyDesign';
 import { SpeciesDesign } from '../DesignerComponents/SpeciesDesign';
+import { calculateAspectCollection, getAllAspectOptions } from '../../SharedFunctions/TabletopMathFunctions';
+import { convertArrayOfStringsToHashMap } from '../../SharedFunctions/Utils';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
@@ -35,6 +37,31 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         }
     ]
 
+    const languagesSelectionConfig = [
+        {
+            pathToProperty: "$VALUE",
+            componentType: "SelectList",
+            options: (baseStateObject, i) => {
+                if (i === 0) {
+                    return ["Common"];
+                }
+                let allLanguages = getAllAspectOptions("languages");
+                const alreadySelectedLanguages = calculateAspectCollection(baseStateObject, "languages");
+                const alreadySelectedLanguagesHashMap = convertArrayOfStringsToHashMap(alreadySelectedLanguages);
+
+                const languageOptions = [];
+                for (const language of allLanguages) {
+                    // Only include a language if it's not already selected OR if it's selected in this exact slot.
+                    if (!alreadySelectedLanguagesHashMap[language] || baseStateObject.languages[i] === language) {
+                        languageOptions.push(language);
+                    }
+                }
+                return languageOptions;
+            },
+            isNumber: false
+        }
+    ]
+
     // NEXT TIME: Make point buy work with + and - buttons
     return (
         <>
@@ -45,6 +72,11 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <TextInput isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"name"} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
+                    <div className="label">Level</div>
+                    <SelectList options={Array.from({length: 20}, (_, i) => i + 1)} isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"level"} inputHandler={inputChangeHandler}/>
+                </div>
+                <div>
+                    <div className='label'>Base Ability Scores</div>
                     <PointBuyDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></PointBuyDesign>
                 </div>
                 <div>
@@ -63,10 +95,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 </div>
                 <div>
                     <div className="label">Languages</div>
-                </div>
-                <div>
-                    <div className="label">Level</div>
-                    <SelectList options={Array.from({length: 20}, (_, i) => i + 1)} isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"level"} inputHandler={inputChangeHandler}/>
+                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"languages"} config={languagesSelectionConfig} inputHandler={inputChangeHandler} allowAdd={false} allowRemove={false} />
                 </div>
                 <div>
                     <div className="label">Class</div>

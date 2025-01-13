@@ -1,17 +1,13 @@
-.pointBuyWrapper {
-    display: flex;
-    flex-direction: column;
-}
-
 .pointBuyLabel {
     padding-bottom: 0.2em;
+    font-weight: bold;
 }
 
 .pointBuyNewSection {
     padding-top: 0.2em;
 }
 
-.pointBuyIndent {
+.pointBuyCenter {
     display: flex;
     flex-direction: column;
     align-items: center;

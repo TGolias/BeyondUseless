@@ -120,7 +120,7 @@ export function getAllAspectOptions(aspectName) {
 }
 
 export function calculateAspectCollection(playerConfigs, aspectName) {
-    if (aspectName == "CUSTOM") {
+    if (aspectName === "CUSTOM") {
         // Nothing will come back for this anyways, no need to search.
         return [];
     }
@@ -152,6 +152,12 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
 function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const backgrounds = getCollection("backgrounds");
     const species = getCollection("species");
+
+    // Check the base player for the spect.
+    const baseAspectValue = getValueFromObjectAndPath(playerConfigs, aspectName)
+    if (baseAspectValue) {
+        onAspectFound(baseAspectValue);
+    }
 
     // Check the species for the aspect.
     const dndspecies = species.find(x => x.name === playerConfigs.species.name);

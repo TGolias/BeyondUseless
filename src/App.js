@@ -34,7 +34,7 @@ const defaultPlayerConfiguration = {
       elvenLineage: "High Elf"
     }
   },
-  languages: ["Elvish", "Giant"],
+  languages: ["Common", "Elvish", "Giant"],
   classes: [
     {
       name: "Paladin",

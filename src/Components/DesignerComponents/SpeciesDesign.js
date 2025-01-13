@@ -29,15 +29,20 @@ export function SpeciesDesign({baseStateObject, inputHandler}) {
 
     return (<>
         <div className="speciesDisplayer">
-            <div>Speed: {dndspecies.speed}</div>
-            <div>Size: {dndspecies.size}</div>
+            <div className="speciesAttributeLabel">Base Speed: {dndspecies.speed}</div>
+            <div style={{display: (dndspecies.size ? "block" : "none")}}>
+                <div className="speciesAttributeLabel">Size: {dndspecies.size}</div>
+            </div>
+            <div style={{display: (dndspecies.darkvision ? "block" : "none")}}>
+                <div className="speciesAttributeLabel">Darkvision: {dndspecies.darkvision}</div>
+            </div>
             <div style={{display: (resistanceRows.length ? "block" : "none")}}>
                 <div className="speciesAttributeLabel">Resistances:</div>
-                <div>{resistanceRows}</div>
+                <div className="speciesCollectionWrapper">{resistanceRows}</div>
             </div>
             <div style={{display: (skillProficienciesRows.length ? "block" : "none")}}>
                 <div className="speciesAttributeLabel">Skills:</div>
-                <div>{skillProficienciesRows}</div>
+                <div className="speciesCollectionWrapper">{skillProficienciesRows}</div>
             </div>
             <div style={{display: (dndspecies.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndspecies} pathToPlayerChoices={"species.choices."} inputHandler={inputHandler}></ChoiceDesign>

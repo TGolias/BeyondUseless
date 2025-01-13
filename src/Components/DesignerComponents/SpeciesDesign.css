@@ -1,10 +1,17 @@
 .speciesDisplayer {
     display: flex;
     flex-direction: column;
+    align-items: center;
     row-gap: 1em;
-    padding-left: 1em;
+}
+
+.speciesCollectionWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .speciesAttributeLabel {
     padding-bottom: 0.2em;
+    font-weight: bold;
 }
