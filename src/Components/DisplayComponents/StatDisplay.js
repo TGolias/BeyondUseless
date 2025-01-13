@@ -11,7 +11,7 @@ export function StatDisplay({playerConfigs, name, value}) {
     const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
     const playerExpertiseMap = convertArrayOfStringsToHashMap(playerExpertise);
 
-    const dndSkillProficiencies = getCollection("skillproficiencies");
+    const dndSkillProficiencies = getCollection("skillProficiencies");
     const skillproficiencyRows = [];
     for (const skillProficiency of dndSkillProficiencies) {
         if (skillProficiency.modifier === name) {

@@ -1,17 +1,17 @@
 import './Designer.css';
 import React from 'react';
 import { CanMulticlass, GetValidClassLevelsArray, GetValidClassesArray, GetValidMulticlassDefault } from '../../SharedFunctions/MulticlassFunctions';
-import { RaceDesign } from '../DesignerComponents/RaceDesign';
 import { ArrayInput } from '../SimpleComponents/ArrayInput';
 import { TextInput } from '../SimpleComponents/TextInput';
 import { SelectList } from '../SimpleComponents/SelectList';
 import { getCollection } from '../../Collections';
 import { BackgroundDesign } from '../DesignerComponents/BackgroundDesign';
 import { PointBuyDesign } from '../DesignerComponents/PointBuyDesign';
+import { SpeciesDesign } from '../DesignerComponents/SpeciesDesign';
 
 export function Designer({playerConfigs, inputChangeHandler}) {
 
-    const races = getCollection("races");
+    const species = getCollection("species");
     const backgrounds = getCollection("backgrounds");
     
     const classSelectionConfig = [
@@ -55,11 +55,11 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <BackgroundDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
-                    <div className="label">Race</div>
-                    <SelectList options={races.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"race.name"} inputHandler={inputChangeHandler}/>
+                    <div className="label">Species</div>
+                    <SelectList options={species.map(x => x.name)} isNumberValue={false} baseStateObject={playerConfigs} pathToProperty={"species.name"} inputHandler={inputChangeHandler}/>
                 </div>
                 <div>
-                    <RaceDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></RaceDesign>
+                    <SpeciesDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></SpeciesDesign>
                 </div>
                 <div>
                     <div className="label">Languages</div>

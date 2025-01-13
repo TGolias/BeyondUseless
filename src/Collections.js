@@ -26,11 +26,11 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/languages.json"
     },
     {
-        name: "races",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/races.json"
+        name: "species",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/species.json"
     },
     {
-        name: "skillproficiencies",
+        name: "skillProficiencies",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/skillproficiencies.json"
     },
     {

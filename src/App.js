@@ -12,12 +12,13 @@ const timeoutBeforeAddedToHistory = 5000;
 const defaultPlayerConfiguration = {
   name: "Amantine Jaune Francina",
   level: 3,
-  race: {
-    name: "Elf",
-    choices: {
-      subrace: "High Elf",
-      additionalLanguage: "Giant"
-    }
+  abilityScores: {
+    strength: 8,
+    dexterity: 15,
+    constitution: 8,
+    intelligence: 10,
+    wisdom: 14,
+    charisma: 15
   },
   background: {
     name: "Francina Family Pedigree",
@@ -26,20 +27,21 @@ const defaultPlayerConfiguration = {
       charisma: 1
     }
   },
+  species: {
+    name: "Elf",
+    choices: {
+      keenSenses: "Insight",
+      elvenLineage: "High Elf"
+    }
+  },
+  languages: ["Elvish", "Giant"],
   classes: [
     {
       name: "Paladin",
       levels: 3
     }
   ],
-  abilityScores: {
-    strength: 8,
-    dexterity: 15,
-    constitution: 8,
-    intelligence: 10,
-    wisdom: 14,
-    charisma: 15
-  }
+  
 }
 
 const defaultPlayerState = {

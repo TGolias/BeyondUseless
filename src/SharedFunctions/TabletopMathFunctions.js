@@ -27,9 +27,14 @@ export function getAllPlayerDNDClasses(playerConfigs) {
 export function calculateHPMax(playerConfigs) {
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
 
+    let extraHPPerLVL = 0;
+    findAllConfiguredAspects(playerConfigs, "hpPerLVL", (hpPerLVL) => {
+        extraHPPerLVL += hpPerLVL;
+    });
+
     // First do the level 1 calculation. We use the first class for this.
     const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.abilityScores.constitution);
-    let maxHpSoFar = dndClasses[0].hitDie + hpFromConsitutionPerLevel
+    let maxHpSoFar = dndClasses[0].hitDie + hpFromConsitutionPerLevel + extraHPPerLVL;
 
     // Now calculate for each player class.
     for (let i = 0; i < dndClasses.length; i++) {
@@ -42,9 +47,12 @@ export function calculateHPMax(playerConfigs) {
 
         if (levelsToCalculate > 0) {
             const hpFromClassPerLevelAfter1 = (dndClass.hitDie / 2) + 1;
-            maxHpSoFar += levelsToCalculate * (hpFromClassPerLevelAfter1 + hpFromConsitutionPerLevel);
+            maxHpSoFar += levelsToCalculate * (hpFromClassPerLevelAfter1 + hpFromConsitutionPerLevel + extraHPPerLVL);
         }
     }
+
+    
+
     return maxHpSoFar;
 }
 
@@ -105,16 +113,19 @@ export function getAllAspectOptions(aspectName) {
         case "CUSTOM":
             // They'll provide their own values.
             return [];
-        case "languages":
-            return getCollection("languages");
         case "resistances":
             return getCollection("damagetypes");
     }
-    return [];
+    return getCollection(aspectName);
 }
 
 export function calculateAspectCollection(playerConfigs, aspectName) {
-    // Aspects are things like Language, Resistance, etc that are added from various Races, Class, Feats or Magical Effects.
+    if (aspectName == "CUSTOM") {
+        // Nothing will come back for this anyways, no need to search.
+        return [];
+    }
+
+    // Aspects are things like Language, Resistance, etc that are added from various Species, Class, Feats or Magical Effects.
     let aspectCollection = {};
 
     findAllConfiguredAspects(playerConfigs, aspectName, (aspectValue) => {
@@ -140,17 +151,17 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
 
 function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const backgrounds = getCollection("backgrounds");
-    const races = getCollection("races");
+    const species = getCollection("species");
 
-    // Check the race for the aspect.
-    const dndRace = races.find(x => x.name === playerConfigs.race.name);
-    const raceAspectValue = getValueFromObjectAndPath(dndRace, aspectName)
-    if (raceAspectValue) {
-        onAspectFound(raceAspectValue);
+    // Check the species for the aspect.
+    const dndspecies = species.find(x => x.name === playerConfigs.species.name);
+    const speciesAspectValue = getValueFromObjectAndPath(dndspecies, aspectName)
+    if (speciesAspectValue) {
+        onAspectFound(speciesAspectValue);
     }
 
-    if (dndRace.choices) {
-        findAspectsFromChoice(playerConfigs, dndRace, "race.choices.", aspectName, onAspectFound);
+    if (dndspecies.choices) {
+        findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, onAspectFound);
     }
     
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
@@ -173,7 +184,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
 }
 
 function findAspectsFromChoice(playerConfigs, choiceObject, pathToPlayerChoices, aspectName, onAspectFound) {
-    // Check the race choices for the aspect.
+    // Check the species choices for the aspect.
     for (const choice of choiceObject.choices) {
         const pathToProperty = pathToPlayerChoices + choice.property;
         const playerChoice = getValueFromObjectAndPath(playerConfigs, pathToProperty);

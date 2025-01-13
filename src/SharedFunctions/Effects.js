@@ -5,8 +5,8 @@ export function applyEffects(newBaseStateObject, pathToProperty, newValue) {
     switch (pathToProperty) {
         case "level":
             return onLevelChangeHandler(newBaseStateObject, newValue);
-        case "race.name":
-            return onRaceNameChangeHandler(newBaseStateObject, newValue);
+        case "species.name":
+            return onSpeciesNameChangeHandler(newBaseStateObject, newValue);
         case "background.name":
             return onBackgroundNameChangeHandler(newBaseStateObject, newValue);
     }
@@ -41,10 +41,10 @@ function onLevelChangeHandler(newBaseStateObject, newLevelValue) {
     newBaseStateObject.classes = newClasses;
 }
 
-function onRaceNameChangeHandler(newBaseStateObject, newRaceNameValue) {
-    // Remove all choises from the previous race.
-    if (newBaseStateObject.race.name !== newRaceNameValue) {
-        newBaseStateObject.race.choices = {};
+function onSpeciesNameChangeHandler(newBaseStateObject, newSpeciesNameValue) {
+    // Remove all choises from the previous species.
+    if (newBaseStateObject.species.name !== newSpeciesNameValue) {
+        newBaseStateObject.species.choices = {};
     }
 }
 

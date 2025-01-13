@@ -69,8 +69,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
 
             // We don't want to be able to select any aspect values that we currently already have selected through other means.
             const alreadySelectedValues = calculateAspectCollection(baseStateObject, choice.optionsSource);
-            const alreadySelectedValueDisplayStrings = alreadySelectedValues.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
-            const alreadySelectedValueDisplayStringsHashMap = convertArrayOfStringsToHashMap(alreadySelectedValueDisplayStrings);
+            const alreadySelectedValueDisplayStringsHashMap = convertArrayOfStringsToHashMap(alreadySelectedValues);
             // -But, we want to include the current value in the array in the case of multiple selections.
             const currentChoiceValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
