@@ -1,3 +1,25 @@
+.backgroundNewSection {
+    padding-top: 0.2em;
+}
+
+.backgroundStatChanger {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.backgroundStatValue {
+    width: 5em;
+    text-align: center;
+}
+
+.backgroundIndent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.2em;
+}
+
 .backgroundDisplayer {
     display: flex;
     flex-direction: column;

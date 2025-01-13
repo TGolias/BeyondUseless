@@ -2,6 +2,9 @@ import React from "react";
 import "./BackgroundDesign.css";
 import { getCollection } from "../../Collections";
 import { ChoiceDesign } from "./ChoiceDesign";
+import { getCapitalizedAbilityScoreName, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
+import { CircleButton } from "../SimpleComponents/CircleButton";
+import { calculateBackgroundPointsBought } from "../../SharedFunctions/TabletopMathFunctions";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -9,13 +12,33 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
     const backgrounds = getCollection("backgrounds");
     const dndbackground = backgrounds.find(x => x.name === baseStateObject.background.name);
 
-    const languageRows = [];
-    if (dndbackground.languages) {
-        for (let i = 0; i < dndbackground.languages.length; i++) {
-            languageRows.push(<>
-                <div>{rightTriangleUnicode + dndbackground.languages[i]}</div>
-            </>)
-        }
+    const backgroundAbilityScoreMax = 2;
+    const backgroundAbilityScoreMin = 0;
+    const maxAbilityScorePoints = 3;
+    const abilityScorePointsBought = calculateBackgroundPointsBought(baseStateObject);
+
+    const backgroundAbilityScores = [];
+    for (const abilityScoreKey of dndbackground.abilityScores) {
+        const abilityScoreName = getCapitalizedAbilityScoreName(abilityScoreKey);
+        const abilityScoreValue = baseStateObject.background.abilityScores[abilityScoreKey] ?? 0;
+
+        const pathToProperty = "background.abilityScores." + abilityScoreKey;
+
+        const disableMinusButton = abilityScoreValue <= backgroundAbilityScoreMin;
+        const disablePlusButton = abilityScoreValue >= backgroundAbilityScoreMax || (abilityScorePointsBought >= maxAbilityScorePoints)
+
+        backgroundAbilityScores.push(<>
+            <div className="backgroundNewSection">{abilityScoreName}</div>
+            <div className='backgroundStatChanger'>
+                <CircleButton text={"-"} onClickHandler={() => {
+                    return onInputChangeHandler(baseStateObject, pathToProperty, abilityScoreValue - 1, inputHandler);
+                }} disabled={disableMinusButton}></CircleButton>
+                <div className="backgroundStatValue">{abilityScoreValue}</div>
+                <CircleButton text={"+"} onClickHandler={() => {
+                    return onInputChangeHandler(baseStateObject, pathToProperty, abilityScoreValue + 1, inputHandler);
+                }} disabled={disablePlusButton}></CircleButton>
+            </div>
+        </>);
     }
 
     const skillProficienciesRows = [];
@@ -27,15 +50,33 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
         }
     }
 
+    const toolProficienciesRows = [];
+    if (dndbackground.toolProficiencies) {
+        for (let i = 0; i < dndbackground.toolProficiencies.length; i++) {
+            toolProficienciesRows.push(<>
+                <div>{rightTriangleUnicode + dndbackground.toolProficiencies[i]}</div>
+            </>)
+        }
+    }
+
     return (<>
         <div className="backgroundDisplayer">
-            <div style={{display: (languageRows.length ? "block" : "none")}}>
-                <div className="backgroundAttributeLabel">Languages:</div>
-                <div>{languageRows}</div>
+            <div>
+                <div className="backgroundAttributeLabel">Ability Scores</div>
+                <div className="backgroundIndent">
+                    <div className="backgroundAttributeLabel backgroundNewSection">{"Total: " + abilityScorePointsBought + "/" + maxAbilityScorePoints}</div>
+                    <>
+                        {backgroundAbilityScores}
+                    </>
+                </div>
             </div>
-            <div style={{display: (skillProficienciesRows.length ? "block" : "none")}}>
-                <div className="backgroundAttributeLabel">Skills:</div>
+            <div>
+                <div className="backgroundAttributeLabel">Skill Proficiencies</div>
                 <div>{skillProficienciesRows}</div>
+            </div>
+            <div>
+                <div className="backgroundAttributeLabel">Tool Proficiencies</div>
+                <div>{toolProficienciesRows}</div>
             </div>
             <div style={{display: (dndbackground.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerChoices={"background.choices."} inputHandler={inputHandler}></ChoiceDesign>

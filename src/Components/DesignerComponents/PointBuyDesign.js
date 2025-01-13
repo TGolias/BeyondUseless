@@ -13,11 +13,11 @@ export function PointBuyDesign({baseStateObject, inputHandler}) {
     const totalPointsBought = calculateStatPointsBought(baseStateObject);
 
     const statChangers = []
-    for (const abilityScoreKey of Object.keys(baseStateObject.baseStats)) {
+    for (const abilityScoreKey of Object.keys(baseStateObject.abilityScores)) {
         const abilityScoreName = getCapitalizedAbilityScoreName(abilityScoreKey);
-        const abilityScoreValue = baseStateObject.baseStats[abilityScoreKey];
+        const abilityScoreValue = baseStateObject.abilityScores[abilityScoreKey];
 
-        const pathToProperty = "baseStats." + abilityScoreKey;
+        const pathToProperty = "abilityScores." + abilityScoreKey;
         const amountOfPointsPlusWillIncreaseBy = abilityScoreValue >= 13 ? 2 : 1;
 
         const disableMinusButton = abilityScoreValue <= statValueMin;
@@ -39,7 +39,7 @@ export function PointBuyDesign({baseStateObject, inputHandler}) {
 
     return (<>
         <div className='pointBuyWrapper'>
-            <div className='pointBuyLabel'>Base Stats</div>
+            <div className='pointBuyLabel'>Base Ability Scores</div>
             <div className='pointBuyIndent'>
                 <div className='pointBuyLabel pointBuyNewSection'>{"Point Buy Total: " + totalPointsBought + "/" + maxPoints}</div>
                 <>

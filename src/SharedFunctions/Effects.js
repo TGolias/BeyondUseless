@@ -1,10 +1,14 @@
+import { getCollection } from "../Collections";
+import { convertArrayOfStringsToHashMap } from "./Utils";
+
 export function applyEffects(newBaseStateObject, pathToProperty, newValue) {
     switch (pathToProperty) {
         case "level":
             return onLevelChangeHandler(newBaseStateObject, newValue);
-        case "race.name": {
+        case "race.name":
             return onRaceNameChangeHandler(newBaseStateObject, newValue);
-        }
+        case "background.name":
+            return onBackgroundNameChangeHandler(newBaseStateObject, newValue);
     }
 }
 
@@ -38,7 +42,25 @@ function onLevelChangeHandler(newBaseStateObject, newLevelValue) {
 }
 
 function onRaceNameChangeHandler(newBaseStateObject, newRaceNameValue) {
+    // Remove all choises from the previous race.
     if (newBaseStateObject.race.name !== newRaceNameValue) {
         newBaseStateObject.race.choices = {};
+    }
+}
+
+function onBackgroundNameChangeHandler(newBaseStateObject, newBackgroundValue) {
+    // Remove all ability score increases that the new background does not have access to.
+    const backgrounds = getCollection("backgrounds");
+    const dndbackground = backgrounds.find(x => x.name === newBackgroundValue);
+
+    // Clone the ability scores first in case things get removed, that way undo functionality still works.
+    newBaseStateObject.background.abilityScores = {...newBaseStateObject.background.abilityScores};
+
+    const newBackgroundAbilityScores = convertArrayOfStringsToHashMap(dndbackground.abilityScores);
+    for (const abilityScoreKey of Object.keys(newBaseStateObject.background.abilityScores)) {
+        if (!newBackgroundAbilityScores[abilityScoreKey]) {
+            // This ability score is not contained in the new background, therefore the increase would be illegal. Remove it.
+            delete newBaseStateObject.background.abilityScores[abilityScoreKey];
+        }
     }
 }

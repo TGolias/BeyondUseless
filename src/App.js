@@ -20,7 +20,11 @@ const defaultPlayerConfiguration = {
     }
   },
   background: {
-    name: "Francina Family Pedigree"
+    name: "Francina Family Pedigree",
+    abilityScores: {
+      dexterity: 2,
+      charisma: 1
+    }
   },
   classes: [
     {
@@ -28,7 +32,7 @@ const defaultPlayerConfiguration = {
       levels: 3
     }
   ],
-  baseStats: {
+  abilityScores: {
     strength: 8,
     dexterity: 15,
     constitution: 8,

@@ -28,7 +28,7 @@ export function calculateHPMax(playerConfigs) {
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
 
     // First do the level 1 calculation. We use the first class for this.
-    const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.baseStats.constitution);
+    const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.abilityScores.constitution);
     let maxHpSoFar = dndClasses[0].hitDie + hpFromConsitutionPerLevel
 
     // Now calculate for each player class.
@@ -50,8 +50,8 @@ export function calculateHPMax(playerConfigs) {
 
 export function calculateStatPointsBought(playerConfigs) {
     let totalPoints = 0;
-    for (const abilityScoreKey of Object.keys(playerConfigs.baseStats)) {
-        const abilityScoreAmount = playerConfigs.baseStats[abilityScoreKey];
+    for (const abilityScoreKey of Object.keys(playerConfigs.abilityScores)) {
+        const abilityScoreAmount = playerConfigs.abilityScores[abilityScoreKey];
         const amountThatCostsNormal = abilityScoreAmount - 8;
         let amountThatCostsAnExtraPoint = abilityScoreAmount - 13;
         amountThatCostsAnExtraPoint = amountThatCostsAnExtraPoint < 0 ? 0 : amountThatCostsAnExtraPoint;
@@ -61,10 +61,26 @@ export function calculateStatPointsBought(playerConfigs) {
     return totalPoints;
 }
 
-export function calculateBaseStat(playerConfigs, statToCalculate) {
-    let baseStatValue = playerConfigs.baseStats[statToCalculate];
+export function calculateBackgroundPointsBought(playerConfigs) {
+    let totalPoints = 0;
+    for (const abilityScoreKey of Object.keys(playerConfigs.abilityScores)) {
+        const abilityScoreAmount = playerConfigs.background.abilityScores[abilityScoreKey];
+        if (abilityScoreAmount) {
+            totalPoints += abilityScoreAmount;
+        }
+    }
+    return totalPoints;
+}
 
-    findAllConfiguredAspects(playerConfigs, "abilityIncrease.", statToCalculate, (aspectValue) => {
+export function calculateBaseStat(playerConfigs, statToCalculate) {
+    let baseStatValue = playerConfigs.abilityScores[statToCalculate];
+
+    const backgroundValue = playerConfigs.background.abilityScores[statToCalculate];
+    if (backgroundValue) {
+        baseStatValue += backgroundValue;
+    }
+
+    findAllConfiguredAspects(playerConfigs, statToCalculate, (aspectValue) => {
         baseStatValue += aspectValue;
     });
 
@@ -101,7 +117,7 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
     // Aspects are things like Language, Resistance, etc that are added from various Races, Class, Feats or Magical Effects.
     let aspectCollection = {};
 
-    findAllConfiguredAspects(playerConfigs, "", aspectName, (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, aspectName, (aspectValue) => {
         setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
     });
 
@@ -122,13 +138,13 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
     }
 }
 
-function findAllConfiguredAspects(playerConfigs, raceAspectSubCollection, aspectName, onAspectFound) {
+function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const backgrounds = getCollection("backgrounds");
     const races = getCollection("races");
 
     // Check the race for the aspect.
     const dndRace = races.find(x => x.name === playerConfigs.race.name);
-    const raceAspectValue = getValueFromObjectAndPath(dndRace, raceAspectSubCollection + aspectName)
+    const raceAspectValue = getValueFromObjectAndPath(dndRace, aspectName)
     if (raceAspectValue) {
         onAspectFound(raceAspectValue);
     }
@@ -153,10 +169,6 @@ function findAllConfiguredAspects(playerConfigs, raceAspectSubCollection, aspect
     const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName)
     if (backgroundAspectValue) {
         onAspectFound(backgroundAspectValue);
-    }
-
-    if (dndBackground.choices) {
-        findAspectsFromChoice(playerConfigs, dndBackground, "background.choices.", aspectName, onAspectFound);
     }
 }
 
