@@ -42,4 +42,8 @@
     .baseStats {
         max-height: none;
     }
+
+    .baseStats > * {
+        width: 80%;
+    }
 }
