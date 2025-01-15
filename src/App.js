@@ -31,6 +31,7 @@ const defaultPlayerConfiguration = {
     name: "Elf",
     choices: {
       keenSenses: "Insight",
+      elvenLineageSpellcastingAbility: "Charisma",
       elvenLineage: "High Elf"
     }
   },

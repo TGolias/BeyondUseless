@@ -101,6 +101,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <div className="label">Class</div>
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
+                <br/>
             </div>
         </>
     );

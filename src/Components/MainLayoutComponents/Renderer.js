@@ -27,6 +27,7 @@ export function Renderer({playerConfigs}) {
                 <div className="textEntry" style={{display: (resistancesString ? "block" : "none")}}>
                     <div>Resistances: {resistancesString}</div>
                 </div>
+                <br/>
             </div>
         </>
     );

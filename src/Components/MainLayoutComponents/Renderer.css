@@ -46,4 +46,8 @@
     .baseStats > * {
         width: 80%;
     }
+
+    .baseStats .proficencyScoreText {
+        text-align: center;
+    }
 }
