@@ -4,7 +4,7 @@ This tool can be accessed at: https://tgolias.github.io/BeyondUseless/
 
 ## A Free Tabletop RPG Character Builder
 
-This is a little hobby project I started out of the frustration of finding that the current Tabletop RPG Character builder offerings on the market to were... -we'll say, "less than useful". For the amount that many of these TTRPG Character builders ask players to pay, I feel they either miss out on a lot, or nickel and dime the hell out of you in order to get satisfactory functionality. I also feel they lack the kinds of customization options that my TTRPG group needed for our campaigns with use a bit of homebrew. This is just a fun little coding project to hopefully alleviate some of those frustrations for myself.
+This is a little hobby project I started out of the frustration of finding that the current Tabletop RPG Character builder offerings on the market to were perhaps "less than useful". For the amount that many of these TTRPG Character builders ask players to pay, I feel they either miss out on a lot, or nickel and dime the hell out of you in order to get satisfactory functionality. I also feel they lack the kinds of customization options that my TTRPG group needed for our campaigns with use a bit of homebrew. This is just a fun little coding project to hopefully alleviate some of those frustrations for myself.
 
 ## Legal Stuff
 

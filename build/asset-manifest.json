@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "./static/css/main.ec056fc0.css",
+    "main.js": "./static/js/main.beb9ddc1.js",
+    "static/media/font-of-the-mans.ttf": "./static/media/font-of-the-mans.c5cea637f871320c45f5.ttf",
+    "index.html": "./index.html",
+    "main.ec056fc0.css.map": "./static/css/main.ec056fc0.css.map",
+    "main.beb9ddc1.js.map": "./static/js/main.beb9ddc1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ec056fc0.css",
+    "static/js/main.beb9ddc1.js"
+  ]
+}
