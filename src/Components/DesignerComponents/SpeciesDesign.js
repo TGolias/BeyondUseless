@@ -38,11 +38,15 @@ export function SpeciesDesign({baseStateObject, inputHandler}) {
             </div>
             <div style={{display: (resistanceRows.length ? "block" : "none")}}>
                 <div className="speciesAttributeLabel">Resistances:</div>
-                <div className="speciesCollectionWrapper">{resistanceRows}</div>
+                <div className="speciesCollectionWrapper">
+                    <div>{resistanceRows}</div>
+                </div>
             </div>
             <div style={{display: (skillProficienciesRows.length ? "block" : "none")}}>
                 <div className="speciesAttributeLabel">Skills:</div>
-                <div className="speciesCollectionWrapper">{skillProficienciesRows}</div>
+                <div className="speciesCollectionWrapper">
+                    <div>{skillProficienciesRows}</div>
+                </div>
             </div>
             <div style={{display: (dndspecies.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndspecies} pathToPlayerChoices={"species.choices."} inputHandler={inputHandler}></ChoiceDesign>

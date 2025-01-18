@@ -1,0 +1,24 @@
+.classDisplayer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 1em;
+}
+
+.classCollectionWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.classAttributeLabel {
+    padding-bottom: 0.2em;
+    font-weight: bold;
+}
+
+.multipleSelectLists {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.5em;
+}

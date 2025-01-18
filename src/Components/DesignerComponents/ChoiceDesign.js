@@ -9,15 +9,6 @@ const rightTriangleUnicode = '\u25B6';
 
 const customOptionDisplays = [
     {
-        displayName: "Languages:",
-        aspects: [
-            {
-                name: "languages",
-                preAppendString: ""
-            }
-        ],
-    },
-    {
         displayName: "Resistances:",
         aspects: [
             {
@@ -25,35 +16,6 @@ const customOptionDisplays = [
                 preAppendString: ""
             }
         ],
-    },
-    {
-        displayName: "Stat Increases:",
-        aspects: [
-            {
-                name: "strength",
-                preAppendString: "Strength +"
-            }, 
-            {
-                name: "dexterity",
-                preAppendString: "Dexterity +"
-            },
-            {
-                name: "constitution",
-                preAppendString: "Constitution +"
-            },
-            {
-                name: "intelligence",
-                preAppendString: "Intelligence +"
-            },
-            {
-                name: "wisdom",
-                preAppendString: "Wisdom +"
-            },
-            {
-                name: "charisma",
-                preAppendString: "Charisma +"
-            }
-        ]
     }
 ]
 
@@ -73,56 +35,22 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
             // -But, we want to include the current value in the array in the case of multiple selections.
             const currentChoiceValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
-            const optionDisplayStringsThatHaventBeenSelected = [];
-            for (const optionDisplayString of optionDisplayStrings) {
-                if (!alreadySelectedValueDisplayStringsHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
-                    optionDisplayStringsThatHaventBeenSelected.push(optionDisplayString);
+            const singleChoice = []
+            if (choice.multipleSelections) {
+                const selectLists = [];
+                for (let i = 0; i < choice.multipleSelections; i++) {
+                    selectLists.push(createSelectList(baseStateObject, pathToProperty + "[" + i + "]", inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue[i]));
                 }
+                singleChoice.push(<div className="multipleSelectLists">{selectLists}</div>)
+            } else {
+                singleChoice.push(createSelectList(baseStateObject, pathToProperty, inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue));
             }
-            optionDisplayStrings = optionDisplayStringsThatHaventBeenSelected;
-
-            if (choice.options) {
-                let constrainedOptionDisplayStrings = choice.options.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
-                if (choice.optionsSource === "CUSTOM") {
-                    optionDisplayStrings = constrainedOptionDisplayStrings;
-                } else {
-                    // We also want to filter our source options based on what is in the constrained options.
-                    const constrainedOptionDisplayStringsHashMap = convertArrayOfStringsToHashMap(constrainedOptionDisplayStrings);
-                    const filteredOptionDisplayStrings = []
-                    for (let j = 0; j < optionDisplayStrings.length; j++) {
-                        const optionDisplayString = optionDisplayStrings[j];
-                        if (constrainedOptionDisplayStringsHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
-                            filteredOptionDisplayStrings.push(optionDisplayString);
-                        }
-                    }
-                    optionDisplayStrings = filteredOptionDisplayStrings;
-                }
-            }
-
-            if (choice.constrainToOtherChoices) {
-                // If we constrain this against other choices we need to remove already selected values.
-                const choiceConstrainedHashMap = {};
-                for (const choiceToConstrain of choice.constrainToOtherChoices) {
-                    const pathToPropertyToConstrainAround = pathToPlayerChoices + choiceToConstrain;
-                    const choiceDisplayText = getValueFromObjectAndPath(baseStateObject, pathToPropertyToConstrainAround);
-                    if (choiceDisplayText) {
-                        choiceConstrainedHashMap[choiceDisplayText] = true;
-                    }
-                }
-
-                const optionDisplayStringsThatAreNotConstrainted = [];
-                for (const optionDisplayString of optionDisplayStrings) {
-                    if (!choiceConstrainedHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
-                        optionDisplayStringsThatAreNotConstrainted.push(optionDisplayString);
-                    }
-                }
-                optionDisplayStrings = optionDisplayStringsThatAreNotConstrainted;
-            }
+            
 
             choices.push(<>
                 <div className="singleChoiceWrapper">
                     <div className="choiceLabel" style={{display: (choice.description ? "block" : "none")}}>{choice.description}</div>
-                    <SelectList options={optionDisplayStrings} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToProperty} inputHandler={inputHandler}></SelectList>
+                    {singleChoice}
                 </div>
             </>);
 
@@ -182,4 +110,54 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
         }
     }
     return <div className="choiceDisplayer">{choices}</div>;
+}
+
+function createSelectList(baseStateObject, pathToProperty, inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue) {
+    const optionDisplayStringsThatHaventBeenSelected = [];
+    for (const optionDisplayString of optionDisplayStrings) {
+        if (!alreadySelectedValueDisplayStringsHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
+            optionDisplayStringsThatHaventBeenSelected.push(optionDisplayString);
+        }
+    }
+    optionDisplayStrings = optionDisplayStringsThatHaventBeenSelected;
+
+    if (choice.options) {
+        let constrainedOptionDisplayStrings = choice.options.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
+        if (choice.optionsSource === "CUSTOM") {
+            optionDisplayStrings = constrainedOptionDisplayStrings;
+        } else {
+            // We also want to filter our source options based on what is in the constrained options.
+            const constrainedOptionDisplayStringsHashMap = convertArrayOfStringsToHashMap(constrainedOptionDisplayStrings);
+            const filteredOptionDisplayStrings = []
+            for (let j = 0; j < optionDisplayStrings.length; j++) {
+                const optionDisplayString = optionDisplayStrings[j];
+                if (constrainedOptionDisplayStringsHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
+                    filteredOptionDisplayStrings.push(optionDisplayString);
+                }
+            }
+            optionDisplayStrings = filteredOptionDisplayStrings;
+        }
+    }
+
+    if (choice.constrainToOtherChoices) {
+        // If we constrain this against other choices we need to remove already selected values.
+        const choiceConstrainedHashMap = {};
+        for (const choiceToConstrain of choice.constrainToOtherChoices) {
+            const pathToPropertyToConstrainAround = pathToPlayerChoices + choiceToConstrain;
+            const choiceDisplayText = getValueFromObjectAndPath(baseStateObject, pathToPropertyToConstrainAround);
+            if (choiceDisplayText) {
+                choiceConstrainedHashMap[choiceDisplayText] = true;
+            }
+        }
+
+        const optionDisplayStringsThatAreNotConstrainted = [];
+        for (const optionDisplayString of optionDisplayStrings) {
+            if (!choiceConstrainedHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
+                optionDisplayStringsThatAreNotConstrainted.push(optionDisplayString);
+            }
+        }
+        optionDisplayStrings = optionDisplayStringsThatAreNotConstrainted;
+    }
+
+    return <SelectList options={optionDisplayStrings} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToProperty} inputHandler={inputHandler}></SelectList>
 }

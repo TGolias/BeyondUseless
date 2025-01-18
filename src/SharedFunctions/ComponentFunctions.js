@@ -1,13 +1,19 @@
 export function getValueFromObjectAndPath(baseStateObject, pathToProperty) {
     let propertyValue = baseStateObject;
     if (pathToProperty !== "$VALUE") {
-        const totalPath = pathToProperty.split(/\]\.|\.|\[/);
+        const totalPath = getTotalPath(pathToProperty);
         for (let i = 0; i < totalPath.length; i++) {
             let pathSegment = totalPath[i];
             propertyValue = propertyValue[pathSegment];
         }
     }
     return propertyValue;
+}
+
+export function getTotalPath(pathToProperty) {
+    pathToProperty = pathToProperty.endsWith(']') ? pathToProperty.substring(0, pathToProperty.length - 1) : pathToProperty;
+    const totalPath = pathToProperty.split(/\]\.|\.|\[/);
+    return totalPath;
 }
 
 export function onInputChangeHandler(baseStateObject, pathToProperty, newValue, onInputHandler) {

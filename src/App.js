@@ -6,6 +6,7 @@ import { Designer } from "./Components/MainLayoutComponents/Designer";
 import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffects } from "./SharedFunctions/Effects";
 import { fetchAllCollections } from "./Collections";
+import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -30,7 +31,7 @@ const defaultPlayerConfiguration = {
   species: {
     name: "Elf",
     choices: {
-      keenSenses: "Insight",
+      keenSenses: "Perception",
       elvenLineageSpellcastingAbility: "Charisma",
       elvenLineage: "High Elf"
     }
@@ -39,7 +40,10 @@ const defaultPlayerConfiguration = {
   classes: [
     {
       name: "Paladin",
-      levels: 3
+      levels: 3,
+      choices: {
+        classSkills: ["Persuasion", "Insight"]
+      }
     }
   ],
   
@@ -123,7 +127,7 @@ export default function App() {
     }
 
     // Now do the actual logic.
-    const totalPath = pathToProperty.split(/\]\.|\.|\[/);
+    const totalPath = getTotalPath(pathToProperty);
 
     // We are traversing the path, but also making shallow copies all the way down for the new version of the state as we go.
     let newBaseStateObject = Object.assign({}, currentState);

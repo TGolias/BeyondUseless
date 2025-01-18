@@ -13,7 +13,7 @@ export function ArrayInput({baseStateObject, pathToProperty, config, inputHandle
         for (let j = 0; j < config.length; j++) {
             const configEntry = config[j];
             if (configEntry.componentType === "SelectList") {
-                const singleItemPathToProperty = pathToProperty + "[" + i + (configEntry.pathToProperty === "$VALUE" ? "" : "]." + configEntry.pathToProperty);
+                const singleItemPathToProperty = pathToProperty + "[" + i + (configEntry.pathToProperty === "$VALUE" ? "]" : "]." + configEntry.pathToProperty);
                 columns.push((
                     <>
                         <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options(baseStateObject, i)} baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler}/>

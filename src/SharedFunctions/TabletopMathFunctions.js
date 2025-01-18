@@ -171,14 +171,17 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     }
     
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
-    for (const dndClass of dndClasses) {
+    for (let i = 0; i < dndClasses.length; i++) {
+        const dndClass = dndClasses[i];
         // Check each of the classes for the aspect.
         const classAspectValue = dndClass[aspectName];
         if (classAspectValue) {
             onAspectFound(classAspectValue);
         }
 
-        // TODO: Check each of the class choices for the aspect.
+        if (dndClass.choices) {
+            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, onAspectFound);
+        }
     }
 
     // Check the background for the aspect.
@@ -195,21 +198,33 @@ function findAspectsFromChoice(playerConfigs, choiceObject, pathToPlayerChoices,
         const pathToProperty = pathToPlayerChoices + choice.property;
         const playerChoice = getValueFromObjectAndPath(playerConfigs, pathToProperty);
 
-        if (playerChoice) {
-            let sourceOptions = [];
-            if (choice.optionsSource === "CUSTOM") {
-                sourceOptions = choice.options;
-            } else {
-                sourceOptions = getAllAspectOptions(choice.optionsSource);
+        if (Array.isArray(playerChoice)) {
+            for (let i = 0; i < playerChoice.length; i++) {
+                findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices, playerChoice[i], aspectName, onAspectFound);
             }
+        } else {
+            findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices, playerChoice, aspectName, onAspectFound);
+        }
+    }
+}
 
-            let optionObject = undefined;
-            if (choice.optionDisplayProperty === "$VALUE") {
-                optionObject = sourceOptions.find(x => x === playerChoice);
-            } else {
-                optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
-            }
+function findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices, playerChoice, aspectName, onAspectFound) {
+    if (playerChoice) {
+        let sourceOptions = [];
+        if (choice.optionsSource === "CUSTOM") {
+            sourceOptions = choice.options;
+        } else {
+            sourceOptions = getAllAspectOptions(choice.optionsSource);
+        }
 
+        let optionObject = undefined;
+        if (choice.optionDisplayProperty === "$VALUE") {
+            optionObject = sourceOptions.find(x => x === playerChoice);
+        } else {
+            optionObject = sourceOptions.find(x => x[choice.optionDisplayProperty] === playerChoice);
+        }
+
+        if (optionObject) {
             const choiceToAttributeMappingForAspect = choice.choiceToAttributesMapping[aspectName];
             if (choiceToAttributeMappingForAspect) {
                 let aspectValue = undefined;
