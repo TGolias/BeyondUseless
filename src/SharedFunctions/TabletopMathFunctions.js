@@ -105,7 +105,16 @@ export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProfi
             skillBonus += proficencyBonus;
         }
     }
-    return skillBonus;;
+    return skillBonus;
+}
+
+export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficiency) {
+    let savingThrowBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, modifier));
+    if (hasProficiency) {
+        let proficencyBonus = calculateProficiencyBonus(playerConfigs);
+        savingThrowBonus += proficencyBonus;
+    }
+    return savingThrowBonus;
 }
 
 export function getAllAspectOptions(aspectName) {

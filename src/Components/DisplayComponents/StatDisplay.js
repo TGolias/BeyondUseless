@@ -1,11 +1,16 @@
 import React from 'react';
 import './StatDisplay.css';
-import { calculateAspectCollection, calculateModifierForBaseStat, calculateSkillBonus } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateAspectCollection, calculateModifierForBaseStat, calculateSavingThrowBonus, calculateSkillBonus } from '../../SharedFunctions/TabletopMathFunctions';
 import { convertArrayOfStringsToHashMap } from '../../SharedFunctions/Utils';
 import { getCollection } from '../../Collections';
 
 export function StatDisplay({playerConfigs, name, value}) {
     const modifierAmount = calculateModifierForBaseStat(value);
+
+    const playerSavingThrowProficiencies = calculateAspectCollection(playerConfigs, "savingThrowProficiencies");
+    const playerSavingThrowProficienciesMap = convertArrayOfStringsToHashMap(playerSavingThrowProficiencies);
+    const savingThrowBonus = calculateSavingThrowBonus(playerConfigs, name, playerSavingThrowProficienciesMap[name]);
+
     const playerSkillProficiencies = calculateAspectCollection(playerConfigs, "skillProficiencies");
     const playerSkillProficienciesMap = convertArrayOfStringsToHashMap(playerSkillProficiencies);
     const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
@@ -47,6 +52,17 @@ export function StatDisplay({playerConfigs, name, value}) {
                                 <div className='abilityScore'>{value}</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div className="saveAndSkillsWrapper">
+                    <div className="proficencyCircleWrapper">
+                        <div className={"outer-circle"}>
+                            <div className={"dot pixel-corners" + (playerSavingThrowProficienciesMap[name] ? " fill" : "")}></div>
+                        </div>
+                    </div>
+                    <div className="skillModifier">{(savingThrowBonus <= 0 ? "" : "+") + savingThrowBonus}</div>
+                    <div className="proficencyScore">
+                        <div className="proficencyScoreText boldText">Saving Throws</div>
                     </div>
                 </div>
                 <div className="saveAndSkillsWrapper">
