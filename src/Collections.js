@@ -6,6 +6,10 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/backgrounds.json"
     },
     {
+        name: "cantrips",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/cantrips.json"
+    },
+    {
         name: "classes",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/classes.json"
     },
@@ -14,28 +18,36 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/damagetypes.json"
     },
     {
-        name: "equipment",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/equipment.json"
-    },
-    {
         name: "feats",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/feats.json"
+    },
+    {
+        name: "items",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/items.json"
     },
     {
         name: "languages",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/languages.json"
     },
     {
-        name: "species",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/species.json"
+        name: "rarelanguages",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/rarelanguages.json"
     },
     {
         name: "skillProficiencies",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/skillproficiencies.json"
     },
     {
+        name: "species",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/species.json"
+    },
+    {
         name: "spells",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/spells.json"
+    },
+    {
+        name: "spellslots",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/spellslots.json"
     },
     {
         name: "subclasses",

@@ -74,6 +74,12 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         </>);
     }
 
+    const rightTriangleUnicode = '\u25B6';
+    var items = [];
+    for (let item of playerConfigs.items) {
+        items.push(<div>{rightTriangleUnicode + item.name}</div>);
+    }
+
     // NEXT TIME: Make point buy work with + and - buttons
     return (
         <>
@@ -115,6 +121,10 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
                 {classDesigns}
+                <div>
+                    <div className="label">Items</div>
+                    {items}
+                </div>
                 <br/>
             </div>
         </>

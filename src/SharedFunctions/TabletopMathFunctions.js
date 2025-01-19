@@ -10,6 +10,17 @@ export function calculateModifierForBaseStat(baseStatValue) {
     return Math.floor((baseStatValue - 10) / 2);
 }
 
+export function calculateTierForPlayerLevel(playerConfigs) {
+    if (playerConfigs.level < 5) {
+        return 1;
+    } else if (playerConfigs.level < 11) {
+        return 2;
+    } else if (playerConfigs.level < 17) {
+        return 3;
+    }
+    return 4;
+}
+
 export function getAllPlayerDNDClasses(playerConfigs) {
     const classes = getCollection("classes");
     
@@ -33,7 +44,7 @@ export function calculateHPMax(playerConfigs) {
     });
 
     // First do the level 1 calculation. We use the first class for this.
-    const hpFromConsitutionPerLevel = calculateModifierForBaseStat(playerConfigs.abilityScores.constitution);
+    const hpFromConsitutionPerLevel = calculateAspectCollection(playerConfigs, "constitutionModifier");
     let maxHpSoFar = dndClasses[0].hitDie + hpFromConsitutionPerLevel + extraHPPerLVL;
 
     // Now calculate for each player class.
@@ -92,6 +103,15 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
         baseStatValue += aspectValue;
     });
 
+    // See if there are any overrides that are higher without it.
+    const overrideStatAspectName = statToCalculate + "Override";
+    findAllConfiguredAspects(playerConfigs, overrideStatAspectName, (aspectValue) => {
+        if (baseStatValue < aspectValue) {
+            // If the override is higher than the stat without the override, set that to the new value.
+            baseStatValue = aspectValue;
+        }
+    });
+
     return baseStatValue;
 }
 
@@ -134,6 +154,33 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
         return [];
     }
 
+    // Handle our special cases first.
+    switch (aspectName) {
+        case "strength":
+        case "dexterity":
+        case "constitution":
+        case "intelligence":
+        case "wisdom":
+        case "charisma":
+            return calculateBaseStat(playerConfigs, aspectName);
+        case "strengthModifier":
+        case "dexterityModifier":
+        case "constitutionModifier":
+        case "intelligenceModifier":
+        case "wisdomModifier":
+        case "charismaModifier":
+            return calculateModifierForBaseStat(calculateBaseStat(playerConfigs, aspectName.substring(0, aspectName.length - 8)));
+        case "maxHp":
+            return calculateHPMax(playerConfigs);
+        case "tier":
+            return calculateTierForPlayerLevel(playerConfigs);
+    }
+
+    const aspectCollection = calculateAspectCollectionCore(playerConfigs, aspectName);
+    return aspectCollection;
+}
+
+export function calculateAspectCollectionCore(playerConfigs, aspectName) {
     // Aspects are things like Language, Resistance, etc that are added from various Species, Class, Feats or Magical Effects.
     let aspectCollection = {};
 
@@ -201,8 +248,28 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     }
 
     if (dndBackground.feat) {
-        findAspecsFromFeat(dndBackground.feat, aspectName, onAspectFound);
+        const feats = getCollection('feats');
+        const dndfeat = feats.find(x => x.name === dndBackground.feat);
+        if (dndfeat && dndfeat.aspects && dndfeat.aspects[aspectName]) {
+            onAspectFound(dndfeat.aspects[aspectName]);
+        }
     }
+
+    if (playerConfigs.items) {
+        // Check equipped items for the aspect.
+        const items = getCollection('items');
+        // Convert to a dictionary for quick searches because the list could be LONG.
+        const itemsDictionary = convertArrayToDictionary(items, "name");
+        for (let item of playerConfigs.items) {
+            if (item.equipped) {
+                const dndItem = itemsDictionary[item.name];
+                if (dndItem && dndItem.aspects && dndItem.aspects[aspectName]) {
+                    onAspectFound(dndItem.aspects[aspectName]);
+                }
+            }
+        }
+    }
+    
 }
 
 function findAspectsFromChoice(playerConfigs, choiceObject, pathToPlayerChoices, aspectName, onAspectFound) {
@@ -256,13 +323,5 @@ function findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices,
                 findAspectsFromChoice(playerConfigs, optionObject, pathToPlayerChoices, aspectName, onAspectFound);
             }
         }
-    }
-}
-
-function findAspecsFromFeat(featname, aspectName, onAspectFound) {
-    const feats = getCollection('feats');
-    const dndfeat = feats.find(x => x.name === featname);
-    if (dndfeat && dndfeat.abilities && dndfeat.abilities[aspectName]) {
-        onAspectFound(dndfeat.abilities[aspectName]);
     }
 }

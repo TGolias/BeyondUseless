@@ -46,7 +46,20 @@ const defaultPlayerConfiguration = {
       }
     }
   ],
-  
+  items: [
+    {
+      name: "Amulet of Health",
+      equipped: true
+    },
+    {
+      name: "Shield",
+      equipped: true
+    },
+    {
+      name: "Studded Leather Armor",
+      equipped: true
+    }
+  ]
 }
 
 const defaultPlayerState = {
