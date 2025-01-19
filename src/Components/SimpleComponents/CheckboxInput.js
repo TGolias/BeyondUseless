@@ -5,9 +5,8 @@ import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFun
 export function CheckboxInput({baseStateObject, pathToProperty, inputHandler}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
-    return <input type="checkbox" value={startingValue} onInput={(event) => {
-        let value = false;
-        value = !!event.currentTarget.value;
+    return <input className="pixel-corners" type="checkbox" defaultChecked={startingValue} onInput={(event) => {
+        const value = event.currentTarget.checked;
         return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
     }}></input>
 }

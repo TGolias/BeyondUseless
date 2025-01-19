@@ -3,6 +3,7 @@ import "./ArrayInput.css"
 import { RetroButton } from "./RetroButton";
 import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
 import { SelectList } from "./SelectList";
+import { CheckboxInput } from "./CheckboxInput";
 
 export function ArrayInput({baseStateObject, pathToProperty, config, inputHandler, allowAdd, addText = undefined, generateAddedItem = undefined, allowRemove}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
@@ -12,13 +13,22 @@ export function ArrayInput({baseStateObject, pathToProperty, config, inputHandle
         const columns = [];
         for (let j = 0; j < config.length; j++) {
             const configEntry = config[j];
-            if (configEntry.componentType === "SelectList") {
-                const singleItemPathToProperty = pathToProperty + "[" + i + (configEntry.pathToProperty === "$VALUE" ? "]" : "]." + configEntry.pathToProperty);
-                columns.push((
-                    <>
-                        <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options(baseStateObject, i)} baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler}/>
-                    </>
-                ));
+            const singleItemPathToProperty = pathToProperty + "[" + i + (configEntry.pathToProperty === "$VALUE" ? "]" : "]." + configEntry.pathToProperty);
+            switch (configEntry.componentType) {
+                case "SelectList":
+                    columns.push((
+                        <>
+                            <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options(baseStateObject, i)} baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler}/>
+                        </>
+                    ));
+                    break;
+                case "Checkbox":
+                    columns.push((
+                        <>
+                            <CheckboxInput baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler}/>
+                        </>
+                    ));
+                    break;
             }
         }
         if (allowRemove) {

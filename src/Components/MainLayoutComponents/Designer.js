@@ -17,28 +17,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
     const species = getCollection("species");
     const backgrounds = getCollection("backgrounds");
     
-    const classSelectionConfig = [
-        {
-            pathToProperty: "name",
-            componentType: "SelectList",
-            options: (baseStateObject, i) => {
-                const className = baseStateObject.classes[i].name;
-                return GetValidClassesArray(baseStateObject, className);
-            },
-            isNumber: false
-        },
-        {
-            pathToProperty: "levels",
-            componentType: "SelectList",
-            options: (baseStateObject, i) => {
-                const className = baseStateObject.classes[i].name;
-                return GetValidClassLevelsArray(baseStateObject, className);
-            },
-            isNumber: true
-        }
-    ]
-
-    const languagesSelectionConfig = [
+    const languageSelectionConfig = [
         {
             pathToProperty: "$VALUE",
             componentType: "SelectList",
@@ -63,6 +42,27 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         }
     ];
 
+    const classSelectionConfig = [
+        {
+            pathToProperty: "name",
+            componentType: "SelectList",
+            options: (baseStateObject, i) => {
+                const className = baseStateObject.classes[i].name;
+                return GetValidClassesArray(baseStateObject, className);
+            },
+            isNumber: false
+        },
+        {
+            pathToProperty: "levels",
+            componentType: "SelectList",
+            options: (baseStateObject, i) => {
+                const className = baseStateObject.classes[i].name;
+                return GetValidClassLevelsArray(baseStateObject, className);
+            },
+            isNumber: true
+        }
+    ];
+
     var classDesigns = [];
     for (let i = 0; i < playerConfigs.classes.length; i++) {
         classDesigns.push(<>
@@ -74,11 +74,22 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         </>);
     }
 
-    const rightTriangleUnicode = '\u25B6';
-    var items = [];
-    for (let item of playerConfigs.items) {
-        items.push(<div>{rightTriangleUnicode + item.name}</div>);
-    }
+    const itemSelectionConfig = [
+        {
+            pathToProperty: "name",
+            componentType: "SelectList",
+            options: (baseStateObject, i) => {
+                const items = getCollection("items");
+                const itemNames = items.map(x => x.name);
+                return itemNames;
+            },
+            isNumber: false
+        },
+        {
+            pathToProperty: "equipped",
+            componentType: "Checkbox",
+        }
+    ];
 
     // NEXT TIME: Make point buy work with + and - buttons
     return (
@@ -114,7 +125,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 </div>
                 <div>
                     <div className="label">Languages</div>
-                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"languages"} config={languagesSelectionConfig} inputHandler={inputChangeHandler} allowAdd={false} allowRemove={false} />
+                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"languages"} config={languageSelectionConfig} inputHandler={inputChangeHandler} allowAdd={false} allowRemove={false} />
                 </div>
                 <div>
                     <div className="label">Class</div>
@@ -123,10 +134,15 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 {classDesigns}
                 <div>
                     <div className="label">Items</div>
-                    {items}
+                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"items"} config={itemSelectionConfig} inputHandler={inputChangeHandler} allowAdd={true} addText="Add Item" generateAddedItem={() => GetValidItemDefault()} allowRemove={true} />
                 </div>
                 <br/>
             </div>
         </>
     );
+}
+
+function GetValidItemDefault() {
+    const firstItem = getCollection("items")[0];
+    return { name: firstItem.name, equipped: false };
 }

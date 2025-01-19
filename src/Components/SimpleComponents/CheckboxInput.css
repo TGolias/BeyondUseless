@@ -1,0 +1,42 @@
+input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+  
+    color: black;
+    width: 1.5em;
+    height: 1.5em;
+    border: 0.2em solid black;
+    border-radius: 0.5em;
+  
+    display: grid;
+    place-content: center;
+}
+  
+input[type="checkbox"]::before {
+    content: "X";
+    padding-top: 0.125em;
+    padding-left: 0.125em;
+    font-size: 1.5em;
+    transform: scale(0);
+    transform-origin: center center;
+    transition: 120ms transform ease-in-out;
+    /* Windows High Contrast Mode */
+    background-color: transparent;
+}
+  
+input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+  
+input[type="checkbox"]:hover {
+    background-color: lightgrey;
+}
+  
+input[type="checkbox"]:disabled {
+    background-color: darkgrey;
+}
