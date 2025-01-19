@@ -199,6 +199,10 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     if (backgroundAspectValue) {
         onAspectFound(backgroundAspectValue);
     }
+
+    if (dndBackground.feat) {
+        findAspecsFromFeat(dndBackground.feat, aspectName, onAspectFound);
+    }
 }
 
 function findAspectsFromChoice(playerConfigs, choiceObject, pathToPlayerChoices, aspectName, onAspectFound) {
@@ -252,5 +256,13 @@ function findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices,
                 findAspectsFromChoice(playerConfigs, optionObject, pathToPlayerChoices, aspectName, onAspectFound);
             }
         }
+    }
+}
+
+function findAspecsFromFeat(featname, aspectName, onAspectFound) {
+    const feats = getCollection('feats');
+    const dndfeat = feats.find(x => x.name === featname);
+    if (dndfeat && dndfeat.abilities && dndfeat.abilities[aspectName]) {
+        onAspectFound(dndfeat.abilities[aspectName]);
     }
 }
