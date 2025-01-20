@@ -59,11 +59,9 @@ const defaultPlayerConfiguration = {
       name: "Studded Leather Armor",
       equipped: true
     }
-  ]
-}
-
-const defaultPlayerState = {
-  currentHp: 0
+  ],
+  currentStatus: {
+  }
 }
 
 let needsToLoad = true;

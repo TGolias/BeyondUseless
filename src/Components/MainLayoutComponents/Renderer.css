@@ -14,12 +14,18 @@
     font-weight: bold;
 }
 
-.lvl {
-    font-weight: bold
+.healthBarAndDefense {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.healthBarAndDefense > *:first-child {
+    flex-grow: 1;
 }
 
 .prof {
-    float: right;
+    font-weight: bold
 }
 
 .baseStats {

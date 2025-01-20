@@ -29,7 +29,7 @@ export function StatDisplay({playerConfigs, name, value}) {
                         </div>
                     </div>
                 </div>
-                <div className="skillModifier">{(skillBonus <= 0 ? "" : "+") + skillBonus}</div>
+                <div className="skillModifier">{(skillBonus < 0 ? "" : "+") + skillBonus}</div>
                 <div className="proficencyScore">
                     <div className="proficencyScoreText">{skillProficiency.name}</div>
                 </div>
@@ -44,7 +44,7 @@ export function StatDisplay({playerConfigs, name, value}) {
                 <div className="statName">{name}</div>
                 <div className="baseStatContainer">
                     <div>MODIFIER</div>
-                    <div className='modifier'>{(modifierAmount <= 0 ? "" : "+") + calculateModifierForBaseStat(value)}</div>
+                    <div className='modifier'>{(modifierAmount < 0 ? "" : "+") + calculateModifierForBaseStat(value)}</div>
                     <div>SCORE</div>
                     <div className="scoreContainer">
                         <div className='pixel-corners--wrapper'>
@@ -60,7 +60,7 @@ export function StatDisplay({playerConfigs, name, value}) {
                             <div className={"dot pixel-corners" + (playerSavingThrowProficienciesMap[name] ? " fill" : "")}></div>
                         </div>
                     </div>
-                    <div className="skillModifier">{(savingThrowBonus <= 0 ? "" : "+") + savingThrowBonus}</div>
+                    <div className="skillModifier">{(savingThrowBonus < 0 ? "" : "+") + savingThrowBonus}</div>
                     <div className="proficencyScore">
                         <div className="proficencyScoreText boldText">Saving Throws</div>
                     </div>

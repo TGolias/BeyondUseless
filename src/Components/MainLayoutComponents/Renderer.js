@@ -2,6 +2,8 @@ import { calculateArmorClass, calculateAspectCollection, calculateBaseStat, calc
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
+import { ArmorClassDisplay } from "../DisplayComponents/ArmorClassDisplay";
+import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 
 export function Renderer({playerConfigs}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -11,8 +13,11 @@ export function Renderer({playerConfigs}) {
         <>
             <div className="outerDiv">
                 <div className="playerName">{playerConfigs.name}</div>
-                <div className="lvl"><span>LVL{playerConfigs.level}</span><span className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</span></div>
-                <div className="hp"><span>HP: {calculateHPMax(playerConfigs)}</span><span className="prof">AC: {calculateArmorClass(playerConfigs)}</span></div>
+                <div className="healthBarAndDefense">
+                    <HPandLVLDisplay playerConfigs={playerConfigs}></HPandLVLDisplay>
+                    <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
+                </div>
+                <div className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</div>
                 <div className="baseStats">
                     <StatDisplay name="strength" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "strength")}/>
                     <StatDisplay name="dexterity" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "dexterity")}/>
