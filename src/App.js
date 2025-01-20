@@ -80,7 +80,10 @@ export default function App() {
   const [history, setHistory] = useState([startingPlayerConfigs]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
 
-  const [hideEditor, setHideEditor] = useState(false);
+  let hideEditorLocalStorage = localStorage.getItem("HIDE_EDITOR");
+  const startingValueForHideEditor = hideEditorLocalStorage === "true";
+
+  const [hideEditor, setHideEditor] = useState(startingValueForHideEditor);
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
@@ -96,6 +99,7 @@ export default function App() {
   });
 
   function toggleViewActive() {
+    localStorage.setItem("HIDE_EDITOR", (!hideEditor) ? "true" : "false");
     setHideEditor(!hideEditor);
   }
 
