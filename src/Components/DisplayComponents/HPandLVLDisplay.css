@@ -15,7 +15,7 @@
 }
 
 .healthBarValue {
-    height: 1.5em;
+    height: 1em;
     flex-grow: 1;
 }
 
@@ -30,6 +30,72 @@
 
 .healthBarCritical {
     background-color: rgb(188,21,28);
+}
+
+.hp-bar-corners,
+.hp-bar-corners--wrapper {
+  clip-path: polygon(0px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px 100%,
+    calc(100% - 4px) 100%,
+    calc(100% - 4px) calc(100% - 4px),
+    100% calc(100% - 4px),
+    100% 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 0px,
+    4px 0px,
+    4px 4px,
+    0px 4px);
+  position: relative;
+}
+.hp-bar-corners {
+  border: 4px solid transparent;
+}
+.hp-bar-corners--wrapper {
+  width: fit-content;
+  height: fit-content;
+}
+.hp-bar-corners--wrapper .pixel-corners {
+  display: block;
+  clip-path: polygon(4px 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) calc(100% - 4px),
+    4px calc(100% - 4px));
+}
+.hp-bar-corners::after,
+.hp-bar-corners--wrapper::after {
+  content: "";
+  position: absolute;
+  clip-path: polygon(0px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px 100%,
+    calc(100% - 4px) 100%,
+    calc(100% - 4px) calc(100% - 4px),
+    100% calc(100% - 4px),
+    100% 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 0px,
+    4px 0px,
+    4px 4px,
+    0px 4px,
+    0px 50%,
+    4px 50%,
+    4px 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px 50%,
+    0px 50%);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: black;
+  display: block;
+  pointer-events: none;
+}
+.hp-bar-corners::after {
+  margin: -4px;
 }
 
 .hp-corners,

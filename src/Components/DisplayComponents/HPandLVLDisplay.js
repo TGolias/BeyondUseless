@@ -15,7 +15,7 @@ export function HPandLVLDisplay({playerConfigs}) {
                 <div>LVL{level}</div>
                 <div className="healthBar">
                     <div>HP:</div>
-                    <div className="healthBarValue pixel-corners">
+                    <div className="healthBarValue hp-bar-corners">
                         <div className={"healthBarFill" + (percentHpRemaining <= 50 ? (percentHpRemaining <= 20 ? " healthBarCritical" : " healthBarBloodied") : "")} style={{width: (percentHpRemaining + "%")}}></div>
                     </div>
                 </div>
