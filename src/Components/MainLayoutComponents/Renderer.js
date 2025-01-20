@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateHPMax, calculateProficiencyBonus } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateArmorClass, calculateAspectCollection, calculateBaseStat, calculateHPMax, calculateProficiencyBonus } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -12,7 +12,7 @@ export function Renderer({playerConfigs}) {
             <div className="outerDiv">
                 <div className="playerName">{playerConfigs.name}</div>
                 <div className="lvl"><span>LVL{playerConfigs.level}</span><span className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</span></div>
-                <div className="hp">HP: {calculateHPMax(playerConfigs)}</div>
+                <div className="hp"><span>HP: {calculateHPMax(playerConfigs)}</span><span className="prof">AC: {calculateArmorClass(playerConfigs)}</span></div>
                 <div className="baseStats">
                     <StatDisplay name="strength" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "strength")}/>
                     <StatDisplay name="dexterity" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "dexterity")}/>

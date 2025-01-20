@@ -6,6 +6,64 @@ export function calculateProficiencyBonus(playerConfigs) {
     return 2 + Math.floor((playerConfigs.level - 1) / 4);
 }
 
+export function calculateArmorClass(playerConfigs) {
+    // Start with unarmored dc. 10 + dex modifier.
+    let armorClass = 10 + calculateAspectCollection(playerConfigs, "dexterityModifier");
+
+    // Check if there are any other ways to calculate armor class.
+    findAllConfiguredAspects(playerConfigs, "armorClass", (aspectValue) => {
+        let newArmorClass;
+        if (aspectValue.calcuation) {
+            newArmorClass = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            newArmorClass = aspectValue;
+        }
+
+        if (newArmorClass > armorClass) {
+            armorClass = newArmorClass;
+        }
+    });
+
+    // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
+    findAllConfiguredAspects(playerConfigs, "armorClassBonus", (aspectValue) => {
+        let armorClassBonus;
+        if (aspectValue.calcuation) {
+            armorClassBonus = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            armorClassBonus = aspectValue;
+        }
+
+        armorClass += armorClassBonus;
+    });
+
+    return armorClass;
+}
+
+export function performAspectCalculation(playerConfigs, calculation) {
+    let value = undefined;
+    for(let i = 0; i < calculation.length; i++) {4
+        let calculationValue = undefined;
+        const singleCalculation = calculation[i];
+        switch (singleCalculation.type) {
+            case "static":
+                calculationValue = singleCalculation.value;
+                break;
+            case "aspect":
+                calculationValue = calculateAspectCollection(playerConfigs, singleCalculation.value);
+        }
+
+        if (i === 0) {
+            value = calculationValue;
+        }
+        else {
+            value += calculationValue;
+        }
+    }
+    return value;
+}
+
 export function calculateModifierForBaseStat(baseStatValue) {
     return Math.floor((baseStatValue - 10) / 2);
 }
@@ -61,8 +119,6 @@ export function calculateHPMax(playerConfigs) {
             maxHpSoFar += levelsToCalculate * (hpFromClassPerLevelAfter1 + hpFromConsitutionPerLevel + extraHPPerLVL);
         }
     }
-
-    
 
     return maxHpSoFar;
 }
