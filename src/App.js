@@ -68,10 +68,16 @@ const defaultPlayerConfiguration = {
 let needsToLoad = true;
 
 export default function App() {
+  const newPlayerConfigsJsonString = localStorage.getItem("CURRENT_CHARACTER");
+  let startingPlayerConfigs = newPlayerConfigsJsonString ? JSON.parse(newPlayerConfigsJsonString) : defaultPlayerConfiguration;
+
+  // Force the default.
+  //startingPlayerConfigs = defaultPlayerConfiguration;
+
   const [isLoading, setLoading] = useState(false);
 
-  const [playerConfigs, setPlayerConfigs] = useState(defaultPlayerConfiguration);
-  const [history, setHistory] = useState([defaultPlayerConfiguration]);
+  const [playerConfigs, setPlayerConfigs] = useState(startingPlayerConfigs);
+  const [history, setHistory] = useState([startingPlayerConfigs]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
 
   const [hideEditor, setHideEditor] = useState(false);
@@ -120,7 +126,7 @@ export default function App() {
     setPlayerConfigs(nextState);
   }
 
-  function designerChangeHandler(baseStateObject, pathToProperty, newValue) {
+  function stateChangeHandler(baseStateObject, pathToProperty, newValue) {
     let currentState = baseStateObject
 
     // First check if there timeout is a timeout in place.
@@ -177,6 +183,8 @@ export default function App() {
 
     console.log("New State:");
     console.log(newBaseStateObject);
+
+    localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newBaseStateObject));
 
     // We only want want to add to the undo / redo stack if the value changed.
     if (valueChanged) {
@@ -275,7 +283,7 @@ export default function App() {
         </div>
         <div className="viewDiv">
           <div className={"screenView" + (hideEditor ? " inactiveView" : "")}>
-            <Designer playerConfigs={playerConfigs} inputChangeHandler={designerChangeHandler}></Designer>
+            <Designer playerConfigs={playerConfigs} inputChangeHandler={stateChangeHandler}></Designer>
           </div>
           <div className={"screenView" + (hideEditor ? "" : " inactiveViewForMobile")}>
             <Renderer playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></Renderer>
@@ -287,7 +295,7 @@ export default function App() {
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
         <div className="centerMenu pixel-corners">
-          <CenterMenu menuType={centerScreenMenu.menuType} setCenterScreenMenu={setCenterScreenMenu}></CenterMenu>
+          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
         </div>
       </div>
     </>

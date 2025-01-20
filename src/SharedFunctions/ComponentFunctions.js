@@ -11,6 +11,10 @@ export function getValueFromObjectAndPath(baseStateObject, pathToProperty) {
 }
 
 export function getTotalPath(pathToProperty) {
+    if (pathToProperty === "$VALUE") {
+        return [];
+    }
+
     pathToProperty = pathToProperty.endsWith(']') ? pathToProperty.substring(0, pathToProperty.length - 1) : pathToProperty;
     const totalPath = pathToProperty.split(/\]\.|\.|\[/);
     return totalPath;

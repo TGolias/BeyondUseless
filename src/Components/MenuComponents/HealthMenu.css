@@ -1,0 +1,32 @@
+.healthMenuLabel {
+    font-weight: bold;
+}
+
+.healthMenuWrapperDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    text-align: center;
+}
+
+.healthMenuVertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    text-align: center;
+}
+
+.healthMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.healthMenuGrid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    gap: 0.25em;
+}

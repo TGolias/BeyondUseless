@@ -120,6 +120,11 @@ export function calculateHPMax(playerConfigs) {
         }
     }
 
+    // Check for any current statuses
+    if (playerConfigs.currentStatus.maxHpModifier) {
+        maxHpSoFar += playerConfigs.currentStatus.maxHpModifier;
+    }
+
     return maxHpSoFar;
 }
 

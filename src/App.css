@@ -15,6 +15,7 @@
 
 .disableActivity {
   pointer-events: none;
+  filter: blur(2px);
 }
 
 .topBar {
