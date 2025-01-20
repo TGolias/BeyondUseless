@@ -1,9 +1,19 @@
 .arrayGrid {
     display: grid;
     justify-items: stretch;
+    align-items: center;
     column-gap: 0.5em;
     row-gap: 5px;
     width: 100%;
+}
+
+.arrayGrid select {
+    width: 100%;
+    text-overflow: ellipsis;
+}
+
+.headerLabel {
+    font-weight: bold;
 }
 
 .removeButtonWrapper * {

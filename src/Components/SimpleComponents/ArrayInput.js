@@ -9,6 +9,17 @@ export function ArrayInput({baseStateObject, pathToProperty, config, inputHandle
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
     const rows = [];
+    const headers = [];
+    // First Calculate the headers.
+    for (const configEntry of config) {
+        headers.push(<><div className="headerLabel">{configEntry.displayName}</div></>)
+    }
+    if (allowRemove) {
+        headers.push(<><div></div></>)
+    }
+    rows.push(<>{headers}</>)
+
+    // Now create the rows.
     for (let i = 0; i < startingValue.length; i++) {
         const columns = [];
         for (let j = 0; j < config.length; j++) {
@@ -56,10 +67,13 @@ export function ArrayInput({baseStateObject, pathToProperty, config, inputHandle
     // Calculate Grid template columns value.
     let gridTemplateColumnsValue = "";
     for (let i = 0; i < config.length; i++) {
+        const configEntry = config[i];
+        let widthValue = configEntry.columnWidth ? configEntry.columnWidth : "auto";
+
         if (i === 0) {
-            gridTemplateColumnsValue += "auto";
+            gridTemplateColumnsValue += widthValue;
         } else {
-            gridTemplateColumnsValue += " auto";
+            gridTemplateColumnsValue += (" " + widthValue);
         }
     }
     if (allowRemove) {

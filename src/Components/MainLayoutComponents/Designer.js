@@ -19,6 +19,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
     
     const languageSelectionConfig = [
         {
+            displayName: "Languages",
             pathToProperty: "$VALUE",
             componentType: "SelectList",
             options: (baseStateObject, i) => {
@@ -44,6 +45,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
 
     const classSelectionConfig = [
         {
+            displayName: "Class",
             pathToProperty: "name",
             componentType: "SelectList",
             options: (baseStateObject, i) => {
@@ -53,6 +55,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
             isNumber: false
         },
         {
+            displayName: "Class Level",
             pathToProperty: "levels",
             componentType: "SelectList",
             options: (baseStateObject, i) => {
@@ -76,6 +79,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
 
     const itemSelectionConfig = [
         {
+            displayName: "Items",
             pathToProperty: "name",
             componentType: "SelectList",
             options: (baseStateObject, i) => {
@@ -86,8 +90,10 @@ export function Designer({playerConfigs, inputChangeHandler}) {
             isNumber: false
         },
         {
+            displayName: "Equip",
             pathToProperty: "equipped",
             componentType: "Checkbox",
+            columnWidth: "5em"
         }
     ];
 
@@ -124,16 +130,13 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <SpeciesDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler}></SpeciesDesign>
                 </div>
                 <div>
-                    <div className="label">Languages</div>
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"languages"} config={languageSelectionConfig} inputHandler={inputChangeHandler} allowAdd={false} allowRemove={false} />
                 </div>
                 <div>
-                    <div className="label">Class</div>
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
                 {classDesigns}
                 <div>
-                    <div className="label">Items</div>
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"items"} config={itemSelectionConfig} inputHandler={inputChangeHandler} allowAdd={true} addText="Add Item" generateAddedItem={() => GetValidItemDefault()} allowRemove={true} />
                 </div>
                 <br/>
