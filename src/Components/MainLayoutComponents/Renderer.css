@@ -46,6 +46,6 @@
 
 @media only screen and (max-width: 600px) {
     .baseStats > * {
-        width: calc(50vw - 2em);
+        width: calc(50% - 0.5em);
     }
 }
