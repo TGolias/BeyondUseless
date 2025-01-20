@@ -13,6 +13,10 @@
   align-items: center;
 }
 
+.disableActivity {
+  pointer-events: none;
+}
+
 .topBar {
   width: 100%;
   display: flex;
@@ -60,6 +64,27 @@
   /* Make sure Start Menu shows above top bar */
   position: fixed;
   z-index: 2;
+}
+
+.centerMenuWrapper {
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  width: 28em;
+  height: 100%;
+  position: fixed;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.centerMenu {
+  padding: 0.5em;
+  background-color: white;
 }
 
 .hide {

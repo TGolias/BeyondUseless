@@ -7,6 +7,7 @@ import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffects } from "./SharedFunctions/Effects";
 import { fetchAllCollections } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
+import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -75,6 +76,7 @@ export default function App() {
 
   const [hideEditor, setHideEditor] = useState(false);
   const [showStartMenu, setShowStartMenu] = useState(false);
+  const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
 
   useEffect(() => {
@@ -266,7 +268,7 @@ export default function App() {
 
   return (
     <>
-      <div className="topDiv">
+      <div className={"topDiv" + ((showStartMenu || centerScreenMenu.show) ? " disableActivity" : "")}>
         <div className="topBar">
           <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
           <div className="startMenuButton" onClick={() => setShowStartMenu(true)}><div></div>MENU</div>
@@ -276,12 +278,17 @@ export default function App() {
             <Designer playerConfigs={playerConfigs} inputChangeHandler={designerChangeHandler}></Designer>
           </div>
           <div className={"screenView" + (hideEditor ? "" : " inactiveViewForMobile")}>
-            <Renderer playerConfigs={playerConfigs}></Renderer>
+            <Renderer playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></Renderer>
           </div>
         </div>
       </div>
       <div className={"startMenu" + (showStartMenu ? "" : " hide")}>
         <StartMenu menuItems={startMenuItems}></StartMenu>
+      </div>
+      <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
+        <div className="centerMenu pixel-corners">
+          <CenterMenu menuType={centerScreenMenu.menuType} setCenterScreenMenu={setCenterScreenMenu}></CenterMenu>
+        </div>
       </div>
     </>
   );

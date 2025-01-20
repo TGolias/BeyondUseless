@@ -43,9 +43,9 @@ export function StatDisplay({playerConfigs, name, value}) {
             <div className='outerbox pixel-corners'>
                 <div className="statName">{name}</div>
                 <div className="baseStatContainer">
-                    <div>MODIFIER</div>
+                    <div className='statDisplaystatLabel'>MODIFIER</div>
                     <div className='modifier'>{(modifierAmount < 0 ? "" : "+") + calculateModifierForBaseStat(value)}</div>
-                    <div>SCORE</div>
+                    <div className='statDisplaystatLabel'>SCORE</div>
                     <div className="scoreContainer">
                         <div className='pixel-corners--wrapper'>
                             <div className='circleAroundScore pixel-corners'>

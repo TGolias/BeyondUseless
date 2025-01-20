@@ -2,7 +2,7 @@ import React from "react";
 import './HPandLVLDisplay.css';
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 
-export function HPandLVLDisplay({playerConfigs}) {
+export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu}) {
     const level = playerConfigs.level;
     const hpMax = calculateHPMax(playerConfigs);
     const currentHp = playerConfigs.currentStatus.remainingHp ? playerConfigs.currentStatus.remainingHp : hpMax;
@@ -10,7 +10,10 @@ export function HPandLVLDisplay({playerConfigs}) {
     const percentHpRemaining = (currentHp / hpMax) * 100;
 
     return <>
-        <div className="hp-corners">
+        <div className="hp-corners" onClick={() => {
+            console.log("CLICKED!");
+            setCenterScreenMenu({ show: true, menuType: "HealthMenu" });
+        }}>
             <div className="healthWrapper">
                 <div>LVL{level}</div>
                 <div className="healthBar">

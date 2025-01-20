@@ -1,0 +1,15 @@
+.menuTitleBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.menuTitleBarTitle {
+    font-weight: bold;
+}
+
+.centerMenuOuterDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}

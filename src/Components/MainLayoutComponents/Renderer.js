@@ -5,7 +5,7 @@ import { StatDisplay } from "../DisplayComponents/StatDisplay";
 import { ArmorClassDisplay } from "../DisplayComponents/ArmorClassDisplay";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 
-export function Renderer({playerConfigs}) {
+export function Renderer({playerConfigs, setCenterScreenMenu}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
 
@@ -14,7 +14,7 @@ export function Renderer({playerConfigs}) {
             <div className="outerDiv">
                 <div className="playerName">{playerConfigs.name}</div>
                 <div className="healthBarAndDefense">
-                    <HPandLVLDisplay playerConfigs={playerConfigs}></HPandLVLDisplay>
+                    <HPandLVLDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></HPandLVLDisplay>
                     <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
                 </div>
                 <div className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</div>

@@ -45,6 +45,14 @@
     padding-bottom: 5px;
 }
 
+.statDisplaystatLabel {
+    /**/
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .abilityScore {
     font-size: 0.6em;
 }
@@ -103,11 +111,21 @@
     padding-right: 0.5em;
     height: 2.0em;
     line-height: 2.1em;
+    
+    /**/
+    width: 100%;
+    overflow: hidden;
 }
 
 .proficencyScoreText {
     font-size: 0.75em;
     text-wrap: nowrap;
+
+    /**/
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .boldText {
