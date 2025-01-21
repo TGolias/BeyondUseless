@@ -24,4 +24,16 @@
     width: 100%;
     padding: 0.5em;
     border-top: 2px solid black;
+
+    flex: 1;
+}
+
+.heroicInspirationContainer > * {
+    height: 5em !important;
+    width: 5em !important;
+}
+
+.heroicInspirationContainer > input[type="checkbox"]::before {
+    font-size: 3em;
+    font-weight: normal;
 }
