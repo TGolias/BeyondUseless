@@ -1,0 +1,31 @@
+.profOuterbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profBonusLabel {
+    font-size: 1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    /* I used to scale this fucking fatass font, but then I got smart and used the shortened versions: transform: scale(0.5,1); */
+    padding: 0.5em;
+    text-align: center;
+    line-height: 1.25em;
+}
+
+.profScoreContainer {
+    display: grid;
+    grid-template-columns: auto;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    padding: 0.5em;
+    border-top: 2px solid black;
+}
+
+.profScoreModifier {
+    font-size: 1.5em;
+    padding: .1em;
+}

@@ -24,10 +24,6 @@
     flex-grow: 1;
 }
 
-.prof {
-    font-weight: bold
-}
-
 .baseStats {
     width: 100%;
     display: flex;

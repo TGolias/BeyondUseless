@@ -290,7 +290,7 @@ export default function App() {
             <Designer playerConfigs={playerConfigs} inputChangeHandler={stateChangeHandler}></Designer>
           </div>
           <div className={"screenView" + (hideEditor ? "" : " inactiveViewForMobile")}>
-            <Renderer playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></Renderer>
+            <Renderer playerConfigs={playerConfigs} inputChangeHandler={stateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></Renderer>
           </div>
         </div>
       </div>

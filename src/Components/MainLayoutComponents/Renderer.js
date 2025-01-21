@@ -1,11 +1,13 @@
-import { calculateArmorClass, calculateAspectCollection, calculateBaseStat, calculateHPMax, calculateProficiencyBonus } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
 import { ArmorClassDisplay } from "../DisplayComponents/ArmorClassDisplay";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
+import { ProficiencyBonusDisplay } from "../DisplayComponents/ProficiencyBonusDisplay";
+import { HeroicInspirationDisplay } from "../DisplayComponents/HeroicInspirationDisplay";
 
-export function Renderer({playerConfigs, setCenterScreenMenu}) {
+export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
 
@@ -17,11 +19,12 @@ export function Renderer({playerConfigs, setCenterScreenMenu}) {
                     <HPandLVLDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></HPandLVLDisplay>
                     <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
                 </div>
-                <div className="prof">Prof: +{calculateProficiencyBonus(playerConfigs)}</div>
                 <div className="baseStats">
+                    <ProficiencyBonusDisplay playerConfigs={playerConfigs}/>
                     <StatDisplay name="strength" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "strength")}/>
                     <StatDisplay name="dexterity" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "dexterity")}/>
                     <StatDisplay name="constitution" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "constitution")}/>
+                    <HeroicInspirationDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler}/>
                     <StatDisplay name="intelligence" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "intelligence")}/>
                     <StatDisplay name="wisdom" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "wisdom")}/>
                     <StatDisplay name="charisma" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "charisma")}/>

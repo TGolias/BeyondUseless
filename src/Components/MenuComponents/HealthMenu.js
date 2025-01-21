@@ -14,9 +14,20 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
     playerConfigsClone.currentStatus.tempHp = menuConfig.newTempHp;
     playerConfigsClone.currentStatus.maxHpModifier = menuConfig.newMaxHpModifier;
 
-    const maxHp = calculateHPMax(playerConfigsClone);
+    let maxHp = calculateHPMax(playerConfigsClone);
 
-    playerConfigsClone.currentStatus.remainingHp = (menuConfig.newRemainingHp > maxHp ? maxHp : menuConfig.newRemainingHp);
+    // HP max can't drop below 0.
+    if (maxHp < 0) {
+        menuConfig.newMaxHpModifier = menuConfig.newMaxHpModifier - maxHp;
+        playerConfigsClone.currentStatus.maxHpModifier = menuConfig.newMaxHpModifier;
+        maxHp = 0;
+    }
+
+    if (menuConfig.newRemainingHp > maxHp) {
+        menuConfig.newRemainingHp = maxHp;
+    }
+
+    playerConfigsClone.currentStatus.remainingHp = menuConfig.newRemainingHp;
 
     return (<>
         <div className="healthMenuWrapperDiv">
