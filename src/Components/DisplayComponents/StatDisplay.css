@@ -112,7 +112,6 @@
     height: 2.0em;
     line-height: 2.1em;
     
-    /**/
     width: 100%;
     overflow: hidden;
 }
@@ -121,11 +120,11 @@
     font-size: 0.75em;
     text-wrap: nowrap;
 
-    /**/
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-indent: 1px;
 }
 
 .boldText {
