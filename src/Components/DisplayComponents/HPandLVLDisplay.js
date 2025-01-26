@@ -36,9 +36,11 @@ function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
     if (percentHpRemaining <= 20) {
         if (playLowHpAudio) {
             // @ts-ignore
-            if (lowHpAudio.paused) {
+            if (lowHpAudio.paused || lowHpAudio.volume == 0) {
                 // @ts-ignore
                 lowHpAudio.currentTime = 0;
+                // @ts-ignore
+                lowHpAudio.volume = 1;
             }
             // @ts-ignore
             lowHpAudio.loop = true;
@@ -50,6 +52,8 @@ function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
             }, 150);
         }
     } else {
+        // @ts-ignore
+        lowHpAudio.volume = 0;
         // @ts-ignore
         lowHpAudio.pause();
     }

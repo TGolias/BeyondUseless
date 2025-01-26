@@ -35,3 +35,11 @@ export function isNumeric(stringValue) {
         return false;
     }
 }
+
+export function playAudio(audioFileName) {
+    const audioFile = document.getElementById(audioFileName);
+    // @ts-ignore
+    audioFile.currentTime = 0;
+    // @ts-ignore
+    audioFile.play();
+}

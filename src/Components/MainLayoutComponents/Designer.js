@@ -62,6 +62,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 const className = baseStateObject.classes[i].name;
                 return GetValidClassLevelsArray(baseStateObject, className);
             },
+            buttonSound: "levelupaudio",
             isNumber: true
         }
     ];
@@ -108,7 +109,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                 </div>
                 <div>
                     <div className="label">Level</div>
-                    <SelectList options={Array.from({length: 20}, (_, i) => i + 1)} isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"level"} inputHandler={inputChangeHandler}/>
+                    <SelectList options={Array.from({length: 20}, (_, i) => i + 1)} isNumberValue={true} baseStateObject={playerConfigs} pathToProperty={"level"} inputHandler={inputChangeHandler} buttonSound={"levelupaudio"}/>
                 </div>
                 <div>
                     <div className='label'>Base Ability Scores</div>

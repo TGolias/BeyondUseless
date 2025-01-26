@@ -1,7 +1,8 @@
 import React from "react";
 import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
+import { playAudio } from "../../SharedFunctions/Utils";
 
-export function SelectList({options, isNumberValue, baseStateObject, pathToProperty, inputHandler}) {
+export function SelectList({options, isNumberValue, baseStateObject, pathToProperty, inputHandler, buttonSound = undefined}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
     const rows = [];
@@ -18,6 +19,7 @@ export function SelectList({options, isNumberValue, baseStateObject, pathToPrope
         if (isNumberValue) {
             value = Number.parseInt(value);
         }
+        playAudio(buttonSound ? buttonSound : "selectionaudio");
         return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
     }}>{rows}</select>
 }

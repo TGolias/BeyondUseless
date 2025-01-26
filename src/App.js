@@ -8,7 +8,7 @@ import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./S
 import { fetchAllCollections } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
-import { isNumeric } from "./SharedFunctions/Utils";
+import { isNumeric, playAudio } from "./SharedFunctions/Utils";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -252,6 +252,7 @@ export default function App() {
     },
     {
       text: "SAVE",
+      buttonSound: "saveaudio",
       clickHandler: () => {
         localStorage.setItem("SAVED_CHARACTER", JSON.stringify(playerConfigs));
         setShowStartMenu(false);
@@ -299,7 +300,10 @@ export default function App() {
       <div className={"topDiv" + ((showStartMenu || centerScreenMenu.show) ? " disableActivity" : "")}>
         <div className="topBar">
           <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
-          <div className="startMenuButton" onClick={() => setShowStartMenu(true)}><div></div>MENU</div>
+          <div className="startMenuButton" onClick={() => {
+            playAudio("menuaudio");
+            setShowStartMenu(true)
+          }}><div></div>MENU</div>
         </div>
         <div className="viewDiv">
           <div className={"screenView" + (hideEditor ? " inactiveView" : "")}>

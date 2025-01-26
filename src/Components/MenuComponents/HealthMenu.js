@@ -4,6 +4,7 @@ import { TextInput } from "../SimpleComponents/TextInput";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateAspectCollection, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { playAudio } from "../../SharedFunctions/Utils";
 
 export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
@@ -48,9 +49,9 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                 <div></div>
                 <div className="healthMenuLabel">Change HP</div>
                 <div></div>
-                <RetroButton text="Heal" onClickHandler={() => calculateHeal(menuConfig, maxHp, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp >= maxHp}></RetroButton>
+                <RetroButton text="Heal" onClickHandler={() => calculateHeal(menuConfig, maxHp, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp >= maxHp} buttonSound={"healaudio"}></RetroButton>
                 <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"changeHpAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
-                <RetroButton text="Damage" onClickHandler={() => calculateDamage(menuConfig, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp <= 0}></RetroButton>
+                <RetroButton text="Damage" onClickHandler={() => calculateDamage(menuConfig, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp <= 0} buttonSound={"damageaudio"}></RetroButton>
             </div>
             <div className="healthMenuVertical">
                 <div className="healthMenuLabel">Preview</div>

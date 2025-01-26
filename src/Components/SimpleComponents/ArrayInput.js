@@ -29,14 +29,14 @@ export function ArrayInput({baseStateObject, pathToProperty, config, inputHandle
                 case "SelectList":
                     columns.push((
                         <>
-                            <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options(baseStateObject, i)} baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler}/>
+                            <SelectList isNumberValue={configEntry.isNumber} options={configEntry.options(baseStateObject, i)} baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler} buttonSound={configEntry.buttonSound}/>
                         </>
                     ));
                     break;
                 case "Checkbox":
                     columns.push((
                         <>
-                            <CheckboxInput baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler}/>
+                            <CheckboxInput baseStateObject={baseStateObject} pathToProperty={singleItemPathToProperty} inputHandler={inputHandler} buttonSound={configEntry.buttonSound}/>
                         </>
                     ));
                     break;
