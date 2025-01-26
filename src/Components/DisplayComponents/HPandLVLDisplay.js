@@ -2,7 +2,7 @@ import React from "react";
 import './HPandLVLDisplay.css';
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 
-export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu}) {
+export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAudio}) {
     const level = playerConfigs.level;
     const hpMax = calculateHPMax(playerConfigs);
     const currentHp = (!!playerConfigs.currentStatus.remainingHp || playerConfigs.currentStatus.remainingHp === 0) ? playerConfigs.currentStatus.remainingHp : hpMax;
@@ -11,6 +11,8 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu}) {
     let percentHpRemaining = currentHp > hpMax ? 100 : (currentHp / hpMax) * 100;
 
     let percentTempHp = tempHp > hpMax ? 100 : (tempHp / hpMax) * 100;
+
+    controlLowHpSound(playLowHpAudio, percentHpRemaining);
 
     return <>
         <div className="hp-corners" onClick={() => setCenterScreenMenu({ show: true, menuType: "HealthMenu" })}>
@@ -27,4 +29,28 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu}) {
             </div>
         </div>
     </>
+}
+
+function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
+    const lowHpAudio = document.getElementById("lowhpaudio"); 
+    if (percentHpRemaining <= 20) {
+        if (playLowHpAudio) {
+            // @ts-ignore
+            if (lowHpAudio.paused) {
+                // @ts-ignore
+                lowHpAudio.currentTime = 0;
+            }
+            // @ts-ignore
+            lowHpAudio.loop = true;
+            
+            // There's an issue with play pause. This is the best way I can find around it right now.
+            setTimeout(function () {
+                // @ts-ignore    
+                lowHpAudio.play();
+            }, 150);
+        }
+    } else {
+        // @ts-ignore
+        lowHpAudio.pause();
+    }
 }

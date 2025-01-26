@@ -16,7 +16,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             <div className="outerDiv">
                 <div className="playerName">{playerConfigs.name}</div>
                 <div className="healthBarAndDefense">
-                    <HPandLVLDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></HPandLVLDisplay>
+                    <HPandLVLDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} playLowHpAudio={true}></HPandLVLDisplay>
                     <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
                 </div>
                 <div className="baseStats">

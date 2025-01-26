@@ -54,7 +54,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
             </div>
             <div className="healthMenuVertical">
                 <div className="healthMenuLabel">Preview</div>
-                <HPandLVLDisplay playerConfigs={playerConfigsClone} setCenterScreenMenu={() => {}}></HPandLVLDisplay>
+                <HPandLVLDisplay playerConfigs={playerConfigsClone} setCenterScreenMenu={() => {}} playLowHpAudio={false}></HPandLVLDisplay>
             </div>
             <div className="healthMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
