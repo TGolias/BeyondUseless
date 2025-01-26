@@ -38,8 +38,10 @@ export function isNumeric(stringValue) {
 
 export function playAudio(audioFileName) {
     const audioFile = document.getElementById(audioFileName);
-    // @ts-ignore
-    audioFile.currentTime = 0;
-    // @ts-ignore
-    audioFile.play();
+    if (audioFile) {
+        // @ts-ignore
+        audioFile.currentTime = 0;
+        // @ts-ignore
+        audioFile.play();
+    }
 }

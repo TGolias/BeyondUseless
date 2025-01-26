@@ -38,29 +38,31 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAu
 }
 
 function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
-    const lowHpAudio = document.getElementById("lowhpaudio"); 
-    if (percentHpRemaining <= 20 && percentHpRemaining !== 0) {
-        if (playLowHpAudio) {
-            // @ts-ignore
-            if (lowHpAudio.paused || lowHpAudio.volume == 0) {
+    const lowHpAudio = document.getElementById("lowhpaudio");
+    if (lowHpAudio) {
+        if (percentHpRemaining <= 20 && percentHpRemaining !== 0) {
+            if (playLowHpAudio) {
                 // @ts-ignore
-                lowHpAudio.currentTime = 0;
+                if (lowHpAudio.paused || lowHpAudio.volume == 0) {
+                    // @ts-ignore
+                    lowHpAudio.currentTime = 0;
+                    // @ts-ignore
+                    lowHpAudio.volume = 1;
+                }
                 // @ts-ignore
-                lowHpAudio.volume = 1;
+                lowHpAudio.loop = true;
+                
+                // There's an issue with play pause. This is the best way I can find around it right now.
+                setTimeout(function () {
+                    // @ts-ignore    
+                    lowHpAudio.play();
+                }, 150);
             }
+        } else {
             // @ts-ignore
-            lowHpAudio.loop = true;
-            
-            // There's an issue with play pause. This is the best way I can find around it right now.
-            setTimeout(function () {
-                // @ts-ignore    
-                lowHpAudio.play();
-            }, 150);
+            lowHpAudio.volume = 0;
+            // @ts-ignore
+            lowHpAudio.pause();
         }
-    } else {
-        // @ts-ignore
-        lowHpAudio.volume = 0;
-        // @ts-ignore
-        lowHpAudio.pause();
     }
 }

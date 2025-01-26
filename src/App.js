@@ -86,6 +86,15 @@ export default function App() {
   const startingValueForHideEditor = hideEditorLocalStorage === "true";
 
   const [hideEditor, setHideEditor] = useState(startingValueForHideEditor);
+
+  let muteSoundLocalStorage = localStorage.getItem("MUTE_SOUND");
+  const startingValueForMuteSound = muteSoundLocalStorage === "true";
+  if (startingValueForMuteSound) {
+    muteSound(startingValueForMuteSound);
+  }
+
+  const [isSoundMuted, setSoundMuted] = useState(startingValueForMuteSound);
+
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
@@ -151,6 +160,15 @@ export default function App() {
       deathScreenContainer.classList.remove("zoom");
       deathScreenText.classList.remove("zoom");
     }, 6000);
+  }
+
+  function muteSound(value) {
+    const audioElements = document.getElementsByTagName("audio");
+
+    for (let i = 0; i < audioElements.length; i++) {
+      const audioElement = audioElements.item(i);
+      audioElement.muted = value;
+    }
   }
 
   function stateChangeHandler(baseStateObject, pathToProperty, newValue) {
@@ -299,6 +317,16 @@ export default function App() {
           setCurrentHistoryIndex(0);
           setShowStartMenu(false);
         }
+      }
+    },
+    {
+      text: (isSoundMuted ? "SOUND ON" : "SOUND OFF"),
+      clickHandler: () => {
+        const newMuteValue = !isSoundMuted;
+        localStorage.setItem("MUTE_SOUND", newMuteValue ? "true" : "false");
+        setSoundMuted(newMuteValue);
+        muteSound(newMuteValue);
+        setShowStartMenu(false);
       }
     },
     {
