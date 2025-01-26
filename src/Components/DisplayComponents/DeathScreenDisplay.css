@@ -14,6 +14,7 @@
 }
 
 .deathScreenText {
+    white-space: nowrap;
     font-family: 'OptimusPrinceps';
     color: rgb(153, 5, 3);
     font-size: 8em;
@@ -22,4 +23,22 @@
 .deathScreenText.zoom {
     font-size: 10em;
     transition: 8s font-size;
+}
+
+@media only screen and (max-width: 800px) {
+    .deathScreenContainer {
+        height: 7em;
+    }
+    
+    .deathScreenContainer.zoom {
+        height: 9em;
+    }
+    
+    .deathScreenText {
+        font-size: 5em;
+    }
+    
+    .deathScreenText.zoom {
+        font-size: 7em;
+    }
 }
