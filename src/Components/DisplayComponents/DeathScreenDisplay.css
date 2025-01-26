@@ -9,36 +9,30 @@
 }
 
 .deathScreenContainer.zoom {
-    height: 12em;
-    transition: 8s height;
+    transform: scale(1.2);
+    transform-origin: center center;
+    transition: 8s transform;
 }
 
 .deathScreenText {
     white-space: nowrap;
     font-family: 'OptimusPrinceps';
     color: rgb(153, 5, 3);
-    font-size: 8em;
+    font-size: 7em;
 }
 
 .deathScreenText.zoom {
-    font-size: 10em;
-    transition: 8s font-size;
+    transform: scale(1.42);
+    transform-origin: center center;
+    transition: 8s transform;
 }
 
 @media only screen and (max-width: 800px) {
     .deathScreenContainer {
-        height: 7em;
-    }
-    
-    .deathScreenContainer.zoom {
-        height: 9em;
+        height: 6.5em;
     }
     
     .deathScreenText {
-        font-size: 5em;
-    }
-    
-    .deathScreenText.zoom {
-        font-size: 7em;
+        font-size: 4.5em;
     }
 }
