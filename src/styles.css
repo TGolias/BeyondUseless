@@ -3,6 +3,11 @@
     src: local('font-of-the-mans'), url('./Fonts/font-of-the-mans.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'OptimusPrinceps';
+  src: local('OptimusPrinceps'), url('./Fonts/OptimusPrinceps.ttf') format('truetype');
+}
+
 * {
     font-family: 'font-of-the-mans'; /*Roboto Condensed,Roboto,Helvetica,sans-serif;*/
     font-size: 20px;

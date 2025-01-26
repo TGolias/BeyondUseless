@@ -83,6 +83,34 @@
   justify-content: center;
 }
 
+.deathScreenWapper {
+  pointer-events: none;
+
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 1500ms ease-in, visibility 0ms ease-in 1500ms;
+}
+
+.deathScreenWapper.show {
+  visibility: visible;
+  opacity: 0.9;
+  transition-delay: 0ms;
+}
+
 .centerMenu {
   padding: 0.5em;
   background-color: white;

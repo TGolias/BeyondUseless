@@ -9,6 +9,7 @@ import { fetchAllCollections } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
 import { isNumeric, playAudio } from "./SharedFunctions/Utils";
+import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -129,6 +130,27 @@ export default function App() {
     const nextState = history[nextHistoryIndex];
     setCurrentHistoryIndex(nextHistoryIndex);
     setPlayerConfigs(nextState);
+  }
+
+  function showDeathScreen() {
+    playAudio("youdiedaudio");
+
+    var deathScreenWrapper = document.getElementById("deathScreenWrapper");
+    var deathScreenContainer = document.getElementById("deathScreenContainer");
+    var deathScreenText = document.getElementById("deathScreenText");
+
+    deathScreenWrapper.classList.add("show");
+    deathScreenContainer.classList.add("zoom");
+    deathScreenText.classList.add("zoom");
+
+    setTimeout(function () {
+      deathScreenWrapper.classList.remove("show");
+    }, 3000);
+
+    setTimeout(function () {
+      deathScreenContainer.classList.remove("zoom");
+      deathScreenText.classList.remove("zoom");
+    }, 6000);
   }
 
   function stateChangeHandler(baseStateObject, pathToProperty, newValue) {
@@ -310,7 +332,7 @@ export default function App() {
             <Designer playerConfigs={playerConfigs} inputChangeHandler={stateChangeHandler}></Designer>
           </div>
           <div className={"screenView" + (hideEditor ? "" : " inactiveViewForMobile")}>
-            <Renderer playerConfigs={playerConfigs} inputChangeHandler={stateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></Renderer>
+            <Renderer playerConfigs={playerConfigs} inputChangeHandler={stateChangeHandler} setCenterScreenMenu={setCenterScreenMenu} showDeathScreen={showDeathScreen}></Renderer>
           </div>
         </div>
       </div>
@@ -321,6 +343,9 @@ export default function App() {
         <div className="centerMenu pixel-corners">
           <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
         </div>
+      </div>
+      <div id="deathScreenWrapper" className="deathScreenWapper">
+        <DeathScreenDisplay></DeathScreenDisplay>
       </div>
     </>
   );

@@ -8,7 +8,7 @@ import { ProficiencyBonusDisplay } from "../DisplayComponents/ProficiencyBonusDi
 import { HeroicInspirationDisplay } from "../DisplayComponents/HeroicInspirationDisplay";
 import { DeathSavingThrowsDisplay } from "../DisplayComponents/DeathSavingThrowsDisplay";
 
-export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu}) {
+export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
@@ -22,7 +22,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
                 </div>
                 <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
-                    <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler}></DeathSavingThrowsDisplay>
+                    <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
                 </div>
                 <div className="baseStats">
                     <ProficiencyBonusDisplay playerConfigs={playerConfigs}/>
