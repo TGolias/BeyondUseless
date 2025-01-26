@@ -8,9 +8,9 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu}) {
     const currentHp = (!!playerConfigs.currentStatus.remainingHp || playerConfigs.currentStatus.remainingHp === 0) ? playerConfigs.currentStatus.remainingHp : hpMax;
     const tempHp = playerConfigs.currentStatus.tempHp ?? 0;
 
-    const percentHpRemaining = (currentHp / hpMax) * 100;
+    let percentHpRemaining = currentHp > hpMax ? 100 : (currentHp / hpMax) * 100;
 
-    const percentTempHp = (tempHp / hpMax) * 100;
+    let percentTempHp = tempHp > hpMax ? 100 : (tempHp / hpMax) * 100;
 
     return <>
         <div className="hp-corners" onClick={() => setCenterScreenMenu({ show: true, menuType: "HealthMenu" })}>

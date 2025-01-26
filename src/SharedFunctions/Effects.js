@@ -1,7 +1,8 @@
 import { getCollection } from "../Collections";
+import { calculateHPMax } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
-export function applyEffects(newBaseStateObject, pathToProperty, newValue) {
+export function applyEffectsBeforeValueChange(newBaseStateObject, pathToProperty, newValue) {
     switch (pathToProperty) {
         case "level":
             return onLevelChangeHandler(newBaseStateObject, newValue);
@@ -10,6 +11,10 @@ export function applyEffects(newBaseStateObject, pathToProperty, newValue) {
         case "background.name":
             return onBackgroundNameChangeHandler(newBaseStateObject, newValue);
     }
+}
+
+export function applyEffectsAfterValueChange(newBaseStateObject) {
+    checkIfMaxHPChanged(newBaseStateObject);
 }
 
 function onLevelChangeHandler(newBaseStateObject, newLevelValue) {
@@ -63,4 +68,17 @@ function onBackgroundNameChangeHandler(newBaseStateObject, newBackgroundValue) {
             delete newBaseStateObject.background.abilityScores[abilityScoreKey];
         }
     }
+}
+
+function checkIfMaxHPChanged(newBaseStateObject) {
+    if (newBaseStateObject.currentStatus.remainingHp) {
+        const maxHp = calculateHPMax(newBaseStateObject);
+
+        if (newBaseStateObject.currentStatus.remainingHp > maxHp) {
+            // Make a clone of currentStatus since we will be making a change.
+            newBaseStateObject.currentStatus = {...newBaseStateObject.currentStatus}
+            newBaseStateObject.currentStatus.remainingHp = maxHp;
+        }
+    }
+    
 }

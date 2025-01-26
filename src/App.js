@@ -4,7 +4,7 @@ import './App.css';
 import React from "react";
 import { Designer } from "./Components/MainLayoutComponents/Designer";
 import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
-import { applyEffects } from "./SharedFunctions/Effects";
+import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./SharedFunctions/Effects";
 import { fetchAllCollections } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
@@ -177,10 +177,13 @@ export default function App() {
     const valueChanged = newPropertyObject[totalPath[totalPath.length - 1]] !== newValue;
 
     // For certain properties, we may want to apply some effects to the state before we do the final calculations. For example, if the level is pulled below what the classes have, we want to fix that up. We do this before the value is set so that comparisons can be done.
-    applyEffects(newBaseStateObject, pathToProperty, newValue);
+    applyEffectsBeforeValueChange(newBaseStateObject, pathToProperty, newValue);
 
     // Now we have the property object right at the end of the path and have done our shallow clones all the way to it.
     newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
+
+    // We also may have some other values we adjust now that the value has changed.
+    applyEffectsAfterValueChange(newBaseStateObject);
 
     // Now we can set the new configs!
     setPlayerConfigs(newBaseStateObject);
