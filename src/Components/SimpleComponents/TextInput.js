@@ -1,8 +1,9 @@
 import React from "react";
 import './TextInput.css'
 import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
+import { playAudio } from "../../SharedFunctions/Utils";
 
-export function TextInput({isNumberValue, baseStateObject, pathToProperty, inputHandler, minimum=undefined}) {
+export function TextInput({isNumberValue, baseStateObject, pathToProperty, inputHandler, minimum = undefined, buttonSound = undefined}) {
     const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
     return <input className="textInput" type={(isNumberValue ? "number" : "text")} min={(minimum)} value={(isNumberValue && startingValue === 0 ? "" : startingValue)} onInput={(event) => {
@@ -15,6 +16,7 @@ export function TextInput({isNumberValue, baseStateObject, pathToProperty, input
                 value = 0;
             }
         }
+        playAudio(buttonSound ? buttonSound : "selectionaudio");
         return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
     }}></input>
 }
