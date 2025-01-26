@@ -35,6 +35,11 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
         playerConfigsClone.currentStatus.deathSavingThrowSuccesses = 0;
     }
 
+    const wasDead = playerConfigs.currentStatus.remainingHp === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2;
+    const willBeDead = playerConfigsClone.currentStatus.remainingHp === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2;
+
+    const willBeRevived = wasDead && !willBeDead;
+
     return (<>
         <div className="healthMenuWrapperDiv">
             <div className="healthMenuHorizontal">
@@ -66,7 +71,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                     setCenterScreenMenu({ show: false, menuType: undefined });
-                }} showTriangle={true} disabled={false}></RetroButton>
+                }} showTriangle={true} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined });
                 }} showTriangle={true} disabled={false}></RetroButton>
