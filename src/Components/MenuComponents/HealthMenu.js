@@ -30,6 +30,11 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
 
     playerConfigsClone.currentStatus.remainingHp = menuConfig.newRemainingHp;
 
+    if (playerConfigsClone.currentStatus.remainingHp > 0) {
+        playerConfigsClone.currentStatus.deathSavingThrowFailures = 0;
+        playerConfigsClone.currentStatus.deathSavingThrowSuccesses = 0;
+    }
+
     return (<>
         <div className="healthMenuWrapperDiv">
             <div className="healthMenuHorizontal">

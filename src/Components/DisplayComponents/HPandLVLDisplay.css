@@ -5,6 +5,10 @@
     gap: 0.15em
 }
 
+.leveltextbold {
+  font-weight: bold;
+}
+
 .healthBar {
     display: flex;
     flex-direction: row;

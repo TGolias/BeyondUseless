@@ -1,6 +1,7 @@
 import React from "react";
 import './HPandLVLDisplay.css';
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { playAudio } from "../../SharedFunctions/Utils";
 
 export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAudio}) {
     const level = playerConfigs.level;
@@ -8,16 +9,21 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAu
     const currentHp = (!!playerConfigs.currentStatus.remainingHp || playerConfigs.currentStatus.remainingHp === 0) ? playerConfigs.currentStatus.remainingHp : hpMax;
     const tempHp = playerConfigs.currentStatus.tempHp ?? 0;
 
-    let percentHpRemaining = currentHp > hpMax ? 100 : (currentHp / hpMax) * 100;
+    const percentHpRemaining = currentHp > hpMax ? 100 : (currentHp / hpMax) * 100;
 
-    let percentTempHp = tempHp > hpMax ? 100 : (tempHp / hpMax) * 100;
+    const percentTempHp = tempHp > hpMax ? 100 : (tempHp / hpMax) * 100;
+
+    const isDead = percentHpRemaining === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2;
 
     controlLowHpSound(playLowHpAudio, percentHpRemaining);
 
     return <>
-        <div className="hp-corners" onClick={() => setCenterScreenMenu({ show: true, menuType: "HealthMenu" })}>
-            <div className="healthWrapper">
-                <div>LVL{level}</div>
+        <div className="hp-corners" onClick={() => {
+            playAudio("menuaudio");
+            setCenterScreenMenu({ show: true, menuType: "HealthMenu" })
+        }}>
+            <div className={"healthWrapper"}>
+                <div className={isDead ? "leveltextbold" : ""}>{isDead ? "DEAD" : "LVL" + level}</div>
                 <div className="healthBar">
                     <div>HP:</div>
                     <div className="healthBarValue hp-bar-corners">
@@ -33,7 +39,7 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAu
 
 function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
     const lowHpAudio = document.getElementById("lowhpaudio"); 
-    if (percentHpRemaining <= 20) {
+    if (percentHpRemaining <= 20 && percentHpRemaining !== 0) {
         if (playLowHpAudio) {
             // @ts-ignore
             if (lowHpAudio.paused || lowHpAudio.volume == 0) {

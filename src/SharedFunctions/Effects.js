@@ -87,7 +87,6 @@ function onClassNameChangeHandler(newBaseStateObject, index, newClassNameValue) 
 function checkIfMaxHPChanged(newBaseStateObject) {
     if (newBaseStateObject.currentStatus.remainingHp) {
         const maxHp = calculateHPMax(newBaseStateObject);
-
         if (newBaseStateObject.currentStatus.remainingHp > maxHp) {
             // Make a clone of currentStatus since we will be making a change.
             newBaseStateObject.currentStatus = {...newBaseStateObject.currentStatus}

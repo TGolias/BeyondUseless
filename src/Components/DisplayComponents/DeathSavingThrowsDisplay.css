@@ -1,0 +1,54 @@
+.deathSavingThrowWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    padding: 1em;
+}
+
+.deathSavingThrowLabel {
+    font-weight: bold;
+}
+
+.deathSavingThrowGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+
+.deathSavingThrowClickableDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.deathSavingThrowButtonWrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.deathSavingThrowValue {
+    font-size: 2em;
+}
+
+.deathSavingThrowCrossWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -1.25em;
+    margin-bottom: -1em;
+    width: 4em;
+}
+
+.deathSavingThrowCross {
+    font-size: 4em;
+}
+
+.deathSavingThrowCrossDead {
+    color: rgb(188,21,28);
+}
+
+.deathSavingThrowCrossSurvive {
+    color: rgb(79,173,89);
+}
