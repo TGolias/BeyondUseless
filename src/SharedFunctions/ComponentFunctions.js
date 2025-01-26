@@ -4,7 +4,12 @@ export function getValueFromObjectAndPath(baseStateObject, pathToProperty) {
         const totalPath = getTotalPath(pathToProperty);
         for (let i = 0; i < totalPath.length; i++) {
             let pathSegment = totalPath[i];
-            propertyValue = propertyValue[pathSegment];
+            if (propertyValue) {
+                propertyValue = propertyValue[pathSegment];
+            }
+            else {
+                return undefined;
+            }
         }
     }
     return propertyValue;

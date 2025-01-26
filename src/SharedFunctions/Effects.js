@@ -11,6 +11,13 @@ export function applyEffectsBeforeValueChange(newBaseStateObject, pathToProperty
         case "background.name":
             return onBackgroundNameChangeHandler(newBaseStateObject, newValue);
     }
+
+    for (let i = 0; i < newBaseStateObject.classes.length; i++) {
+        const propertyToMatch = "classes[" + i + "].name";
+        if (pathToProperty === propertyToMatch) {
+            return onClassNameChangeHandler(newBaseStateObject, i, newValue)
+        }
+    }
 }
 
 export function applyEffectsAfterValueChange(newBaseStateObject) {
@@ -67,6 +74,13 @@ function onBackgroundNameChangeHandler(newBaseStateObject, newBackgroundValue) {
             // This ability score is not contained in the new background, therefore the increase would be illegal. Remove it.
             delete newBaseStateObject.background.abilityScores[abilityScoreKey];
         }
+    }
+}
+
+function onClassNameChangeHandler(newBaseStateObject, index, newClassNameValue) {
+    // Remove all choises from the previous species.
+    if (newBaseStateObject.classes[index].name !== newClassNameValue) {
+        newBaseStateObject.classes[index].choices = {};
     }
 }
 

@@ -39,7 +39,8 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
             if (choice.multipleSelections) {
                 const selectLists = [];
                 for (let i = 0; i < choice.multipleSelections; i++) {
-                    selectLists.push(createSelectList(baseStateObject, pathToProperty + "[" + i + "]", inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue[i]));
+                    const valueForSelection = currentChoiceValue ? currentChoiceValue[i] : undefined;
+                    selectLists.push(createSelectList(baseStateObject, pathToProperty + "[" + i + "]", inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, valueForSelection));
                 }
                 singleChoice.push(<div className="multipleSelectLists">{selectLists}</div>)
             } else {

@@ -8,6 +8,7 @@ import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./S
 import { fetchAllCollections } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
+import { isNumeric } from "./SharedFunctions/Utils";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -162,11 +163,23 @@ export default function App() {
       const nextPropertyObject = newPropertyObject[pathSegment];
 
       let newNextPropertyObject
-      // Sometimes some slippery arrays make their way in here... those get cloned differently.
-      if (Array.isArray(nextPropertyObject)) {
-        newNextPropertyObject = [...nextPropertyObject]
-      } else {
-        newNextPropertyObject = Object.assign({}, nextPropertyObject);
+      
+      if (nextPropertyObject === undefined) {
+        // This object didn't exist on the previous version of the state. We need to make a new one, but we have to figure out if it's an array or object first.
+        const nextPath = totalPath[i + 1];
+        if (isNumeric(nextPath)) {
+          newNextPropertyObject = [];
+        } else {
+          newNextPropertyObject = {};
+        }
+      }
+      else {
+        // Sometimes some slippery arrays make their way in here... those get cloned differently.
+        if (Array.isArray(nextPropertyObject)) {
+          newNextPropertyObject = [...nextPropertyObject]
+        } else {
+          newNextPropertyObject = Object.assign({}, nextPropertyObject);
+        }
       }
       
       newPropertyObject[pathSegment] = newNextPropertyObject;

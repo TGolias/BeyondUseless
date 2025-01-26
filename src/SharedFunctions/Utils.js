@@ -26,3 +26,12 @@ export function convertArrayToDictionary(arrayOfObjects, key) {
     }
     return dict;
 }
+
+export function isNumeric(stringValue) {
+    try {
+        parseInt(stringValue);
+        return true;
+    } catch {
+        return false;
+    }
+}
