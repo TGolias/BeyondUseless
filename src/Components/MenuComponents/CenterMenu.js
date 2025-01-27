@@ -4,6 +4,7 @@ import { RetroButton } from "../SimpleComponents/RetroButton";
 import { HealthMenu } from "./HealthMenu";
 import { getTotalPath } from "../../SharedFunctions/ComponentFunctions";
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { ConfirmationMenu } from "./ConfirmationMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -11,7 +12,7 @@ const menuCollection = {
             const playerFirstName = playerConfigs.name.split(' ')[0];
             return "Manage " + playerFirstName + "'s HP";
         },
-        createDefaultMenuConfig: (playerConfigs) => {
+        createDefaultMenuConfig: (playerConfigs, data) => {
             const newHealthMenuConfig = {};
             newHealthMenuConfig.newTempHp = playerConfigs.currentStatus.tempHp ?? 0;
             newHealthMenuConfig.newMaxHpModifier = playerConfigs.currentStatus.maxHpModifier ?? 0; 
@@ -22,14 +23,29 @@ const menuCollection = {
         createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><HealthMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HealthMenu></>)
         }
+    },
+    ConfirmationMenu: {
+        createMenuTitle: (playerConfigs, data) => {
+            return data.menuTitle;
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newConfirmationMenuConfig = {};
+            newConfirmationMenuConfig.menuText = data.menuText;
+            newConfirmationMenuConfig.buttons = data.buttons;
+            return newConfirmationMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
+            return (<><ConfirmationMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ConfirmationMenu></>)
+        }
     }
 }
 
 const defaultMenuConfig = {
+    type: undefined,
     opened: false
 }
 
-export function CenterMenu({playerConfigs, menuType, setCenterScreenMenu, inputChangeHandler}) {
+export function CenterMenu({playerConfigs, menuType, data, setCenterScreenMenu, inputChangeHandler}) {
     const [menuConfig, setMenuConfig] = useState(defaultMenuConfig);
 
     const menu = menuCollection[menuType];
@@ -37,10 +53,11 @@ export function CenterMenu({playerConfigs, menuType, setCenterScreenMenu, inputC
     const menuLayout = [];
 
     if (menu) {
-        title = menu.createMenuTitle(playerConfigs);
+        title = menu.createMenuTitle(playerConfigs, data);
 
-        if (!menuConfig.opened) {
-            const newMenuConfig = menu.createDefaultMenuConfig(playerConfigs);
+        if (!menuConfig.opened || menuConfig.type !== menuType) {
+            const newMenuConfig = menu.createDefaultMenuConfig(playerConfigs, data);
+            newMenuConfig.type = menuType;
             newMenuConfig.opened = true;
             setMenuConfig(newMenuConfig);
         }
@@ -99,7 +116,7 @@ export function CenterMenu({playerConfigs, menuType, setCenterScreenMenu, inputC
                 <RetroButton text={"X"} onClickHandler={() => {
                     const resetMenuConfig = {...defaultMenuConfig};
                     setMenuConfig(resetMenuConfig);
-                    setCenterScreenMenu({ show: false, menuType: undefined });
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={false} disabled={false}></RetroButton>
             </div>
             {menuLayout}

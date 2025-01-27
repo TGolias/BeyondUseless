@@ -20,7 +20,7 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAu
     return <>
         <div className="hp-corners" onClick={() => {
             playAudio("menuaudio");
-            setCenterScreenMenu({ show: true, menuType: "HealthMenu" })
+            setCenterScreenMenu({ show: true, menuType: "HealthMenu", data: undefined })
         }}>
             <div className={"healthWrapper"}>
                 <div className={isDead ? "leveltextbold" : ""}>{isDead ? "DEAD" : "LVL" + level}</div>

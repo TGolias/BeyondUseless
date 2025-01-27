@@ -96,7 +96,7 @@ export default function App() {
   const [isSoundMuted, setSoundMuted] = useState(startingValueForMuteSound);
 
   const [showStartMenu, setShowStartMenu] = useState(false);
-  const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined });
+  const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined, data: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
 
   useEffect(() => {
@@ -369,7 +369,7 @@ export default function App() {
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
         <div className="centerMenu pixel-corners">
-          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
+          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
         </div>
       </div>
       <div id="deathScreenWrapper" className="deathScreenWapper">

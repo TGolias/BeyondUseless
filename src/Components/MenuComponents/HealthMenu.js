@@ -4,7 +4,6 @@ import { TextInput } from "../SimpleComponents/TextInput";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateAspectCollection, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
-import { playAudio } from "../../SharedFunctions/Utils";
 
 export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
@@ -43,6 +42,53 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
     return (<>
         <div className="healthMenuWrapperDiv">
             <div className="healthMenuHorizontal">
+                <RetroButton text="Rest" onClickHandler={() => {
+                    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                        menuTitle: "Rest Menu", menuText: "Would you like to Long Rest or Short Rest?", 
+                        buttons: [
+                            {
+                                text: "Long Rest",
+                                onClick: () => {
+                                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                                        menuTitle: "Long Rest", 
+                                        menuText: "Are you sure you would like to Long Rest?", 
+                                        buttons: [
+                                        {
+                                            text: "Confirm",
+                                            onClick: () => {
+                                                // Clear out most of current status. There will be a couple things the stick around after a long rest, but most are cleared.
+                                                playerConfigsClone.currentStatus = {};
+                                                // Heroic inspiration sticks around.
+                                                playerConfigsClone.currentStatus.heroicInspiration = playerConfigs.currentStatus.heroicInspiration;
+                                                inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+                                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                            }
+                                        },
+                                        {
+                                            text: "Cancel",
+                                            onClick: () => {
+                                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                            }
+                                        }
+                                    ] } });
+                                }
+                            },
+                            {
+                                text: "Short Rest",
+                                onClick: () => {
+                                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                }
+                            }
+                        ] 
+                    } 
+                });
+                }} showTriangle={true} disabled={false}></RetroButton>
+                <RetroButton text="Hit Dice" onClickHandler={() => {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }} showTriangle={true} disabled={false}></RetroButton>
+            </div>
+            <div className="healthMenuHorizontal">
                 <div className="healthMenuVertical">
                     <div className="healthMenuLabel">Temp HP</div>
                     <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newTempHp"} inputHandler={menuStateChangeHandler} minimum={0}/>
@@ -70,10 +116,10 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
             <div className="healthMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-                    setCenterScreenMenu({ show: false, menuType: undefined });
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={true} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
-                    setCenterScreenMenu({ show: false, menuType: undefined });
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={true} disabled={false}></RetroButton>
             </div>
         </div>
