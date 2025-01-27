@@ -51,8 +51,22 @@ function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
                     // @ts-ignore
                     lowHpAudio.volume = 1;
                 }
-                // @ts-ignore
-                lowHpAudio.loop = true;
+
+                // We do our own looping logic... Looping html audio elements in a suitable way is a rabbithole... This way is much more consistent than `lowHpAudio.loop = true`, trust me!
+                if (lowHpAudio.getAttribute('listener') !== 'true') {
+                    // The 'listener' attribute is just so that the looping event listener only gets applied once...
+                    lowHpAudio.setAttribute('listener', 'true');
+                    lowHpAudio.addEventListener('timeupdate', () => {
+                        var buffer = .13;
+                        // @ts-ignore
+                        if (lowHpAudio.currentTime > lowHpAudio.duration - buffer) {
+                            // @ts-ignore
+                            lowHpAudio.currentTime = 0;
+                            // @ts-ignore
+                            lowHpAudio.play();
+                        }
+                    });
+                }
                 
                 // There's an issue with play pause. This is the best way I can find around it right now.
                 setTimeout(function () {
