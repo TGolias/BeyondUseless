@@ -1,16 +1,23 @@
-import { calculateAspectCollection, calculateBaseStat } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
 import { ArmorClassDisplay } from "../DisplayComponents/ArmorClassDisplay";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
-import { ProficiencyBonusDisplay } from "../DisplayComponents/ProficiencyBonusDisplay";
 import { HeroicInspirationDisplay } from "../DisplayComponents/HeroicInspirationDisplay";
 import { DeathSavingThrowsDisplay } from "../DisplayComponents/DeathSavingThrowsDisplay";
+import { BasicStatDisplay } from "../DisplayComponents/BasicStatDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
+    
+    const proficiencyBonus = calculateProficiencyBonus(playerConfigs);
+    const initiativeBonus = calculateInitiativeBonus(playerConfigs);
+    const speed = calculateSpeed(playerConfigs);
+    const size = calculateSize(playerConfigs);
+    const passivePerception = calculatePassivePerception(playerConfigs);
+
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
 
     return (
@@ -24,8 +31,14 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
                     <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
                 </div>
+                <div className="encounterStats">
+                    <BasicStatDisplay statValue={"+" + initiativeBonus}>Initiative</BasicStatDisplay>
+                    <BasicStatDisplay statValue={speed}>Speed</BasicStatDisplay>
+                    <BasicStatDisplay statValue={size}>Size</BasicStatDisplay>
+                    <BasicStatDisplay statValue={passivePerception}>Passive<br></br>Perception</BasicStatDisplay>
+                </div>
                 <div className="baseStats">
-                    <ProficiencyBonusDisplay playerConfigs={playerConfigs}/>
+                    <BasicStatDisplay statValue={"+" + proficiencyBonus}>Proficency<br></br>Bonus</BasicStatDisplay>
                     <StatDisplay name="strength" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "strength")}/>
                     <StatDisplay name="dexterity" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "dexterity")}/>
                     <StatDisplay name="constitution" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "constitution")}/>

@@ -24,6 +24,12 @@
     flex-grow: 1;
 }
 
+.encounterStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+}
+
 .baseStats {
     width: 100%;
     display: flex;

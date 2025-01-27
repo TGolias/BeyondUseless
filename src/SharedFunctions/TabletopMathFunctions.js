@@ -1,6 +1,6 @@
 import { getCollection } from "../Collections";
 import { getValueFromObjectAndPath } from "./ComponentFunctions";
-import { convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
     return 2 + Math.floor((playerConfigs.level - 1) / 4);
@@ -39,6 +39,88 @@ export function calculateArmorClass(playerConfigs) {
     });
 
     return armorClass;
+}
+
+export function calculateInitiativeBonus(playerConfigs) {
+    // Start with our dex modifier.
+    let totalInitiativeBonus = calculateAspectCollection(playerConfigs, "dexterityModifier");
+
+    // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
+    findAllConfiguredAspects(playerConfigs, "initiativeBonus", (aspectValue) => {
+        let initiativeBonus;
+        if (aspectValue.calcuation) {
+            initiativeBonus = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            initiativeBonus = aspectValue;
+        }
+
+        totalInitiativeBonus += initiativeBonus;
+    });
+
+    return totalInitiativeBonus;
+}
+
+export function calculateSize(playerConfigs) {
+    // Default to Medium because it seems to be the 'default' among most races where size is selectable.
+    let size = "Medium";
+
+    // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
+    findAllConfiguredAspects(playerConfigs, "size", (aspectValue) => {
+        size = aspectValue;
+    });
+
+    return size;
+}
+
+export function calculateSpeed(playerConfigs) {
+    // Start with 0, lol. All races have a base speed set, and if we end up seeing 0 in the UI, we'll know something is wrong for sure.
+    let speed = 0;
+
+    // There might be multiple speeds between the species / subspecies, override with whatever we see is the highest.
+    findAllConfiguredAspects(playerConfigs, "speed", (aspectValue) => {
+        let newSpeed;
+        if (aspectValue.calcuation) {
+            newSpeed = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            newSpeed = aspectValue;
+        }
+
+        if (newSpeed > speed) {
+            speed = newSpeed;
+        }
+    });
+
+    // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
+    findAllConfiguredAspects(playerConfigs, "speedBonus", (aspectValue) => {
+        let speedBonus;
+        if (aspectValue.calcuation) {
+            speedBonus = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            speedBonus = aspectValue;
+        }
+
+        speed += speedBonus;
+    });
+
+    return speed;
+}
+
+export function calculatePassivePerception(playerConfigs) {
+    const perceptionSkillProf = {
+        name: "Perception",
+        modifier: "wisdom"
+    };
+    const playerSkillProficiencies = calculateAspectCollection(playerConfigs, "skillProficiencies");
+    const playerSkillProficienciesMap = convertArrayOfStringsToHashMap(playerSkillProficiencies);
+    const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
+    const playerExpertiseMap = convertArrayOfStringsToHashMap(playerExpertise);
+
+    // They seemingly simplified this... it's just 10 plus your perception skill modifer.
+    let passivePerception = 10 + calculateSkillBonus(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name]);
+    return passivePerception;
 }
 
 export function performAspectCalculation(playerConfigs, calculation) {

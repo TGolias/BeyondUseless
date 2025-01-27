@@ -13,7 +13,28 @@ const customOptionDisplays = [
         aspects: [
             {
                 name: "resistances",
-                preAppendString: ""
+                preAppendString: "",
+                multiLine: true
+            }
+        ],
+    },
+    {
+        displayName: "Base Speed:",
+        aspects: [
+            {
+                name: "speed",
+                preAppendString: "",
+                multiLine: false
+            }
+        ],
+    },
+    {
+        displayName: "Darkvision:",
+        aspects: [
+            {
+                name: "darkvision",
+                preAppendString: "",
+                multiLine: false
             }
         ],
     }
@@ -83,14 +104,21 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                         }
                         if (collectionValues.length > 0) {
                             const aspectDisplay = []
-                            aspectDisplay.push(<>
-                                <div className="choiceLabel">{customOptionDisplay.displayName}</div>
-                            </>);
-                            for (const collectionValue of collectionValues) {
-                                aspectDisplay.push(<><div className="singleChoiceWrapper">
-                                    <div>{rightTriangleUnicode + collectionValue}</div>
-                                </div></>);
+                            if (customOptionDisplay.multiLine) {
+                                aspectDisplay.push(<>
+                                    <div className="choiceLabel">{customOptionDisplay.displayName}</div>
+                                </>);
+                                for (const collectionValue of collectionValues) {
+                                    aspectDisplay.push(<><div className="singleChoiceWrapper">
+                                        <div>{rightTriangleUnicode + collectionValue}</div>
+                                    </div></>);
+                                }
+                            } else {
+                                aspectDisplay.push(<>
+                                    <div className="choiceLabel">{customOptionDisplay.displayName + " " + collectionValues}</div>
+                                </>);
                             }
+                            
 
                             choices.push(<>
                                 <div>{aspectDisplay}</div>

@@ -1,11 +1,11 @@
-.profOuterbox {
+.basicOuterbox {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
 }
 
-.profBonusLabel {
+.basicBonusLabel {
     font-size: 1em;
     font-weight: bold;
     text-transform: uppercase;
@@ -15,7 +15,7 @@
     line-height: 1.25em;
 }
 
-.profScoreContainer {
+.basicScoreContainer {
     display: grid;
     grid-template-columns: auto;
     align-items: center;
@@ -23,9 +23,10 @@
     width: 100%;
     padding: 0.5em;
     border-top: 2px solid black;
+    flex: 1
 }
 
-.profScoreModifier {
+.basicScoreModifier {
     font-size: 1.5em;
     padding: .1em;
 }
