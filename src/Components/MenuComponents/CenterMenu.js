@@ -32,6 +32,8 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newHitDiceMenuConfig = {};
             newHitDiceMenuConfig.menuText = data.menuText;
+            newHitDiceMenuConfig.soundOnHitDiceExpend = data.soundOnHitDiceExpend;
+            newHitDiceMenuConfig.soundOnNoHitDiceExpend = data.soundOnNoHitDiceExpend;
             newHitDiceMenuConfig.remainingHitDice = playerConfigs.currentStatus.remainingHitDice ?? {};
             newHitDiceMenuConfig.healAmount = 0;
             return newHitDiceMenuConfig;

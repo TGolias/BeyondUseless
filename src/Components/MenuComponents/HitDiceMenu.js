@@ -100,7 +100,7 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={true} disabled={false} buttonSound={"selectionaudio"}></RetroButton>
+                }} showTriangle={true} disabled={false} buttonSound={totalToBeExpendedString === "" ? menuConfig.soundOnNoHitDiceExpend : menuConfig.soundOnHitDiceExpend }></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={true} disabled={false}></RetroButton>

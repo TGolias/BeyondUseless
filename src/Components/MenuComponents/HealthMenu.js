@@ -56,6 +56,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                                         buttons: [
                                         {
                                             text: "Confirm",
+                                            sound: "longrestaudio",
                                             onClick: () => {
                                                 // Clear out most of current status. There will be a couple things the stick around after a long rest, but most are cleared.
                                                 playerConfigsClone.currentStatus = {};
@@ -79,7 +80,9 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                                 onClick: () => {
                                     setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
                                         menuTitle: "Short Rest", 
-                                        menuText: "Select any hit dice you'd like expend as part of your Short Rest." 
+                                        menuText: "Select any hit dice you'd like expend as part of your Short Rest.",
+                                        soundOnHitDiceExpend: "shortrestaudio",
+                                        soundOnNoHitDiceExpend: "shortrestaudio"
                                     } });
                                 }
                             }
@@ -90,7 +93,9 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                 <RetroButton text="Hit Dice" onClickHandler={() => {
                     setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
                         menuTitle: "Expend Hit Dice", 
-                        menuText: "Expend hit dice outside of a Short Rest." 
+                        menuText: "Expend hit dice outside of a Short Rest.",
+                        soundOnHitDiceExpend: "healaudio",
+                        soundOnNoHitDiceExpend: "selectionaudio"
                     } });
                 }} showTriangle={true} disabled={wasDead}></RetroButton>
             </div>
