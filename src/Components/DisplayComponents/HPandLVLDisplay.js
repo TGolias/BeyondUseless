@@ -3,7 +3,7 @@ import './HPandLVLDisplay.css';
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { playAudio } from "../../SharedFunctions/Utils";
 
-export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAudio}) {
+export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu = undefined, playLowHpAudio}) {
     const level = playerConfigs.level;
     const hpMax = calculateHPMax(playerConfigs);
     const currentHp = (!!playerConfigs.currentStatus.remainingHp || playerConfigs.currentStatus.remainingHp === 0) ? playerConfigs.currentStatus.remainingHp : hpMax;
@@ -19,8 +19,10 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu, playLowHpAu
 
     return <>
         <div className="hp-corners" onClick={() => {
-            playAudio("menuaudio");
-            setCenterScreenMenu({ show: true, menuType: "HealthMenu", data: undefined })
+            if (setCenterScreenMenu) {
+                playAudio("menuaudio");
+                setCenterScreenMenu({ show: true, menuType: "HealthMenu", data: undefined });
+            }
         }}>
             <div className={"healthWrapper"}>
                 <div className={isDead ? "leveltextbold" : ""}>{isDead ? "DEAD" : "LVL" + level}</div>

@@ -5,6 +5,7 @@ import { HealthMenu } from "./HealthMenu";
 import { getTotalPath } from "../../SharedFunctions/ComponentFunctions";
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { ConfirmationMenu } from "./ConfirmationMenu";
+import { HitDiceMenu } from "./HitDiceMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -22,6 +23,21 @@ const menuCollection = {
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><HealthMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HealthMenu></>)
+        }
+    },
+    HitDiceMenu: {
+        createMenuTitle: (playerConfigs, data) => {
+            return data.menuTitle;
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newHitDiceMenuConfig = {};
+            newHitDiceMenuConfig.menuText = data.menuText;
+            newHitDiceMenuConfig.remainingHitDice = playerConfigs.currentStatus.remainingHitDice ?? {};
+            newHitDiceMenuConfig.healAmount = 0;
+            return newHitDiceMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
+            return (<><HitDiceMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HitDiceMenu></>)
         }
     },
     ConfirmationMenu: {

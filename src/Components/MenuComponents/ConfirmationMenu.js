@@ -11,9 +11,9 @@ export function ConfirmationMenu({playerConfigs, setCenterScreenMenu, menuConfig
     }
 
     return (<>
-        <div className="healthMenuWrapperDiv">
+        <div className="confirmationMenuWrapperDiv">
             <div>{menuConfig.menuText}</div>
-            <div className="healthMenuHorizontal">{buttons}</div>
+            <div className="confirmationMenuHorizontal">{buttons}</div>
         </div>
     </>);
 }

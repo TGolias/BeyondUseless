@@ -210,6 +210,26 @@ export function calculateHPMax(playerConfigs) {
     return maxHpSoFar;
 }
 
+export function calculateHitDiceMap(playerConfigs) {
+    const hitDiceMap = {};
+
+    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+
+    // Now calculate for each player class.
+    for (let i = 0; i < dndClasses.length; i++) {
+        const dndClass = dndClasses[i];
+        const hitDieType = dndClass.hitDie;
+        const levelsInTheClass = playerConfigs.classes[i].levels;
+        if (hitDiceMap[hitDieType]) {
+            hitDiceMap[hitDieType] += levelsInTheClass;
+        } else {
+            hitDiceMap[hitDieType] = levelsInTheClass;
+        }
+    }
+
+    return hitDiceMap;
+}
+
 export function calculateStatPointsBought(playerConfigs) {
     let totalPoints = 0;
     for (const abilityScoreKey of Object.keys(playerConfigs.abilityScores)) {

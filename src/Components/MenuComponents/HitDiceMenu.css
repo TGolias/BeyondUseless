@@ -1,11 +1,15 @@
-.confirmationMenuWrapperDiv {
+.hitDiceMenuWrapperDiv {
     display: flex;
     flex-direction: column;
     gap: 1em;
     text-align: center;
 }
 
-.confirmationMenuHorizontal {
+.hitDiceToExpend {
+    font-size: 2em;
+}
+
+.hitDiceMenuHorizontal {
     display: flex;
     flex-direction: row;
     gap: 0.5em;

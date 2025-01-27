@@ -44,7 +44,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
             <div className="healthMenuHorizontal">
                 <RetroButton text="Rest" onClickHandler={() => {
                     setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
-                        menuTitle: "Rest Menu", menuText: "Would you like to Long Rest or Short Rest?", 
+                        menuTitle: "Type of Rest", menuText: "Would you like to Long Rest or Short Rest?", 
                         buttons: [
                             {
                                 text: "Long Rest",
@@ -77,16 +77,22 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                             {
                                 text: "Short Rest",
                                 onClick: () => {
-                                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                    setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
+                                        menuTitle: "Short Rest", 
+                                        menuText: "Select any hit dice you'd like expend as part of your Short Rest." 
+                                    } });
                                 }
                             }
                         ] 
                     } 
                 });
-                }} showTriangle={true} disabled={false}></RetroButton>
+                }} showTriangle={true} disabled={wasDead}></RetroButton>
                 <RetroButton text="Hit Dice" onClickHandler={() => {
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={true} disabled={false}></RetroButton>
+                    setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
+                        menuTitle: "Expend Hit Dice", 
+                        menuText: "Expend hit dice outside of a Short Rest." 
+                    } });
+                }} showTriangle={true} disabled={wasDead}></RetroButton>
             </div>
             <div className="healthMenuHorizontal">
                 <div className="healthMenuVertical">
@@ -111,7 +117,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
             </div>
             <div className="healthMenuVertical">
                 <div className="healthMenuLabel">Preview</div>
-                <HPandLVLDisplay playerConfigs={playerConfigsClone} setCenterScreenMenu={() => {}} playLowHpAudio={false}></HPandLVLDisplay>
+                <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
             </div>
             <div className="healthMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
