@@ -11,6 +11,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  min-width: 600px !important;
 }
 
 .disableActivity {
@@ -30,6 +32,7 @@
   padding-bottom: 5px;
   /* Make top bar fixed in position. */
   position: fixed;
+  left: 0;
   top: 0;
   z-index: 1;
 }
@@ -178,5 +181,9 @@
 @media only screen and (max-width: 600px) {
   .viewDiv {
     display: block;
+  }
+
+  .centerMenuWrapper {
+    width: calc(100% - 2em);
   }
 }

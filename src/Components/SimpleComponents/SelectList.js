@@ -1,4 +1,5 @@
 import React from "react";
+import './SelectList.css'
 import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 import { playAudio } from "../../SharedFunctions/Utils";
 
@@ -13,13 +14,15 @@ export function SelectList({options, isNumberValue, baseStateObject, pathToPrope
             rows.push(<option value={option} selected={startingValue === option}>{option}</option>);
         }
     }
-    return <select onInput={(event) => {
-        let value = null; // Get the linter off my ass about this being a string.
-        value = event.currentTarget.value;
-        if (isNumberValue) {
-            value = Number.parseInt(value);
-        }
-        playAudio(buttonSound ? buttonSound : "selectionaudio");
-        return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
-    }}>{rows}</select>
+    return <div className="pixel-corners">
+        <select className="selectListInput" onInput={(event) => {
+            let value = null; // Get the linter off my ass about this being a string.
+            value = event.currentTarget.value;
+            if (isNumberValue) {
+                value = Number.parseInt(value);
+            }
+            playAudio(buttonSound ? buttonSound : "selectionaudio");
+            return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
+        }}>{rows}</select>
+    </div>
 }

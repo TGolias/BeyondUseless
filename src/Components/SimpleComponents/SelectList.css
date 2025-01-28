@@ -1,0 +1,11 @@
+.selectListInput {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 3px solid transparent;
+
+    background: url("data:image/svg+xml,<svg height='1em' width='20' viewBox='0 0 1em 20' fill='%23000000' xmlns='http://www.w3.org/2000/svg'><rect x='0' y='2' width='20' height='4' stroke='black' fill='black' /><rect x='4' y='6' width='12' height='4' stroke='black' fill='black' /><rect x='8' y='10' width='4' height='4' stroke='black' fill='black' /></svg>") no-repeat;
+    background-position: calc(100% - 0.25em) center !important;
+    padding-right: 2em !important;
+
+    width: 100%;
+}
