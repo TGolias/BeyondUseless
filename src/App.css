@@ -176,7 +176,7 @@
   }
 }
 
-@media only screen and (max-width: 601px) {
+@media only screen and (max-width: 600px) {
   .viewDiv {
     display: block;
   }
