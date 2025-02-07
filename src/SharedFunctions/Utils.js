@@ -29,8 +29,7 @@ export function convertArrayToDictionary(arrayOfObjects, key) {
 
 export function isNumeric(stringValue) {
     try {
-        parseInt(stringValue);
-        return true;
+        return !isNaN(parseInt(stringValue));
     } catch {
         return false;
     }

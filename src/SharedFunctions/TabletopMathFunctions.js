@@ -371,6 +371,7 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
 function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const backgrounds = getCollection("backgrounds");
     const species = getCollection("species");
+    const feats = getCollection('feats');
 
     // Check the base player for the spect.
     const baseAspectValue = getValueFromObjectAndPath(playerConfigs, aspectName)
@@ -401,6 +402,29 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         if (dndClass.choices) {
             findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, onAspectFound);
         }
+
+        if (dndClass.features) {
+            for (let j = 0; j < dndClass.features.length; j++) {
+                const classFeature = dndClass.features[j];
+                if (classFeature.feat) {
+                    const featurePropertyName = classFeature.name + classFeature.classLevel;
+                    const playerClassObject = playerConfigs.classes[i];
+                    const selectedFeatName = playerClassObject.features && playerClassObject.features[featurePropertyName] ? playerClassObject.features[featurePropertyName].name : undefined;
+                    if (selectedFeatName) {
+                        const dndfeat = feats.find(x => x.name === selectedFeatName);
+                        if (dndfeat) {
+                            if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
+                                onAspectFound(dndfeat.aspects[aspectName]);
+                            }
+
+                            if (dndfeat.choices) {
+                                findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, onAspectFound);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Check the background for the aspect.
@@ -411,10 +435,13 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     }
 
     if (dndBackground.feat) {
-        const feats = getCollection('feats');
         const dndfeat = feats.find(x => x.name === dndBackground.feat);
         if (dndfeat && dndfeat.aspects && dndfeat.aspects[aspectName]) {
             onAspectFound(dndfeat.aspects[aspectName]);
+        }
+
+        if (dndfeat.choices) {
+            findAspectsFromChoice(playerConfigs, dndfeat, "background.choices.", aspectName, onAspectFound);
         }
     }
 

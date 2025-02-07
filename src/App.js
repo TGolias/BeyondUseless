@@ -15,7 +15,7 @@ const timeoutBeforeAddedToHistory = 5000;
 
 const defaultPlayerConfiguration = {
   name: "Amantine Jaune Francina",
-  level: 3,
+  level: 4,
   abilityScores: {
     strength: 8,
     dexterity: 15,
@@ -43,9 +43,17 @@ const defaultPlayerConfiguration = {
   classes: [
     {
       name: "Paladin",
-      levels: 3,
+      levels: 4,
       choices: {
         classSkills: ["Persuasion", "Insight"]
+      },
+      features: {
+        Feat4: {
+          name: "Elven Accuracy",
+          choices: {
+            additionalStatIncrease: "Dexterity"
+          }
+        }
       }
     }
   ],
