@@ -1,0 +1,41 @@
+.outerWeaponOrDamageCantrip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;;
+}
+
+.weaponOrDamageCantripTitle {
+    padding: 0.5em;
+    font-weight: bold;
+}
+
+.weaponOrDamageCantripGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+}
+
+.weaponOrDamageCantripGrid > .firstCol {
+    border-left: 0;
+    padding-left: 1em;
+}
+
+.weaponOrDamageCantripGrid > * {
+    font-weight: bold;
+    font-size: 0.8em;
+    padding: 0.5em;
+    text-align: center;
+    border-top: 4px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    align-content: center;
+}
+
+.weaponOrDamageCantripGrid > .lastCol {
+    border-right: 0;
+    padding-right: 1em;
+}
+
+.weaponOrDamageCantripRow {
+    font-weight: normal;
+}

@@ -7,6 +7,7 @@ import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { HeroicInspirationDisplay } from "../DisplayComponents/HeroicInspirationDisplay";
 import { DeathSavingThrowsDisplay } from "../DisplayComponents/DeathSavingThrowsDisplay";
 import { BasicStatDisplay } from "../DisplayComponents/BasicStatDisplay";
+import { WeaponsAndDamageCantrips } from "../DisplayComponents/WeaponsAndDamageCantrips";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -46,6 +47,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <StatDisplay name="intelligence" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "intelligence")}/>
                     <StatDisplay name="wisdom" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "wisdom")}/>
                     <StatDisplay name="charisma" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "charisma")}/>
+                </div>
+                <div>
+                    <WeaponsAndDamageCantrips playerConfigs={playerConfigs}></WeaponsAndDamageCantrips>
                 </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>

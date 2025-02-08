@@ -69,6 +69,10 @@ const defaultPlayerConfiguration = {
     {
       name: "Studded Leather Armor",
       equipped: true
+    },
+    {
+      name: "The Gun of Hole-iness",
+      equipped: true
     }
   ],
   currentStatus: {

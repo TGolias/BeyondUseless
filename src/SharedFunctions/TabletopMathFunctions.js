@@ -1,6 +1,6 @@
 import { getCollection } from "../Collections";
 import { getValueFromObjectAndPath } from "./ComponentFunctions";
-import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings } from "./Utils";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
     return 2 + Math.floor((playerConfigs.level - 1) / 4);
@@ -514,4 +514,108 @@ function findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices,
             }
         }
     }
+}
+
+export function performDiceRollCalculation(playerConfigs, calculation) {
+    return performCalculation(
+        playerConfigs, 
+        calculation, 
+        (singleCalculation) => {
+            switch (singleCalculation.type) {
+                case "dieRoll":
+                    return "d" + singleCalculation.value;
+            }
+            return "";
+        },
+        (currentTotal, valueToAdd) => {
+            if (isNumeric(valueToAdd)) {
+                if (valueToAdd < 0) {
+                    return currentTotal + valueToAdd;
+                } else if (valueToAdd === 0) {
+                    return currentTotal
+                }
+            }
+            return currentTotal + "+" + valueToAdd;
+        },
+        (multiplier, singleValue) => {
+            if (multiplier === 0) {
+                return 0;
+            }
+            if (multiplier > 1) {
+                return multiplier + singleValue;
+            }
+            return singleValue;
+        });
+}
+
+export function performMathCalculation(playerConfigs, calculation) {
+    return performCalculation(
+        playerConfigs, 
+        calculation, 
+        (singleCalculation) => {
+            return 0;
+        },
+        (currentTotal, valueToAdd) => {
+            return currentTotal + valueToAdd;
+        },
+        (multiplier, singleValue) => {
+            return multiplier * singleValue;
+        });
+}
+
+function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performAddition, performMultiplication) {
+    let total;
+    for (let i = 0; i < calculation.length; i++) {
+        const singleCalculation = calculation[i];
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, performAddition, performMultiplication);
+
+        let multiplier = 1;
+        if (singleCalculation.multiplier) {
+            multiplier = performCalculation(playerConfigs, singleCalculation.multiplier, doSingleCalculationForSpecialTypes, performAddition, performMultiplication)
+        }
+
+        if (i === 0) {
+            total = performMultiplication(multiplier, singleValue);
+        }
+        else {
+            total = performAddition(total, performMultiplication(multiplier, singleValue));
+        }
+    }
+    return total;
+}
+
+function doSingleCalculation(playerConfigs, singleCalculation, performCalculationForSpecialTypes, performAddition, performMultiplication) {
+    switch (singleCalculation.type) {
+        case "static":
+            return singleCalculation.value;
+        case "aspect":
+            return calculateAspectCollection(playerConfigs, singleCalculation.value);
+        case "highestOf":
+            let highestValue;
+            for (let i = 0; i < singleCalculation.values.length; i++) {
+                const singleValue = performMathCalculation(playerConfigs, singleCalculation.values[i]);
+                if (i === 0) {
+                    highestValue = singleValue;
+                } else {
+                    if (singleValue > highestValue) {
+                        highestValue = singleValue
+                    }
+                }
+            }
+            return highestValue;
+        case "lowestOf":
+            let lowestOf;
+            for (let i = 0; i < singleCalculation.values.length; i++) {
+                const singleValue = performMathCalculation(playerConfigs, singleCalculation.values[i]);
+                if (i === 0) {
+                    lowestOf = singleValue;
+                } else {
+                    if (singleValue < lowestOf) {
+                        lowestOf = singleValue
+                    }
+                }
+            }
+            return lowestOf;
+    }
+    return performCalculationForSpecialTypes(singleCalculation);
 }
