@@ -33,7 +33,7 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
             if (classLevel >= classFeature.classLevel) {
                 const classFeatureContent = [];
                 if (classFeature.feat) {
-                    const featurePropertyName = classFeature.name + classFeature.classLevel;
+                    const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
                     const pathToClassFeatureProperty = "classes[" + classIndex + "].features." + featurePropertyName
                     classFeatureContent.push(<>
                         <div className="classFeatSelector">

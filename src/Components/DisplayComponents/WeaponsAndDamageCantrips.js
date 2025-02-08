@@ -2,13 +2,13 @@ import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
 import { convertArrayToDictionary } from '../../SharedFunctions/Utils';
-import { calculateAspectCollection, calculateProficiencyBonus, performDiceRollCalculation } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateAspectCollection, calculateProficiencyBonus, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from '../../SharedFunctions/TabletopMathFunctions';
 
 const rows = [
     {
         name: "Name",
-        calculateWeaponValue: (playerConfigs, dndItem, isThrown) => {
-            return dndItem.name + (isThrown ? " (Thrown)" : "")
+        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
+            return weapon.name + (isThrown ? " (Thrown)" : "")
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             return dndCantrip.name;
@@ -17,17 +17,15 @@ const rows = [
     },
     {
         name: "Atk/DC",
-        calculateWeaponValue: (playerConfigs, dndItem, isThrown) => {
-            const dexterityModifier = calculateAspectCollection(playerConfigs, "dexterityModifier");
-            const proficencyBonus = calculateProficiencyBonus(playerConfigs);
-            const amount = dexterityModifier + proficencyBonus;
-            return (amount < 0 ? "" : "+") + amount
+        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
+            const value = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
+            return value;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
                 const charismaModifier = calculateAspectCollection(playerConfigs, "charismaModifier");
                 const proficencyBonus = calculateProficiencyBonus(playerConfigs);
-                return 8 + charismaModifier + proficencyBonus;
+                return "DC" + (8 + charismaModifier + proficencyBonus);
             } else {
                 const charismaModifier = calculateAspectCollection(playerConfigs, "charismaModifier");
                 const proficencyBonus = calculateProficiencyBonus(playerConfigs);
@@ -38,37 +36,9 @@ const rows = [
     },
     {
         name: "Damage",
-        calculateWeaponValue: (playerConfigs, dndItem, isThrown) => {
-
-            const calculationsForDamage = [...dndItem.damage.calcuation];
-
-            const takeTheHighestOfTheseCalculations = [];
-            // This is so that we don't add our modifier if it's negative.
-            takeTheHighestOfTheseCalculations.push([{
-                type: "static",
-                value: 0,
-            }]);
-
-            if (dndItem.weaponRange === "Ranged" || dndItem.properties.includes("Finesse")) {
-                takeTheHighestOfTheseCalculations.push([{
-                    type: "aspect",
-                    value: "dexterityModifier",
-                }]);
-            }
-
-            if (dndItem.weaponRange === "Melee") {
-                takeTheHighestOfTheseCalculations.push([{
-                    type: "aspect",
-                    value: "strengthModifier",
-                }]);
-            }
-
-            calculationsForDamage.push({
-                type: "highestOf",
-                values: takeTheHighestOfTheseCalculations
-            });
-            let calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage);
-            return calculationString;
+        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
+            const value = calculateWeaponDamage(playerConfigs, weapon, isThrown);
+            return value;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             let calculationString = performDiceRollCalculation(playerConfigs, dndCantrip.damage.calcuation);
@@ -77,11 +47,11 @@ const rows = [
     },
     {
         name: "Range",
-        calculateWeaponValue: (playerConfigs, dndItem, isThrown) => {
-            if (dndItem.weaponRange === "Ranged" || isThrown) {
-                return dndItem.range;
+        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
+            if (weapon.weaponRange === "Ranged" || isThrown) {
+                return weapon.range;
             } else {
-                if (dndItem.properties.includes("Reach")) {
+                if (weapon.properties.includes("Reach")) {
                     return 10;
                 } else {
                     return 5;

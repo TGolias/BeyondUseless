@@ -1,6 +1,6 @@
 import { getCollection } from "../Collections";
 import { getValueFromObjectAndPath } from "./ComponentFunctions";
-import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric } from "./Utils";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
     return 2 + Math.floor((playerConfigs.level - 1) / 4);
@@ -11,10 +11,10 @@ export function calculateArmorClass(playerConfigs) {
     let armorClass = 10 + calculateAspectCollection(playerConfigs, "dexterityModifier");
 
     // Check if there are any other ways to calculate armor class.
-    findAllConfiguredAspects(playerConfigs, "armorClass", (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, "armorClass", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let newArmorClass;
         if (aspectValue.calcuation) {
-            newArmorClass = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+            newArmorClass = performMathCalculation(playerConfigs, aspectValue.calcuation);
         }
         else {
             newArmorClass = aspectValue;
@@ -26,10 +26,10 @@ export function calculateArmorClass(playerConfigs) {
     });
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
-    findAllConfiguredAspects(playerConfigs, "armorClassBonus", (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, "armorClassBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let armorClassBonus;
         if (aspectValue.calcuation) {
-            armorClassBonus = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+            armorClassBonus = performMathCalculation(playerConfigs, aspectValue.calcuation);
         }
         else {
             armorClassBonus = aspectValue;
@@ -46,10 +46,10 @@ export function calculateInitiativeBonus(playerConfigs) {
     let totalInitiativeBonus = calculateAspectCollection(playerConfigs, "dexterityModifier");
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
-    findAllConfiguredAspects(playerConfigs, "initiativeBonus", (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, "initiativeBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let initiativeBonus;
         if (aspectValue.calcuation) {
-            initiativeBonus = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calcuation);
         }
         else {
             initiativeBonus = aspectValue;
@@ -66,7 +66,7 @@ export function calculateSize(playerConfigs) {
     let size = "Medium";
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
-    findAllConfiguredAspects(playerConfigs, "size", (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, "size", (aspectValue, typeFoundOn, playerConfigForObject) => {
         size = aspectValue;
     });
 
@@ -78,10 +78,10 @@ export function calculateSpeed(playerConfigs) {
     let speed = 0;
 
     // There might be multiple speeds between the species / subspecies, override with whatever we see is the highest.
-    findAllConfiguredAspects(playerConfigs, "speed", (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, "speed", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let newSpeed;
         if (aspectValue.calcuation) {
-            newSpeed = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+            newSpeed = performMathCalculation(playerConfigs, aspectValue.calcuation);
         }
         else {
             newSpeed = aspectValue;
@@ -93,10 +93,10 @@ export function calculateSpeed(playerConfigs) {
     });
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
-    findAllConfiguredAspects(playerConfigs, "speedBonus", (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, "speedBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let speedBonus;
         if (aspectValue.calcuation) {
-            speedBonus = performAspectCalculation(playerConfigs, aspectValue.calcuation);
+            speedBonus = performMathCalculation(playerConfigs, aspectValue.calcuation);
         }
         else {
             speedBonus = aspectValue;
@@ -121,29 +121,6 @@ export function calculatePassivePerception(playerConfigs) {
     // They seemingly simplified this... it's just 10 plus your perception skill modifer.
     let passivePerception = 10 + calculateSkillBonus(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name]);
     return passivePerception;
-}
-
-export function performAspectCalculation(playerConfigs, calculation) {
-    let value = undefined;
-    for(let i = 0; i < calculation.length; i++) {4
-        let calculationValue = undefined;
-        const singleCalculation = calculation[i];
-        switch (singleCalculation.type) {
-            case "static":
-                calculationValue = singleCalculation.value;
-                break;
-            case "aspect":
-                calculationValue = calculateAspectCollection(playerConfigs, singleCalculation.value);
-        }
-
-        if (i === 0) {
-            value = calculationValue;
-        }
-        else {
-            value += calculationValue;
-        }
-    }
-    return value;
 }
 
 export function calculateModifierForBaseStat(baseStatValue) {
@@ -179,7 +156,7 @@ export function calculateHPMax(playerConfigs) {
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
 
     let extraHPPerLVL = 0;
-    findAllConfiguredAspects(playerConfigs, "hpPerLVL", (hpPerLVL) => {
+    findAllConfiguredAspects(playerConfigs, "hpPerLVL", (hpPerLVL, typeFoundOn, foundObject) => {
         extraHPPerLVL += hpPerLVL;
     });
 
@@ -262,13 +239,13 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
         baseStatValue += backgroundValue;
     }
 
-    findAllConfiguredAspects(playerConfigs, statToCalculate, (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, statToCalculate, (aspectValue, typeFoundOn, playerConfigForObject) => {
         baseStatValue += aspectValue;
     });
 
     // See if there are any overrides that are higher without it.
     const overrideStatAspectName = statToCalculate + "Override";
-    findAllConfiguredAspects(playerConfigs, overrideStatAspectName, (aspectValue) => {
+    findAllConfiguredAspects(playerConfigs, overrideStatAspectName, (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (baseStatValue < aspectValue) {
             // If the override is higher than the stat without the override, set that to the new value.
             baseStatValue = aspectValue;
@@ -298,6 +275,138 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         savingThrowBonus += proficencyBonus;
     }
     return savingThrowBonus;
+}
+
+export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
+    const calculationsForAttackBonus = [];
+
+    const takeTheHighestOfTheseCalculations = [];
+    if (weapon.weaponRange === "Ranged" || weapon.properties.includes("Finesse")) {
+        takeTheHighestOfTheseCalculations.push([{
+            type: "aspect",
+            value: "dexterityModifier",
+        }]);
+    }
+    if (weapon.weaponRange === "Melee") {
+        takeTheHighestOfTheseCalculations.push([{
+            type: "aspect",
+            value: "strengthModifier",
+        }]);
+    }
+    calculationsForAttackBonus.push({
+        type: "highestOf",
+        values: takeTheHighestOfTheseCalculations
+    });
+
+    // Check if we should add the proficency bonus.
+    if (weapon.tags) {
+        const weaponProficienyMap = calculateAspectCollection(playerConfigs, "weaponProficiencies");
+        const isProficient = weapon.tags.some(tag => weaponProficienyMap.includes(tag));
+        if (isProficient) {
+            calculationsForAttackBonus.push({
+                type: "aspect",
+                value: "proficiencyBonus",
+            });
+        }
+    }
+    
+    // See if there are additoinal bonuses to apply to our damage.
+    findAllConfiguredAspects(playerConfigs, "weaponAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForAttackBonus.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+
+    let calculationString = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown });
+    return calculationString;
+}
+
+export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
+    const calculationsForDamage = [...weapon.damage.calcuation];
+
+    const takeTheHighestOfTheseCalculations = [];
+    if (weapon.weaponRange === "Ranged" || weapon.properties.includes("Finesse")) {
+        takeTheHighestOfTheseCalculations.push([{
+            type: "aspect",
+            value: "dexterityModifier",
+        }]);
+    }
+    if (weapon.weaponRange === "Melee") {
+        takeTheHighestOfTheseCalculations.push([{
+            type: "aspect",
+            value: "strengthModifier",
+        }]);
+    }
+    calculationsForDamage.push({
+        type: "highestOf",
+        values: takeTheHighestOfTheseCalculations
+    });
+
+    // See if there are additoinal bonuses to apply to our damage.
+    findAllConfiguredAspects(playerConfigs, "weaponDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForDamage.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForDamage.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    let calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown });
+    return calculationString;
+}
+
+export function calculateFeatures(playerConfigs) {
+    const allFeatures = [];
+
+    // Aspects are things like Language, Resistance, etc that are added from various Species, Class, Feats or Magical Effects.
+    findAllConfiguredAspects(playerConfigs, "features", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        switch (typeFoundOn) {
+            case "class":
+                for (let classFeature of aspectValue) {
+                    if (classFeature.classLevel <= playerConfigForObject.levels) {
+                        allFeatures.push(classFeature);
+                    }
+                }
+                return;
+            case "species": 
+                for (let speciesFeature of aspectValue) {
+                    if (speciesFeature.level <= playerConfigs.level) {
+                        allFeatures.push(speciesFeature);
+                    }
+                }
+                return;
+        }
+        allFeatures.push([...aspectValue]);
+    });
+
+    return allFeatures;
 }
 
 export function getAllAspectOptions(aspectName) {
@@ -335,35 +444,43 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateModifierForBaseStat(calculateBaseStat(playerConfigs, aspectName.substring(0, aspectName.length - 8)));
         case "maxHp":
             return calculateHPMax(playerConfigs);
+        case "level":
+            return playerConfigs.level;
         case "tier":
             return calculateTierForPlayerLevel(playerConfigs);
+        case "proficiencyBonus":
+            return calculateProficiencyBonus(playerConfigs);
+        case "features": 
+            return calculateFeatures(playerConfigs);
     }
 
     const aspectCollection = calculateAspectCollectionCore(playerConfigs, aspectName);
     return aspectCollection;
 }
 
-export function calculateAspectCollectionCore(playerConfigs, aspectName) {
+export function calculateAspectCollectionCore(playerConfigs, aspectName, pathToProperty = "$VALUE") {
     // Aspects are things like Language, Resistance, etc that are added from various Species, Class, Feats or Magical Effects.
     let aspectCollection = {};
 
-    findAllConfiguredAspects(playerConfigs, aspectName, (aspectValue) => {
-        setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue);
+    findAllConfiguredAspects(playerConfigs, aspectName, (aspectValue, typeFoundOn, playerConfigForObject) => {
+        setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue, pathToProperty);
     });
 
     return convertHashMapToArrayOfStrings(aspectCollection);
 }
 
-function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrProperty) {
+function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrProperty, pathToProperty = "$VALUE") {
     if (arrayOrProperty) {
         if (Array.isArray(arrayOrProperty)) {
             // It is an array.
             for (const aspect of arrayOrProperty) {
-                totalAspectCollection[aspect] = true;
+                const aspectValue = getValueFromObjectAndPath(aspect, pathToProperty);
+                totalAspectCollection[aspectValue] = true;
             }
         } else {
             // It is a property
-            totalAspectCollection[arrayOrProperty] = true;
+            const aspectValue = getValueFromObjectAndPath(arrayOrProperty, pathToProperty);
+            totalAspectCollection[aspectValue] = true;
         }
     }
 }
@@ -376,18 +493,18 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     // Check the base player for the spect.
     const baseAspectValue = getValueFromObjectAndPath(playerConfigs, aspectName)
     if (baseAspectValue) {
-        onAspectFound(baseAspectValue);
+        onAspectFound(baseAspectValue, "player", playerConfigs);
     }
 
     // Check the species for the aspect.
     const dndspecies = species.find(x => x.name === playerConfigs.species.name);
     const speciesAspectValue = getValueFromObjectAndPath(dndspecies, aspectName)
     if (speciesAspectValue) {
-        onAspectFound(speciesAspectValue);
+        onAspectFound(speciesAspectValue, "species", playerConfigs.species);
     }
 
     if (dndspecies.choices) {
-        findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, onAspectFound);
+        findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "species", playerConfigs.species));
     }
     
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
@@ -396,29 +513,29 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         // Check each of the classes for the aspect.
         const classAspectValue = dndClass[aspectName];
         if (classAspectValue) {
-            onAspectFound(classAspectValue);
+            onAspectFound(classAspectValue, "class", playerConfigs.classes[i]);
         }
 
         if (dndClass.choices) {
-            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, onAspectFound);
+            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "class", playerConfigs.classes[i]));
         }
 
         if (dndClass.features) {
             for (let j = 0; j < dndClass.features.length; j++) {
                 const classFeature = dndClass.features[j];
                 if (classFeature.feat) {
-                    const featurePropertyName = classFeature.name + classFeature.classLevel;
+                    const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
                     const playerClassObject = playerConfigs.classes[i];
                     const selectedFeatName = playerClassObject.features && playerClassObject.features[featurePropertyName] ? playerClassObject.features[featurePropertyName].name : undefined;
                     if (selectedFeatName) {
                         const dndfeat = feats.find(x => x.name === selectedFeatName);
                         if (dndfeat) {
                             if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
-                                onAspectFound(dndfeat.aspects[aspectName]);
+                                onAspectFound(dndfeat.aspects[aspectName], "feats", playerClassObject.features[featurePropertyName]);
                             }
 
                             if (dndfeat.choices) {
-                                findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, onAspectFound);
+                                findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", playerClassObject.features[featurePropertyName]));
                             }
                         }
                     }
@@ -431,17 +548,17 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const dndBackground = backgrounds.find(x => x.name === playerConfigs.background.name);
     const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName)
     if (backgroundAspectValue) {
-        onAspectFound(backgroundAspectValue);
+        onAspectFound(backgroundAspectValue, "background", playerConfigs.background);
     }
 
     if (dndBackground.feat) {
         const dndfeat = feats.find(x => x.name === dndBackground.feat);
         if (dndfeat && dndfeat.aspects && dndfeat.aspects[aspectName]) {
-            onAspectFound(dndfeat.aspects[aspectName]);
+            onAspectFound(dndfeat.aspects[aspectName], "feats", playerConfigs.background);
         }
 
         if (dndfeat.choices) {
-            findAspectsFromChoice(playerConfigs, dndfeat, "background.choices.", aspectName, onAspectFound);
+            findAspectsFromChoice(playerConfigs, dndfeat, "background.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", playerConfigs.background));
         }
     }
 
@@ -454,12 +571,11 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             if (item.equipped) {
                 const dndItem = itemsDictionary[item.name];
                 if (dndItem && dndItem.aspects && dndItem.aspects[aspectName]) {
-                    onAspectFound(dndItem.aspects[aspectName]);
+                    onAspectFound(dndItem.aspects[aspectName], "item", item);
                 }
             }
         }
     }
-    
 }
 
 function findAspectsFromChoice(playerConfigs, choiceObject, pathToPlayerChoices, aspectName, onAspectFound) {
@@ -516,75 +632,191 @@ function findAspectsFromPlayerChoice(playerConfigs, choice, pathToPlayerChoices,
     }
 }
 
-export function performDiceRollCalculation(playerConfigs, calculation) {
-    return performCalculation(
-        playerConfigs, 
-        calculation, 
-        (singleCalculation) => {
-            switch (singleCalculation.type) {
-                case "dieRoll":
-                    return "d" + singleCalculation.value;
+export function performDiceRollCalculation(playerConfigs, calculation, parameters = {}) {
+    const doSingleCalculationForSpecialTypes = (singleCalculation) => {
+        switch (singleCalculation.type) {
+            case "dieRoll":
+                const diceCalculationObject = {};
+                const diceProperty = "d" + singleCalculation.value
+                diceCalculationObject[diceProperty] = 1;
+                return diceCalculationObject;
+        }
+        return 0;
+    };
+    const performSpecialTransformations = (playerConfigs, singleCalculation, singleValue) => {
+        if (singleCalculation.multiplier) {
+            const multiplier = performMathCalculation(playerConfigs, singleCalculation.multiplier, parameters);
+
+            if (isObject(singleValue)) {
+                // This value to multipy against is a die object. Multiply each of the dice in it by the mulitplier.
+                for (let key of Object.keys(singleValue)) {
+                    singleValue[key] *= multiplier;
+                }
+            } else {
+                // This value to multipy against is just simple numeric value. We can just multiply the two values.
+                return singleValue * multiplier;
             }
-            return "";
-        },
-        (currentTotal, valueToAdd) => {
-            if (isNumeric(valueToAdd)) {
-                if (valueToAdd < 0) {
-                    return currentTotal + valueToAdd;
-                } else if (valueToAdd === 0) {
-                    return currentTotal
+        }
+
+        return singleValue;
+    };
+    const performAddition = (currentTotal, valueToAdd) => {
+        if (isObject(valueToAdd)) {
+            // The value to add is a die object. Iterate through each of the dice and add them to our totals.
+            for (let key of Object.keys(valueToAdd)) {
+                if (currentTotal[key]) {
+                    currentTotal[key] += valueToAdd[key];
+                } else {
+                    currentTotal[key] = valueToAdd[key];
                 }
             }
-            return currentTotal + "+" + valueToAdd;
-        },
-        (multiplier, singleValue) => {
-            if (multiplier === 0) {
-                return 0;
+        } else {
+            // The value to add is just a numeric value. Add it to the "static" amount.
+            if (currentTotal["static"]) {
+                currentTotal["static"] += valueToAdd;
+            } else {
+                currentTotal["static"] = valueToAdd;
             }
-            if (multiplier > 1) {
-                return multiplier + singleValue;
+        }
+
+        return currentTotal;
+    };
+
+    const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, {}, parameters);
+
+    let diceString = "";
+    const diceObjectKeys = Object.keys(diceObject);
+    if (diceObjectKeys.length > 0) {
+        const sortedDiceObjectKeys = diceObjectKeys.sort((a, b) => {
+            const aIsDice = a.startsWith("d");
+            const bIsDice = b.startsWith("d");
+            if (aIsDice && bIsDice) {
+                const aNum = parseInt(a.substring(0));
+                const bNum = parseInt(b.substring(0));
+                // We want to start with the largest dice first.
+                return bNum - aNum;
+            } else if (aIsDice) {
+                return -1;
+            } else {
+                return 1;
             }
-            return singleValue;
         });
+        for (let diceObjectKey of sortedDiceObjectKeys) {
+            const diceObjectValue = diceObject[diceObjectKey];     
+            if (diceObjectValue !== 0) {
+                let stringToAdd;
+                if (diceObjectKey.startsWith("d")) {
+                    if (diceObjectValue === 1) {
+                        stringToAdd = (diceObjectKey);
+                    } else if (diceObjectValue === -1) {
+                        stringToAdd = ("-" + diceObjectKey);
+                    } else {
+                        stringToAdd = (diceObjectValue + diceObjectKey);
+                    }
+                } else {
+                    stringToAdd = diceObjectValue;
+                }
+
+                if (diceObjectValue > 0) {
+                    diceString += (diceString.length > 0 ? "+" + stringToAdd : stringToAdd);
+                } else if (diceObjectValue < 0) {
+                    diceString += stringToAdd;
+                }
+            }
+        }
+    }
+    return diceString.length === 0 ? "0" : diceString;
 }
 
-export function performMathCalculation(playerConfigs, calculation) {
-    return performCalculation(
-        playerConfigs, 
-        calculation, 
-        (singleCalculation) => {
-            return 0;
-        },
-        (currentTotal, valueToAdd) => {
-            return currentTotal + valueToAdd;
-        },
-        (multiplier, singleValue) => {
-            return multiplier * singleValue;
-        });
+export function performMathCalculation(playerConfigs, calculation, parameters = {}) {
+    const doSingleCalculationForSpecialTypes = (singleCalculation) => {
+        return 0;
+    };
+    const performSpecialTransformations = (playerConfigs, singleCalculation, singleValue) => {
+        if (singleCalculation.multiplier) {
+            const multiplier = performMathCalculation(playerConfigs, singleCalculation.multiplier, parameters);
+            singleValue = multiplier * singleValue;
+        }
+
+        return singleValue;
+    };
+    const performAddition = (currentTotal, valueToAdd) => {
+        return currentTotal + valueToAdd;
+    };
+
+    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, 0, parameters);
 }
 
-function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performAddition, performMultiplication) {
-    let total;
+export function performBooleanCalculation(playerConfigs, calculation, parameters = {}) {
+    const doSingleCalculationForSpecialTypes = (singleCalculation) => {
+        return false;
+    };
+    const performSpecialTransformations = (playerConfigs, singleCalculation, singleValue) => {
+        if (singleCalculation.equals) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToReturn = (singleValue == valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.greaterThan) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToReturn = (singleValue > valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.greaterThanOrEqualTo) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToReturn = (singleValue >= valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.lessThanOrEqualTo) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToReturn = (singleValue <= valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.lessThanOrEqualTo) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToReturn = (singleValue < valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.includes) {
+            let allIncluded = true;
+            for (let singleIncludeCheck of singleCalculation.includes) {
+                const singleValueToInclude = performMathCalculation(playerConfigs, singleIncludeCheck, parameters);
+                if (!singleValue.includes(singleValueToInclude)) {
+                    allIncluded = false;
+                    break;
+                }
+            }
+            return allIncluded;
+        }
+
+        return singleValue;
+    };
+    const performAddition = (currentTotal, valueToAdd) => {
+        return currentTotal && valueToAdd;
+    };
+
+    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, true, parameters);
+}
+
+function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, startingTotal, parameters) {
+    let total = startingTotal;
     for (let i = 0; i < calculation.length; i++) {
         const singleCalculation = calculation[i];
-        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, performAddition, performMultiplication);
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters);
 
-        let multiplier = 1;
-        if (singleCalculation.multiplier) {
-            multiplier = performCalculation(playerConfigs, singleCalculation.multiplier, doSingleCalculationForSpecialTypes, performAddition, performMultiplication)
-        }
+        singleValue = performSpecialTransformations(playerConfigs, singleCalculation, singleValue);
 
-        if (i === 0) {
-            total = performMultiplication(multiplier, singleValue);
-        }
-        else {
-            total = performAddition(total, performMultiplication(multiplier, singleValue));
-        }
+        total = performAddition(total, singleValue);
     }
     return total;
 }
 
-function doSingleCalculation(playerConfigs, singleCalculation, performCalculationForSpecialTypes, performAddition, performMultiplication) {
+function doSingleCalculation(playerConfigs, singleCalculation, performCalculationForSpecialTypes, parameters) {
     switch (singleCalculation.type) {
         case "static":
             return singleCalculation.value;
@@ -593,7 +825,7 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "highestOf":
             let highestValue;
             for (let i = 0; i < singleCalculation.values.length; i++) {
-                const singleValue = performMathCalculation(playerConfigs, singleCalculation.values[i]);
+                const singleValue = performMathCalculation(playerConfigs, singleCalculation.values[i], parameters);
                 if (i === 0) {
                     highestValue = singleValue;
                 } else {
@@ -606,7 +838,7 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "lowestOf":
             let lowestOf;
             for (let i = 0; i < singleCalculation.values.length; i++) {
-                const singleValue = performMathCalculation(playerConfigs, singleCalculation.values[i]);
+                const singleValue = performMathCalculation(playerConfigs, singleCalculation.values[i], parameters);
                 if (i === 0) {
                     lowestOf = singleValue;
                 } else {
@@ -616,6 +848,9 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
                 }
             }
             return lowestOf;
+        case "parameter":
+            const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
+            return parameterValue;
     }
     return performCalculationForSpecialTypes(singleCalculation);
 }

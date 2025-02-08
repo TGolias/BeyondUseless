@@ -48,6 +48,9 @@ const defaultPlayerConfiguration = {
         classSkills: ["Persuasion", "Insight"]
       },
       features: {
+        FightingStyle2: {
+          name: "Archery"
+        },
         Feat4: {
           name: "Elven Accuracy",
           choices: {
