@@ -18,8 +18,8 @@ const rows = [
     {
         name: "Atk/DC",
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            const value = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
-            return value;
+            const amount = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
+            return (amount < 0 ? "" : "+") + amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
@@ -30,15 +30,15 @@ const rows = [
                 const charismaModifier = calculateAspectCollection(playerConfigs, "charismaModifier");
                 const proficencyBonus = calculateProficiencyBonus(playerConfigs);
                 const amount = charismaModifier + proficencyBonus;
-                return (amount < 0 ? "" : "+") + amount
+                return (amount < 0 ? "" : "+") + amount;
             }
         }
     },
     {
         name: "Damage",
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            const value = calculateWeaponDamage(playerConfigs, weapon, isThrown);
-            return value;
+            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown);
+            return amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             let calculationString = performDiceRollCalculation(playerConfigs, dndCantrip.damage.calcuation);

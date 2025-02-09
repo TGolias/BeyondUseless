@@ -33,7 +33,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
                 </div>
                 <div className="encounterStats">
-                    <BasicStatDisplay statValue={"+" + initiativeBonus}>Initiative</BasicStatDisplay>
+                    <BasicStatDisplay statValue={(initiativeBonus >= 0) ? "+" + initiativeBonus : initiativeBonus}>Initiative</BasicStatDisplay>
                     <BasicStatDisplay statValue={speed}>Speed</BasicStatDisplay>
                     <BasicStatDisplay statValue={size}>Size</BasicStatDisplay>
                     <BasicStatDisplay statValue={passivePerception}>Passive<br></br>Perception</BasicStatDisplay>

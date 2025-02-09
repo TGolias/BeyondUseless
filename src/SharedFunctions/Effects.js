@@ -57,6 +57,7 @@ function onSpeciesNameChangeHandler(newBaseStateObject, newSpeciesNameValue) {
     // Remove all choises from the previous species.
     if (newBaseStateObject.species.name !== newSpeciesNameValue) {
         newBaseStateObject.species.choices = {};
+        newBaseStateObject.species.features = {};
     }
 }
 
@@ -81,6 +82,7 @@ function onClassNameChangeHandler(newBaseStateObject, index, newClassNameValue) 
     // Remove all choises from the previous species.
     if (newBaseStateObject.classes[index].name !== newClassNameValue) {
         newBaseStateObject.classes[index].choices = {};
+        newBaseStateObject.classes[index].features = {};
     }
 }
 

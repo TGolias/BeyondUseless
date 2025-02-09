@@ -331,9 +331,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     });
 
-
-    let calculationString = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown });
-    return calculationString;
+    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown });
+    return amount;
 }
 
 export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
@@ -378,12 +377,12 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
         }
     });
 
-    let calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown });
+    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown });
     return calculationString;
 }
 
-export function calculateFeatures(playerConfigs) {
-    const allFeatures = [];
+function calculateFeatureNames(playerConfigs) {
+    const allFeatureNames = [];
 
     // Aspects are things like Language, Resistance, etc that are added from various Species, Class, Feats or Magical Effects.
     findAllConfiguredAspects(playerConfigs, "features", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -391,22 +390,24 @@ export function calculateFeatures(playerConfigs) {
             case "class":
                 for (let classFeature of aspectValue) {
                     if (classFeature.classLevel <= playerConfigForObject.levels) {
-                        allFeatures.push(classFeature);
+                        allFeatureNames.push(classFeature.name);
                     }
                 }
                 return;
             case "species": 
                 for (let speciesFeature of aspectValue) {
                     if (speciesFeature.level <= playerConfigs.level) {
-                        allFeatures.push(speciesFeature);
+                        allFeatureNames.push(speciesFeature.name);
                     }
                 }
                 return;
         }
-        allFeatures.push([...aspectValue]);
+        for (let feature of aspectValue) {
+            allFeatureNames.push(feature.name);
+        }
     });
 
-    return allFeatures;
+    return allFeatureNames;
 }
 
 export function getAllAspectOptions(aspectName) {
@@ -444,14 +445,12 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateModifierForBaseStat(calculateBaseStat(playerConfigs, aspectName.substring(0, aspectName.length - 8)));
         case "maxHp":
             return calculateHPMax(playerConfigs);
-        case "level":
-            return playerConfigs.level;
         case "tier":
             return calculateTierForPlayerLevel(playerConfigs);
         case "proficiencyBonus":
             return calculateProficiencyBonus(playerConfigs);
-        case "features": 
-            return calculateFeatures(playerConfigs);
+        case "featureNames": 
+            return calculateFeatureNames(playerConfigs);
     }
 
     const aspectCollection = calculateAspectCollectionCore(playerConfigs, aspectName);
@@ -503,8 +502,57 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         onAspectFound(speciesAspectValue, "species", playerConfigs.species);
     }
 
+    const allDndSpeciesFeatures = dndspecies.features ? [...dndspecies.features] : [];
+
     if (dndspecies.choices) {
         findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "species", playerConfigs.species));
+
+        findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", "features", (aspectValue) => {
+            for (let speciesFeature of aspectValue) {
+                allDndSpeciesFeatures.push(speciesFeature);
+            }
+        });
+    }
+    
+    if (allDndSpeciesFeatures) {
+        for (let j = 0; j < allDndSpeciesFeatures.length; j++) {
+            const speciesFeature = allDndSpeciesFeatures[j];
+            if (!speciesFeature.level || speciesFeature.level <= playerConfigs.level) {
+                const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + playerConfigs.level;
+                const speciesFeaturePlayerConfig = playerConfigs.species.features ? playerConfigs.species.features[featurePropertyName] : undefined;
+
+                if (aspectName !== "feat") {
+                    const speciesFeatureAspectValue = getValueFromObjectAndPath(speciesFeature, aspectName);
+                    if (speciesFeatureAspectValue) {
+                        onAspectFound(speciesFeatureAspectValue, "feature", speciesFeaturePlayerConfig);
+                    }
+                }
+
+                if (speciesFeature.choices) {
+                    findAspectsFromChoice(playerConfigs, speciesFeature, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feature", speciesFeaturePlayerConfig));
+                }
+
+                if (speciesFeature.feat) {
+                    const selectedFeatName = speciesFeaturePlayerConfig?.name;
+                    if (selectedFeatName) {
+                        if (aspectName === "feat") {
+                            onAspectFound(selectedFeatName, "feature", speciesFeaturePlayerConfig);
+                        }
+
+                        const dndfeat = feats.find(x => x.name === selectedFeatName);
+                        if (dndfeat) {
+                            if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
+                                onAspectFound(dndfeat.aspects[aspectName], "feats", playerConfigs.species.features[featurePropertyName]);
+                            }
+
+                            if (dndfeat.choices) {
+                                findAspectsFromChoice(playerConfigs, dndfeat, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", speciesFeaturePlayerConfig));
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
@@ -516,26 +564,52 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             onAspectFound(classAspectValue, "class", playerConfigs.classes[i]);
         }
 
+        const allDndClassFeatures = dndClass.features ? [...dndClass.features] : [];
+
         if (dndClass.choices) {
             findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "class", playerConfigs.classes[i]));
+
+            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", "features", (aspectValue) => {
+                for (let classFeature of aspectValue) {
+                    allDndClassFeatures.push(classFeature);
+                }
+            });
         }
 
-        if (dndClass.features) {
+        if (allDndClassFeatures) {
             for (let j = 0; j < dndClass.features.length; j++) {
                 const classFeature = dndClass.features[j];
-                if (classFeature.feat) {
+                if (!classFeature.classLevel || classFeature.classLevel <= playerConfigs.classes[i].levels) {
                     const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
-                    const playerClassObject = playerConfigs.classes[i];
-                    const selectedFeatName = playerClassObject.features && playerClassObject.features[featurePropertyName] ? playerClassObject.features[featurePropertyName].name : undefined;
-                    if (selectedFeatName) {
-                        const dndfeat = feats.find(x => x.name === selectedFeatName);
-                        if (dndfeat) {
-                            if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
-                                onAspectFound(dndfeat.aspects[aspectName], "feats", playerClassObject.features[featurePropertyName]);
+                    const classFeaturePlayerConfig = playerConfigs.classes[i].features ? playerConfigs.classes[i].features[featurePropertyName] : undefined;
+
+                    if (aspectName !== "feat") {
+                        const classFeatureAspectValue = getValueFromObjectAndPath(classFeature, aspectName);
+                        if (classFeatureAspectValue) {
+                            onAspectFound(classFeatureAspectValue, "feature", classFeaturePlayerConfig);
+                        }
+                    }
+
+                    if (classFeature.choices) {
+                        findAspectsFromChoice(playerConfigs, classFeature, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feature", classFeaturePlayerConfig));
+                    }
+
+                    if (classFeature.feat) {
+                        const selectedFeatName = classFeaturePlayerConfig?.name;
+                        if (selectedFeatName) {
+                            if (aspectName === "feat") {
+                                onAspectFound(selectedFeatName, "feature", classFeaturePlayerConfig);
                             }
 
-                            if (dndfeat.choices) {
-                                findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", playerClassObject.features[featurePropertyName]));
+                            const dndfeat = feats.find(x => x.name === selectedFeatName);
+                            if (dndfeat) {
+                                if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
+                                    onAspectFound(dndfeat.aspects[aspectName], "feats", playerConfigs.classes[i].features[featurePropertyName]);
+                                }
+
+                                if (dndfeat.choices) {
+                                    findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", classFeaturePlayerConfig));
+                                }
                             }
                         }
                     }
@@ -546,7 +620,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
 
     // Check the background for the aspect.
     const dndBackground = backgrounds.find(x => x.name === playerConfigs.background.name);
-    const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName)
+    const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName);
     if (backgroundAspectValue) {
         onAspectFound(backgroundAspectValue, "background", playerConfigs.background);
     }
@@ -741,6 +815,9 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
         return singleValue;
     };
     const performAddition = (currentTotal, valueToAdd) => {
+        if (!currentTotal && !isNumeric(valueToAdd)) {
+            return valueToAdd;
+        }
         return currentTotal + valueToAdd;
     };
 
@@ -759,39 +836,33 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
         }
 
         if (singleCalculation.greaterThan) {
-            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.greaterThan, parameters)
             const valueToReturn = (singleValue > valueToEqual);
             return valueToReturn;
         }
 
         if (singleCalculation.greaterThanOrEqualTo) {
-            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.greaterThanOrEqualTo, parameters)
             const valueToReturn = (singleValue >= valueToEqual);
             return valueToReturn;
         }
 
         if (singleCalculation.lessThanOrEqualTo) {
-            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.lessThanOrEqualTo, parameters)
             const valueToReturn = (singleValue <= valueToEqual);
             return valueToReturn;
         }
 
         if (singleCalculation.lessThanOrEqualTo) {
-            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.lessThanOrEqualTo, parameters)
             const valueToReturn = (singleValue < valueToEqual);
             return valueToReturn;
         }
 
         if (singleCalculation.includes) {
-            let allIncluded = true;
-            for (let singleIncludeCheck of singleCalculation.includes) {
-                const singleValueToInclude = performMathCalculation(playerConfigs, singleIncludeCheck, parameters);
-                if (!singleValue.includes(singleValueToInclude)) {
-                    allIncluded = false;
-                    break;
-                }
-            }
-            return allIncluded;
+            const valueThatShouldBeIncluded = performMathCalculation(playerConfigs, singleCalculation.includes, parameters)
+            const valueToReturn = singleValue.includes(valueThatShouldBeIncluded);
+            return valueToReturn;
         }
 
         return singleValue;
@@ -851,6 +922,9 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "parameter":
             const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
             return parameterValue;
+        case "config":
+            const configValue = getValueFromObjectAndPath(playerConfigs, singleCalculation.propertyPath);
+            return configValue;
     }
     return performCalculationForSpecialTypes(singleCalculation);
 }
