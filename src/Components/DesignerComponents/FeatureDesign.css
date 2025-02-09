@@ -1,0 +1,12 @@
+.featSelector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.featureHolder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.5em;
+}

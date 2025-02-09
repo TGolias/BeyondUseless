@@ -381,33 +381,48 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
     return calculationString;
 }
 
-function calculateFeatureNames(playerConfigs) {
-    const allFeatureNames = [];
+export function calculateFeatures(playerConfigs) {
+    const allFeatures = []
 
-    // Aspects are things like Language, Resistance, etc that are added from various Species, Class, Feats or Magical Effects.
-    findAllConfiguredAspects(playerConfigs, "features", (aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllValidFeatures(playerConfigs, (feature, typeFoundOn, playerConfigForObject) => {
+        allFeatures.push({ feature, typeFoundOn, playerConfigForObject });
+    });
+
+    return allFeatures;
+}
+
+function calculateFeatureNames(playerConfigs) {
+    const allFeatureNames = []
+
+    findAllValidFeatures(playerConfigs, (feature, typeFoundOn, playerConfigForObject) => {
+        allFeatureNames.push(feature);
+    });
+
+    return allFeatureNames;
+}
+
+function findAllValidFeatures(playerConfigs, onFeatureFound) {
+    return findAllConfiguredAspects(playerConfigs, "features", (aspectValue, typeFoundOn, playerConfigForObject) => {
         switch (typeFoundOn) {
             case "class":
                 for (let classFeature of aspectValue) {
                     if (classFeature.classLevel <= playerConfigForObject.levels) {
-                        allFeatureNames.push(classFeature.name);
+                        onFeatureFound(classFeature, typeFoundOn, playerConfigForObject);
                     }
                 }
                 return;
             case "species": 
                 for (let speciesFeature of aspectValue) {
                     if (speciesFeature.level <= playerConfigs.level) {
-                        allFeatureNames.push(speciesFeature.name);
+                        onFeatureFound(speciesFeature, typeFoundOn, playerConfigForObject);
                     }
                 }
                 return;
         }
         for (let feature of aspectValue) {
-            allFeatureNames.push(feature.name);
+            onFeatureFound(feature, typeFoundOn, playerConfigForObject);
         }
     });
-
-    return allFeatureNames;
 }
 
 export function getAllAspectOptions(aspectName) {
@@ -449,6 +464,8 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateTierForPlayerLevel(playerConfigs);
         case "proficiencyBonus":
             return calculateProficiencyBonus(playerConfigs);
+        case "features":
+            return calculateFeatures(playerConfigs);
         case "featureNames": 
             return calculateFeatureNames(playerConfigs);
     }
@@ -505,7 +522,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const allDndSpeciesFeatures = dndspecies.features ? [...dndspecies.features] : [];
 
     if (dndspecies.choices) {
-        findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "species", playerConfigs.species));
+        findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "species", playerConfigs.species.choices));
 
         findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", "features", (aspectValue) => {
             for (let speciesFeature of aspectValue) {
@@ -518,7 +535,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         for (let j = 0; j < allDndSpeciesFeatures.length; j++) {
             const speciesFeature = allDndSpeciesFeatures[j];
             if (!speciesFeature.level || speciesFeature.level <= playerConfigs.level) {
-                const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + playerConfigs.level;
+                const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + speciesFeature.level;
                 const speciesFeaturePlayerConfig = playerConfigs.species.features ? playerConfigs.species.features[featurePropertyName] : undefined;
 
                 if (aspectName !== "feat") {
@@ -529,7 +546,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                 }
 
                 if (speciesFeature.choices) {
-                    findAspectsFromChoice(playerConfigs, speciesFeature, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feature", speciesFeaturePlayerConfig));
+                    findAspectsFromChoice(playerConfigs, speciesFeature, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feature", speciesFeaturePlayerConfig.choices));
                 }
 
                 if (speciesFeature.feat) {
@@ -546,7 +563,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                             }
 
                             if (dndfeat.choices) {
-                                findAspectsFromChoice(playerConfigs, dndfeat, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", speciesFeaturePlayerConfig));
+                                findAspectsFromChoice(playerConfigs, dndfeat, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", speciesFeaturePlayerConfig.choices));
                             }
                         }
                     }
@@ -567,7 +584,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         const allDndClassFeatures = dndClass.features ? [...dndClass.features] : [];
 
         if (dndClass.choices) {
-            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "class", playerConfigs.classes[i]));
+            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "class", playerConfigs.classes[i].choices));
 
             findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", "features", (aspectValue) => {
                 for (let classFeature of aspectValue) {
@@ -591,7 +608,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                     }
 
                     if (classFeature.choices) {
-                        findAspectsFromChoice(playerConfigs, classFeature, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feature", classFeaturePlayerConfig));
+                        findAspectsFromChoice(playerConfigs, classFeature, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feature", classFeaturePlayerConfig.choices));
                     }
 
                     if (classFeature.feat) {
@@ -608,7 +625,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                                 }
 
                                 if (dndfeat.choices) {
-                                    findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", classFeaturePlayerConfig));
+                                    findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "feats", classFeaturePlayerConfig.choices));
                                 }
                             }
                         }

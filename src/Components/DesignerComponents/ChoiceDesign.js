@@ -4,6 +4,7 @@ import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFuncti
 import { calculateAspectCollection, getAllAspectOptions } from "../../SharedFunctions/TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "../../SharedFunctions/Utils";
 import { SelectList } from "../SimpleComponents/SelectList";
+import { FeatureDesign } from "./FeatureDesign";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -127,13 +128,31 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                     }
                 }
 
-                // Your choice can have choices... Yo dawg...
-                if (chosenOption && chosenOption.choices) {
-                    choices.push(<>
-                        <div className="singleChoiceWrapper">
-                            <ChoiceDesign baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDesign>
-                        </div>
-                    </>);
+                if (chosenOption) {
+                    // Your choice can have choices... Yo dawg...
+                    if (chosenOption.choices) {
+                        choices.push(<>
+                            <div className="singleChoiceWrapper">
+                                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDesign>
+                            </div>
+                        </>);
+                    }
+
+                    // Your choice can also have features... Great...
+                    if (choice.choiceToAttributesMapping && choice.choiceToAttributesMapping.features && chosenOption[choice.choiceToAttributesMapping.features]) {
+                        const chosenOptionFeatures = chosenOption[choice.choiceToAttributesMapping.features];
+                        for (let chosenOptionFeature of chosenOptionFeatures) {
+                            if (!chosenOptionFeature.level || chosenOptionFeature.level <= baseStateObject.level) {
+                                const featurePropertyName = chosenOptionFeature.name.replace(/\s/g, "") + chosenOptionFeature.level;
+                                choices.push(<>
+                                    <div className="singleChoiceWrapper">
+                                        <div className="choiceLabel">{"Level " + chosenOptionFeature.level + " - " + chosenOptionFeature.name}</div>
+                                        <FeatureDesign baseStateObject={baseStateObject} inputHandler={inputHandler} feature={chosenOptionFeature} playerFeatureObject={currentChoiceValue} pathToFeatureProperty={pathToPlayerChoices + choice.choiceToAttributesMapping.features + "." + featurePropertyName + "."}></FeatureDesign>
+                                    </div>
+                                </>);
+                            }
+                        }
+                    }
                 }
             }
         }

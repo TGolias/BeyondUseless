@@ -71,6 +71,8 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
             <div className="backgroundEndOfSection">{skillProficienciesRows}</div>
             <div className="backgroundAttributeLabel">Tool Proficiencies</div>
             <div className="backgroundEndOfSection">{toolProficienciesRows}</div>
+            <div className="backgroundAttributeLabel">Feat</div>
+            <div className="backgroundEndOfSection">{rightTriangleUnicode + dndbackground.feat}</div>
             <div style={{display: (dndbackground.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerChoices={"background.choices."} inputHandler={inputHandler}></ChoiceDesign>
             </div>

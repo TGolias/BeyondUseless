@@ -34,6 +34,11 @@ const defaultPlayerConfiguration = {
   species: {
     name: "Elf",
     choices: {
+      features: {
+        ElvenLineage1: {
+          cantrips: ["Mind Sliver"]
+        }
+      },
       keenSenses: "Perception",
       elvenLineageSpellcastingAbility: "Charisma",
       elvenLineage: "High Elf"
