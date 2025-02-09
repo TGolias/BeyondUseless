@@ -114,7 +114,7 @@ export function WeaponsAndDamageCantrips({playerConfigs}) {
             }
             
             const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel);
-            const userInputForSpells = spellcastingFeature.playerConfigForObject.features[featurePropertyName];
+            const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
             if (userInputForSpells && userInputForSpells.cantrips) {
                 for (let cantripName of userInputForSpells.cantrips) {
                     pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, cantripName2Cantrip[cantripName], spellcastingAbility);
