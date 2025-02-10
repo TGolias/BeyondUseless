@@ -70,8 +70,10 @@ export function SpellPageComponent({spell}) {
             <div><span className="spellPageBold">Range:</span> {range}</div>
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
-            <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell)} showTriangle={false} disabled={false}></RetroButton>
             <div className="spellPageDescription">{description}</div>
+            <div className="spellCopyButtonWrapper">
+                <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell)} showTriangle={false} disabled={false}></RetroButton>
+            </div>
         </div>
     </>
 }
