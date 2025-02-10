@@ -159,10 +159,16 @@ export default function App() {
             <div>Spell '{name}' not found :(</div>
           </>)
         } else {
+          let decodedData = undefined;
+          const data = params.get('data');
+          if (data) {
+            const stringifiedJson = atob(data);
+            decodedData = JSON.parse(stringifiedJson);
+          }
           return (<>
             <div><b>{spellFound.name}</b></div>
             <br></br>
-            <SpellPageComponent spell={spellFound}></SpellPageComponent>
+            <SpellPageComponent spell={spellFound} data={decodedData}></SpellPageComponent>
           </>);
         }
     }

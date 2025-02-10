@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 
-export function SpellPageComponent({spell}) {
+export function SpellPageComponent({spell, data}) {
     let castingTime = "";
     if (Array.isArray(spell.castingTime)) {
         for (let singleCastingTime of spell.castingTime) {
@@ -63,6 +63,11 @@ export function SpellPageComponent({spell}) {
         }
     }
 
+    let featureName = "";
+    if (data) {
+        featureName = data.featureName
+    }
+
     return <>
         <div className="spellPageContainer">
             <div>{spell.level ? "LVL " + spell.level : "Cantrip"} - {spell.school}</div>
@@ -72,12 +77,17 @@ export function SpellPageComponent({spell}) {
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
             <div className="spellPageDescription">{description}</div>
             <div className="spellCopyButtonWrapper">
-                <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell)} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell, data)} showTriangle={false} disabled={false}></RetroButton>
+            </div>
+            <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
+                <div>Learned from <b>{featureName}</b></div>
             </div>
         </div>
     </>
 }
 
-function copyToClipboard(spell) {
-    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(window.location.href + "?view=spell&name=" + spell.name));
+function copyToClipboard(spell, data) {
+    const stringifiedJson = JSON.stringify(data);
+    const encodedData = btoa(stringifiedJson);
+    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(window.location.href + "?view=spell&name=" + spell.name + "&data=" + encodedData));
 }
