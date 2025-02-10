@@ -1,9 +1,7 @@
 import React from 'react';
 import './SpellcastingDisplay.css';
-import { getCollection } from '../../Collections';
-import { convertArrayToDictionary } from '../../SharedFunctions/Utils';
-import { calculateAspectCollection, calculateBaseStat, calculateModifierForBaseStat, calculateSpellAttack, calculateSpellSaveDC, getAllSpells, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
-import { getCapitalizedAbilityScoreName, getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
+import { getAllSpells } from '../../SharedFunctions/TabletopMathFunctions';
+import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
 
 const spellRows = [
     {
