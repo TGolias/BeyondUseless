@@ -160,6 +160,8 @@ export default function App() {
           </>)
         } else {
           return (<>
+            <div><b>{spellFound.name}</b></div>
+            <br></br>
             <SpellPageComponent spell={spellFound}></SpellPageComponent>
           </>);
         }
@@ -396,9 +398,47 @@ export default function App() {
     }
   ]
 
+  if ((showStartMenu || centerScreenMenu.show)) {
+    if (window.onscroll == normalWindowScroll) {
+      const scrollLeft = document.documentElement.scrollLeft;
+      const scrollTop = document.documentElement.scrollTop;
+      window.onscroll = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        blockedWindowScroll(scrollLeft, scrollTop);
+        return false;
+      };
+      window.onwheel = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        blockedWindowScroll(scrollLeft, scrollTop);
+        return false;
+      };
+      window.ontouchmove = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        blockedWindowScroll(scrollLeft, scrollTop);
+        return false;
+      };
+    }
+  } else {
+    if (window.onscroll != normalWindowScroll) {
+      window.onscroll = normalWindowScroll;
+      window.onwheel = normalWindowScroll;
+      window.ontouchmove = normalWindowScroll;
+    }
+  }
+
   return (
     <>
-      <div className={"topDiv" + ((showStartMenu || centerScreenMenu.show) ? " disableActivity" : "")}>
+      <div className={"topDiv" + ((showStartMenu || centerScreenMenu.show) ? " disableActivity" : "")} onScroll={() => { 
+        if (showStartMenu || centerScreenMenu.show) {
+          console.log("scroll");
+          return true;
+        }}}>
         <div className="topBar">
           <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
           <div className="startMenuButton" onClick={() => {
@@ -428,4 +468,12 @@ export default function App() {
       </div>
     </>
   );
+}
+
+function blockedWindowScroll(scrollLeft, scrollTop) {
+  window.scrollTo(scrollLeft, scrollTop);
+}
+
+function normalWindowScroll() {
+
 }

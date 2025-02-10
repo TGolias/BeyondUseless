@@ -60,7 +60,6 @@ export function SpellPageComponent({spell}) {
 
     return <>
         <div className="spellPageContainer">
-            <div className="spellPageSpellName">{spell.name}</div>
             <div>{spell.level ? "LVL " + spell.level : "Cantrip"} - {spell.school}</div>
             <div><span className="spellPageBold">Casting Time:</span> {castingTime}</div>
             <div><span className="spellPageBold">Range:</span> {range}</div>

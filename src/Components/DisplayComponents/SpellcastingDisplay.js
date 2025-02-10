@@ -2,6 +2,7 @@ import React from 'react';
 import './SpellcastingDisplay.css';
 import { getAllSpells } from '../../SharedFunctions/TabletopMathFunctions';
 import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
+import { playAudio } from '../../SharedFunctions/Utils';
 
 const spellRows = [
     {
@@ -78,7 +79,7 @@ const spellRows = [
     }
 ];
 
-export function SpellcastingDisplay({playerConfigs, spellcastingFeatures}) {
+export function SpellcastingDisplay({playerConfigs, spellcastingFeatures, setCenterScreenMenu}) {
     const allPlayerSpells = getAllSpells(spellcastingFeatures);
 
     // First get our top column.
@@ -89,7 +90,7 @@ export function SpellcastingDisplay({playerConfigs, spellcastingFeatures}) {
 
     for (let spell of allPlayerSpells) {
         for (let row of spellRows) {
-            spellcastingDisplayRows.push(<div className={row.addClass ? "spellcastingDisplayRow " + row.addClass : "spellcastingDisplayRow"}>{row.calculateValue(playerConfigs, spell)}</div>)
+            spellcastingDisplayRows.push(<div onClick={() => openMenuForSpell(spell, setCenterScreenMenu)} className={row.addClass ? "spellcastingDisplayRow " + row.addClass : "spellcastingDisplayRow"}>{row.calculateValue(playerConfigs, spell)}</div>)
         }
     }
 
@@ -101,4 +102,9 @@ export function SpellcastingDisplay({playerConfigs, spellcastingFeatures}) {
             </div>
         </>
     )
+}
+
+function openMenuForSpell(spell, setCenterScreenMenu) {
+    playAudio("menuaudio");
+    setCenterScreenMenu({ show: true, menuType: "IframeMenu", data: { menuTitle: spell.name, spell: spell } });
 }
