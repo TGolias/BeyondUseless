@@ -102,30 +102,3 @@ export function SpellcastingDisplay({playerConfigs, spellcastingFeatures}) {
         </>
     )
 }
-
-function addSpellToSortedCollection(sortedSpellsCollection, spellToAdd) {
-    let insertAtIndex = -1;
-    for (let i = 0; i < sortedSpellsCollection.length; i++) {
-        const spellInIndex = sortedSpellsCollection[i];
-        if (spellToAdd.level !== spellInIndex.level) {
-            if (spellToAdd.level < spellInIndex.level) {
-                insertAtIndex = i;
-                break;
-            } else {
-                // Keep going, our level is too low.
-                continue;
-            }
-        }
-
-        if (spellToAdd.name.localeCompare(spellInIndex.name) <= 0) {
-            insertAtIndex = i;
-            break;
-        }
-    }
-
-    if (insertAtIndex === -1) {
-        sortedSpellsCollection.push(spellToAdd);
-    } else {
-        sortedSpellsCollection.splice(insertAtIndex, 0, spellToAdd);
-    }
-}

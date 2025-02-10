@@ -1,0 +1,50 @@
+.outerSpellslotsDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.spellslotsDisplayTitle {
+    padding: 0.5em;
+    font-weight: bold;
+}
+
+.spellslotsDisplayGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+}
+
+.spellslotsDisplayGrid > .firstCol {
+    border-left: 0;
+    padding-left: 1em;
+}
+
+.spellslotsDisplayGrid > * {
+    font-weight: bold;
+    font-size: 1em;
+    padding: 0.5em;
+    text-align: center;
+    border-top: 4px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    align-content: center;
+}
+
+.spellslotsDisplayGrid > .lastCol {
+    border-right: 0;
+    padding-right: 1em;
+}
+
+.spellslotsDisplayRow {
+    font-weight: normal;
+    word-spacing: -0.5em;
+}
+
+.spellslotsDisplayRow.lastCol {
+    padding-top: 0;
+    height: 1.5em;
+    font-size: 1.8em;
+    padding-bottom: 0;
+}

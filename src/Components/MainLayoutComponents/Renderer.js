@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllSpellcastingFeatures } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllSpellcastingFeatures, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -9,6 +9,7 @@ import { DeathSavingThrowsDisplay } from "../DisplayComponents/DeathSavingThrows
 import { BasicStatDisplay } from "../DisplayComponents/BasicStatDisplay";
 import { WeaponsAndDamageCantrips } from "../DisplayComponents/WeaponsAndDamageCantrips";
 import { SpellcastingDisplay } from "../DisplayComponents/SpellcastingDisplay";
+import { SpellSlotsDisplay } from "../DisplayComponents/SpellSlotsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -22,6 +23,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
 
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
 
+    const spellcastingLevel = getSpellcastingLevel(playerConfigs);
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
 
     return (
@@ -53,6 +55,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 </div>
                 <div>
                     <WeaponsAndDamageCantrips playerConfigs={playerConfigs}></WeaponsAndDamageCantrips>
+                </div>
+                <div style={{display: (spellcastingLevel > 0 ? "block" : "none")}}>
+                    <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel}></SpellSlotsDisplay>
                 </div>
                 <div style={{display: (spellcastingFeatures.length > 0 ? "block" : "none")}}>
                     <SpellcastingDisplay playerConfigs={playerConfigs} spellcastingFeatures={spellcastingFeatures}></SpellcastingDisplay>

@@ -152,6 +152,27 @@ export function getAllPlayerDNDClasses(playerConfigs) {
     return dndClasses;
 }
 
+export function getSpellcastingLevel(playerConfigs) {
+    let spellcastingLevel = 0;
+    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+    for (let i = 0; i < dndClasses.length; i++) {
+        const dndClass = dndClasses[i];
+        if (dndClass.spellSlotLevelProgression) {
+            const classLevels = playerConfigs.classes[i].levels;
+            if (dndClass.spellSlotLevelProgression > 2) {
+                // Round Down. These are from subclass casting.
+                const levelsToAdd = Math.floor(classLevels / dndClass.spellSlotLevelProgression);
+                spellcastingLevel += levelsToAdd;
+            } else {
+                // Round Up. This is a full or half caster.
+                const levelsToAdd = Math.ceil(classLevels / dndClass.spellSlotLevelProgression);
+                spellcastingLevel += levelsToAdd;
+            }
+        }
+    }
+    return spellcastingLevel;
+}
+
 export function calculateHPMax(playerConfigs) {
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
 
