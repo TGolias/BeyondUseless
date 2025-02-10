@@ -1,16 +1,8 @@
 import React from "react";
 import './SpellPageComponent.css';
+import { RetroButton } from "../SimpleComponents/RetroButton";
 
 export function SpellPageComponent({spell}) {
-    // @ts-ignore
-    const descriptionRef = React.useRef();
-
-    setTimeout(function () {
-        if (descriptionRef.current) {
-            descriptionRef.current.setHTMLUnsafe(spell.description);
-        }
-    }, 0);
-
     let castingTime = "";
     if (Array.isArray(spell.castingTime)) {
         for (let singleCastingTime of spell.castingTime) {
@@ -58,6 +50,19 @@ export function SpellPageComponent({spell}) {
         componentsString += ")";
     }
 
+    let description = []
+    const descriptionWithoutMarkup = spell.description.split(/<b>|<\/b>/);
+    for (let i = 0; i < descriptionWithoutMarkup.length; i++) {
+        const phrase = descriptionWithoutMarkup[i];
+        if (i % 2 == 1) {
+            // Bold it!
+            description.push(<><b>{phrase}</b></>);
+        } else {
+            // Don't bold it.
+            description.push(<>{phrase}</>);
+        }
+    }
+
     return <>
         <div className="spellPageContainer">
             <div>{spell.level ? "LVL " + spell.level : "Cantrip"} - {spell.school}</div>
@@ -65,15 +70,12 @@ export function SpellPageComponent({spell}) {
             <div><span className="spellPageBold">Range:</span> {range}</div>
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
-            <div className="spellPageDescription" ref={descriptionRef}>Description Loading...</div>
+            <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell)} showTriangle={false} disabled={false}></RetroButton>
+            <div className="spellPageDescription">{description}</div>
         </div>
     </>
 }
 
-function stringToHTML(str) {
-
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(str, 'text/html');
-    return doc.body;
-
+function copyToClipboard(spell) {
+    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(window.location.href + "?view=spell&name=" + spell.name));
 }
