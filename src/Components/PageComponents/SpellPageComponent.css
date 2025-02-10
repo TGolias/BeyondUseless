@@ -1,0 +1,20 @@
+.spellPageContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 0.5em;
+    white-space: pre-line;
+    line-height: 1.25em;
+}
+
+.spellPageSpellName {
+    font-weight: bold;
+}
+
+.spellPageBold {
+    font-weight: bold;
+}
+
+.spellPageDescription {
+    padding-top: 0.75em;
+}

@@ -5,11 +5,12 @@ import React from "react";
 import { Designer } from "./Components/MainLayoutComponents/Designer";
 import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./SharedFunctions/Effects";
-import { fetchAllCollections } from "./Collections";
+import { fetchAllCollections, getCollection } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
 import { isNumeric, playAudio } from "./SharedFunctions/Utils";
 import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
+import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -118,7 +119,7 @@ export default function App() {
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined, data: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
-
+  
   useEffect(() => {
     if (needsToLoad) {
       setLoading(true);
@@ -128,6 +129,42 @@ export default function App() {
       });
     }
   });
+
+  if (needsToLoad || isLoading) {
+    return (<>
+      <div>Loading...</div>
+    </>)
+  }
+
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+  const mode = params.get('view');
+  if (mode) {
+    const upperCaseMode = mode.toLowerCase();
+    switch (upperCaseMode) {
+      case "spell":
+        const name = params.get('name');
+        let spellNameLower = name.toLowerCase();
+
+        let spellFound = undefined;
+        const cantrips = getCollection("cantrips");
+        spellFound = cantrips.find(spell => spell.name.toLowerCase() === spellNameLower);
+        if (!spellFound) {
+          const spells = getCollection("spells");
+          spellFound = spells.find(spell => spell.name.toLowerCase() === spellNameLower);
+        }
+
+        if (!spellFound) {
+          return (<>
+            <div>Spell '{name}' not found :(</div>
+          </>)
+        } else {
+          return (<>
+            <SpellPageComponent spell={spellFound}></SpellPageComponent>
+          </>);
+        }
+    }
+  }
 
   function toggleViewActive() {
     localStorage.setItem("HIDE_EDITOR", (!hideEditor) ? "true" : "false");
@@ -358,12 +395,6 @@ export default function App() {
       clickHandler: () => setShowStartMenu(false)
     }
   ]
-
-  if (needsToLoad || isLoading) {
-    return (<>
-      <div>Loading...</div>
-    </>)
-  }
 
   return (
     <>
