@@ -75,8 +75,11 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
             cantripsKnown -= predeterminedSelections.length;
             if (cantripsKnown > 0) {
-                const allCantrips = getCollection("cantrips");
-                const validCantripNames = allCantrips.map(cantrip => cantrip.name);
+                let validCantrips = getCollection("cantrips");
+                if (feature.spellcasting.cantripsKnown.validSpellLists && feature.spellcasting.cantripsKnown.validSpellLists.length > 0) {
+                    validCantrips = validCantrips.filter(cantrip => feature.spellcasting.cantripsKnown.validSpellLists.some(validSpellList => cantrip.spellLists.includes(validSpellList)));
+                }
+                const validCantripNames = validCantrips.map(cantrip => cantrip.name);
                 
                 for (let i = 0; i < cantripsKnown; i++) {
                     featureContent.push(<>
@@ -101,8 +104,11 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
             spellsKnown -= predeterminedSelections.length;
             if (spellsKnown > 0) {
-                const allSpells = getCollection("spells");
-                const validSpellNames = allSpells.map(cantrip => cantrip.name);
+                let validSpells = getCollection("spells");
+                if (feature.spellcasting.spellsKnown.validSpellLists && feature.spellcasting.spellsKnown.validSpellLists.length > 0) {
+                    validSpells = validSpells.filter(spell => feature.spellcasting.spellsKnown.validSpellLists.some(validSpellList => spell.spellLists.includes(validSpellList)));
+                }
+                const validSpellNames = validSpells.map(cantrip => cantrip.name);
 
                 for (let i = 0; i < spellsKnown; i++) {
                     featureContent.push(<>

@@ -312,8 +312,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     
     // See if there are additoinal bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "weaponAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
-        if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown });
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;

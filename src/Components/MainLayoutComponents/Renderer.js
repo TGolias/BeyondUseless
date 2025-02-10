@@ -8,6 +8,7 @@ import { HeroicInspirationDisplay } from "../DisplayComponents/HeroicInspiration
 import { DeathSavingThrowsDisplay } from "../DisplayComponents/DeathSavingThrowsDisplay";
 import { BasicStatDisplay } from "../DisplayComponents/BasicStatDisplay";
 import { WeaponsAndDamageCantrips } from "../DisplayComponents/WeaponsAndDamageCantrips";
+import { SpellcastingDisplay } from "../DisplayComponents/SpellcastingDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -20,6 +21,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     const passivePerception = calculatePassivePerception(playerConfigs);
 
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
+
+    const features = calculateAspectCollection(playerConfigs, "features");
+    const spellcastingFeatures = features.filter(object => object.feature.spellcasting);
 
     return (
         <>
@@ -50,6 +54,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 </div>
                 <div>
                     <WeaponsAndDamageCantrips playerConfigs={playerConfigs}></WeaponsAndDamageCantrips>
+                </div>
+                <div style={{display: (spellcastingFeatures.length > 0 ? "block" : "none")}}>
+                    <SpellcastingDisplay playerConfigs={playerConfigs} spellcastingFeatures={spellcastingFeatures}></SpellcastingDisplay>
                 </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>

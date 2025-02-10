@@ -89,8 +89,16 @@ export function WeaponsAndDamageCantrips({playerConfigs}) {
             }
             if (dndItem.type === "Weapon") {
                 hasWeapons = true;
+
                 for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem)}</div>)
+                    weaponOrDamageCantripRows.push(<div className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false)}</div>)
+                }
+
+                if (dndItem.properties && dndItem.properties.includes("Thrown") && dndItem.weaponRange == "Melee") {
+                    // Do calculations for the weapon thrown as well.
+                    for (let row of rows) {
+                        weaponOrDamageCantripRows.push(<div className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true)}</div>)
+                    }
                 }
             }
         }
@@ -107,9 +115,9 @@ export function WeaponsAndDamageCantrips({playerConfigs}) {
         if (spellcasting.cantripsKnown) {
             const spellcastingAbility = performMathCalculation(playerConfigs, spellcasting.ability.calcuation);
 
-            if (spellcasting.cantripsKnown.predeterminedSelections && spellcasting.cantripsKnown.predeterminedSelections > 0) {
+            if (spellcasting.cantripsKnown.predeterminedSelections && spellcasting.cantripsKnown.predeterminedSelections.length > 0) {
                 for (let predeterminedSelection of spellcasting.cantripsKnown.predeterminedSelections) {
-                    pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, cantripName2Cantrip[predeterminedSelection], spellcastingAbility);
+                    hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, cantripName2Cantrip[predeterminedSelection.spellName], spellcastingAbility) || hasDamageCantrips;
                 }
             }
             
@@ -117,7 +125,7 @@ export function WeaponsAndDamageCantrips({playerConfigs}) {
             const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
             if (userInputForSpells && userInputForSpells.cantrips) {
                 for (let cantripName of userInputForSpells.cantrips) {
-                    pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, cantripName2Cantrip[cantripName], spellcastingAbility);
+                    hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, cantripName2Cantrip[cantripName], spellcastingAbility) || hasDamageCantrips;
                 }
             }
         }

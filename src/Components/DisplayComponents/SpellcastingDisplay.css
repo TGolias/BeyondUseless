@@ -1,0 +1,63 @@
+.outermostSpellcastingDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 1em;
+}
+
+.outerSpellcastingDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.spellcastingDisplayTitle {
+    padding: 0.5em;
+    font-weight: bold;
+}
+
+.spellcastingDisplayMidTitle {
+    border-top: 4px solid black;
+    padding: 0.5em;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+}
+
+.spellcastingDisplayGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+}
+
+.spellcastingDisplayGrid.spellcastingInfo {
+    grid-template-columns: 1fr 1fr;
+}
+
+.spellcastingDisplayGrid > .firstCol {
+    border-left: 0;
+    padding-left: 1em;
+}
+
+.spellcastingDisplayGrid > * {
+    font-weight: bold;
+    font-size: 0.8em;
+    padding: 0.5em;
+    text-align: center;
+    border-top: 4px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    align-content: center;
+    white-space: pre-line;
+    min-height: 3em;
+}
+
+.spellcastingDisplayGrid > .lastCol {
+    border-right: 0;
+    padding-right: 1em;
+}
+
+.spellcastingDisplayRow {
+    font-weight: normal;
+}
