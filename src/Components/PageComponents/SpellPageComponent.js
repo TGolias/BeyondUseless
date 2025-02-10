@@ -1,6 +1,7 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
+import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 
 export function SpellPageComponent({spell, data}) {
     let castingTime = "";
@@ -63,9 +64,40 @@ export function SpellPageComponent({spell, data}) {
         }
     }
 
-    let featureName = "";
+    // Get aspects from data
+    let featureName = undefined;
+    let freeUses = undefined;
+    let attackRoll = undefined;
+    let savingThrow = undefined;
+    let damage = undefined;
+    let healing = undefined;
+    let buff = undefined;
+    let debuff = undefined;
     if (data) {
-        featureName = data.featureName
+        if (data.featureName) {
+            featureName = data.featureName;
+        }
+        if (data.freeUses) {
+            freeUses = data.freeUses;
+        }
+        if (data.attackRoll) {
+            attackRoll = data.attackRoll;
+        }
+        if (data.savingThrow) {
+            savingThrow = data.savingThrow;
+        }
+        if (data.damage) {
+            damage = data.damage;
+        }
+        if (data.healing) {
+            healing = data.healing;
+        }
+        if (data.buff) {
+            buff = data.buff;
+        }
+        if (data.debuff) {
+            debuff = data.debuff;
+        }
     }
 
     return <>
@@ -76,11 +108,37 @@ export function SpellPageComponent({spell, data}) {
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
             <div className="spellPageDescription">{description}</div>
+            <br></br>
             <div className="spellCopyButtonWrapper">
                 <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell, data)} showTriangle={false} disabled={false}></RetroButton>
             </div>
+            <br></br>
+            <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
+                <div><b>Spell Summary</b></div>
+            </div>
+            <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
+                <div>Attack Roll: <b>+{attackRoll}</b></div>
+            </div>
+            <div className="spellPageDescription" style={{display: (savingThrow ? "block" : "none")}}>
+                <div><b>DC{savingThrow?.dc} {getCapitalizedAbilityScoreName(savingThrow?.type)}</b></div>
+            </div>
+            <div className="spellPageDescription" style={{display: (damage ? "block" : "none")}}>
+                <div>Damage: <b>{damage}</b></div>
+            </div>
+            <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
+                <div>Healing: <b>{healing}</b></div>
+            </div>
+            <div className="spellPageDescription" style={{display: (buff ? "block" : "none")}}>
+                <div>Buff: <b>{(buff?.amount ? buff.amount + " " : "")}</b>{buff?.description}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (debuff ? "block" : "none")}}>
+                <div>Debuff: <b>{debuff?.amount ? debuff.amount + " " : ""}</b>{debuff?.description}</div>
+            </div>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div>Learned from <b>{featureName}</b></div>
+            </div>
+            <div className="spellPageDescription" style={{display: (freeUses ? "block" : "none")}}>
+                <div>Free uses remaining: <b>{freeUses}</b></div>
             </div>
         </div>
     </>

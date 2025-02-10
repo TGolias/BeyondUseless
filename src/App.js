@@ -103,6 +103,9 @@ export default function App() {
   const [history, setHistory] = useState([startingPlayerConfigs]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
 
+  const [disableScrolling, setDisableScrolling] = useState(false);
+  const [scrollTop, setScrollTop] = useState(undefined);
+
   let hideEditorLocalStorage = localStorage.getItem("HIDE_EDITOR");
   const startingValueForHideEditor = hideEditorLocalStorage === "true";
 
@@ -405,36 +408,14 @@ export default function App() {
   ]
 
   if ((showStartMenu || centerScreenMenu.show)) {
-    if (window.onscroll == normalWindowScroll) {
-      const scrollLeft = document.documentElement.scrollLeft;
-      const scrollTop = document.documentElement.scrollTop;
-      window.onscroll = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        blockedWindowScroll(scrollLeft, scrollTop);
-        return false;
-      };
-      window.onwheel = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        blockedWindowScroll(scrollLeft, scrollTop);
-        return false;
-      };
-      window.ontouchmove = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        blockedWindowScroll(scrollLeft, scrollTop);
-        return false;
-      };
+    turnScrollingOff(disableScrolling, setDisableScrolling, scrollTop);
+    if (window.onscroll != blockedWindowScroll) {
+      window.onscroll = blockedWindowScroll;
     }
   } else {
-    if (window.onscroll != normalWindowScroll) {
-      window.onscroll = normalWindowScroll;
-      window.onwheel = normalWindowScroll;
-      window.ontouchmove = normalWindowScroll;
+    turnScrollingOn(disableScrolling, setDisableScrolling, scrollTop);
+    if (window.onscroll == blockedWindowScroll || window.onscroll == undefined) {
+      window.onscroll = () => normalWindowScroll(setScrollTop);
     }
   }
 
@@ -476,10 +457,47 @@ export default function App() {
   );
 }
 
-function blockedWindowScroll(scrollLeft, scrollTop) {
-  window.scrollTo(scrollLeft, scrollTop);
+function turnScrollingOff(disableScrolling, setDisableScrolling, scrollTop) {
+  if (!disableScrolling) {
+    disableScrolling = true;
+    setDisableScrolling(true);
+
+    var doc = document.documentElement;
+    doc.style.width = 'calc(100% - '+ getScrollbarSize() +'px)';
+    doc.style.position = 'fixed';
+    doc.style.top = -scrollTop + 'px';
+    doc.style.overflow = 'hidden';
+  }
 }
 
-function normalWindowScroll() {
+function turnScrollingOn(disableScrolling, setDisableScrolling, scrollTop) {
+  if (disableScrolling) {
+    disableScrolling = false;
+    setDisableScrolling(false);
+    
+    var doc = document.documentElement;
+    doc.style.width = '';
+    doc.style.position = '';
+    doc.style.top = '';
+    doc.style.overflow = '';
+    
+    window.scroll(0, scrollTop);
+  }
+}
 
+function getScrollbarSize() {
+  var doc = document.documentElement;
+  var dummyScroller = document.createElement('div');
+  dummyScroller.setAttribute('style', 'width:99px;height:99px;' + 'position:absolute;top:-9999px;overflow:scroll;');
+  doc.appendChild(dummyScroller);
+  const scrollBarSize = dummyScroller.offsetWidth - dummyScroller.clientWidth;
+  doc.removeChild(dummyScroller);
+  return scrollBarSize;
+}
+
+function blockedWindowScroll() {
+}
+
+function normalWindowScroll(setScrollTop) {
+  setScrollTop(document.documentElement.scrollTop);
 }

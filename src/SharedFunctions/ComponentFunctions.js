@@ -32,7 +32,7 @@ export function onInputChangeHandler(baseStateObject, pathToProperty, newValue, 
 const castTimeShortHand = {
     "Action": "A",
     "Bonus Action": "BA",
-    "Ritual": "R"
+    "Reaction": "R"
 }
 
 export function getCastingTimeShorthand(castingTime) {
