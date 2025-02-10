@@ -891,11 +891,11 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
     return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, true, parameters);
 }
 
-function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, startingTotal, parameters) {
-    let total = startingTotal;
+function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, defaultValue, parameters) {
+    let total = defaultValue;
     for (let i = 0; i < calculation.length; i++) {
         const singleCalculation = calculation[i];
-        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters);
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerCalc) => performCalculation(playerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, startingTotal, parameters));
 
         singleValue = performSpecialTransformations(playerConfigs, singleCalculation, singleValue);
 
@@ -904,12 +904,18 @@ function performCalculation(playerConfigs, calculation, doSingleCalculationForSp
     return total;
 }
 
-function doSingleCalculation(playerConfigs, singleCalculation, performCalculationForSpecialTypes, parameters) {
+function doSingleCalculation(playerConfigs, singleCalculation, performCalculationForSpecialTypes, parameters, performOriginalCalculationType) {
     switch (singleCalculation.type) {
         case "static":
             return singleCalculation.value;
         case "aspect":
             return calculateAspectCollection(playerConfigs, singleCalculation.value);
+        case "parameter":
+            const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
+            return parameterValue;
+        case "config":
+            const configValue = getValueFromObjectAndPath(playerConfigs, singleCalculation.propertyPath);
+            return configValue;
         case "highestOf":
             let highestValue;
             for (let i = 0; i < singleCalculation.values.length; i++) {
@@ -936,12 +942,20 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
                 }
             }
             return lowestOf;
-        case "parameter":
-            const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
-            return parameterValue;
-        case "config":
-            const configValue = getValueFromObjectAndPath(playerConfigs, singleCalculation.propertyPath);
-            return configValue;
+        case "if-then":
+            const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.if, parameters);
+            if (singleValue) {
+                return performOriginalCalculationType(singleCalculation.then);
+            }
+            // If not true, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
+        case "or":
+            for (let i = 0; i < singleCalculation.values.length; i++) {
+                const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.values[i], parameters);
+                if (singleValue) {
+                    return true;
+                }
+            }
+            return false;
     }
     return performCalculationForSpecialTypes(singleCalculation);
 }
