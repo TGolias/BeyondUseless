@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllSpellcastingFeatures } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -22,8 +22,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
 
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
 
-    const features = calculateAspectCollection(playerConfigs, "features");
-    const spellcastingFeatures = features.filter(object => object.feature.spellcasting);
+    const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
 
     return (
         <>

@@ -29,6 +29,16 @@ export function onInputChangeHandler(baseStateObject, pathToProperty, newValue, 
     return onInputHandler(baseStateObject, pathToProperty, newValue)
 }
 
+const castTimeShortHand = {
+    "Action": "A",
+    "Bonus Action": "BA",
+    "Ritual": "R"
+}
+
+export function getCastingTimeShorthand(castingTime) {
+    return castTimeShortHand[castingTime];
+}
+
 const capitalizedAbilityScoreNames = {
     strength: "Strength",
     dexterity: "Dexterity",

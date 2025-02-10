@@ -293,6 +293,27 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
             value: "strengthModifier",
         }]);
     }
+
+    findAllConfiguredAspects(playerConfigs, "alternateWeaponAttackModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this alternate modifier to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            takeTheHighestOfTheseCalculations.push(...aspectValue.calcuation);
+        }
+        else {
+            takeTheHighestOfTheseCalculations.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
     calculationsForAttackBonus.push({
         type: "highestOf",
         values: takeTheHighestOfTheseCalculations
@@ -310,7 +331,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     }
     
-    // See if there are additoinal bonuses to apply to our damage.
+    // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "weaponAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
             const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown });
@@ -351,6 +372,27 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
             value: "strengthModifier",
         }]);
     }
+
+    findAllConfiguredAspects(playerConfigs, "alternateWeaponDamageModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this alternate modifier to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            takeTheHighestOfTheseCalculations.push(...aspectValue.calcuation);
+        }
+        else {
+            takeTheHighestOfTheseCalculations.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
     calculationsForDamage.push({
         type: "highestOf",
         values: takeTheHighestOfTheseCalculations
@@ -379,6 +421,125 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
 
     const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown });
     return calculationString;
+}
+
+export function calculateSpellAttack(playerConfigs, spell) {
+    const calculationsForAttackBonus = [];
+
+    const spellCastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
+
+    // Always add spellcasting ability modifier.
+    calculationsForAttackBonus.push({
+        type: "aspect",
+        value: spellCastingAbility + "Modifier"
+    });
+
+    // Always add proficieny bonus for spellcasting.
+    calculationsForAttackBonus.push({
+        type: "aspect",
+        value: "proficiencyBonus"
+    });
+    
+    // See if there are additoinal bonuses to apply to our attack.
+    findAllConfiguredAspects(playerConfigs, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForAttackBonus.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { spell });
+    return amount;
+}
+
+export function calculateSpellDamage(playerConfigs, spellDamageCalculation, spell) {
+    const calculationsForAttackBonus = [];
+
+    // Always add spellcasting ability modifier.
+    calculationsForAttackBonus.push(...spellDamageCalculation);
+    
+    // See if there are additoinal bonuses to apply to our attack.
+    findAllConfiguredAspects(playerConfigs, "spellDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForAttackBonus.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { spell });
+    return amount;
+}
+
+export function calculateSpellSaveDC(playerConfigs, spellcastingAbility, spell) {
+    const calculationsForSpellSaveDCBonus = [];
+
+    // Start with 8. Because that's what the rules say.
+    calculationsForSpellSaveDCBonus.push({
+        type: "static",
+        value: 8
+    });
+
+    // Always add spellcasting ability modifier.
+    calculationsForSpellSaveDCBonus.push({
+        type: "aspect",
+        value: spellcastingAbility + "Modifier"
+    });
+
+    // Always add proficieny bonus for spellcasting.
+    calculationsForSpellSaveDCBonus.push({
+        type: "aspect",
+        value: "proficiencyBonus"
+    });
+    
+    // See if there are additoinal bonuses to apply to our attack.
+    findAllConfiguredAspects(playerConfigs, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForSpellSaveDCBonus.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForSpellSaveDCBonus.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    const amount = performMathCalculation(playerConfigs, calculationsForSpellSaveDCBonus, { spell });
+    return amount;
 }
 
 export function calculateFeatures(playerConfigs) {
@@ -895,7 +1056,7 @@ function performCalculation(playerConfigs, calculation, doSingleCalculationForSp
     let total = defaultValue;
     for (let i = 0; i < calculation.length; i++) {
         const singleCalculation = calculation[i];
-        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerCalc) => performCalculation(playerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, startingTotal, parameters));
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerCalc) => performCalculation(playerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, defaultValue, parameters));
 
         singleValue = performSpecialTransformations(playerConfigs, singleCalculation, singleValue);
 
@@ -958,4 +1119,100 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
             return false;
     }
     return performCalculationForSpecialTypes(singleCalculation);
+}
+
+export function getAllSpellcastingFeatures(playerConfigs) {
+    const features = calculateAspectCollection(playerConfigs, "features");
+    const spellcastingFeatures = features.filter(object => object.feature.spellcasting);
+    return spellcastingFeatures;
+}
+
+export function getAllSpells(spellcastingFeatures) {
+    // Get all spells and cantrips built into dictionaries for instant lookup.
+    let allCantrips = getCollection("cantrips");
+    const cantripName2Cantrip = convertArrayToDictionary(allCantrips, "name");
+    let allSpells = getCollection("spells");
+    const spellName2Spell = convertArrayToDictionary(allSpells, "name");
+
+    // Get each of the features with the same spellcasting modifiers together.
+    const sortedCantripsCollection = [];
+    const sortedSpellsCollection = [];
+    for (let spellcastingFeature of spellcastingFeatures) {
+        const spellcasting = spellcastingFeature.feature.spellcasting;
+        if (spellcasting.cantripsKnown) {
+            if (spellcasting.cantripsKnown.predeterminedSelections && spellcasting.cantripsKnown.predeterminedSelections.length > 0) {
+                for (let predeterminedSelection of spellcasting.cantripsKnown.predeterminedSelections) {
+                    const cantripToAdd = {...cantripName2Cantrip[predeterminedSelection.spellName]};
+                    cantripToAdd.feature = spellcastingFeature.feature;
+                    if (predeterminedSelection.freeUses && predeterminedSelection.freeUses > 0) {
+                        cantripToAdd.freeUses = predeterminedSelection.freeUses;
+                    }
+                    addSpellToSortedCollection(sortedCantripsCollection, cantripToAdd);
+                }
+            }
+
+            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel);
+            const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
+            if (userInputForSpells && userInputForSpells.cantrips) {
+                for (let cantripName of userInputForSpells.cantrips) {
+                    const cantripToAdd = {...cantripName2Cantrip[cantripName]};
+                    cantripToAdd.feature = spellcastingFeature.feature;
+                    addSpellToSortedCollection(sortedCantripsCollection, cantripToAdd);
+                }
+            }
+        }
+
+        if (spellcasting.spellsKnown) {
+            if (spellcasting.spellsKnown.predeterminedSelections && spellcasting.spellsKnown.predeterminedSelections.length > 0) {
+                for (let predeterminedSelection of spellcasting.spellsKnown.predeterminedSelections) {
+                    const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
+                    spellToAdd.feature = spellcastingFeature.feature;
+                    if (predeterminedSelection.freeUses && predeterminedSelection.freeUses > 0) {
+                        spellToAdd.freeUses = predeterminedSelection.freeUses;
+                    }
+                    addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
+                }
+            }
+
+            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel);
+            const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
+            if (userInputForSpells && userInputForSpells.spells) {
+                for (let cantripName of userInputForSpells.spells) {
+                    const spellToAdd = {...spellName2Spell[cantripName]};
+                    spellToAdd.feature = spellcastingFeature.feature;
+                    addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
+                }
+            }
+        }
+    }
+
+    const allPlayerSpells = sortedCantripsCollection.concat(sortedSpellsCollection);
+    return allPlayerSpells;
+}
+
+function addSpellToSortedCollection(sortedSpellsCollection, spellToAdd) {
+    let insertAtIndex = -1;
+    for (let i = 0; i < sortedSpellsCollection.length; i++) {
+        const spellInIndex = sortedSpellsCollection[i];
+        if (spellToAdd.level !== spellInIndex.level) {
+            if (spellToAdd.level < spellInIndex.level) {
+                insertAtIndex = i;
+                break;
+            } else {
+                // Keep going, our level is too low.
+                continue;
+            }
+        }
+
+        if (spellToAdd.name.localeCompare(spellInIndex.name) <= 0) {
+            insertAtIndex = i;
+            break;
+        }
+    }
+
+    if (insertAtIndex === -1) {
+        sortedSpellsCollection.push(spellToAdd);
+    } else {
+        sortedSpellsCollection.splice(insertAtIndex, 0, spellToAdd);
+    }
 }
