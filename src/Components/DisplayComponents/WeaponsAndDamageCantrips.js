@@ -1,8 +1,8 @@
 import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
-import { convertArrayToDictionary } from '../../SharedFunctions/Utils';
-import { calculateAspectCollection, calculateProficiencyBonus, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, performDiceRollCalculation, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
+import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
+import { calculateAspectCollection, calculateOtherSpellAspect, calculateProficiencyBonus, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, performDiceRollCalculation, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
 
 const rows = [
     {
@@ -27,42 +27,27 @@ const rows = [
                 return "DC" + spellSaveDC;
             } else {
                 const spellAttack = calculateSpellAttack(playerConfigs, dndCantrip);
-                return (spellAttack < 0 ? "" : "+") + spellAttack;
+                return (spellAttack.length === 0 || spellAttack.startsWith("-") ? "" : "+") + spellAttack;
             }
         }
     },
     {
         name: "Damage",
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown);
+            let amount = calculateWeaponDamage(playerConfigs, weapon, isThrown);
+            amount += " " + weapon.damage.damageType;
             return amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
-            let calculationString = performDiceRollCalculation(playerConfigs, dndCantrip.damage.calcuation);
-            return calculationString;
-        }
-    },
-    {
-        name: "Range",
-        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            if (weapon.weaponRange === "Ranged" || isThrown) {
-                return weapon.range;
-            } else {
-                if (weapon.properties.includes("Reach")) {
-                    return 10;
-                } else {
-                    return 5;
-                }
-            }
-        },
-        calculateCantripValue: (playerConfigs, dndCantrip) => {
-            return dndCantrip.range;
+            let amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, "damage", "spellDamageBonus");
+            amount += " " + dndCantrip.damage.damageType;
+            return amount;
         },
         addClass: "lastCol"
-    }
+    },
 ];
 
-export function WeaponsAndDamageCantrips({playerConfigs}) {
+export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     const items = getCollection("items");
     const itemName2Item = convertArrayToDictionary(items, "name");
 
@@ -106,7 +91,7 @@ export function WeaponsAndDamageCantrips({playerConfigs}) {
     const allPlayerSpells = getAllSpells(spellcastingFeatures);
     for (let spell of allPlayerSpells) {
         if (!spell.level) {
-            hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, spell) || hasDamageCantrips;
+            hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, spell, setCenterScreenMenu) || hasDamageCantrips;
         }
     }
 
@@ -120,12 +105,17 @@ export function WeaponsAndDamageCantrips({playerConfigs}) {
     )
 }
 
-function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, dndcantrip) {
+function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, dndcantrip, setCenterScreenMenu) {
     if (dndcantrip.type.includes("damage")) {
         for (let row of rows) {
-            weaponOrDamageCantripRows.push(<div className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateCantripValue(playerConfigs, dndcantrip)}</div>)
+            weaponOrDamageCantripRows.push(<div onClick={() => openMenuForSpell(dndcantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateCantripValue(playerConfigs, dndcantrip)}</div>)
         }
         return true;
     }
     return false;
+}
+
+function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
+    playAudio("menuaudio");
+    setCenterScreenMenu({ show: true, menuType: "SpellMenu", data: { menuTitle: dndcantrip.name, spell: dndcantrip } });
 }

@@ -5,6 +5,10 @@
     text-align: center;
 }
 
+.confirmationMenuText {
+    padding-top: 0.5em;
+}
+
 .confirmationMenuHorizontal {
     display: flex;
     flex-direction: row;

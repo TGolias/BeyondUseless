@@ -67,9 +67,20 @@ const spellRows = [
         calculateValue: (playerConfigs, spell) => {
             let freeUses = "";
 
+            let freeUsesUsed = 0;
+            if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingFreeSpellUses && playerConfigs.currentStatus.remainingFreeSpellUses[spell.name] !== undefined) {
+                const remainingFreeUses = playerConfigs.currentStatus.remainingFreeSpellUses[spell.name];
+                freeUsesUsed = spell.freeUses - remainingFreeUses;
+            } 
+
             if (spell.freeUses && spell.freeUses > 0) {
                 for (let i = 0; i < spell.freeUses; i++) {
-                    freeUses += "O"
+                    if (i < freeUsesUsed) {
+                        freeUses += "X"
+                    } else {
+                        freeUses += "O"
+                    }
+                    
                 }
             }
 
@@ -106,5 +117,5 @@ export function SpellcastingDisplay({playerConfigs, spellcastingFeatures, setCen
 
 function openMenuForSpell(spell, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "IframeMenu", data: { menuTitle: spell.name, spell: spell } });
+    setCenterScreenMenu({ show: true, menuType: "SpellMenu", data: { menuTitle: spell.name, spell: spell } });
 }

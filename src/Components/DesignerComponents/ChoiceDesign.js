@@ -141,13 +141,18 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                     // Your choice can also have features... Great...
                     if (choice.choiceToAttributesMapping && choice.choiceToAttributesMapping.features && chosenOption[choice.choiceToAttributesMapping.features]) {
                         const chosenOptionFeatures = chosenOption[choice.choiceToAttributesMapping.features];
+
+                        const pathToChoiceFeatures = pathToPlayerChoices + choice.choiceToAttributesMapping.features;
+                        const baseFeatureChoiceObject = getValueFromObjectAndPath(baseStateObject, pathToChoiceFeatures);
+
                         for (let chosenOptionFeature of chosenOptionFeatures) {
                             if (!chosenOptionFeature.level || chosenOptionFeature.level <= baseStateObject.level) {
                                 const featurePropertyName = chosenOptionFeature.name.replace(/\s/g, "") + chosenOptionFeature.level;
+                                const playerFeatureObject = baseFeatureChoiceObject ? baseFeatureChoiceObject[featurePropertyName] : undefined;
                                 choices.push(<>
                                     <div className="singleChoiceWrapper">
                                         <div className="choiceLabel">{"Level " + chosenOptionFeature.level + " - " + chosenOptionFeature.name}</div>
-                                        <FeatureDesign baseStateObject={baseStateObject} inputHandler={inputHandler} feature={chosenOptionFeature} playerFeatureObject={currentChoiceValue} pathToFeatureProperty={pathToPlayerChoices + choice.choiceToAttributesMapping.features + "." + featurePropertyName + "."}></FeatureDesign>
+                                        <FeatureDesign baseStateObject={baseStateObject} inputHandler={inputHandler} feature={chosenOptionFeature} playerFeatureObject={playerFeatureObject} pathToFeatureProperty={pathToChoiceFeatures + "." + featurePropertyName + "."}></FeatureDesign>
                                     </div>
                                 </>);
                             }

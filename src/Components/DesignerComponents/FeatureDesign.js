@@ -2,9 +2,10 @@ import React from "react";
 import './FeatureDesign.css'
 import { SelectList } from "../SimpleComponents/SelectList";
 import { getCollection } from "../../Collections";
-import { calculateAspectCollection, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, getAllSpellcastingFeatures, getAllSpells, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
+import { convertArrayToDictionary } from "../../SharedFunctions/Utils";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -54,6 +55,10 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
     }
 
     if (feature.spellcasting) {
+        const spellcastingFeatures = getAllSpellcastingFeatures(baseStateObject);
+        const alreadyKnownSpells = getAllSpells(spellcastingFeatures);
+        const spellName2AlreadyKnownSpell = convertArrayToDictionary(alreadyKnownSpells, "name");
+
         const spellcastingAbility = performMathCalculation(baseStateObject, feature.spellcasting.ability.calcuation, parameters);
         featureContent.push(<>
             <div>Spellcasting Ability</div>
@@ -82,8 +87,13 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 const validCantripNames = validCantrips.map(cantrip => cantrip.name);
                 
                 for (let i = 0; i < cantripsKnown; i++) {
+                    let alreadySelectedCantripName = undefined;
+                    if (playerFeatureObject && playerFeatureObject.cantrips && playerFeatureObject.cantrips.length > i) {
+                        alreadySelectedCantripName = playerFeatureObject.cantrips[i];
+                    }
+                    const filteredCantripNames = validCantripNames.filter(cantripName => (alreadySelectedCantripName === cantripName) || !spellName2AlreadyKnownSpell[cantripName]);
                     featureContent.push(<>
-                        <SelectList options={validCantripNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "cantrips[" + i + "]"} inputHandler={inputHandler}></SelectList>
+                        <SelectList options={filteredCantripNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "cantrips[" + i + "]"} inputHandler={inputHandler}></SelectList>
                     </>);
                 }
             }
@@ -111,8 +121,13 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 const validSpellNames = validSpells.map(cantrip => cantrip.name);
 
                 for (let i = 0; i < spellsKnown; i++) {
+                    let alreadySelectedSpellName = undefined;
+                    if (playerFeatureObject && playerFeatureObject.spells && playerFeatureObject.spells.length > i) {
+                        alreadySelectedSpellName = playerFeatureObject.spells[i];
+                    }
+                    const filteredSpellNames = validSpellNames.filter(spellName => (alreadySelectedSpellName === spellName) || !spellName2AlreadyKnownSpell[spellName]);
                     featureContent.push(<>
-                        <SelectList options={validSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "spells[" + i + "]"} inputHandler={inputHandler}></SelectList>
+                        <SelectList options={filteredSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "spells[" + i + "]"} inputHandler={inputHandler}></SelectList>
                     </>);
                 }
             }

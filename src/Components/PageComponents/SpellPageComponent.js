@@ -43,7 +43,11 @@ export function SpellPageComponent({spell, data}) {
         let materialComponentsString = "";
         for (let component of spell.materialComponents) {
             if (materialComponentsString.length > 0) {
-                materialComponentsString += ", ";
+                if (component === spell.materialComponents[spell.materialComponents.length - 1]) {
+                    materialComponentsString += " and ";
+                } else {
+                    materialComponentsString += ", ";
+                }
             }
             materialComponentsString += component;
         }
@@ -77,7 +81,7 @@ export function SpellPageComponent({spell, data}) {
         if (data.featureName) {
             featureName = data.featureName;
         }
-        if (data.freeUses) {
+        if (data.freeUses !== undefined) {
             freeUses = data.freeUses;
         }
         if (data.attackRoll) {
@@ -109,11 +113,7 @@ export function SpellPageComponent({spell, data}) {
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
             <div className="spellPageDescription">{description}</div>
             <br></br>
-            <div className="spellCopyButtonWrapper">
-                <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell, data)} showTriangle={false} disabled={false}></RetroButton>
-            </div>
-            <br></br>
-            <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
+            <div className="spellPageDescription">
                 <div><b>Spell Summary</b></div>
             </div>
             <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
@@ -137,9 +137,14 @@ export function SpellPageComponent({spell, data}) {
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div>Learned from <b>{featureName}</b></div>
             </div>
-            <div className="spellPageDescription" style={{display: (freeUses ? "block" : "none")}}>
+            <div className="spellPageDescription" style={{display: (freeUses !== undefined ? "block" : "none")}}>
                 <div>Free uses remaining: <b>{freeUses}</b></div>
             </div>
+            <br></br>
+            <div className="spellCopyButtonWrapper">
+                <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell, data)} showTriangle={false} disabled={false}></RetroButton>
+            </div>
+            <br></br>
         </div>
     </>
 }
@@ -147,5 +152,5 @@ export function SpellPageComponent({spell, data}) {
 function copyToClipboard(spell, data) {
     const stringifiedJson = JSON.stringify(data);
     const encodedData = btoa(stringifiedJson);
-    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(window.location.href + "?view=spell&name=" + spell.name + "&data=" + encodedData));
+    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(window.location.origin + "?view=spell&name=" + spell.name + "&data=" + encodedData));
 }

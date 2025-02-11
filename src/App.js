@@ -54,6 +54,9 @@ const defaultPlayerConfiguration = {
         classSkills: ["Persuasion", "Insight"]
       },
       features: {
+        PaladinSpellcasting1: {
+          spells: ["Cure Wounds", "Compelled Duel", "Divine Favor", "Thunderous Smite", "Bless"]
+        },
         FightingStyle2: {
           name: "Archery"
         },
@@ -139,7 +142,7 @@ export default function App() {
     </>)
   }
 
-  const url = new URL(window.location.href);
+  const url = new URL(decodeURI(window.location.href));
   const params = new URLSearchParams(url.search);
   const mode = params.get('view');
   if (mode) {

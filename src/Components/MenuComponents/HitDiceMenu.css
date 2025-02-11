@@ -5,6 +5,10 @@
     text-align: center;
 }
 
+.hitDicemenuText {
+    padding-top: 0.5em;
+}
+
 .hitDiceToExpend {
     font-size: 2em;
 }

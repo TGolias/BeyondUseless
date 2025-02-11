@@ -12,7 +12,8 @@ export function ConfirmationMenu({playerConfigs, setCenterScreenMenu, menuConfig
 
     return (<>
         <div className="confirmationMenuWrapperDiv">
-            <div>{menuConfig.menuText}</div>
+            <div className="confirmationMenuText">{menuConfig.menuText}</div>
+            <div className="centerMenuSeperator"></div>
             <div className="confirmationMenuHorizontal">{buttons}</div>
         </div>
     </>);

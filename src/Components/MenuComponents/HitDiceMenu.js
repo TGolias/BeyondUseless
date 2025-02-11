@@ -92,10 +92,11 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
 
     return (<>
         <div className="hitDiceMenuWrapperDiv">
-            <div>{menuConfig.menuText}</div>
+            <div className="hitDicemenuText">{menuConfig.menuText}</div>
             <div>{hitDiceControls}</div>
             <div>{totalToBeExpendedString === "" ? "No hit dice to be expended" : "Expending " + totalToBeExpendedString}</div>
-            <div>{healControls}</div>
+            <div style={{display: (healControls.length ? "block" : "none")}}>{healControls}</div>
+            <div className="centerMenuSeperator"></div>
             <div className="healthMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);

@@ -41,7 +41,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
 
     return (<>
         <div className="healthMenuWrapperDiv">
-            <div className="healthMenuHorizontal">
+            <div className="healthMenuHorizontal healthMenuRestAndHitDice">
                 <RetroButton text="Rest" onClickHandler={() => {
                     setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
                         menuTitle: "Type of Rest", menuText: "Would you like to Long Rest or Short Rest?", 
@@ -99,6 +99,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                     } });
                 }} showTriangle={true} disabled={wasDead}></RetroButton>
             </div>
+            <div className="centerMenuSeperator"></div>
             <div className="healthMenuHorizontal">
                 <div className="healthMenuVertical">
                     <div className="healthMenuLabel">Temp HP</div>
@@ -124,6 +125,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                 <div className="healthMenuLabel">Preview</div>
                 <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
             </div>
+            <div className="centerMenuSeperator"></div>
             <div className="healthMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);

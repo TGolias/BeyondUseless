@@ -57,13 +57,16 @@ const menuCollection = {
             return (<><ConfirmationMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ConfirmationMenu></>)
         }
     },
-    IframeMenu: {
+    SpellMenu: {
         createMenuTitle: (playerConfigs, data) => {
             return data.menuTitle;
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newConfirmationMenuConfig = {};
             newConfirmationMenuConfig.spell = data.spell;
+            newConfirmationMenuConfig.useSpellSlotLevel = data.spell.level;
+            newConfirmationMenuConfig.useFreeUse = false;
+            newConfirmationMenuConfig.useRitual = false;
             return newConfirmationMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
@@ -151,6 +154,7 @@ export function CenterMenu({playerConfigs, menuType, data, setCenterScreenMenu, 
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={false} disabled={false}></RetroButton>
             </div>
+            <div className="centerMenuSeperator"></div>
             {menuLayout}
         </div>
     </>);

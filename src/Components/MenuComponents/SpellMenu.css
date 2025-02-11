@@ -1,8 +1,36 @@
 .spellMenuWrapperDiv {
+    margin: -0.5em;
+    padding: 0.5em;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 8em);
+    max-height: calc(100vh - 18em);
     overflow-y: auto;
+}
+
+.spellMenuWrapperDiv.extraCantripSpaceDiv {
+    max-height: calc(100vh - 12.5em);
+}
+
+.spellMenuCastingHorizontal {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 1em;
+    text-align: center;
+}
+
+.spellMenuCastingVertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    justify-content: space-between;
+}
+
+.slotsLeft {
+    padding-bottom: 0.4em;
 }
 
 .spellMenuHorizontal {
@@ -10,5 +38,5 @@
     flex-direction: row;
     gap: 0.5em;
     justify-content: space-between;
-    align-items: end;
+    align-items: center;
 }

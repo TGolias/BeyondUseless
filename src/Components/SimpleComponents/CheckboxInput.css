@@ -36,7 +36,7 @@ input[type="checkbox"]:checked::before {
 input[type="checkbox"]:hover {
     background-color: lightgrey;
 }
-  
-input[type="checkbox"]:disabled {
+
+input[type="checkbox"].disabledCheckboxInput {
     background-color: darkgrey;
 }

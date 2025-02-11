@@ -24,6 +24,10 @@
     align-items: end;
 }
 
+.healthMenuHorizontal.healthMenuRestAndHitDice {
+    padding-top: 0.5em;
+}
+
 .healthMenuGrid {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;

@@ -54,7 +54,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <StatDisplay name="charisma" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "charisma")}/>
                 </div>
                 <div>
-                    <WeaponsAndDamageCantrips playerConfigs={playerConfigs}></WeaponsAndDamageCantrips>
+                    <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
                 </div>
                 <div style={{display: (spellcastingLevel > 0 ? "block" : "none")}}>
                     <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel}></SpellSlotsDisplay>

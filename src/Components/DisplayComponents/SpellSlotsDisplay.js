@@ -17,13 +17,26 @@ export function SpellSlotsDisplay({playerConfigs, casterLevel}) {
             const slotLevel = i + 1;
             const slotLevelPropertyName = "slotLevel" + slotLevel;
             const spellsForSlotLevel = spellSlotsForThisLevel[slotLevelPropertyName];
+
             if (spellsForSlotLevel && spellsForSlotLevel > 0) {
+                let spellSlotsUsed = 0;
+                if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingSpellSlots && playerConfigs.currentStatus.remainingSpellSlots[slotLevelPropertyName] !== undefined) {
+                    const remainingFreeUses = playerConfigs.currentStatus.remainingSpellSlots[slotLevelPropertyName];
+                    spellSlotsUsed = spellsForSlotLevel - remainingFreeUses;
+                } 
+
                 let slotUsesString = "";
                 for (let j = 0; j < spellsForSlotLevel; j++) {
                     if (j > 0) {
                         slotUsesString += " "
                     }
-                    slotUsesString += "O"
+
+                    if (j < spellSlotsUsed) {
+                        slotUsesString += "X"
+                    } else {
+                        slotUsesString += "O"
+                    }
+                    
                 }
                 spellSlotRows.push(<>
                     <div className='spellslotsDisplayRow firstCol'>Level {slotLevel}</div>
