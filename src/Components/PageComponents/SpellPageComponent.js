@@ -70,6 +70,7 @@ export function SpellPageComponent({spell, data}) {
 
     // Get aspects from data
     let featureName = undefined;
+    let castAtLevel = spell.level;
     let freeUses = undefined;
     let attackRoll = undefined;
     let savingThrow = undefined;
@@ -80,6 +81,9 @@ export function SpellPageComponent({spell, data}) {
     if (data) {
         if (data.featureName) {
             featureName = data.featureName;
+        }
+        if (data.castAtLevel) {
+            castAtLevel = data.castAtLevel;
         }
         if (data.freeUses !== undefined) {
             freeUses = data.freeUses;
@@ -116,29 +120,32 @@ export function SpellPageComponent({spell, data}) {
             <div className="spellPageDescription">
                 <div><b>Spell Summary</b></div>
             </div>
+            <div className="spellPageDescription" style={{display: (castAtLevel ? "block" : "none")}}>
+                <div><b>Cast at LVL{castAtLevel}</b></div>
+            </div>
             <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
-                <div>Attack Roll: <b>+{attackRoll}</b></div>
+                <div><b>Attack Roll:</b> +{attackRoll}</div>
             </div>
             <div className="spellPageDescription" style={{display: (savingThrow ? "block" : "none")}}>
-                <div><b>DC{savingThrow?.dc} {getCapitalizedAbilityScoreName(savingThrow?.type)}</b></div>
+                <div><b>DC{savingThrow?.dc}</b> {getCapitalizedAbilityScoreName(savingThrow?.type)}</div>
             </div>
             <div className="spellPageDescription" style={{display: (damage ? "block" : "none")}}>
-                <div>Damage: <b>{damage}</b></div>
+                <div><b>Damage:</b> {damage}</div>
             </div>
             <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
-                <div>Healing: <b>{healing}</b></div>
+                <div><b>Healing:</b> {healing}</div>
             </div>
             <div className="spellPageDescription" style={{display: (buff ? "block" : "none")}}>
-                <div>Buff: <b>{(buff?.amount ? buff.amount + " " : "")}</b>{buff?.description}</div>
+                <div><b>Buff:</b> {(buff?.amount ? buff.amount + " " : "")}{buff?.description}</div>
             </div>
             <div className="spellPageDescription" style={{display: (debuff ? "block" : "none")}}>
-                <div>Debuff: <b>{debuff?.amount ? debuff.amount + " " : ""}</b>{debuff?.description}</div>
+                <div><b>Debuff:</b> {debuff?.amount ? debuff.amount + " " : ""}{debuff?.description}</div>
             </div>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
-                <div>Learned from <b>{featureName}</b></div>
+                <div><b>Learned from:</b> {featureName}</div>
             </div>
             <div className="spellPageDescription" style={{display: (freeUses !== undefined ? "block" : "none")}}>
-                <div>Free uses remaining: <b>{freeUses}</b></div>
+                <div><b>Free uses remaining:</b> {freeUses}</div>
             </div>
             <br></br>
             <div className="spellCopyButtonWrapper">

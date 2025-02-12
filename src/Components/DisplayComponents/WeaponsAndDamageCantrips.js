@@ -23,10 +23,10 @@ const rows = [
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
-                const spellSaveDC = calculateSpellSaveDC(playerConfigs, dndCantrip);
+                const spellSaveDC = calculateSpellSaveDC(playerConfigs, dndCantrip, 0);
                 return "DC" + spellSaveDC;
             } else {
-                const spellAttack = calculateSpellAttack(playerConfigs, dndCantrip);
+                const spellAttack = calculateSpellAttack(playerConfigs, dndCantrip, 0);
                 return (spellAttack.length === 0 || spellAttack.startsWith("-") ? "" : "+") + spellAttack;
             }
         }
@@ -39,7 +39,7 @@ const rows = [
             return amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
-            let amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, "damage", "spellDamageBonus");
+            let amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, 0, "damage", "spellDamageBonus");
             amount += " " + dndCantrip.damage.damageType;
             return amount;
         },

@@ -444,7 +444,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
     return calculationString;
 }
 
-export function calculateSpellAttack(playerConfigs, spell) {
+export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     const calculationsForAttackBonus = [];
 
     const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
@@ -465,7 +465,7 @@ export function calculateSpellAttack(playerConfigs, spell) {
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier, slotLevel });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -483,11 +483,11 @@ export function calculateSpellAttack(playerConfigs, spell) {
         }
     });
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbilityModifier });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbilityModifier, slotLevel });
     return amount;
 }
 
-export function calculateSpellSaveDC(playerConfigs, spell) {
+export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     const calculationsForSpellSaveDCBonus = [];
 
 
@@ -515,7 +515,7 @@ export function calculateSpellSaveDC(playerConfigs, spell) {
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier, slotLevel });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -533,11 +533,11 @@ export function calculateSpellSaveDC(playerConfigs, spell) {
         }
     });
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellSaveDCBonus, { spell, spellcastingAbilityModifier });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellSaveDCBonus, { spell, spellcastingAbilityModifier, slotLevel });
     return amount;
 }
 
-export function calculateOtherSpellAspect(playerConfigs, spell, aspectName, aspectBonusName) {
+export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName) {
     const calculationsForAttackBonus = [];
 
     const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
@@ -550,7 +550,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, aspectName, aspe
         // See if there are additional bonuses to apply to this aspect.
         findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier });
+                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier, slotLevel });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -569,7 +569,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, aspectName, aspe
         });
     }
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbilityModifier });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbilityModifier, slotLevel });
     return amount;
 }
 
