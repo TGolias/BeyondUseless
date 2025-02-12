@@ -6,7 +6,7 @@ export function ConfirmationMenu({playerConfigs, setCenterScreenMenu, menuConfig
     const buttons = [];
     for (const buttonConfig of menuConfig.buttons) {
         buttons.push(<>
-            <RetroButton text={buttonConfig.text} onClickHandler={buttonConfig.onClick} showTriangle={true} disabled={false} buttonSound={buttonConfig.sound ? buttonConfig.sound : "selectionaudio" }></RetroButton>
+            <RetroButton text={buttonConfig.text} onClickHandler={buttonConfig.onClick} showTriangle={false} disabled={false} buttonSound={buttonConfig.sound ? buttonConfig.sound : "selectionaudio" }></RetroButton>
         </>);
     }
 

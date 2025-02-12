@@ -31,7 +31,6 @@
     border-right: 2px solid black;
     align-content: center;
     white-space: pre-line;
-    min-height: 3em;
 }
 
 .spellcastingDisplayGrid > .lastCol {
@@ -40,5 +39,6 @@
 }
 
 .spellcastingDisplayRow {
+    min-height: 3.5em;
     font-weight: normal;
 }

@@ -1,4 +1,4 @@
-.spellPageContainer {
+.itemPageContainer {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -7,14 +7,10 @@
     line-height: 1.25em;
 }
 
-.spellPageBold {
-    font-weight: bold;
-}
-
-.spellPageDescription {
+.itemPageDescription {
     padding-top: 0.75em;
 }
 
-.spellCopyButtonWrapper {
+.itemCopyButtonWrapper {
     padding-top: 0.5em;
 }

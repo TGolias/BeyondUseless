@@ -7,6 +7,7 @@ import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { ConfirmationMenu } from "./ConfirmationMenu";
 import { HitDiceMenu } from "./HitDiceMenu";
 import { SpellMenu } from "./SpellMenu";
+import { ItemMenu } from "./ItemMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -71,6 +72,19 @@ const menuCollection = {
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><SpellMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></SpellMenu></>)
+        }
+    },
+    ItemMenu: {
+        createMenuTitle: (playerConfigs, data) => {
+            return data.menuTitle;
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newConfirmationMenuConfig = {};
+            newConfirmationMenuConfig.item = data.item;
+            return newConfirmationMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
+            return (<><ItemMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ItemMenu></>)
         }
     }
 }

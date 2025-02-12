@@ -1,0 +1,20 @@
+.itemMenuWrapperDiv {
+    margin: -0.5em;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 13.5em);
+    overflow-y: auto;
+}
+
+.itemMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.itemMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}

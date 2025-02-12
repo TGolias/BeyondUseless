@@ -2,7 +2,7 @@ import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
 import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
-import { calculateAspectCollection, calculateOtherSpellAspect, calculateProficiencyBonus, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, performDiceRollCalculation, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateAspectCollection, calculateOtherSpellAspect, calculateProficiencyBonus, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate, performDiceRollCalculation, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
 
 const rows = [
     {
@@ -62,24 +62,19 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     // Check weapons
     for (let item of playerConfigs.items) {
         if (item.equipped) {
-            let itemName = item.name;
             let dndItem = itemName2Item[item.name];
-            while (dndItem.type === "Template") {
-                itemName = dndItem.templateOf;
-                dndItem = {...itemName2Item[itemName]};
-                dndItem.name = item.name;
-            }
+            dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
             if (dndItem.type === "Weapon") {
                 hasWeapons = true;
 
                 for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false)}</div>)
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false)}</div>)
                 }
 
                 if (dndItem.properties && dndItem.properties.includes("Thrown") && dndItem.weaponRange == "Melee") {
                     // Do calculations for the weapon thrown as well.
                     for (let row of rows) {
-                        weaponOrDamageCantripRows.push(<div className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true)}</div>)
+                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true)}</div>)
                     }
                 }
             }
@@ -118,4 +113,9 @@ function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, dndcan
 function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
     playAudio("menuaudio");
     setCenterScreenMenu({ show: true, menuType: "SpellMenu", data: { menuTitle: dndcantrip.name, spell: dndcantrip } });
+}
+
+function openMenuForItem(dndItem, setCenterScreenMenu) {
+    playAudio("menuaudio");
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
 }

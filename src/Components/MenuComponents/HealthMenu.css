@@ -28,6 +28,10 @@
     padding-top: 0.5em;
 }
 
+.healthMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
 .healthMenuGrid {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;

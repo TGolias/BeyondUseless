@@ -61,6 +61,10 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
         if (totalDiceToExpendNow > 0) {
             let expendedUsesString = "";
             for (let i = 0; i < totalDiceToExpendNow; i++) {
+                if (i == 10) {
+                    expendedUsesString += "\n";
+                }
+
                 if (i < diceUsedNow) {
                     expendedUsesString += "X";
                 } else {
@@ -97,14 +101,14 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
             <div>{totalToBeExpendedString === "" ? "No hit dice to be expended" : "Expending " + totalToBeExpendedString}</div>
             <div style={{display: (healControls.length ? "block" : "none")}}>{healControls}</div>
             <div className="centerMenuSeperator"></div>
-            <div className="healthMenuHorizontal">
+            <div className="hitDiceMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={true} disabled={false} buttonSound={totalToBeExpendedString === "" ? menuConfig.soundOnNoHitDiceExpend : menuConfig.soundOnHitDiceExpend }></RetroButton>
+                }} showTriangle={false} disabled={false} buttonSound={totalToBeExpendedString === "" ? menuConfig.soundOnNoHitDiceExpend : menuConfig.soundOnHitDiceExpend }></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={true} disabled={false}></RetroButton>
+                }} showTriangle={false} disabled={false}></RetroButton>
             </div>
         </div>
     </>);

@@ -47,7 +47,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                         menuTitle: "Type of Rest", menuText: "Would you like to Long Rest or Short Rest?", 
                         buttons: [
                             {
-                                text: "Long Rest",
+                                text: "Long",
                                 onClick: () => {
                                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                                     setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
@@ -76,7 +76,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                                 }
                             },
                             {
-                                text: "Short Rest",
+                                text: "Short",
                                 onClick: () => {
                                     setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
                                         menuTitle: "Short Rest", 
@@ -89,7 +89,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                         ] 
                     } 
                 });
-                }} showTriangle={true} disabled={wasDead}></RetroButton>
+                }} showTriangle={false} disabled={wasDead}></RetroButton>
                 <RetroButton text="Hit Dice" onClickHandler={() => {
                     setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
                         menuTitle: "Expend Hit Dice", 
@@ -97,7 +97,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                         soundOnHitDiceExpend: "healaudio",
                         soundOnNoHitDiceExpend: "selectionaudio"
                     } });
-                }} showTriangle={true} disabled={wasDead}></RetroButton>
+                }} showTriangle={false} disabled={wasDead}></RetroButton>
             </div>
             <div className="centerMenuSeperator"></div>
             <div className="healthMenuHorizontal">
@@ -130,10 +130,10 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={true} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
+                }} showTriangle={false} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={true} disabled={false}></RetroButton>
+                }} showTriangle={false} disabled={false}></RetroButton>
             </div>
         </div>
     </>)

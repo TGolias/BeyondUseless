@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Renderer } from "./Components/MainLayoutComponents/Renderer";
 import './App.css';
-import React from "react";
 import { Designer } from "./Components/MainLayoutComponents/Designer";
 import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./SharedFunctions/Effects";
@@ -11,8 +10,12 @@ import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
 import { isNumeric, playAudio } from "./SharedFunctions/Utils";
 import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
 import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
+import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
+import { getItemFromItemTemplate } from "./SharedFunctions/TabletopMathFunctions";
 
 const timeoutBeforeAddedToHistory = 5000;
+
+const rightTriangleUnicode = '\u25B6';
 
 const defaultPlayerConfiguration = {
   name: "Amantine Jaune Francina",
@@ -133,21 +136,32 @@ export default function App() {
     }
   });
 
-  if (needsToLoad || isLoading) {
-    return (<>
-      <div>Loading...</div>
-    </>)
-  }
-
   const url = new URL(decodeURI(window.location.href));
   const params = new URLSearchParams(url.search);
-  const mode = params.get('view');
-  if (mode) {
-    const upperCaseMode = mode.toLowerCase();
-    switch (upperCaseMode) {
+  const view = params.get('view');
+  if (view) {
+    // First... Hold on if we are loading.
+    if (needsToLoad || isLoading) {
+      startLoadingAnimationIfNotStarted();
+      return (<>
+        <div className="loadingIndicatorHolder">
+          <div id="loadingIndicator"></div>
+        </div>
+      </>)
+    }
+
+    let decodedData = undefined;
+    const data = params.get('data');
+    if (data) {
+      const stringifiedJson = atob(data);
+      decodedData = JSON.parse(stringifiedJson);
+    }
+
+    const lowerCaseMode = view.toLowerCase();
+    switch (lowerCaseMode) {
       case "spell":
-        const name = params.get('name');
-        let spellNameLower = name.toLowerCase();
+        const spellName = params.get('name');
+        let spellNameLower = spellName.toLowerCase();
 
         let spellFound = undefined;
         const cantrips = getCollection("cantrips");
@@ -159,21 +173,38 @@ export default function App() {
 
         if (!spellFound) {
           return (<>
-            <div>Spell '{name}' not found :(</div>
+            <div>Spell '{spellName}' not found :(</div>
           </>)
         } else {
-          let decodedData = undefined;
-          const data = params.get('data');
-          if (data) {
-            const stringifiedJson = atob(data);
-            decodedData = JSON.parse(stringifiedJson);
-          }
           return (<>
-            <div><b>{spellFound.name}</b></div>
-            <br></br>
+            <div className="viewPageLabel"><b>{spellFound.name}</b></div>
             <SpellPageComponent spell={spellFound} data={decodedData}></SpellPageComponent>
           </>);
         }
+      case "item":
+        const name = params.get('name');
+        let itemNameLower = name.toLowerCase();
+
+        let itemFound = undefined;
+        const items = getCollection("items");
+        itemFound = items.find(item => item.name.toLowerCase() === itemNameLower);
+        itemFound = getItemFromItemTemplate(itemFound);
+
+        if (!itemFound) {
+          return (<>
+            <div>Spell '{name}' not found :(</div>
+          </>)
+        } else {
+          return (<>
+            <div className="viewPageLabel"><b>{itemFound.name}</b></div>
+            <ItemPageComponent item={itemFound} data={decodedData}></ItemPageComponent>
+          </>);
+        }
+      default: {
+        return (<>
+          <div>View '{view}' not found :(</div>
+        </>)
+      }
     }
   }
 
@@ -407,13 +438,22 @@ export default function App() {
     }
   ]
 
+  if (needsToLoad || isLoading) {
+    startLoadingAnimationIfNotStarted();
+    return (<>
+      <div className="topDiv">
+        <div className="topBar">
+          <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
+          <div className="startMenuButton"><div></div>MENU</div>
+        </div>
+        <br></br>
+        <div id="loadingIndicator" className="loadingIndicator"></div>
+      </div>
+    </>)
+  }
   return (
     <>
-      <div className={"topDiv" + ((showStartMenu || centerScreenMenu.show) ? " disableActivity" : "")} onScroll={() => { 
-        if (showStartMenu || centerScreenMenu.show) {
-          console.log("scroll");
-          return true;
-        }}}>
+      <div className={"topDiv" + ((showStartMenu || centerScreenMenu.show) ? " disableActivity" : "")}>
         <div className="topBar">
           <div className="appname" onClick={() => window.open("https://github.com/TGolias/BeyondUseless")}>Beyond<br></br>Useless</div>
           <div className="startMenuButton" onClick={() => {
@@ -443,4 +483,52 @@ export default function App() {
       </div>
     </>
   );
+}
+
+function startLoadingAnimationIfNotStarted() {
+  let isLoading = document.documentElement.getAttribute("data-is-loading");
+  if (!isLoading) {
+    document.documentElement.setAttribute("data-is-loading", "true");
+    startLoadingAnimation();
+  }
+}
+
+function startLoadingAnimation(timeout = 0) {
+  setTimeout(function () {
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    if (loadingIndicator) {
+      loadingIndicator.innerText = "Loading\n\n" + getLoadingCurrentString();
+      startLoadingAnimation(200);
+    } else {
+      document.documentElement.removeAttribute("data-is-loading");
+    }
+  }, timeout);
+}
+
+function getLoadingCurrentString() {
+  let loadingIndexString = document.documentElement.getAttribute("data-loading-string");
+  let loadingIndex;
+  if (isNumeric(loadingIndexString)) {
+    loadingIndex = parseInt(loadingIndexString);
+  } else {
+    loadingIndex = 0;
+  }
+
+  if (loadingIndex > 10) {
+    loadingIndex = 0;
+  }
+
+  let stringToDisplay = "";
+  for (let i = 0; i < 10; i++) {
+    if (i === loadingIndex) {
+      stringToDisplay += rightTriangleUnicode;
+    } else {
+      stringToDisplay += ".";
+    }
+  }
+
+  loadingIndex++;
+  document.documentElement.setAttribute("data-loading-string", loadingIndex.toString());
+
+  return stringToDisplay;
 }

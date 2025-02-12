@@ -16,3 +16,7 @@
     justify-content: space-between;
     align-items: end;
 }
+
+.confirmationMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}

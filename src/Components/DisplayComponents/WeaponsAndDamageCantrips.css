@@ -29,7 +29,6 @@
     border-left: 2px solid black;
     border-right: 2px solid black;
     align-content: center;
-    min-height: 3em;
 }
 
 .weaponOrDamageCantripGrid > .lastCol {
@@ -38,5 +37,6 @@
 }
 
 .weaponOrDamageCantripRow {
+    min-height: 3.5em;
     font-weight: normal;
 }

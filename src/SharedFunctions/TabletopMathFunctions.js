@@ -1244,3 +1244,18 @@ function addSpellToSortedCollection(sortedSpellsCollection, spellToAdd) {
         sortedSpellsCollection.splice(insertAtIndex, 0, spellToAdd);
     }
 }
+
+export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefined) {
+    if (!itemName2Item && originalDndItem.type === "Template") {
+        const items = getCollection("items");
+        itemName2Item = convertArrayToDictionary(items, "name");
+    }
+
+    let dndItem = originalDndItem;
+    while (dndItem.type === "Template") {
+        const itemName = dndItem.templateOf;
+        dndItem = {...itemName2Item[itemName]};
+        dndItem.name = originalDndItem.name;
+    }
+    return dndItem;
+}
