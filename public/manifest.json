@@ -1,4 +1,11 @@
 {
     "name": "BeyondUseless",
-    "display": "standalone"
+    "display": "standalone",
+    "icons": [
+    {
+      "src": "badger.png",
+      "sizes": "644x644",
+      "type": "image/png"
+    }
+  ]
 }
