@@ -152,5 +152,7 @@ export function SpellPageComponent({spell, data}) {
 function copyToClipboard(spell, data) {
     const stringifiedJson = JSON.stringify(data);
     const encodedData = btoa(stringifiedJson);
-    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(window.location.origin + "?view=spell&name=" + spell.name + "&data=" + encodedData));
+    const indexOfQuery = window.location.href.indexOf('?');
+    const windowLocationWithoutQueryParams = indexOfQuery === -1 ? window.location.href : window.location.href.substring(0, indexOfQuery);
+    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(windowLocationWithoutQueryParams+ "?view=spell&name=" + spell.name + "&data=" + encodedData));
 }
