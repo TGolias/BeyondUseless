@@ -15,6 +15,7 @@
       "purpose": "maskable"
     }
   ],
+  "start_url": "https://tgolias.github.io/BeyondUseless/",
   "theme_color": "#d3d3d3",
   "background_color": "#d3d3d3",
   "display": "standalone"
