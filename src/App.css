@@ -26,10 +26,8 @@
   justify-content: space-between;
   border-bottom: 4px solid black;
   background-color: lightgrey;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  /* Make top bar fixed in position. */
-  position: fixed;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
   left: 0;
   top: 0;
   z-index: 1;
@@ -128,8 +126,7 @@
   flex-direction: row;
   justify-content: space-around;
   flex-grow: 1;
-  /* Since top bar is fixed in position, make sure all content shows. */
-  margin-top: 2em;
+  overflow-y: auto;
 }
 
 .headerViewDiv {
