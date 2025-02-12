@@ -8,11 +8,12 @@ export function ItemMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuSt
 
     return (<>
         <div className="itemMenuWrapperDiv">
-            <ItemPageComponent item={menuConfig.item} data={data}></ItemPageComponent>
+            <ItemPageComponent item={menuConfig.item} data={data} copyLinkToItem={menuConfig.copyLinkToItem}></ItemPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
-        <div className="spellMenuHorizontal">
-            <RetroButton text={"Close"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
+        <div className="itemMenuHorizontal">
+            <RetroButton text={"OK"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
+            <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }

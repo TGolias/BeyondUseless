@@ -1,9 +1,8 @@
 import React from "react";
 import './SpellPageComponent.css';
-import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 
-export function SpellPageComponent({spell, data}) {
+export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let castingTime = "";
     if (Array.isArray(spell.castingTime)) {
         for (let singleCastingTime of spell.castingTime) {
@@ -108,6 +107,12 @@ export function SpellPageComponent({spell, data}) {
         }
     }
 
+    if (copyLinkToSpell) {
+        copyLinkToSpell.onExecute = () => {
+            copyToClipboard(spell, data);
+        };
+    }
+
     return <>
         <div className="spellPageContainer">
             <div>{spell.level ? "LVL " + spell.level : "Cantrip"} - {spell.school}</div>
@@ -116,11 +121,11 @@ export function SpellPageComponent({spell, data}) {
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
             <div className="spellPageDescription">{description}</div>
-            <br></br>
-            <div className="spellPageDescription">
+            <br style={{display: (data ? "block" : "none")}}></br>
+            <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Spell Summary</b></div>
             </div>
-            <div className="spellPageDescription" style={{display: (castAtLevel ? "block" : "none")}}>
+            <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Cast at LVL{castAtLevel}</b></div>
             </div>
             <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
@@ -147,16 +152,11 @@ export function SpellPageComponent({spell, data}) {
             <div className="spellPageDescription" style={{display: (freeUses !== undefined ? "block" : "none")}}>
                 <div><b>Free uses remaining:</b> {freeUses}</div>
             </div>
-            <br></br>
-            <div className="spellCopyButtonWrapper">
-                <RetroButton text={"Copy Link to Spell"} onClickHandler={() => copyToClipboard(spell, data)} showTriangle={false} disabled={false}></RetroButton>
-            </div>
-            <br></br>
         </div>
     </>
 }
 
-function copyToClipboard(spell, data) {
+export function copyToClipboard(spell, data) {
     const stringifiedJson = JSON.stringify(data);
     const encodedData = btoa(stringifiedJson);
     const indexOfQuery = window.location.href.indexOf('?');

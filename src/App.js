@@ -12,6 +12,7 @@ import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDi
 import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
 import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
 import { getItemFromItemTemplate } from "./SharedFunctions/TabletopMathFunctions";
+import { RetroButton } from "./Components/SimpleComponents/RetroButton";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -176,9 +177,16 @@ export default function App() {
             <div>Spell '{spellName}' not found :(</div>
           </>)
         } else {
+          const copyLinkToSpell = {};
           return (<>
-            <div className="viewPageLabel"><b>{spellFound.name}</b></div>
-            <SpellPageComponent spell={spellFound} data={decodedData}></SpellPageComponent>
+            <div className="viewPageLabel">
+              <RetroButton text={spellFound.name} onClickHandler={() => {
+                if (copyLinkToSpell.onExecute) {
+                  copyLinkToSpell.onExecute();
+                }
+              }} showTriangle={false} disabled={false}></RetroButton>
+            </div>
+            <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell}></SpellPageComponent>
           </>);
         }
       case "item":
@@ -195,9 +203,16 @@ export default function App() {
             <div>Spell '{name}' not found :(</div>
           </>)
         } else {
+          const copyLinkToItem = {};
           return (<>
-            <div className="viewPageLabel"><b>{itemFound.name}</b></div>
-            <ItemPageComponent item={itemFound} data={decodedData}></ItemPageComponent>
+            <div className="viewPageLabel">
+              <RetroButton text={itemFound.name} onClickHandler={() => {
+                if (copyLinkToItem.onExecute) {
+                  copyLinkToItem.onExecute();
+                }
+              }} showTriangle={false} disabled={false}></RetroButton>
+            </div>
+            <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem}></ItemPageComponent>
           </>);
         }
       default: {

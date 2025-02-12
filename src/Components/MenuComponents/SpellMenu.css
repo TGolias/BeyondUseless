@@ -3,12 +3,20 @@
     padding: 0.5em;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 19em);
+    max-height: calc(100vh - 20em);
     overflow-y: auto;
 }
 
 .spellMenuWrapperDiv.extraCantripSpaceDiv {
-    max-height: calc(100vh - 13.5em);
+    max-height: calc(100vh - 13em);
+}
+
+.spellMenuWrapperDiv.spellMenuHealPrompt {
+    max-height: calc(100vh - 23em);
+}
+
+.spellMenuWrapperDiv.spellMenuHpShowing {
+    max-height: calc(100vh - 29em);
 }
 
 .spellMenuCastingHorizontal {
@@ -45,4 +53,11 @@
 
 .spellMenuHorizontal .retroButtonWrapper {
     padding: 1em;
+}
+
+.spellMenuHealing {
+    margin-top: -1em;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0.5em;
 }

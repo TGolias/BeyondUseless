@@ -1,9 +1,8 @@
 import React from "react";
 import './ItemPageComponent.css';
-import { RetroButton } from "../SimpleComponents/RetroButton";
 import { performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 
-export function ItemPageComponent({item, data}) {
+export function ItemPageComponent({item, data, copyLinkToItem}) {
     let typeString;
     let baseDamage = undefined;
     let twoHandedDamage = undefined;
@@ -62,6 +61,12 @@ export function ItemPageComponent({item, data}) {
 
     let showItemSummary = false;
 
+    if (copyLinkToItem) {
+        copyLinkToItem.onExecute = () => {
+            copyToClipboard(item, data);
+        };
+    }
+
     return <>
         <div className="itemPageContainer">
             <div>{typeString}</div>
@@ -77,11 +82,6 @@ export function ItemPageComponent({item, data}) {
             <div className="spellPageDescription" style={{display: (showItemSummary ? "block" : "none")}}>
                 <div><b>Item Summary</b></div>
             </div>
-            <br></br>
-            <div className="itemCopyButtonWrapper">
-                <RetroButton text={"Copy Link to Item"} onClickHandler={() => copyToClipboard(item, data)} showTriangle={false} disabled={false}></RetroButton>
-            </div>
-            <br></br>
         </div>
     </>
 }

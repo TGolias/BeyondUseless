@@ -25,3 +25,7 @@
 .centerMenuOuterDiv .retroButtonText {
     font-size: 1.25em;
 }
+
+.menuTitleBarTitle .retroButtonText {
+    font-size: 1em;
+}

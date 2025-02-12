@@ -11,9 +11,12 @@ import { ItemMenu } from "./ItemMenu";
 
 const menuCollection = {
     HealthMenu: {
-        createMenuTitle: (playerConfigs) => {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
             const playerFirstName = playerConfigs.name.split(' ')[0];
-            return "Manage " + playerFirstName + "'s HP";
+            const titleName = "Manage " + playerFirstName + "'s HP";
+            return (<>
+                <div className="menuTitleBarTitle">{titleName}</div>
+            </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newHealthMenuConfig = {};
@@ -28,8 +31,10 @@ const menuCollection = {
         }
     },
     HitDiceMenu: {
-        createMenuTitle: (playerConfigs, data) => {
-            return data.menuTitle;
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{data.menuTitle}</div>
+            </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newHitDiceMenuConfig = {};
@@ -45,8 +50,10 @@ const menuCollection = {
         }
     },
     ConfirmationMenu: {
-        createMenuTitle: (playerConfigs, data) => {
-            return data.menuTitle;
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{data.menuTitle}</div>
+            </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newConfirmationMenuConfig = {};
@@ -59,29 +66,49 @@ const menuCollection = {
         }
     },
     SpellMenu: {
-        createMenuTitle: (playerConfigs, data) => {
-            return data.menuTitle;
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">
+                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                        if (menuConfig.copyLinkToSpell && menuConfig.copyLinkToSpell.onExecute) {
+                            menuConfig.copyLinkToSpell.onExecute();
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton>
+                </div>
+            </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
-            const newConfirmationMenuConfig = {};
-            newConfirmationMenuConfig.spell = data.spell;
-            newConfirmationMenuConfig.useSpellSlotLevel = data.spell.level;
-            newConfirmationMenuConfig.useFreeUse = false;
-            newConfirmationMenuConfig.useRitual = false;
-            return newConfirmationMenuConfig;
+            const newSpellMenu = {};
+            newSpellMenu.spell = data.spell;
+            newSpellMenu.useSpellSlotLevel = data.spell.level;
+            newSpellMenu.useFreeUse = false;
+            newSpellMenu.useRitual = false;
+            newSpellMenu.hpIsChanging = false;
+            newSpellMenu.healAmount = 0;
+            newSpellMenu.copyLinkToSpell = {};
+            return newSpellMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><SpellMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></SpellMenu></>)
         }
     },
     ItemMenu: {
-        createMenuTitle: (playerConfigs, data) => {
-            return data.menuTitle;
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">
+                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                        if (menuConfig.copyLinkToItem && menuConfig.copyLinkToItem.onExecute) {
+                            menuConfig.copyLinkToItem.onExecute();
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton>
+                </div>
+            </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
-            const newConfirmationMenuConfig = {};
-            newConfirmationMenuConfig.item = data.item;
-            return newConfirmationMenuConfig;
+            const newItemMenu = {};
+            newItemMenu.item = data.item;
+            newItemMenu.copyLinkToItem = {};
+            return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><ItemMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ItemMenu></>)
@@ -98,18 +125,19 @@ export function CenterMenu({playerConfigs, menuType, data, setCenterScreenMenu, 
     const [menuConfig, setMenuConfig] = useState(defaultMenuConfig);
 
     const menu = menuCollection[menuType];
-    let title = "";
+    let title = [];
     const menuLayout = [];
 
     if (menu) {
-        title = menu.createMenuTitle(playerConfigs, data);
-
-        if (!menuConfig.opened || menuConfig.type !== menuType) {
-            const newMenuConfig = menu.createDefaultMenuConfig(playerConfigs, data);
+        let newMenuConfig = menuConfig;
+        if (!newMenuConfig.opened || newMenuConfig.type !== menuType) {
+            newMenuConfig = menu.createDefaultMenuConfig(playerConfigs, data);
             newMenuConfig.type = menuType;
             newMenuConfig.opened = true;
             setMenuConfig(newMenuConfig);
         }
+
+        title = menu.createMenuTitle(playerConfigs, data, newMenuConfig);
 
         menuLayout.push(menu.createMenuLayout(playerConfigs, 
             (centerScreenConfigs) => {
@@ -121,7 +149,7 @@ export function CenterMenu({playerConfigs, menuType, data, setCenterScreenMenu, 
                 setCenterScreenMenu(centerScreenConfigs);
             }, 
             inputChangeHandler, 
-            menuConfig, 
+            newMenuConfig, 
             (baseStateObject, pathToProperty, newValue) => {
                 const totalPath = getTotalPath(pathToProperty);
                 
@@ -161,7 +189,7 @@ export function CenterMenu({playerConfigs, menuType, data, setCenterScreenMenu, 
     return (<>
         <div className="centerMenuOuterDiv">
             <div className="menuTitleBar">
-                <div className="menuTitleBarTitle">{title}</div>
+                {title}
                 <RetroButton text={"X"} onClickHandler={() => {
                     const resetMenuConfig = {...defaultMenuConfig};
                     setMenuConfig(resetMenuConfig);
