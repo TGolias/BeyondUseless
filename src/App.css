@@ -16,6 +16,7 @@
 .disableActivity {
   pointer-events: none;
   filter: blur(2px);
+  overscroll-behavior: none;
 }
 
 .topBar {
