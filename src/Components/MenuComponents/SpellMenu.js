@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
-import { calculateHPMax, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateHPMax, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { CircleButton } from "../SimpleComponents/CircleButton";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
@@ -121,14 +121,28 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
         data.castAtLevel = menuConfig.useSpellSlotLevel;
     }
 
+    const spellCastingConditionAddendum = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: menuConfig.spell });
+    if (spellCastingConditionAddendum) {
+        data.spellCastingConditionAddendum = spellCastingConditionAddendum;
+    }
+
     if (menuConfig.spell.challengeType === "attackRoll") {
-        data.attackRoll = calculateSpellAttack(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel)
+        const attack = calculateSpellAttack(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel)
+        data.attackRoll = attack.amount;
+        if (attack.addendum) {
+            data.attackRollAddendum = attack.addendum;
+        }
     }
 
     if (menuConfig.spell.challengeType === "savingThrow") {
         data.savingThrow = {};
         data.savingThrow.type = menuConfig.spell.savingThrowType;
-        data.savingThrow.dc = calculateSpellSaveDC(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel);
+
+        const savingThrow = calculateSpellSaveDC(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel);
+        data.savingThrow.dc = savingThrow.dc;
+        if (savingThrow.addendum) {
+            data.savingThrow.dcAddendum = savingThrow.addendum;
+        }
     }
 
     if (menuConfig.spell.type.includes("damage")) {

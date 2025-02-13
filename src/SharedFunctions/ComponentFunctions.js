@@ -1,3 +1,5 @@
+import React from "react";
+
 export function getValueFromObjectAndPath(baseStateObject, pathToProperty) {
     let propertyValue = baseStateObject;
     if (pathToProperty !== "$VALUE") {
@@ -63,4 +65,20 @@ const shortenedAbilityScoreNames = {
 
 export function getShortenedAbilityScoreName(lowercaseName) {
     return shortenedAbilityScoreNames[lowercaseName];
+}
+
+export function parseStringForBoldMarkup(stringToParse) {
+    let stringWithMarkup = []
+    const stringsWithoutMarkup = stringToParse.split(/<b>|<\/b>/);
+    for (let i = 0; i < stringsWithoutMarkup.length; i++) {
+        const phrase = stringsWithoutMarkup[i];
+        if (i % 2 == 1) {
+            // Bold it!
+            stringWithMarkup.push(<><b>{phrase}</b></>);
+        } else {
+            // Don't bold it.
+            stringWithMarkup.push(<>{phrase}</>);
+        }
+    }
+    return stringWithMarkup;
 }

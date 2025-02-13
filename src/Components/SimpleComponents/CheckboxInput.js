@@ -8,7 +8,7 @@ export function CheckboxInput({baseStateObject, pathToProperty, inputHandler, di
 
     return <input className={"checkboxcontrol pixel-corners" + (disabled ? " disabledCheckboxInput" : "")} type="checkbox" checked={startingValue} onInput={(event) => {
         if (!disabled) {
-            const value = !event.currentTarget.checked;
+            const value = !startingValue;
             playAudio(buttonSound ? buttonSound : "selectionaudio");
             return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
         }

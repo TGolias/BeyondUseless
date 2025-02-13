@@ -2,7 +2,7 @@ import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
 import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
-import { calculateAspectCollection, calculateOtherSpellAspect, calculateProficiencyBonus, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate, performDiceRollCalculation, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
 
 const rows = [
     {
@@ -18,16 +18,16 @@ const rows = [
     {
         name: "Atk/DC",
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            const amount = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
-            return (amount < 0 ? "" : "+") + amount;
+            const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
+            return (attack.amount < 0 ? "" : "+") + attack.amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
-                const spellSaveDC = calculateSpellSaveDC(playerConfigs, dndCantrip, 0);
-                return "DC" + spellSaveDC;
+                const spellSave = calculateSpellSaveDC(playerConfigs, dndCantrip, 0);
+                return "DC" + spellSave.dc;
             } else {
-                const spellAttack = calculateSpellAttack(playerConfigs, dndCantrip, 0);
-                return (spellAttack.length === 0 || spellAttack.startsWith("-") ? "" : "+") + spellAttack;
+                const attack = calculateSpellAttack(playerConfigs, dndCantrip, 0);
+                return (attack.amount.length === 0 || attack.amount.startsWith("-") ? "" : "+") + attack.amount;
             }
         }
     },
@@ -67,12 +67,15 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
             if (dndItem.type === "Weapon") {
                 hasWeapons = true;
 
-                for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false)}</div>)
+                // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
+                if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
+                    for (let row of rows) {
+                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false)}</div>)
+                    }
                 }
 
-                if (dndItem.properties && dndItem.properties.includes("Thrown") && dndItem.weaponRange == "Melee") {
-                    // Do calculations for the weapon thrown as well.
+                // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
+                if (dndItem.properties.includes("Thrown")) {
                     for (let row of rows) {
                         weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true)}</div>)
                     }

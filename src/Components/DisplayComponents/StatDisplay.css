@@ -72,7 +72,7 @@
 .proficencyCircleWrapper {
     display: flex;
     align-items: end;
-    padding-left: 0.5em;
+    padding-left: 0.25em;
     padding-right: 0.25em;
     height: 2.0em;
 }

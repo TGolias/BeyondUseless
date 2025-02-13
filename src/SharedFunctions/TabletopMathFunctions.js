@@ -301,18 +301,18 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
 export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     const calculationsForAttackBonus = [];
 
-    const takeTheHighestOfTheseCalculations = [];
+    let highestValidAbility = undefined;
+    let highestValidAbilityModifier = undefined;
     if (weapon.weaponRange === "Ranged" || weapon.properties.includes("Finesse")) {
-        takeTheHighestOfTheseCalculations.push([{
-            type: "aspect",
-            value: "dexterityModifier",
-        }]);
+        highestValidAbility = "dexterity";
+        highestValidAbilityModifier = calculateAspectCollection(playerConfigs, "dexterityModifier");
     }
     if (weapon.weaponRange === "Melee") {
-        takeTheHighestOfTheseCalculations.push([{
-            type: "aspect",
-            value: "strengthModifier",
-        }]);
+        let strengthModifier = calculateAspectCollection(playerConfigs, "strengthModifier");
+        if (highestValidAbilityModifier === undefined || strengthModifier > highestValidAbilityModifier) {
+            highestValidAbility = "strength";
+            highestValidAbilityModifier = strengthModifier;
+        }
     }
 
     findAllConfiguredAspects(playerConfigs, "alternateWeaponAttackModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -324,20 +324,25 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
             }
         }
 
+        let modifierName;
         if (aspectValue.calcuation) {
-            takeTheHighestOfTheseCalculations.push(...aspectValue.calcuation);
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation, { weapon, isThrown });
         }
         else {
-            takeTheHighestOfTheseCalculations.push({
-                type: "static",
-                value: aspectValue
-            });
+            modifierName = aspectValue;
+        }
+
+        const modifierValue = calculateAspectCollection(playerConfigs, modifierName + "Modifier");
+        // Do greater than or equal to here. We have a perference towards these alternate modifiers for the case of True Strike and spells like it. Long term, I should probably just show all calculations though.
+        if (highestValidAbilityModifier === undefined || modifierValue >= highestValidAbilityModifier) {
+            highestValidAbility = modifierName;
+            highestValidAbilityModifier = modifierValue;
         }
     });
 
     calculationsForAttackBonus.push({
-        type: "highestOf",
-        values: takeTheHighestOfTheseCalculations
+        type: "static",
+        value: highestValidAbilityModifier
     });
 
     // Check if we should add the proficency bonus.
@@ -352,10 +357,10 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     }
     
-    // See if there are additoinal bonuses to apply to our attack.
+    // See if there are additional bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "weaponAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -373,25 +378,60 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     });
 
-    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown });
-    return amount;
+    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown, attackAbility: highestValidAbility });
+    const addendum = calculateAddendumAspect(playerConfigs, "weaponAttackAddendum", { weapon, isThrown, attackAbility: highestValidAbility });
+
+    return { amount, addendum };
 }
 
 export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
-    const calculationsForDamage = [...weapon.damage.calcuation];
+    let calculationsForDamage = undefined;
+    if (weapon.properties && weapon.properties.includes("Versatile")) {
+        // Check if they can actually two-hand the weapon.
+        let canTwoHandWeapon = true;
+        let thisWeaponFound = false;
 
-    const takeTheHighestOfTheseCalculations = [];
+        const items = getCollection('items');
+        // Convert to a dictionary for quick searches because the list could be LONG.
+        const itemsDictionary = convertArrayToDictionary(items, "name");
+        for (let playerItem of playerConfigs.items) {
+            if (playerItem.equipped) {
+                const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
+                if (actualItem.type === "Weapon" || (actualItem.type === "Armor" && actualItem.armorType === "Shield")) {
+                    if (actualItem.name === weapon.name && !thisWeaponFound) {
+                        // We use thisItemFound to track and make sure someone dual wielding Quarterstaff doesn't get the Versatile two-handed damage for both. 
+                        thisWeaponFound = true;
+                        continue;
+                    } else {
+                        // We found a weapon or shield equipped that was not this weapon. Sorry, but you have to one-hand it.
+                        canTwoHandWeapon = false;
+                    }
+                }
+            }
+        }
+
+        if (canTwoHandWeapon && weapon.twoHandedDamage) {
+            calculationsForDamage = [...weapon.twoHandedDamage.calcuation];
+        }
+    }
+
+    if (!calculationsForDamage) {
+        // There are no overrides for weapon damage. Start with the normal weapon damage.
+        calculationsForDamage = [...weapon.damage.calcuation];
+    }
+
+    let highestValidAbility = undefined;
+    let highestValidAbilityModifier = undefined;
     if (weapon.weaponRange === "Ranged" || weapon.properties.includes("Finesse")) {
-        takeTheHighestOfTheseCalculations.push([{
-            type: "aspect",
-            value: "dexterityModifier",
-        }]);
+        highestValidAbility = "dexterity";
+        highestValidAbilityModifier = calculateAspectCollection(playerConfigs, "dexterityModifier");
     }
     if (weapon.weaponRange === "Melee") {
-        takeTheHighestOfTheseCalculations.push([{
-            type: "aspect",
-            value: "strengthModifier",
-        }]);
+        let strengthModifier = calculateAspectCollection(playerConfigs, "strengthModifier");
+        if (highestValidAbilityModifier === undefined || strengthModifier > highestValidAbilityModifier) {
+            highestValidAbility = "strength";
+            highestValidAbilityModifier = strengthModifier;
+        }
     }
 
     findAllConfiguredAspects(playerConfigs, "alternateWeaponDamageModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -403,26 +443,31 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
             }
         }
 
+        let modifierName;
         if (aspectValue.calcuation) {
-            takeTheHighestOfTheseCalculations.push(...aspectValue.calcuation);
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation, { weapon, isThrown });
         }
         else {
-            takeTheHighestOfTheseCalculations.push({
-                type: "static",
-                value: aspectValue
-            });
+            modifierName = aspectValue;
+        }
+
+        const modifierValue = calculateAspectCollection(playerConfigs, modifierName + "Modifier");
+        // Do greater than or equal to here. We have a perference towards these alternate modifiers for the case of True Strike and spells like it. Long term, I should probably just show all calculations though.
+        if (highestValidAbilityModifier === undefined || modifierValue >= highestValidAbilityModifier) {
+            highestValidAbility = modifierName;
+            highestValidAbilityModifier = modifierValue;
         }
     });
 
     calculationsForDamage.push({
-        type: "highestOf",
-        values: takeTheHighestOfTheseCalculations
+        type: "static",
+        value: highestValidAbilityModifier
     });
 
     // See if there are additoinal bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "weaponDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, attackAbility: highestValidAbility });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -440,7 +485,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
         }
     });
 
-    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown });
+    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown, attackAbility: highestValidAbility });
     return calculationString;
 }
 
@@ -465,7 +510,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier, slotLevel });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -483,8 +528,10 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
         }
     });
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbilityModifier, slotLevel });
-    return amount;
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const addendum = calculateAddendumAspect(playerConfigs, "spellAttackAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+
+    return { amount, addendum };
 }
 
 export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
@@ -515,7 +562,7 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier, slotLevel });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -533,8 +580,10 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
         }
     });
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellSaveDCBonus, { spell, spellcastingAbilityModifier, slotLevel });
-    return amount;
+    const dc = performDiceRollCalculation(playerConfigs, calculationsForSpellSaveDCBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+
+    return { dc, addendum };
 }
 
 export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName) {
@@ -550,7 +599,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
         // See if there are additional bonuses to apply to this aspect.
         findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbilityModifier, slotLevel });
+                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -569,8 +618,41 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
         });
     }
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbilityModifier, slotLevel });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
     return amount;
+}
+
+export function calculateAddendumAspect(playerConfigs, addendumName, parameters) {
+    let addendumString = "";
+
+    findAllConfiguredAspects(playerConfigs, addendumName, (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let valueToAdd;
+
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, parameters);
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            valueToAdd = performMathCalculation(playerConfigs, aspectValue.calcuation, parameters);
+        }
+        else {
+            valueToAdd = aspectValue;
+        }
+
+        if (valueToAdd && valueToAdd.length > 0) {
+            if (addendumString.length > 0) {
+                // Newline between different addendums.
+                addendumString += "\n\n";
+            }
+            addendumString += valueToAdd;
+        }
+    });
+
+    return addendumString.length > 0 ? addendumString : undefined;
 }
 
 export function calculateFeatures(playerConfigs) {
@@ -1254,8 +1336,14 @@ export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefin
     let dndItem = originalDndItem;
     while (dndItem.type === "Template") {
         const itemName = dndItem.templateOf;
-        dndItem = {...itemName2Item[itemName]};
-        dndItem.name = originalDndItem.name;
+        let newItem = {...itemName2Item[itemName]};
+        for (let itemProperty of Object.keys(dndItem)) {
+            if (itemProperty !== "type" && itemProperty !== "templateOf") {
+                // Override using the properties of the template.
+                newItem[itemProperty] = originalDndItem[itemProperty];
+            }
+        }
+        dndItem = newItem;
     }
     return dndItem;
 }

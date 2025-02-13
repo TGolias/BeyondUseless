@@ -1,6 +1,7 @@
 import React from "react";
 import './ItemPageComponent.css';
 import { performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
 export function ItemPageComponent({item, data, copyLinkToItem}) {
     let typeString;
@@ -46,25 +47,44 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
             break;
     }
 
-    let description = []
-    const descriptionWithoutMarkup = item.description.split(/<b>|<\/b>/);
-    for (let i = 0; i < descriptionWithoutMarkup.length; i++) {
-        const phrase = descriptionWithoutMarkup[i];
-        if (i % 2 == 1) {
-            // Bold it!
-            description.push(<><b>{phrase}</b></>);
-        } else {
-            // Don't bold it.
-            description.push(<>{phrase}</>);
-        }
-    }
-
-    let showItemSummary = false;
+    let description = parseStringForBoldMarkup(item.description);
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
             copyToClipboard(item, data);
         };
+    }
+
+    // Get aspects from data
+    let itemDescriptionAddendum = undefined;
+    let weaponAttack = undefined;
+    let weaponAttackAddendum = undefined
+    let weaponDamage = undefined;
+    let weaponAttackThrown = undefined;
+    let weaponAttackThrownAddendum = undefined;
+    let weaponDamageThrown = undefined;
+    if (data) {
+        if (data.itemDescriptionAddendum) {
+            itemDescriptionAddendum = parseStringForBoldMarkup(data.itemDescriptionAddendum);
+        }
+        if (data.weaponAttack) {
+            weaponAttack = data.weaponAttack;
+        }
+        if (data.weaponAttackAddendum) {
+            weaponAttackAddendum = parseStringForBoldMarkup(data.weaponAttackAddendum);
+        }
+        if (data.weaponDamage) {
+            weaponDamage = data.weaponDamage;
+        }
+        if (data.weaponAttackThrown) {
+            weaponAttackThrown = data.weaponAttackThrown;
+        }
+        if (data.weaponAttackThrownAddendum) {
+            weaponAttackThrownAddendum = parseStringForBoldMarkup(data.weaponAttackThrownAddendum);
+        }
+        if (data.weaponDamageThrown) {
+            weaponDamageThrown = data.weaponDamageThrown;
+        }
     }
 
     return <>
@@ -78,9 +98,28 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
             <div><b>Item Rarity:</b> {item.rarity}</div>
             <div><b>Weight:</b> {item.weight}</div>
             <div className="itemPageDescription">{description}</div>
-            <br style={{display: (showItemSummary ? "block" : "none")}}></br>
-            <div className="spellPageDescription" style={{display: (showItemSummary ? "block" : "none")}}>
+            <div style={{display: (itemDescriptionAddendum ? "block" : "none")}} className="itemPageDescription">{itemDescriptionAddendum}</div>
+            <br style={{display: (data ? "block" : "none")}}></br>
+            <div className="itemPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Item Summary</b></div>
+            </div>
+            <div className="itemPageDescription" style={{display: (weaponAttack ? "block" : "none")}}>
+                <div><b>Attack Roll:</b> +{weaponAttack}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (weaponAttackAddendum ? "block" : "none")}}>
+                <div>{weaponAttackAddendum}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (weaponDamage ? "block" : "none")}}>
+                <div><b>Damage:</b> {weaponDamage}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (weaponAttackThrown ? "block" : "none")}}>
+                <div><b>Thrown Attack:</b> +{weaponAttackThrown}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (weaponAttackThrownAddendum ? "block" : "none")}}>
+                <div>{weaponAttackThrownAddendum}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (weaponDamageThrown ? "block" : "none")}}>
+                <div><b>Thrown Damage:</b> {weaponDamageThrown}</div>
             </div>
         </div>
     </>

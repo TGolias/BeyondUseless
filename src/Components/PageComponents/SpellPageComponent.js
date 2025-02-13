@@ -1,6 +1,6 @@
 import React from "react";
 import './SpellPageComponent.css';
-import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
+import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
 export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let castingTime = "";
@@ -13,6 +13,11 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         }
     } else {
         castingTime = spell.castingTime;
+    }
+
+    let castingCondition = undefined;
+    if (spell.castingCondition) {
+        castingCondition = spell.castingCondition;
     }
 
     let range = "";
@@ -54,25 +59,17 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         componentsString += ")";
     }
 
-    let description = []
-    const descriptionWithoutMarkup = spell.description.split(/<b>|<\/b>/);
-    for (let i = 0; i < descriptionWithoutMarkup.length; i++) {
-        const phrase = descriptionWithoutMarkup[i];
-        if (i % 2 == 1) {
-            // Bold it!
-            description.push(<><b>{phrase}</b></>);
-        } else {
-            // Don't bold it.
-            description.push(<>{phrase}</>);
-        }
-    }
+    let description = parseStringForBoldMarkup(spell.description);
 
     // Get aspects from data
     let featureName = undefined;
     let castAtLevel = spell.level;
     let freeUses = undefined;
+    let spellCastingConditionAddendum = undefined;
     let attackRoll = undefined;
+    let attackRollAddendum = undefined
     let savingThrow = undefined;
+    let dcAddendum = undefined;
     let damage = undefined;
     let healing = undefined;
     let buff = undefined;
@@ -87,8 +84,17 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         if (data.freeUses !== undefined) {
             freeUses = data.freeUses;
         }
+        if (data.spellCastingConditionAddendum) {
+            spellCastingConditionAddendum = parseStringForBoldMarkup(data.spellCastingConditionAddendum);
+        }
         if (data.attackRoll) {
             attackRoll = data.attackRoll;
+        }
+        if (data.attackRollAddendum) {
+            attackRollAddendum = parseStringForBoldMarkup(data.attackRollAddendum);
+        }
+        if (data.dcAddendum) {
+            dcAddendum = parseStringForBoldMarkup(data.dcAddendum);
         }
         if (data.savingThrow) {
             savingThrow = data.savingThrow;
@@ -117,6 +123,8 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         <div className="spellPageContainer">
             <div>{spell.level ? "LVL " + spell.level : "Cantrip"} - {spell.school}</div>
             <div><span className="spellPageBold">Casting Time:</span> {castingTime}</div>
+            <div style={{display: (castingCondition ? "block" : "none")}}>{castingCondition}</div>
+            <div style={{display: (spellCastingConditionAddendum ? "block" : "none")}}>{spellCastingConditionAddendum}</div>
             <div><span className="spellPageBold">Range:</span> {range}</div>
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
             <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
@@ -131,8 +139,14 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
                 <div><b>Attack Roll:</b> +{attackRoll}</div>
             </div>
+            <div className="spellPageDescription" style={{display: (attackRollAddendum ? "block" : "none")}}>
+                <div>{attackRollAddendum}</div>
+            </div>
             <div className="spellPageDescription" style={{display: (savingThrow ? "block" : "none")}}>
                 <div><b>DC{savingThrow?.dc}</b> {getCapitalizedAbilityScoreName(savingThrow?.type)}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (dcAddendum ? "block" : "none")}}>
+                <div>{dcAddendum}</div>
             </div>
             <div className="spellPageDescription" style={{display: (damage ? "block" : "none")}}>
                 <div><b>Damage:</b> {damage}</div>
