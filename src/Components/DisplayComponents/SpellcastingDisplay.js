@@ -86,7 +86,7 @@ const spellRows = [
 
             return freeUses;
         },
-        addClass: "lastCol"
+        addClass: "lastCol spellcastingDisplayFreeUses"
     }
 ];
 

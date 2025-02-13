@@ -6,11 +6,6 @@ export function SpellSlotsDisplay({playerConfigs, casterLevel}) {
     const spellSlotsForEachLevel = getCollection("spellslots");
 
     const spellSlotRows = [];
-    spellSlotRows.push(<>
-        <div className='firstCol'>Slot Level</div>
-        <div className='lastCol'>Used</div>
-    </>);
-
     if (casterLevel > 0) {
         const spellSlotsForThisLevel = spellSlotsForEachLevel[casterLevel - 1];
         for (let i = 0; i < 10; i++) {
