@@ -39,36 +39,14 @@ const defaultPlayerConfiguration = {
 }
 
 let needsToLoad = true;
+let storageListenerAdded = false;
 
 export default function App() {
-  const newPlayerConfigsJsonString = localStorage.getItem("CURRENT_CHARACTER");
-  let startingPlayerConfigs;
-  try {
-    let parsedJson = JSON.parse(newPlayerConfigsJsonString);
-    if (parsedJson && 
-        parsedJson.name && 
-        parsedJson.level && 
-        parsedJson.abilityScores && 
-        parsedJson.background && 
-        parsedJson.species && 
-        parsedJson.languages && 
-        parsedJson.classes && 
-        parsedJson.items && 
-        parsedJson.currentStatus) {
-      startingPlayerConfigs = parsedJson;
-    } else {
-      startingPlayerConfigs = defaultPlayerConfiguration;
-    }
-  }
-  catch {
-    startingPlayerConfigs = defaultPlayerConfiguration;
-  }
-
   const [, forceUpdate] = useReducer(x => !x, false);
   const [isLoading, setLoading] = useState(false);
 
-  const [playerConfigs, setPlayerConfigs] = useState(startingPlayerConfigs);
-  const [history, setHistory] = useState([startingPlayerConfigs]);
+  const [playerConfigs, setPlayerConfigs] = useState(getCurrentCharacterFromStorageOrDefault());
+  const [history, setHistory] = useState([playerConfigs]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(0);
 
   let hideEditorLocalStorage = localStorage.getItem("HIDE_EDITOR");
@@ -97,6 +75,18 @@ export default function App() {
       });
     }
   });
+
+  // Listen for changes in local storage in the case of multiple windows / one browser window and another in app.
+  if (!storageListenerAdded) {
+    // The 'listener' attribute is just so that the looping event listener only gets applied once...
+    storageListenerAdded = true;
+    window.addEventListener('storage', (event) => {
+      if (event.key === "CURRENT_CHARACTER") {
+        // The configs for the current character were changed in a different window... Let's do this the easy way and refresh the view.
+        window.location.reload();
+      }
+    });
+  }
 
   const url = new URL(decodeURI(window.location.href));
   const params = new URLSearchParams(url.search);
@@ -540,4 +530,30 @@ function getLoadingCurrentString() {
   document.documentElement.setAttribute("data-loading-string", loadingIndex.toString());
 
   return stringToDisplay;
+}
+
+function getCurrentCharacterFromStorageOrDefault() {
+  const newPlayerConfigsJsonString = localStorage.getItem("CURRENT_CHARACTER");
+  let startingPlayerConfigs;
+  try {
+    let parsedJson = JSON.parse(newPlayerConfigsJsonString);
+    if (parsedJson && 
+        parsedJson.name && 
+        parsedJson.level && 
+        parsedJson.abilityScores && 
+        parsedJson.background && 
+        parsedJson.species && 
+        parsedJson.languages && 
+        parsedJson.classes && 
+        parsedJson.items && 
+        parsedJson.currentStatus) {
+      startingPlayerConfigs = parsedJson;
+    } else {
+      startingPlayerConfigs = defaultPlayerConfiguration;
+    }
+  }
+  catch {
+    startingPlayerConfigs = defaultPlayerConfiguration;
+  }
+  return startingPlayerConfigs;
 }
