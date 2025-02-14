@@ -1,6 +1,6 @@
 import React from "react";
 import './ItemPageComponent.css';
-import { performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { encodeToBase64URL, getHomePageUrl } from "../../SharedFunctions/Utils";
 
@@ -56,7 +56,7 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
         };
     }
 
-    // Get aspects from data
+    // Get aspects from playerConfigs
     let itemDescriptionAddendum = undefined;
     let weaponAttack = undefined;
     let weaponAttackAddendum = undefined
@@ -64,27 +64,39 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
     let weaponAttackThrown = undefined;
     let weaponAttackThrownAddendum = undefined;
     let weaponDamageThrown = undefined;
+
     if (data) {
-        if (data.itemDescriptionAddendum) {
-            itemDescriptionAddendum = parseStringForBoldMarkup(data.itemDescriptionAddendum);
+        const itemDescriptionAddendumString = calculateAddendumAspect(data.playerConfigs, "itemDescriptionAddendum", { item });
+        if (itemDescriptionAddendumString) {
+            itemDescriptionAddendum = parseStringForBoldMarkup(itemDescriptionAddendumString);
         }
-        if (data.weaponAttack) {
-            weaponAttack = data.weaponAttack;
-        }
-        if (data.weaponAttackAddendum) {
-            weaponAttackAddendum = parseStringForBoldMarkup(data.weaponAttackAddendum);
-        }
-        if (data.weaponDamage) {
-            weaponDamage = data.weaponDamage;
-        }
-        if (data.weaponAttackThrown) {
-            weaponAttackThrown = data.weaponAttackThrown;
-        }
-        if (data.weaponAttackThrownAddendum) {
-            weaponAttackThrownAddendum = parseStringForBoldMarkup(data.weaponAttackThrownAddendum);
-        }
-        if (data.weaponDamageThrown) {
-            weaponDamageThrown = data.weaponDamageThrown;
+
+        switch (item.type) {
+            case "Weapon":
+                // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
+                if (!(item.weaponRange == "Ranged" && item.properties.includes("Thrown"))) {
+                    const attack = calculateWeaponAttackBonus(data.playerConfigs, item, false);
+                    weaponAttack = attack.amount;
+                    if (attack.addendum) {
+                        weaponAttackAddendum = parseStringForBoldMarkup(attack.addendum);
+                    }
+
+                    weaponDamage = calculateWeaponDamage(data.playerConfigs, item, false);
+                    weaponDamage += " " + item.damage.damageType;
+                }
+
+                // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
+                if (item.properties.includes("Thrown")) {
+                    const attack = calculateWeaponAttackBonus(data.playerConfigs, item, true);
+                    weaponAttackThrown = attack.amount;
+                    if (attack.addendum) {
+                        weaponAttackThrownAddendum = parseStringForBoldMarkup(attack.addendum);
+                    }
+
+                    weaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true);
+                    weaponDamageThrown += " " + item.damage.damageType;
+                }
+                break;
         }
     }
 

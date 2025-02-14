@@ -111,7 +111,8 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 
     // Create config for the spell component.
     const data = {};
-    data.featureName = menuConfig.spell.feature.name;
+    data.playerConfigs = playerConfigs;
+    data.feature = menuConfig.spell.feature;
 
     if (menuConfig.spell.freeUses) {
         data.freeUses = remainingFreeUses;
@@ -119,55 +120,6 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 
     if (menuConfig.useSpellSlotLevel) {
         data.castAtLevel = menuConfig.useSpellSlotLevel;
-    }
-
-    const spellCastingConditionAddendum = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: menuConfig.spell });
-    if (spellCastingConditionAddendum) {
-        data.spellCastingConditionAddendum = spellCastingConditionAddendum;
-    }
-
-    if (menuConfig.spell.challengeType === "attackRoll") {
-        const attack = calculateSpellAttack(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel)
-        data.attackRoll = attack.amount;
-        if (attack.addendum) {
-            data.attackRollAddendum = attack.addendum;
-        }
-    }
-
-    if (menuConfig.spell.challengeType === "savingThrow") {
-        data.savingThrow = {};
-        data.savingThrow.type = menuConfig.spell.savingThrowType;
-
-        const savingThrow = calculateSpellSaveDC(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel);
-        data.savingThrow.dc = savingThrow.dc;
-        if (savingThrow.addendum) {
-            data.savingThrow.dcAddendum = savingThrow.addendum;
-        }
-    }
-
-    if (menuConfig.spell.type.includes("damage")) {
-        data.damage = calculateOtherSpellAspect(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, "damage", "spellDamageBonus");
-        data.damage += " " + menuConfig.spell.damage.damageType;
-    }
-
-    if (menuConfig.spell.type.includes("buff")) {
-        data.buff = {}
-        if (menuConfig.spell.buff.calcuation) {
-            data.buff.amount = calculateOtherSpellAspect(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, "buff", "buffBonus");
-        }
-        data.buff.description = menuConfig.spell.buff.description;
-    }
-
-    if (menuConfig.spell.type.includes("debuff")) {
-        data.debuff = {}
-        if (menuConfig.spell.debuff.calcuation) {
-            data.debuff.amount = calculateOtherSpellAspect(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, "debuff", "debuffBonus");
-        }
-        data.debuff.description = menuConfig.spell.debuff.description;
-    }
-
-    if (menuConfig.spell.type.includes("healing")) {
-        data.healing = calculateOtherSpellAspect(playerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, "healing", "healingBonus");
     }
 
     let hpControls = [];
@@ -194,7 +146,7 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
             <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
         </>);
     } else {
-        if (data.healing) {
+        if (menuConfig.spell.type.includes("healing")) {
             hpControls.push(<><div className="spellMenuCastingHorizontal">
                 <div className="spellMenuCastingVertical">
                     <RetroButton text={"Heal Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", true)}} showTriangle={false} disabled={false}></RetroButton>

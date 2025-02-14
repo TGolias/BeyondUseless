@@ -2,6 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { encodeToBase64URL, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { calculateAddendumAspect, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let castingTime = "";
@@ -62,62 +63,84 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 
     let description = parseStringForBoldMarkup(spell.description);
 
-    // Get aspects from data
+    if (copyLinkToSpell) {
+        copyLinkToSpell.onExecute = () => {
+            copyToClipboard(spell, data);
+        };
+    }
+
+    // Get aspects from playerConfigs
     let featureName = undefined;
     let castAtLevel = spell.level;
     let freeUses = undefined;
     let spellCastingConditionAddendum = undefined;
     let attackRoll = undefined;
     let attackRollAddendum = undefined
-    let savingThrow = undefined;
-    let dcAddendum = undefined;
+    let savingThrowType = undefined;
+    let savingThrowDc = undefined;
+    let savingThrowDcAddendum = undefined;
     let damage = undefined;
     let healing = undefined;
-    let buff = undefined;
-    let debuff = undefined;
+    let buffAmount = undefined;
+    let buffDescription = undefined;
+    let debuffAmount = undefined;
+    let debuffDescription = undefined;
     if (data) {
-        if (data.featureName) {
-            featureName = data.featureName;
+        spell.feature = data.feature;
+        featureName = data.feature.name;
+
+        if (data.freeUses !== undefined) {
+            freeUses = data.freeUses;
         }
         if (data.castAtLevel) {
             castAtLevel = data.castAtLevel;
         }
-        if (data.freeUses !== undefined) {
-            freeUses = data.freeUses;
+        
+        const spellCastingConditionAddendumString = calculateAddendumAspect(data.playerConfigs, "spellCastingConditionAddendum", { spell: spell });
+        if (spellCastingConditionAddendumString) {
+            spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
         }
-        if (data.spellCastingConditionAddendum) {
-            spellCastingConditionAddendum = parseStringForBoldMarkup(data.spellCastingConditionAddendum);
-        }
-        if (data.attackRoll) {
-            attackRoll = data.attackRoll;
-        }
-        if (data.attackRollAddendum) {
-            attackRollAddendum = parseStringForBoldMarkup(data.attackRollAddendum);
-        }
-        if (data.dcAddendum) {
-            dcAddendum = parseStringForBoldMarkup(data.dcAddendum);
-        }
-        if (data.savingThrow) {
-            savingThrow = data.savingThrow;
-        }
-        if (data.damage) {
-            damage = data.damage;
-        }
-        if (data.healing) {
-            healing = data.healing;
-        }
-        if (data.buff) {
-            buff = data.buff;
-        }
-        if (data.debuff) {
-            debuff = data.debuff;
-        }
-    }
 
-    if (copyLinkToSpell) {
-        copyLinkToSpell.onExecute = () => {
-            copyToClipboard(spell, data);
-        };
+        if (spell.challengeType === "attackRoll") {
+            const attack = calculateSpellAttack(data.playerConfigs, spell, castAtLevel)
+            attackRoll = attack.amount;
+            if (attack.addendum) {
+                attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
+            }
+        }
+
+        if (spell.challengeType === "savingThrow") {
+            savingThrowType = spell.savingThrowType;
+
+            const savingThrowCalc = calculateSpellSaveDC(data.playerConfigs, spell, castAtLevel);
+            savingThrowDc = savingThrowCalc.dc;
+            if (savingThrowCalc.addendum) {
+                savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
+            }
+        }
+
+        if (spell.type.includes("damage")) {
+            damage = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus");
+            damage += " " + spell.damage.damageType;
+        }
+
+        if (spell.type.includes("buff")) {
+            if (spell.buff.calcuation) {
+                buffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "buff", "buffBonus");
+            }
+            buffDescription = spell.buff.description;
+        }
+
+        if (spell.type.includes("debuff")) {
+            if (spell.debuff.calcuation) {
+                debuffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "debuff", "debuffBonus");
+            }
+            debuffDescription = spell.debuff.description;
+        }
+
+        if (spell.type.includes("healing")) {
+            healing = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "healing", "healingBonus");
+        }
     }
 
     return <>
@@ -143,11 +166,11 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             <div className="spellPageDescription" style={{display: (attackRollAddendum ? "block" : "none")}}>
                 <div>{attackRollAddendum}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (savingThrow ? "block" : "none")}}>
-                <div><b>DC{savingThrow?.dc}</b> {getCapitalizedAbilityScoreName(savingThrow?.type)}</div>
+            <div className="spellPageDescription" style={{display: (savingThrowType ? "block" : "none")}}>
+                <div><b>DC{savingThrowDc}</b> {getCapitalizedAbilityScoreName(savingThrowType)}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (dcAddendum ? "block" : "none")}}>
-                <div>{dcAddendum}</div>
+            <div className="spellPageDescription" style={{display: (savingThrowDcAddendum ? "block" : "none")}}>
+                <div>{savingThrowDcAddendum}</div>
             </div>
             <div className="spellPageDescription" style={{display: (damage ? "block" : "none")}}>
                 <div><b>Damage:</b> {damage}</div>
@@ -155,11 +178,11 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (buff ? "block" : "none")}}>
-                <div><b>Buff:</b> {(buff?.amount ? buff.amount + " " : "")}{buff?.description}</div>
+            <div className="spellPageDescription" style={{display: (buffDescription ? "block" : "none")}}>
+                <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (debuff ? "block" : "none")}}>
-                <div><b>Debuff:</b> {debuff?.amount ? debuff.amount + " " : ""}{debuff?.description}</div>
+            <div className="spellPageDescription" style={{display: (debuffDescription ? "block" : "none")}}>
+                <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{debuffDescription}</div>
             </div>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Learned from:</b> {featureName}</div>

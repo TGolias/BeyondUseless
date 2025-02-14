@@ -169,7 +169,7 @@ export default function App() {
         spellFound = cantrips.find(spell => spell.name.toLowerCase() === spellNameLower);
         if (!spellFound) {
           const spells = getCollection("spells");
-          spellFound = spells.find(spell => spell.name.toLowerCase() === spellNameLower);
+          spellFound = {...spells.find(spell => spell.name.toLowerCase() === spellNameLower)};
         }
 
         if (!spellFound) {
