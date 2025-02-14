@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "./static/css/main.ea00159d.css",
-    "main.js": "./static/js/main.31fca8d0.js",
+    "main.css": "./static/css/main.2d872120.css",
+    "main.js": "./static/js/main.15489bb3.js",
     "static/media/OptimusPrinceps.ttf": "./static/media/OptimusPrinceps.20e6750830b534d901f0.ttf",
     "static/media/font-of-the-mans.ttf": "./static/media/font-of-the-mans.c5cea637f871320c45f5.ttf",
     "index.html": "./index.html",
-    "main.ea00159d.css.map": "./static/css/main.ea00159d.css.map",
-    "main.31fca8d0.js.map": "./static/js/main.31fca8d0.js.map"
+    "main.2d872120.css.map": "./static/css/main.2d872120.css.map",
+    "main.15489bb3.js.map": "./static/js/main.15489bb3.js.map"
   },
   "entrypoints": [
-    "static/css/main.ea00159d.css",
-    "static/js/main.31fca8d0.js"
+    "static/css/main.2d872120.css",
+    "static/js/main.15489bb3.js"
   ]
 }

@@ -180,19 +180,21 @@ export default function App() {
         } else {
           const copyLinkToSpell = {};
           return (<>
-            <div className="viewPageLabel">
-              <RetroButton text={spellFound.name} onClickHandler={() => {
-                if (copyLinkToSpell.onExecute) {
-                  copyLinkToSpell.onExecute();
-                }
-              }} showTriangle={false} disabled={false}></RetroButton>
-              <RetroButton text={"X"} onClickHandler={() => {
-                // Send them back to the home page.
-                window.history.pushState(null, "", getHomePageUrl());
-                forceUpdate();
-              }} showTriangle={false} disabled={false}></RetroButton>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={spellFound.name} onClickHandler={() => {
+                  if (copyLinkToSpell.onExecute) {
+                    copyLinkToSpell.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell}></SpellPageComponent>
             </div>
-            <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell}></SpellPageComponent>
           </>);
         }
       case "item":
