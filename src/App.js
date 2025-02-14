@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Renderer } from "./Components/MainLayoutComponents/Renderer";
 import './App.css';
 import { Designer } from "./Components/MainLayoutComponents/Designer";
@@ -104,6 +104,7 @@ export default function App() {
   // Force the default.
   //startingPlayerConfigs = defaultPlayerConfiguration;
 
+  const [, forceUpdate] = useReducer(x => !x, false);
   const [isLoading, setLoading] = useState(false);
 
   const [playerConfigs, setPlayerConfigs] = useState(startingPlayerConfigs);
@@ -187,7 +188,8 @@ export default function App() {
               }} showTriangle={false} disabled={false}></RetroButton>
               <RetroButton text={"X"} onClickHandler={() => {
                 // Send them back to the home page.
-                window.location.replace(getHomePageUrl());
+                window.history.pushState(null, "", getHomePageUrl());
+                forceUpdate();
               }} showTriangle={false} disabled={false}></RetroButton>
             </div>
             <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell}></SpellPageComponent>
@@ -209,18 +211,21 @@ export default function App() {
         } else {
           const copyLinkToItem = {};
           return (<>
-            <div className="viewPageLabel">
-              <RetroButton text={itemFound.name} onClickHandler={() => {
-                if (copyLinkToItem.onExecute) {
-                  copyLinkToItem.onExecute();
-                }
-              }} showTriangle={false} disabled={false}></RetroButton>
-              <RetroButton text={"X"} onClickHandler={() => {
-                // Send them back to the home page.
-                window.location.replace(getHomePageUrl());
-              }} showTriangle={false} disabled={false}></RetroButton>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={itemFound.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem}></ItemPageComponent>
             </div>
-            <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem}></ItemPageComponent>
           </>);
         }
       default: {

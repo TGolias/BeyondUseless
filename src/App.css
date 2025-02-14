@@ -122,11 +122,28 @@
   display: none;
 }
 
+.viewPage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .viewPageLabel {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   font-weight: bold;
   padding-bottom: 0.5em;
+}
+
+.viewPage > *:last-child {
+  overflow-y: scroll;
+  flex-grow: 1;
 }
 
 .loadingIndicatorHolder {
