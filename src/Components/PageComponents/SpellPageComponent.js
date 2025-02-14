@@ -1,6 +1,7 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
+import { encodeToBase64URL, getHomePageUrl } from "../../SharedFunctions/Utils";
 
 export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let castingTime = "";
@@ -170,10 +171,8 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     </>
 }
 
-export function copyToClipboard(spell, data) {
+function copyToClipboard(spell, data) {
     const stringifiedJson = JSON.stringify(data);
-    const encodedData = btoa(stringifiedJson);
-    const indexOfQuery = window.location.href.indexOf('?');
-    const windowLocationWithoutQueryParams = indexOfQuery === -1 ? window.location.href : window.location.href.substring(0, indexOfQuery);
-    navigator.clipboard.writeText(spell.name + "\n" + encodeURI(windowLocationWithoutQueryParams+ "?view=spell&name=" + spell.name + "&data=" + encodedData));
+    const encodedData = encodeToBase64URL(stringifiedJson);
+    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURI(spell.name) + "&data=" + encodeURI(encodedData));
 }

@@ -55,3 +55,21 @@ export function guidGenerator() {
     };
     return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
+
+export function encodeToBase64URL(stringToEncode) {
+    const base64String = btoa(stringToEncode)
+    const base64Url = base64String.replace(/\+/g, '-').replace(/\//g, '_');
+    return base64Url;
+}
+
+export function decodeFromBase64URL(base64Url) {
+    const base64String = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const decodedString = base64String;
+    return atob(decodedString);
+}
+
+export function getHomePageUrl() {
+    const indexOfQuery = window.location.href.indexOf('?');
+    const windowLocationWithoutQueryParams = indexOfQuery === -1 ? window.location.href : window.location.href.substring(0, indexOfQuery);
+    return windowLocationWithoutQueryParams;
+}

@@ -7,7 +7,7 @@ import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./S
 import { fetchAllCollections, getCollection } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
-import { isNumeric, playAudio } from "./SharedFunctions/Utils";
+import { decodeFromBase64URL, getHomePageUrl, isNumeric, playAudio } from "./SharedFunctions/Utils";
 import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
 import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
 import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
@@ -154,7 +154,7 @@ export default function App() {
     let decodedData = undefined;
     const data = params.get('data');
     if (data) {
-      const stringifiedJson = atob(data);
+      const stringifiedJson = decodeFromBase64URL(data);
       decodedData = JSON.parse(stringifiedJson);
     }
 
@@ -185,6 +185,10 @@ export default function App() {
                   copyLinkToSpell.onExecute();
                 }
               }} showTriangle={false} disabled={false}></RetroButton>
+              <RetroButton text={"X"} onClickHandler={() => {
+                // Send them back to the home page.
+                window.location.replace(getHomePageUrl());
+              }} showTriangle={false} disabled={false}></RetroButton>
             </div>
             <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell}></SpellPageComponent>
           </>);
@@ -210,6 +214,10 @@ export default function App() {
                 if (copyLinkToItem.onExecute) {
                   copyLinkToItem.onExecute();
                 }
+              }} showTriangle={false} disabled={false}></RetroButton>
+              <RetroButton text={"X"} onClickHandler={() => {
+                // Send them back to the home page.
+                window.location.replace(getHomePageUrl());
               }} showTriangle={false} disabled={false}></RetroButton>
             </div>
             <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem}></ItemPageComponent>

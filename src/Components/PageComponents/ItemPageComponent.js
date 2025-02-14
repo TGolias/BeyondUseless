@@ -2,6 +2,7 @@ import React from "react";
 import './ItemPageComponent.css';
 import { performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
+import { encodeToBase64URL, getHomePageUrl } from "../../SharedFunctions/Utils";
 
 export function ItemPageComponent({item, data, copyLinkToItem}) {
     let typeString;
@@ -127,8 +128,6 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
 
 function copyToClipboard(item, data) {
     const stringifiedJson = JSON.stringify(data);
-    const encodedData = btoa(stringifiedJson);
-    const indexOfQuery = window.location.href.indexOf('?');
-    const windowLocationWithoutQueryParams = indexOfQuery === -1 ? window.location.href : window.location.href.substring(0, indexOfQuery);
-    navigator.clipboard.writeText(item.name + "\n" + encodeURI(windowLocationWithoutQueryParams+ "?view=item&name=" + item.name + "&data=" + encodedData));
+    const encodedData = encodeToBase64URL(stringifiedJson);
+    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + "&data=" + encodeURI(encodedData));
 }
