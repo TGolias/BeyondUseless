@@ -87,19 +87,16 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
     }
 
     const healControls = [];
-    if (totalToBeExpendedString !== "") {
-        // Don't add the heal controls unless any hit points were expended.
-        healControls.push(<div>Heal Amount</div>);
-        healControls.push(<TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"healAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>);
-        healControls.push(<HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>);
-    }
+    healControls.push(<div>Heal Amount</div>);
+    healControls.push(<TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"healAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>);
+    healControls.push(<HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>);
 
     return (<>
         <div className="hitDiceMenuWrapperDiv">
             <div className="hitDicemenuText">{menuConfig.menuText}</div>
             <div>{hitDiceControls}</div>
             <div>{totalToBeExpendedString === "" ? "No hit dice to be expended" : "Expending " + totalToBeExpendedString}</div>
-            <div style={{display: (healControls.length ? "block" : "none")}}>{healControls}</div>
+            <div className={totalToBeExpendedString !== "" ? "" : "hideHealControls"}>{healControls}</div>
             <div className="centerMenuSeperator"></div>
             <div className="hitDiceMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {

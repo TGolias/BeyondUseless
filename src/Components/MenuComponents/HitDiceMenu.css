@@ -25,6 +25,10 @@
     padding: 1em;
 }
 
+.hideHealControls {
+    display: none;
+}
+
 @media only screen and (max-width: 600px) {
     .hitDiceMenuWrapperDiv {
         height: 100%;
@@ -42,5 +46,10 @@
     .healthMenuMainSection {
         flex-grow: 1;
         justify-content: space-around;
+    }
+
+    .hideHealControls {
+        display: block;
+        visibility: hidden;
     }
 }

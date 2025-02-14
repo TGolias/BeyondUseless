@@ -50,6 +50,6 @@
 
     .healthMenuMainSection {
         flex-grow: 1;
-        justify-content: space-around;
+        justify-content: center !important;
     }
 }
