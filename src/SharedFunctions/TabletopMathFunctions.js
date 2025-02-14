@@ -771,12 +771,16 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
             // It is an array.
             for (const aspect of arrayOrProperty) {
                 const aspectValue = getValueFromObjectAndPath(aspect, pathToProperty);
-                totalAspectCollection[aspectValue] = true;
+                if (aspectValue !== null) {
+                    totalAspectCollection[aspectValue] = true;
+                }
             }
         } else {
             // It is a property
             const aspectValue = getValueFromObjectAndPath(arrayOrProperty, pathToProperty);
-            totalAspectCollection[aspectValue] = true;
+            if (aspectValue !== null) {
+                totalAspectCollection[aspectValue] = true;
+            }
         }
     }
 }

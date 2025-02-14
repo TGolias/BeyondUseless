@@ -31,7 +31,7 @@ const defaultPlayerConfiguration = {
   },
   background: {},
   species: {},
-  languages: ["Common",undefined,undefined],
+  languages: ["Common",null,null],
   classes: [],
   items: [],
   currentStatus: {
