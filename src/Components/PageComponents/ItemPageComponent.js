@@ -141,5 +141,5 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
 function copyToClipboard(item, data) {
     const stringifiedJson = JSON.stringify(data);
     const encodedData = encodeToBase64URL(stringifiedJson);
-    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + "&data=" + encodeURI(encodedData));
+    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + "&viewAdditions=" + encodeURI(encodedData));
 }

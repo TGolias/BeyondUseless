@@ -153,7 +153,7 @@ export default function App() {
     }
 
     let decodedData = undefined;
-    const data = params.get('data');
+    const data = params.get('viewAdditions');
     if (data) {
       const stringifiedJson = decodeFromBase64URL(data);
       decodedData = JSON.parse(stringifiedJson);

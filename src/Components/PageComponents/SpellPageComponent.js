@@ -197,5 +197,5 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 function copyToClipboard(spell, data) {
     const stringifiedJson = JSON.stringify(data);
     const encodedData = encodeToBase64URL(stringifiedJson);
-    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURI(spell.name) + "&data=" + encodeURI(encodedData));
+    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURI(spell.name) + "&viewAdditions=" + encodeURI(encodedData));
 }
