@@ -42,6 +42,10 @@ const customOptionDisplays = [
 ]
 
 export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices, inputHandler}) {
+    if (!choiceObject) {
+        return (<><div></div></>);
+    } 
+
     const choices = [];
     if (choiceObject.choices) {
         for (let i = 0; i < choiceObject.choices.length; i++) {

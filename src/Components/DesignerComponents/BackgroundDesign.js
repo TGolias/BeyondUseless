@@ -11,6 +11,10 @@ const rightTriangleUnicode = '\u25B6';
 export function BackgroundDesign({baseStateObject, inputHandler}) {
     const backgrounds = getCollection("backgrounds");
     const dndbackground = backgrounds.find(x => x.name === baseStateObject.background.name);
+    if (!dndbackground) {
+        return (<><div></div></>);
+    } 
+
 
     const backgroundAbilityScoreMax = 2;
     const backgroundAbilityScoreMin = 0;

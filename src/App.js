@@ -19,78 +19,21 @@ const timeoutBeforeAddedToHistory = 5000;
 const rightTriangleUnicode = '\u25B6';
 
 const defaultPlayerConfiguration = {
-  name: "Amantine Jaune Francina",
-  level: 4,
+  name: "New Character",
+  level: 1,
   abilityScores: {
-    strength: 8,
-    dexterity: 15,
-    constitution: 8,
+    strength: 10,
+    dexterity: 10,
+    constitution: 10,
     intelligence: 10,
-    wisdom: 14,
-    charisma: 15
+    wisdom: 10,
+    charisma: 10
   },
-  background: {
-    name: "Francina Family Pedigree",
-    abilityScores: {
-      dexterity: 2,
-      charisma: 1
-    }
-  },
-  species: {
-    name: "Elf",
-    choices: {
-      features: {
-        ElvenLineage1: {
-          cantrips: ["Mind Sliver"]
-        }
-      },
-      keenSenses: "Perception",
-      elvenLineageSpellcastingAbility: "Charisma",
-      elvenLineage: "High Elf"
-    }
-  },
-  languages: ["Common", "Elvish", "Giant"],
-  classes: [
-    {
-      name: "Paladin",
-      levels: 4,
-      choices: {
-        classSkills: ["Persuasion", "Insight"]
-      },
-      features: {
-        PaladinSpellcasting1: {
-          spells: ["Cure Wounds", "Compelled Duel", "Divine Favor", "Thunderous Smite", "Bless"]
-        },
-        FightingStyle2: {
-          name: "Archery"
-        },
-        Feat4: {
-          name: "Elven Accuracy",
-          choices: {
-            additionalStatIncrease: "Dexterity"
-          }
-        }
-      }
-    }
-  ],
-  items: [
-    {
-      name: "Amulet of Health",
-      equipped: true
-    },
-    {
-      name: "Shield",
-      equipped: true
-    },
-    {
-      name: "Studded Leather Armor",
-      equipped: true
-    },
-    {
-      name: "The Gun of Hole-iness",
-      equipped: true
-    }
-  ],
+  background: {},
+  species: {},
+  languages: ["Common",undefined,undefined],
+  classes: [],
+  items: [],
   currentStatus: {
   }
 }
@@ -99,10 +42,27 @@ let needsToLoad = true;
 
 export default function App() {
   const newPlayerConfigsJsonString = localStorage.getItem("CURRENT_CHARACTER");
-  let startingPlayerConfigs = newPlayerConfigsJsonString ? JSON.parse(newPlayerConfigsJsonString) : defaultPlayerConfiguration;
-
-  // Force the default.
-  //startingPlayerConfigs = defaultPlayerConfiguration;
+  let startingPlayerConfigs;
+  try {
+    let parsedJson = JSON.parse(newPlayerConfigsJsonString);
+    if (parsedJson && 
+        parsedJson.name && 
+        parsedJson.level && 
+        parsedJson.abilityScores && 
+        parsedJson.background && 
+        parsedJson.species && 
+        parsedJson.languages && 
+        parsedJson.classes && 
+        parsedJson.items && 
+        parsedJson.currentStatus) {
+      startingPlayerConfigs = parsedJson;
+    } else {
+      startingPlayerConfigs = defaultPlayerConfiguration;
+    }
+  }
+  catch {
+    startingPlayerConfigs = defaultPlayerConfiguration;
+  }
 
   const [, forceUpdate] = useReducer(x => !x, false);
   const [isLoading, setLoading] = useState(false);
@@ -420,6 +380,23 @@ export default function App() {
       clickHandler: redoPlayerConfigs
     },
     {
+      text: "NEW",
+      clickHandler: () => {
+        if (addChangesToHistoryTimeout) {
+          clearTimeout(addChangesToHistoryTimeout.timeout)
+          setAddChangesToHistoryTimeout(null);
+        }
+
+        const newPlayerConfigs = defaultPlayerConfiguration;
+        setPlayerConfigs(newPlayerConfigs);
+        setHistory([newPlayerConfigs]);
+        setCurrentHistoryIndex(0);
+        setShowStartMenu(false);
+
+        localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
+      }
+    },
+    {
       text: "SAVE",
       buttonSound: "saveaudio",
       clickHandler: () => {
@@ -445,6 +422,8 @@ export default function App() {
           setHistory([newPlayerConfigs]);
           setCurrentHistoryIndex(0);
           setShowStartMenu(false);
+
+          localStorage.setItem("CURRENT_CHARACTER", newPlayerConfigsJsonString);
         }
       }
     },

@@ -8,6 +8,9 @@ const rightTriangleUnicode = '\u25B6';
 export function SpeciesDesign({baseStateObject, inputHandler}) {
     const species = getCollection("species");
     const dndspecies = species.find(x => x.name === baseStateObject.species.name);
+    if (!dndspecies) {
+        return (<><div></div></>);
+    } 
 
     const resistanceRows = [];
     if (dndspecies.resistances) {

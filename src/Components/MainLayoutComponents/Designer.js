@@ -134,7 +134,7 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"languages"} config={languageSelectionConfig} inputHandler={inputChangeHandler} allowAdd={false} allowRemove={false} />
                 </div>
                 <div>
-                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText="Add Multiclass" generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
+                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText={playerConfigs.classes.length > 0 ? "Add Multiclass" : "Add Class"} generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
                 {classDesigns}
                 <div>
