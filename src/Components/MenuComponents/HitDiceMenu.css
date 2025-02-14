@@ -24,3 +24,23 @@
 .hitDiceMenuHorizontal .retroButtonWrapper {
     padding: 1em;
 }
+
+@media only screen and (max-width: 600px) {
+    .hitDiceMenuWrapperDiv {
+        height: 100%;
+    }
+
+    .hitDiceMenuWrapperDiv > * {
+        flex-grow: 1;
+    }
+
+    .hitDiceMenuWrapperDiv > .centerMenuSeperator,
+    .hitDiceMenuWrapperDiv > .hitDiceMenuHorizontal {
+        flex-grow: 0;
+    }
+
+    .healthMenuMainSection {
+        flex-grow: 1;
+        justify-content: space-around;
+    }
+}

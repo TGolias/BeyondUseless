@@ -13,10 +13,11 @@
 .centerMenuSeperator {
     margin-left: -1em;
     margin-right: -1em;
-    border-top: 4px solid black;
+    border-bottom: 4px solid black;
 }
 
 .centerMenuOuterDiv {
+    max-height: calc(100vh - 6em);
     display: flex;
     flex-direction: column;
     gap: 0.5em;
@@ -28,4 +29,11 @@
 
 .menuTitleBarTitle .retroButtonText {
     font-size: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .centerMenuOuterDiv {
+        max-height: calc(100vh - 1.5em);
+        height: calc(100vh - 1.5em);
+    }
 }

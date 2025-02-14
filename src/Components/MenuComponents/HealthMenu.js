@@ -100,30 +100,32 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
                 }} showTriangle={false} disabled={wasDead}></RetroButton>
             </div>
             <div className="centerMenuSeperator"></div>
-            <div className="healthMenuHorizontal">
-                <div className="healthMenuVertical">
-                    <div className="healthMenuLabel">Temp HP</div>
-                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newTempHp"} inputHandler={menuStateChangeHandler} minimum={0}/>
+            <div className="healthMenuVertical healthMenuMainSection">
+                <div className="healthMenuHorizontal">
+                    <div className="healthMenuVertical">
+                        <div className="healthMenuLabel">Temp HP</div>
+                        <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newTempHp"} inputHandler={menuStateChangeHandler} minimum={0}/>
+                    </div>
+                    <div className="healthMenuVertical">
+                        <div className="healthMenuLabel">Max HP +/-</div>
+                        <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newMaxHpModifier"} inputHandler={menuStateChangeHandler}/>
+                    </div>
+                </div>
+                <div style={{display: (resistancesString ? "block" : "none")}}>
+                    <div>Resistances: {resistancesString}</div>
+                </div>
+                <div className="healthMenuGrid">
+                    <div></div>
+                    <div className="healthMenuLabel">Change HP</div>
+                    <div></div>
+                    <RetroButton text="Heal" onClickHandler={() => calculateHeal(menuConfig, maxHp, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp >= maxHp} buttonSound={"healaudio"}></RetroButton>
+                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"changeHpAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
+                    <RetroButton text="Damage" onClickHandler={() => calculateDamage(menuConfig, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp <= 0} buttonSound={"damageaudio"}></RetroButton>
                 </div>
                 <div className="healthMenuVertical">
-                    <div className="healthMenuLabel">Max HP +/-</div>
-                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newMaxHpModifier"} inputHandler={menuStateChangeHandler}/>
+                    <div className="healthMenuLabel">Preview</div>
+                    <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
                 </div>
-            </div>
-            <div style={{display: (resistancesString ? "block" : "none")}}>
-                <div>Resistances: {resistancesString}</div>
-            </div>
-            <div className="healthMenuGrid">
-                <div></div>
-                <div className="healthMenuLabel">Change HP</div>
-                <div></div>
-                <RetroButton text="Heal" onClickHandler={() => calculateHeal(menuConfig, maxHp, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp >= maxHp} buttonSound={"healaudio"}></RetroButton>
-                <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"changeHpAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
-                <RetroButton text="Damage" onClickHandler={() => calculateDamage(menuConfig, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp <= 0} buttonSound={"damageaudio"}></RetroButton>
-            </div>
-            <div className="healthMenuVertical">
-                <div className="healthMenuLabel">Preview</div>
-                <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
             </div>
             <div className="centerMenuSeperator"></div>
             <div className="healthMenuHorizontal">

@@ -204,7 +204,7 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
     }
 
     return (<>
-        <div className={menuConfig.spell.level ? (hpControls.length ? (menuConfig.hpIsChanging ? "spellMenuWrapperDiv spellMenuHpShowing" : "spellMenuWrapperDiv spellMenuHealPrompt") : "spellMenuWrapperDiv") : "spellMenuWrapperDiv extraCantripSpaceDiv"}>
+        <div className="spellMenuWrapperDiv">
             <SpellPageComponent spell={menuConfig.spell} data={data} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>

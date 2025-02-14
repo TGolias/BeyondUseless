@@ -20,3 +20,15 @@
 .confirmationMenuHorizontal .retroButtonWrapper {
     padding: 1em;
 }
+
+@media only screen and (max-width: 600px) {
+    .confirmationMenuWrapperDiv {
+        height: 100%;
+    }
+
+    .confirmationMenuText {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+}

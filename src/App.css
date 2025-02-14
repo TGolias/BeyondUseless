@@ -73,7 +73,7 @@
   top: 2em;
   left: 0;
   right: 0;
-  width: 28em;
+  width: 37.5em; /* 37.5 * (smallest font size 16) === 600px*/
   position: fixed;
   z-index: 3;
 
@@ -207,6 +207,7 @@
   }
 
   .centerMenuWrapper {
-    width: calc(100% - 2em);
+    top: 0;
+    width: 100%;
   }
 }

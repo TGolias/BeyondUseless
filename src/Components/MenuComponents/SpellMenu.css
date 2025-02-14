@@ -3,21 +3,8 @@
     padding: 0.5em;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 20em);
     overflow-y: auto;
     overscroll-behavior: contain;
-}
-
-.spellMenuWrapperDiv.extraCantripSpaceDiv {
-    max-height: calc(100vh - 13em);
-}
-
-.spellMenuWrapperDiv.spellMenuHealPrompt {
-    max-height: calc(100vh - 23em);
-}
-
-.spellMenuWrapperDiv.spellMenuHpShowing {
-    max-height: calc(100vh - 29em);
 }
 
 .spellMenuCastingHorizontal {
