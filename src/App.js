@@ -149,7 +149,7 @@ export default function App() {
         <div className="loadingIndicatorHolder">
           <div id="loadingIndicator"></div>
         </div>
-      </>)
+      </>);
     }
 
     let decodedData = undefined;
