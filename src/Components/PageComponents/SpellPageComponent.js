@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { encodeToBase64URL, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function SpellPageComponent({spell, data, copyLinkToSpell}) {
@@ -196,6 +196,5 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 
 function copyToClipboard(spell, data) {
     const stringifiedJson = JSON.stringify(data);
-    const encodedData = encodeToBase64URL(stringifiedJson);
-    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURI(spell.name) + "&viewAdditions=" + encodeURI(encodedData));
+    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURIComponent(spell.name) + "&data=" + encodeURIComponent(stringifiedJson));
 }

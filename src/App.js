@@ -7,7 +7,7 @@ import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./S
 import { fetchAllCollections, getCollection } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
-import { decodeFromBase64URL, getHomePageUrl, isNumeric, playAudio } from "./SharedFunctions/Utils";
+import { getHomePageUrl, isNumeric, playAudio } from "./SharedFunctions/Utils";
 import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
 import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
 import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
@@ -153,9 +153,9 @@ export default function App() {
     }
 
     let decodedData = undefined;
-    const data = params.get('viewAdditions');
+    const data = params.get('data');
     if (data) {
-      const stringifiedJson = decodeFromBase64URL(data);
+      const stringifiedJson = data;
       decodedData = JSON.parse(stringifiedJson);
     }
 

@@ -2,7 +2,7 @@ import React from "react";
 import './ItemPageComponent.css';
 import { calculateAddendumAspect, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { encodeToBase64URL, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { encodeJsonToShort, getHomePageUrl } from "../../SharedFunctions/Utils";
 
 export function ItemPageComponent({item, data, copyLinkToItem}) {
     let typeString;
@@ -140,6 +140,5 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
 
 function copyToClipboard(item, data) {
     const stringifiedJson = JSON.stringify(data);
-    const encodedData = encodeToBase64URL(stringifiedJson);
-    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + "&viewAdditions=" + encodeURI(encodedData));
+    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + "&data=" + encodeURI(stringifiedJson));
 }
