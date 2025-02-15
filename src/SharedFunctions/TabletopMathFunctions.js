@@ -628,6 +628,33 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
     return amount;
 }
 
+export function calculateRange(playerConfigs, range) {
+    if (range) {
+        if (isObject(range)) {
+            let rangeString = "";
+            if (range.normal) {
+                if (isObject(range.normal)) {
+                    rangeString += performMathCalculation(playerConfigs, range.normal.calcuation);
+                } else {
+                    rangeString += range.normal;
+                }
+            }
+            if (range.long) {
+                rangeString += "/";
+                if (isObject(range.long)) {
+                    rangeString += performMathCalculation(playerConfigs, range.normal.calcuation);
+                } else {
+                    rangeString += range.long;
+                }
+            }
+            return rangeString;
+        } else {
+            return range;
+        }
+    }
+    return undefined;
+}
+
 export function calculateAddendumAspect(playerConfigs, addendumName, parameters) {
     let addendumString = "";
 
@@ -1189,7 +1216,10 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "static":
             return singleCalculation.value;
         case "aspect":
-            return calculateAspectCollection(playerConfigs, singleCalculation.value);
+            if (playerConfigs) {
+                return calculateAspectCollection(playerConfigs, singleCalculation.value);
+            }
+            // If there are no playerconfigs, we can't get any aspects. Don't even try. Just return the default.
         case "parameter":
             const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
             return parameterValue;
@@ -1228,8 +1258,10 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
             const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.if, parameters);
             if (singleValue) {
                 return performOriginalCalculationType(singleCalculation.then);
+            } else if (singleCalculation.else) {
+                return performOriginalCalculationType(singleCalculation.else);
             }
-            // If not true, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
+            // If not true and there is no else, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
         case "or":
             for (let i = 0; i < singleCalculation.values.length; i++) {
                 const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.values[i], parameters);

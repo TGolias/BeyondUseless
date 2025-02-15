@@ -1,0 +1,16 @@
+.propertyPageContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 0.5em;
+    white-space: pre-line;
+    line-height: 1.25em;
+}
+
+.propertyPageBold {
+    font-weight: bold;
+}
+
+.propertyPageDescription {
+    padding-top: 0.75em;
+}

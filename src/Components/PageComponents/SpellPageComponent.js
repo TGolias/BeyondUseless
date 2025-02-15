@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let castingTime = "";
@@ -22,17 +22,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         castingCondition = spell.castingCondition;
     }
 
-    let range = "";
-    if (Array.isArray(spell.range)) {
-        for (let singleRange of spell.range) {
-            if (range.length > 0) {
-                range += " or "
-            }
-            range += singleRange;
-        }
-    } else {
-        range = spell.range;
-    }
+    const range = calculateRange(data?.playerConfigs, spell.range);
 
     let componentsString = "";
     if (spell.components) {

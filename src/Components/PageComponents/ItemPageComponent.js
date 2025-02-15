@@ -1,8 +1,8 @@
 import React from "react";
 import './ItemPageComponent.css';
-import { calculateAddendumAspect, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { encodeJsonToShort, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { getHomePageUrl } from "../../SharedFunctions/Utils";
 
 export function ItemPageComponent({item, data, copyLinkToItem}) {
     let typeString;
@@ -35,10 +35,9 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
                 masteriesString = item.mastery;
             }
 
-            if (item.weaponRange === "Ranged") {
-                rangeString = item.range;
-            } else if (item.properties.includes("Thrown")) {
-                rangeString = item.range + " " + ("(Thrown)");
+            rangeString = calculateRange(data?.playerConfigs, item.range);
+            if (item.properties.includes("Thrown")) {
+                rangeString += " (Thrown)";
             }
             break;
         case "Armor":
