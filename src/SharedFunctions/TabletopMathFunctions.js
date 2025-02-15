@@ -366,7 +366,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     // See if there are additional bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "weaponAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -384,8 +384,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     });
 
-    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown, attackAbility: highestValidAbility });
-    const addendum = calculateAddendumAspect(playerConfigs, "weaponAttackAddendum", { weapon, isThrown, attackAbility: highestValidAbility });
+    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    const addendum = calculateAddendumAspect(playerConfigs, "weaponAttackAddendum", { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     return { amount, addendum };
 }
@@ -473,7 +473,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
     // See if there are additoinal bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "weaponDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, attackAbility: highestValidAbility });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -491,7 +491,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
         }
     });
 
-    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown, attackAbility: highestValidAbility });
+    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
     return calculationString;
 }
 
@@ -671,16 +671,6 @@ export function calculateFeatures(playerConfigs) {
     return allFeatures;
 }
 
-function calculateFeatureNames(playerConfigs) {
-    const allFeatureNames = []
-
-    findAllValidFeatures(playerConfigs, (feature, typeFoundOn, playerConfigForObject) => {
-        allFeatureNames.push(feature);
-    });
-
-    return allFeatureNames;
-}
-
 function findAllValidFeatures(playerConfigs, onFeatureFound) {
     return findAllConfiguredAspects(playerConfigs, "features", (aspectValue, typeFoundOn, playerConfigForObject) => {
         switch (typeFoundOn) {
@@ -747,7 +737,7 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
         case "features":
             return calculateFeatures(playerConfigs);
         case "featureNames": 
-            return calculateFeatureNames(playerConfigs);
+            return calculateFeatures(playerConfigs).map(x => x.feature.name);
     }
 
     const aspectCollection = calculateAspectCollectionCore(playerConfigs, aspectName);
@@ -1206,6 +1196,8 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "config":
             const configValue = getValueFromObjectAndPath(playerConfigs, singleCalculation.propertyPath);
             return configValue;
+        case "math":
+            return performMathCalculation(playerConfigs, singleCalculation.values, parameters);
         case "highestOf":
             let highestValue;
             for (let i = 0; i < singleCalculation.values.length; i++) {
