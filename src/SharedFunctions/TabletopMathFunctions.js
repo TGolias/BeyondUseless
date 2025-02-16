@@ -385,7 +385,20 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     });
 
     const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
-    const addendum = calculateAddendumAspect(playerConfigs, "weaponAttackAddendum", { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    let addendum = calculateAddendumAspect(playerConfigs, "weaponAttackAddendum", { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+
+    if (weapon.weaponRange === "Ranged") {
+        if (addendum.length > 0) {
+            // Newline between different addendums.
+            addendum += "\n\n";
+        }
+
+        const allMisc = getCollection("misc");
+        const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
+
+        const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+        addendum += rangedString;
+    }
 
     return { amount, addendum };
 }
