@@ -10,3 +10,12 @@
 .itemPageDescription {
     padding-top: 0.75em;
 }
+
+.propertyOfTheItem .retroButtonText {
+    font-size: 1em;
+    display: inline;
+}
+
+.propertyOfTheItem > .retroButtonWrapper {
+    display: inline;
+}

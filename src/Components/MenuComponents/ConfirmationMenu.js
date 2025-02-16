@@ -2,7 +2,7 @@ import React from "react";
 import './ConfirmationMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 
-export function ConfirmationMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
+export function ConfirmationMenu({menuConfig}) {
     const buttons = [];
     for (const buttonConfig of menuConfig.buttons) {
         buttons.push(<>

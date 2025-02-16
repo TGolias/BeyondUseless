@@ -2,6 +2,10 @@ const collectionsMap = {};
 
 const allCollections = [
     {
+        name: "actions",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/actions.json"
+    },
+    {
         name: "backgrounds",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/backgrounds.json"
     },
@@ -12,6 +16,10 @@ const allCollections = [
     {
         name: "classes",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/classes.json"
+    },
+    {
+        name: "conditions",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/conditions.json"
     },
     {
         name: "damagetypes",
@@ -28,6 +36,18 @@ const allCollections = [
     {
         name: "languages",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/languages.json"
+    },
+    {
+        name: "masteries",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/masteries.json"
+    },
+    {
+        name: "misc",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/misc.json"
+    },
+    {
+        name: "properties",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/properties.json"
     },
     {
         name: "rarelanguages",

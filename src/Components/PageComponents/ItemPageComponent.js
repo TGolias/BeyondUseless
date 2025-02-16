@@ -3,13 +3,15 @@ import './ItemPageComponent.css';
 import { calculateAddendumAspect, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
+import { RetroButton } from "../SimpleComponents/RetroButton";
+import { getCollection } from "../../Collections";
 
-export function ItemPageComponent({item, data, copyLinkToItem}) {
+export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMenu, addToMenuStack = undefined}) {
     let typeString;
     let baseDamage = undefined;
     let twoHandedDamage = undefined;
     let rangeString = "";
-    let propertiesString = "";
+    let properties = [];
     let masteriesString = "";
     switch (item.type) {
         case "Weapon":
@@ -23,11 +25,22 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
             }
 
             if (item.properties) {
-                for (let property of item.properties) {
-                    if (propertiesString.length > 0) {
-                        propertiesString += ", ";
-                    }
-                    propertiesString += property; 
+                for (let itemProperty of item.properties) {
+                    properties.push(<>
+                        <span className="propertyOfTheItem"><RetroButton text={itemProperty} onClickHandler={() => {
+                            const stringSplit = itemProperty.split(" ");
+                            const firstString = stringSplit[0];
+
+                            const properties = getCollection("properties");
+                            const dndProperty = properties.find(property => property.name === firstString);
+                            if (dndProperty) {
+                                if (addToMenuStack) {
+                                    addToMenuStack();
+                                }
+                                setCenterScreenMenu({ show: true, menuType: "PropertyMenu", data: { menuTitle: firstString, property: dndProperty } });
+                            }
+                        }} showTriangle={false} disabled={false}></RetroButton> </span>
+                    </>);
                 }
             }
 
@@ -105,7 +118,7 @@ export function ItemPageComponent({item, data, copyLinkToItem}) {
             <div style={{display: (baseDamage ? "block" : "none")}}><b>Base Damage:</b> {baseDamage}</div>
             <div style={{display: (twoHandedDamage ? "block" : "none")}}><b>Two-Handed:</b> {twoHandedDamage}</div>
             <div style={{display: (rangeString ? "block" : "none")}}><b>Range:</b> {rangeString}</div>
-            <div style={{display: (propertiesString ? "block" : "none")}}><b>Properties:</b> {propertiesString}</div>
+            <div style={{display: (properties.length > 0 ? "block" : "none")}}><b>Properties:</b> {properties}</div>
             <div style={{display: (masteriesString ? "block" : "none")}}><b>Mastery:</b> {masteriesString}</div>
             <div><b>Item Rarity:</b> {item.rarity}</div>
             <div><b>Weight:</b> {item.weight}</div>

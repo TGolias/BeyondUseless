@@ -13,6 +13,7 @@ import { SpellPageComponent } from "./Components/PageComponents/SpellPageCompone
 import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
 import { getItemFromItemTemplate } from "./SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "./Components/SimpleComponents/RetroButton";
+import { PropertyPageComponent } from "./Components/PageComponents/PropertyPageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -148,8 +149,8 @@ export default function App() {
           </>);
         }
       case "item":
-        const name = params.get('name');
-        let itemNameLower = name.toLowerCase();
+        const itemName = params.get('name');
+        let itemNameLower = itemName.toLowerCase();
 
         let itemFound = undefined;
         const items = getCollection("items");
@@ -158,7 +159,7 @@ export default function App() {
 
         if (!itemFound) {
           return (<>
-            <div>Spell '{name}' not found :(</div>
+            <div>Spell '{itemName}' not found :(</div>
           </>)
         } else {
           const copyLinkToItem = {};
@@ -176,7 +177,45 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem}></ItemPageComponent>
+              <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem} setCenterScreenMenu={setCenterScreenMenu}></ItemPageComponent>
+            </div>
+            <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
+              <div className="centerMenu pixel-corners">
+                <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
+              </div>
+            </div>
+          </>);
+        }
+      case "property":
+        const propertyName = params.get('name');
+        let propertyNameLower = propertyName.toLowerCase();
+
+        let propertyFound = undefined;
+        const properties = getCollection("properties");
+        propertyFound = properties.find(property => property.name.toLowerCase() === propertyNameLower);
+        propertyFound = getItemFromItemTemplate(propertyFound);
+
+        if (!propertyFound) {
+          return (<>
+            <div>Spell '{propertyName}' not found :(</div>
+          </>)
+        } else {
+          const copyLinkToItem = {};
+          return (<>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={propertyFound.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <PropertyPageComponent property={propertyFound} data={decodedData} copyLinkToItem={copyLinkToItem}></PropertyPageComponent>
             </div>
           </>);
         }
