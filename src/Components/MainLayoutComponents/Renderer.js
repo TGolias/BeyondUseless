@@ -10,6 +10,7 @@ import { BasicStatDisplay } from "../DisplayComponents/BasicStatDisplay";
 import { WeaponsAndDamageCantrips } from "../DisplayComponents/WeaponsAndDamageCantrips";
 import { SpellcastingDisplay } from "../DisplayComponents/SpellcastingDisplay";
 import { SpellSlotsDisplay } from "../DisplayComponents/SpellSlotsDisplay";
+import { OtherActionsDisplay } from "../DisplayComponents/OtherActionsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -61,6 +62,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 </div>
                 <div style={{display: (spellcastingFeatures.length > 0 ? "block" : "none")}}>
                     <SpellcastingDisplay playerConfigs={playerConfigs} spellcastingFeatures={spellcastingFeatures} setCenterScreenMenu={setCenterScreenMenu}></SpellcastingDisplay>
+                </div>
+                <div style={{display: (spellcastingFeatures.length > 0 ? "block" : "none")}}>
+                    <OtherActionsDisplay setCenterScreenMenu={setCenterScreenMenu}></OtherActionsDisplay>
                 </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>

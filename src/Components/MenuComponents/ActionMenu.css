@@ -1,0 +1,26 @@
+.actionMenuWrapperDiv {
+    margin: -0.5em;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.actionMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.actionMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .actionMenuWrapperDiv {
+        flex-grow: 1;
+    }
+}

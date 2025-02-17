@@ -15,6 +15,7 @@ import { getItemFromItemTemplate } from "./SharedFunctions/TabletopMathFunctions
 import { RetroButton } from "./Components/SimpleComponents/RetroButton";
 import { PropertyPageComponent } from "./Components/PageComponents/PropertyPageComponent";
 import { MasteryPageComponent } from "./Components/PageComponents/MasteryPageComponent";
+import { ActionPageComponent } from "./Components/PageComponents/ActionPageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -246,6 +247,37 @@ export default function App() {
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
               <MasteryPageComponent mastery={masteryFound} data={decodedData} copyLinkToItem={copyLinkToItem}></MasteryPageComponent>
+            </div>
+          </>);
+        }
+      case "action":
+        const actionName = params.get('name');
+        let actionNameLower = actionName.toLowerCase();
+
+        const actions = getCollection("actions");
+        const actionFound = actions.find(action => action.name.toLowerCase() === actionNameLower);
+
+        if (!actionFound) {
+          return (<>
+            <div>Action '{actionFound}' not found :(</div>
+          </>)
+        } else {
+          const copyLinkToItem = {};
+          return (<>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={actionFound.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem}></ActionPageComponent>
             </div>
           </>);
         }
