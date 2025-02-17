@@ -16,6 +16,7 @@ import { RetroButton } from "./Components/SimpleComponents/RetroButton";
 import { PropertyPageComponent } from "./Components/PageComponents/PropertyPageComponent";
 import { MasteryPageComponent } from "./Components/PageComponents/MasteryPageComponent";
 import { ActionPageComponent } from "./Components/PageComponents/ActionPageComponent";
+import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureActionPageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -37,8 +38,7 @@ const defaultPlayerConfiguration = {
   languages: ["Common",null,null],
   classes: [],
   items: [],
-  currentStatus: {
-  }
+  currentStatus: {}
 }
 
 let needsToLoad = true;
@@ -115,7 +115,7 @@ export default function App() {
     const lowerCaseMode = view.toLowerCase();
     switch (lowerCaseMode) {
       case "spell":
-        const spellName = params.get('name');
+        const spellName = params?.get('name');
         let spellNameLower = spellName.toLowerCase();
 
         let spellFound = undefined;
@@ -152,7 +152,7 @@ export default function App() {
         }
       case "item":
         const itemName = params.get('name');
-        let itemNameLower = itemName.toLowerCase();
+        let itemNameLower = itemName?.toLowerCase();
 
         let itemFound = undefined;
         const items = getCollection("items");
@@ -190,7 +190,7 @@ export default function App() {
         }
       case "property":
         const propertyName = params.get('name');
-        let propertyNameLower = propertyName.toLowerCase();
+        let propertyNameLower = propertyName?.toLowerCase();
 
         const properties = getCollection("properties");
         const propertyFound = properties.find(property => property.name.toLowerCase() === propertyNameLower);
@@ -221,7 +221,7 @@ export default function App() {
         }
       case "mastery":
         const masteryName = params.get('name');
-        let masteryNameLower = masteryName.toLowerCase();
+        let masteryNameLower = masteryName?.toLowerCase();
 
         const masteries = getCollection("masteries");
         const masteryFound = masteries.find(mastery => mastery.name.toLowerCase() === masteryNameLower);
@@ -252,7 +252,7 @@ export default function App() {
         }
       case "action":
         const actionName = params.get('name');
-        let actionNameLower = actionName.toLowerCase();
+        let actionNameLower = actionName?.toLowerCase();
 
         const actions = getCollection("actions");
         const actionFound = actions.find(action => action.name.toLowerCase() === actionNameLower);
@@ -280,6 +280,82 @@ export default function App() {
               <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem}></ActionPageComponent>
             </div>
           </>);
+        }
+      case "featureaction":
+        const featureActionName = params.get('name');
+        let featureActionNameLower = featureActionName?.toLowerCase();
+
+        const featureName = params.get('featurename');
+        let featureNameLower = featureName?.toLowerCase();
+
+        const originType = params.get('origintype');
+        let originTypeLower = originType?.toLowerCase();
+
+        const originName = params.get('originname');
+        let originNameLower = originName?.toLowerCase();
+
+        if (featureActionNameLower && featureNameLower && originTypeLower && originNameLower) {
+          let originValue = undefined;
+          switch (originTypeLower) {
+            case "class":
+              const allClasses = getCollection("classes");
+              originValue = allClasses.find(dndClass => dndClass.name.toLowerCase() === originNameLower);
+              break;
+            default:
+              return <div>origintype '{originTypeLower}' not supported :(</div>
+          }
+
+          if (!originValue) {
+            return <div>{originTypeLower} with name '{originNameLower}' not found :(</div>
+          }
+          const origin = { type: originTypeLower, value: originValue }
+
+          const allPossibleFeatures = originValue.features;
+          const feature = allPossibleFeatures.find(feature => feature.name.toLowerCase() === featureNameLower);
+          if (!feature) {
+            return <div>Feature with name '{featureNameLower}' not found on {originNameLower}</div>
+          }
+
+          const featureAction = feature.actions.find(action => action.name.toLowerCase() === featureActionNameLower);
+          if (!featureAction) {
+            return <div>Feature Action with name '{featureActionNameLower}' not found on {featureNameLower} in {originNameLower}</div>
+          }
+          
+          const copyLinkToItem = {};
+          return (<>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={featureAction.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <FeatureActionPageComponent featureAction={featureAction} feature={feature} origin={origin} copyLinkToItem={copyLinkToItem}></FeatureActionPageComponent>
+            </div>
+          </>);
+        } else {
+          let missingParams = []
+          if (!featureActionNameLower) {
+            missingParams.push("name")
+          }
+          if (!featureNameLower) {
+            missingParams.push("featurename")
+          }
+          if (!originTypeLower) {
+            missingParams.push("origintype")
+          }
+          if (!originNameLower) {
+            missingParams.push("originname")
+          }
+          return (<>
+            <div>QueryParams '{missingParams.join(", ")}' missing for featureaction :(</div>
+          </>)
         }
       default: {
         return (<>

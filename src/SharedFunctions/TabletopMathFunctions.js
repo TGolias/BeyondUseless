@@ -1361,6 +1361,12 @@ export function getAllSpellcastingFeatures(playerConfigs) {
     return spellcastingFeatures;
 }
 
+export function getAllActionFeatures(playerConfigs) {
+    const features = calculateAspectCollection(playerConfigs, "features");
+    const actionFeatures = features.filter(object => object.feature.actions);
+    return actionFeatures;
+}
+
 export function getAllSpells(spellcastingFeatures) {
     // Get all spells and cantrips built into dictionaries for instant lookup.
     let allCantrips = getCollection("cantrips");

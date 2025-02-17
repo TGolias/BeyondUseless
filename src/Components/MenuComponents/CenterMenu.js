@@ -11,6 +11,7 @@ import { ItemMenu } from "./ItemMenu";
 import { PropertyMenu } from "./PropertyMenu";
 import { MasteryMenu } from "./MasteryMenu";
 import { ActionMenu } from "./ActionMenu";
+import { FeatureActionMenu } from "./FeatureActionMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -182,7 +183,31 @@ const menuCollection = {
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><ActionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ActionMenu></>)
         }
-    }
+    },
+    FeatureActionMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">
+                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                        if (menuConfig.copyLinkToItem && menuConfig.copyLinkToItem.onExecute) {
+                            menuConfig.copyLinkToItem.onExecute();
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton>
+                </div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.featureAction = data.featureAction;
+            newItemMenu.feature = data.feature;
+            newItemMenu.origin = data.origin;
+            newItemMenu.copyLinkToItem = {};
+            return newItemMenu;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
+            return (<><FeatureActionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></FeatureActionMenu></>)
+        }
+    },
 }
 
 const defaultMenuConfig = {

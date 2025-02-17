@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllSpellcastingFeatures, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllSpellcastingFeatures, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -11,6 +11,7 @@ import { WeaponsAndDamageCantrips } from "../DisplayComponents/WeaponsAndDamageC
 import { SpellcastingDisplay } from "../DisplayComponents/SpellcastingDisplay";
 import { SpellSlotsDisplay } from "../DisplayComponents/SpellSlotsDisplay";
 import { OtherActionsDisplay } from "../DisplayComponents/OtherActionsDisplay";
+import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -23,6 +24,8 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     const passivePerception = calculatePassivePerception(playerConfigs);
 
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
+
+    const actionFeatures = getAllActionFeatures(playerConfigs);
 
     const spellcastingLevel = getSpellcastingLevel(playerConfigs);
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
@@ -56,6 +59,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 </div>
                 <div>
                     <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
+                </div>
+                <div style={{display: (actionFeatures.length > 0 ? "block" : "none")}}>
+                    <FeatureActionsDisplay playerConfigs={playerConfigs} actionFeatures={actionFeatures} setCenterScreenMenu={setCenterScreenMenu}></FeatureActionsDisplay>
                 </div>
                 <div style={{display: (spellcastingLevel > 0 ? "block" : "none")}}>
                     <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel}></SpellSlotsDisplay>
