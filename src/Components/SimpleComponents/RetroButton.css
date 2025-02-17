@@ -27,5 +27,5 @@
 .disabled {
     pointer-events: none;
     text-decoration: line-through;
-    color: darkgrey;
+    color: black;
 }

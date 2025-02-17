@@ -34,7 +34,7 @@ const rows = [
     {
         name: "Damage",
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            let amount = calculateWeaponDamage(playerConfigs, weapon, isThrown);
+            let amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false);
             amount += " " + weapon.damage.damageType;
             return amount;
         },

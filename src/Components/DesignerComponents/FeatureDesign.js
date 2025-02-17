@@ -48,9 +48,11 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
         
         if (selectedFeatName) {
             const selectedFeat = feats.find(x => x.name === selectedFeatName);
-            featureContent.push(<>
-                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={selectedFeat} pathToPlayerChoices={pathToFeatureProperty + "choices."} inputHandler={inputHandler}></ChoiceDesign>
-            </>);
+            if (selectedFeat.choices) {
+                featureContent.push(<>
+                    <ChoiceDesign baseStateObject={baseStateObject} choiceObject={selectedFeat} pathToPlayerChoices={pathToFeatureProperty + "choices."} inputHandler={inputHandler}></ChoiceDesign>
+                </>);
+            }
         }
     }
 
@@ -132,6 +134,12 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 }
             }
         }
+    }
+
+    if (feature.choices) {
+        featureContent.push(<>
+            <ChoiceDesign baseStateObject={baseStateObject} choiceObject={feature} pathToPlayerChoices={pathToFeatureProperty + "choices."} inputHandler={inputHandler}></ChoiceDesign>
+        </>);
     }
 
     return (<>

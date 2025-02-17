@@ -352,9 +352,10 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     });
 
     // Check if we should add the proficency bonus.
+    let isProficient = false;
     if (weapon.tags) {
         const weaponProficienyMap = calculateAspectCollection(playerConfigs, "weaponProficiencies");
-        const isProficient = weapon.tags.some(tag => weaponProficienyMap.includes(tag));
+        isProficient = weapon.tags.some(tag => weaponProficienyMap.includes(tag));
         if (isProficient) {
             calculationsForAttackBonus.push({
                 type: "aspect",
@@ -387,23 +388,66 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
     let addendum = calculateAddendumAspect(playerConfigs, "weaponAttackAddendum", { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
-    if (weapon.weaponRange === "Ranged") {
-        if (addendum.length > 0) {
-            // Newline between different addendums.
-            addendum += "\n\n";
-        }
+    if (weapon.properties) {
+        const allProperties = getCollection("properties");
+        const propertiesMap = convertArrayToDictionary(allProperties, "name");
+        for (let property of weapon.properties) {
+            const stringSplit = property.split(" ");
+            const firstString = stringSplit[0];
 
+            const dndProperty = propertiesMap[firstString]
+            if (dndProperty && dndProperty.weaponAttackAddendum) {
+                const propertyString = performMathCalculation(playerConfigs, dndProperty.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, propertyStrings: stringSplit });
+                if (propertyString) {
+                    if (addendum.length > 0) {
+                        // Newline between different addendums.
+                        addendum += "\n\n";
+                    }
+                    addendum += propertyString;
+                }
+            }
+        }
+    }
+
+    if (isProficient && weapon.mastery) {
+        // Check if we have mastery in this weapon.
+        const weaponMasteries = calculateAspectCollection(playerConfigs, "weaponmasteries");
+        const hasWeaponMastery = weapon.tags.some(tag => weaponMasteries.includes(tag));
+        if (hasWeaponMastery) {
+            const allMasteries = getCollection("masteries");
+            const dndMastery = allMasteries.find(mastery => mastery.name === weapon.mastery);
+
+            if (dndMastery && dndMastery.weaponAttackAddendum) {
+                const masteryString = performMathCalculation(playerConfigs, dndMastery.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+                if (masteryString) {
+                    if (addendum.length > 0) {
+                        // Newline between different addendums.
+                        addendum += "\n\n";
+                    }
+                    addendum += masteryString;
+                }
+            }
+        }
+    }
+
+    if (weapon.weaponRange === "Ranged") {
         const allMisc = getCollection("misc");
         const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
 
         const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
-        addendum += rangedString;
+        if (rangedString) {
+            if (addendum.length > 0) {
+                // Newline between different addendums.
+                addendum += "\n\n";
+            }
+            addendum += rangedString;
+        }
     }
 
     return { amount, addendum };
 }
 
-export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
+export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack) {
     let calculationsForDamage = undefined;
     if (weapon.properties && weapon.properties.includes("Versatile")) {
         // Check if they can actually two-hand the weapon.
@@ -478,15 +522,17 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
         }
     });
 
-    calculationsForDamage.push({
-        type: "static",
-        value: highestValidAbilityModifier
-    });
-
-    // See if there are additoinal bonuses to apply to our damage.
+    if ((!isExtraLightAttack && !isExtraCleaveAttack) || highestValidAbilityModifier < 0) {
+        calculationsForDamage.push({
+            type: "static",
+            value: highestValidAbilityModifier
+        });
+    }
+    
+    // See if there are additional bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "weaponDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -504,7 +550,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown) {
         }
     });
 
-    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
     return calculationString;
 }
 
@@ -548,7 +594,25 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     });
 
     const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
-    const addendum = calculateAddendumAspect(playerConfigs, "spellAttackAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    let addendum = calculateAddendumAspect(playerConfigs, "spellAttackAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+
+    if (spell.challengeType === "attackRoll") {
+        const spellRange = calculateRange(playerConfigs, spell.range);
+        if (isNumeric(spellRange)) {
+            const allMisc = getCollection("misc");
+            const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
+    
+            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calcuation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+
+            if (rangedString) {
+                if (addendum.length > 0) {
+                    // Newline between different addendums.
+                    addendum += "\n\n";
+                }
+                addendum += rangedString;
+            }
+        }
+    }
 
     return { amount, addendum };
 }
@@ -698,7 +762,7 @@ export function calculateAddendumAspect(playerConfigs, addendumName, parameters)
         }
     });
 
-    return addendumString.length > 0 ? addendumString : undefined;
+    return addendumString;
 }
 
 export function calculateFeatures(playerConfigs) {
@@ -1154,6 +1218,8 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
     const performAddition = (currentTotal, valueToAdd) => {
         if (!currentTotal && !isNumeric(valueToAdd)) {
             return valueToAdd;
+        } else if (isNumeric(valueToAdd)) {
+            return currentTotal + parseInt(valueToAdd);
         }
         return currentTotal + valueToAdd;
     };
@@ -1184,8 +1250,8 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
             return valueToReturn;
         }
 
-        if (singleCalculation.lessThanOrEqualTo) {
-            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.lessThanOrEqualTo, parameters)
+        if (singleCalculation.lessThan) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.lessThan, parameters)
             const valueToReturn = (singleValue <= valueToEqual);
             return valueToReturn;
         }
@@ -1233,6 +1299,7 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
                 return calculateAspectCollection(playerConfigs, singleCalculation.value);
             }
             // If there are no playerconfigs, we can't get any aspects. Don't even try. Just return the default.
+            break;
         case "parameter":
             const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
             return parameterValue;
@@ -1275,6 +1342,7 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
                 return performOriginalCalculationType(singleCalculation.else);
             }
             // If not true and there is no else, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
+            break;
         case "or":
             for (let i = 0; i < singleCalculation.values.length; i++) {
                 const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.values[i], parameters);

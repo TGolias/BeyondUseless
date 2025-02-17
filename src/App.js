@@ -14,6 +14,7 @@ import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent
 import { getItemFromItemTemplate } from "./SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "./Components/SimpleComponents/RetroButton";
 import { PropertyPageComponent } from "./Components/PageComponents/PropertyPageComponent";
+import { MasteryPageComponent } from "./Components/PageComponents/MasteryPageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -159,7 +160,7 @@ export default function App() {
 
         if (!itemFound) {
           return (<>
-            <div>Spell '{itemName}' not found :(</div>
+            <div>Item '{itemName}' not found :(</div>
           </>)
         } else {
           const copyLinkToItem = {};
@@ -190,14 +191,12 @@ export default function App() {
         const propertyName = params.get('name');
         let propertyNameLower = propertyName.toLowerCase();
 
-        let propertyFound = undefined;
         const properties = getCollection("properties");
-        propertyFound = properties.find(property => property.name.toLowerCase() === propertyNameLower);
-        propertyFound = getItemFromItemTemplate(propertyFound);
+        const propertyFound = properties.find(property => property.name.toLowerCase() === propertyNameLower);
 
         if (!propertyFound) {
           return (<>
-            <div>Spell '{propertyName}' not found :(</div>
+            <div>Property '{propertyName}' not found :(</div>
           </>)
         } else {
           const copyLinkToItem = {};
@@ -216,6 +215,37 @@ export default function App() {
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
               <PropertyPageComponent property={propertyFound} data={decodedData} copyLinkToItem={copyLinkToItem}></PropertyPageComponent>
+            </div>
+          </>);
+        }
+      case "mastery":
+        const masteryName = params.get('name');
+        let masteryNameLower = masteryName.toLowerCase();
+
+        const masteries = getCollection("masteries");
+        const masteryFound = masteries.find(mastery => mastery.name.toLowerCase() === masteryNameLower);
+
+        if (!masteryFound) {
+          return (<>
+            <div>Mastery '{masteryFound}' not found :(</div>
+          </>)
+        } else {
+          const copyLinkToItem = {};
+          return (<>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={masteryFound.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <MasteryPageComponent mastery={masteryFound} data={decodedData} copyLinkToItem={copyLinkToItem}></MasteryPageComponent>
             </div>
           </>);
         }

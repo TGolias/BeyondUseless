@@ -1,6 +1,6 @@
 import React from "react";
 import './ItemPageComponent.css';
-import { calculateAddendumAspect, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAspectCollection, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
@@ -12,7 +12,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     let twoHandedDamage = undefined;
     let rangeString = "";
     let properties = [];
-    let masteriesString = "";
+    let masteries = [];
     switch (item.type) {
         case "Weapon":
             typeString = item.weaponRange + " " + item.type + " (" + item.weaponType + ")";
@@ -26,6 +26,9 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
 
             if (item.properties) {
                 for (let itemProperty of item.properties) {
+                    if (properties.length > 0) {
+                        properties.push(", ");
+                    }
                     properties.push(<>
                         <span className="propertyOfTheItem"><RetroButton text={itemProperty} onClickHandler={() => {
                             const stringSplit = itemProperty.split(" ");
@@ -39,13 +42,24 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                                 }
                                 setCenterScreenMenu({ show: true, menuType: "PropertyMenu", data: { menuTitle: firstString, property: dndProperty } });
                             }
-                        }} showTriangle={false} disabled={false}></RetroButton> </span>
+                        }} showTriangle={false} disabled={false}></RetroButton></span>
                     </>);
                 }
             }
 
             if (item.mastery) {
-                masteriesString = item.mastery;
+                masteries.push(<>
+                    <span className="propertyOfTheItem"><RetroButton text={item.mastery} onClickHandler={() => {
+                        const properties = getCollection("masteries");
+                        const dndMastery = properties.find(mastery => mastery.name === item.mastery);
+                        if (dndMastery) {
+                            if (addToMenuStack) {
+                                addToMenuStack();
+                            }
+                            setCenterScreenMenu({ show: true, menuType: "MasteryMenu", data: { menuTitle: item.mastery, mastery: dndMastery } });
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton> </span>
+                </>);
             }
 
             rangeString = calculateRange(data?.playerConfigs, item.range);
@@ -73,9 +87,12 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     let weaponAttack = undefined;
     let weaponAttackAddendum = undefined
     let weaponDamage = undefined;
+    let lightWeaponDamage = undefined;
+    let cleaveWeaponDamage = undefined;
     let weaponAttackThrown = undefined;
     let weaponAttackThrownAddendum = undefined;
     let weaponDamageThrown = undefined;
+    let lightWeaponDamageThrown = undefined;
 
     if (data) {
         const itemDescriptionAddendumString = calculateAddendumAspect(data.playerConfigs, "itemDescriptionAddendum", { item });
@@ -93,8 +110,22 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                         weaponAttackAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
 
-                    weaponDamage = calculateWeaponDamage(data.playerConfigs, item, false);
+                    weaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, false, false);
                     weaponDamage += " " + item.damage.damageType;
+
+                    if (item.properties.includes("Light")) {
+                        lightWeaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, true, false);
+                        lightWeaponDamage += " " + item.damage.damageType;
+                    }
+
+                    if (item.mastery === "Cleave") {
+                        const weaponMasteries = calculateAspectCollection(data.playerConfigs, "weaponmasteries");
+                        const hasWeaponMastery = item.tags.some(tag => weaponMasteries.includes(tag));
+                        if (hasWeaponMastery) {
+                            cleaveWeaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, false, true);
+                            cleaveWeaponDamage += " " + item.damage.damageType;
+                        }
+                    }
                 }
 
                 // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
@@ -105,8 +136,13 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                         weaponAttackThrownAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
 
-                    weaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true);
+                    weaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, false, false);
                     weaponDamageThrown += " " + item.damage.damageType;
+
+                    if (item.properties.includes("Light")) {
+                        lightWeaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, true, false);
+                        lightWeaponDamageThrown += " " + item.damage.damageType;
+                    }
                 }
                 break;
         }
@@ -119,7 +155,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
             <div style={{display: (twoHandedDamage ? "block" : "none")}}><b>Two-Handed:</b> {twoHandedDamage}</div>
             <div style={{display: (rangeString ? "block" : "none")}}><b>Range:</b> {rangeString}</div>
             <div style={{display: (properties.length > 0 ? "block" : "none")}}><b>Properties:</b> {properties}</div>
-            <div style={{display: (masteriesString ? "block" : "none")}}><b>Mastery:</b> {masteriesString}</div>
+            <div style={{display: (masteries.length > 0 ? "block" : "none")}}><b>Mastery:</b> {masteries}</div>
             <div><b>Item Rarity:</b> {item.rarity}</div>
             <div><b>Weight:</b> {item.weight}</div>
             <div className="itemPageDescription">{description}</div>
@@ -137,6 +173,13 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
             <div className="itemPageDescription" style={{display: (weaponDamage ? "block" : "none")}}>
                 <div><b>Damage:</b> {weaponDamage}</div>
             </div>
+            <div className="itemPageDescription" style={{display: (lightWeaponDamage ? "block" : "none")}}>
+                <div><b>Light Damage:</b> {lightWeaponDamage}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (cleaveWeaponDamage ? "block" : "none")}}>
+                <div><b>Cleave Damage:</b> {cleaveWeaponDamage}</div>
+            </div>
+            <br style={{display: (weaponAttackThrown ? "block" : "none")}}></br>
             <div className="itemPageDescription" style={{display: (weaponAttackThrown ? "block" : "none")}}>
                 <div><b>Thrown Attack:</b> +{weaponAttackThrown}</div>
             </div>
@@ -145,6 +188,9 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
             </div>
             <div className="itemPageDescription" style={{display: (weaponDamageThrown ? "block" : "none")}}>
                 <div><b>Thrown Damage:</b> {weaponDamageThrown}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (lightWeaponDamageThrown ? "block" : "none")}}>
+                <div><b>Light Thrown Damage:</b> {lightWeaponDamageThrown}</div>
             </div>
         </div>
     </>

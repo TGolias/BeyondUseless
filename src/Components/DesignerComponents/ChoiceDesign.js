@@ -1,8 +1,8 @@
 import React from "react";
 import "./ChoiceDesign.css"
 import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
-import { calculateAspectCollection, getAllAspectOptions } from "../../SharedFunctions/TabletopMathFunctions";
-import { convertArrayOfStringsToHashMap } from "../../SharedFunctions/Utils";
+import { calculateAspectCollection, getAllAspectOptions, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { convertArrayOfStringsToHashMap, isNumeric } from "../../SharedFunctions/Utils";
 import { SelectList } from "../SimpleComponents/SelectList";
 import { FeatureDesign } from "./FeatureDesign";
 
@@ -52,17 +52,37 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
             const choice = choiceObject.choices[i];
             const pathToProperty = pathToPlayerChoices + choice.property;
 
-            const sourceOptions = getAllAspectOptions(choice.optionsSource);
+            let sourceOptions = getAllAspectOptions(choice.optionsSource);
+            if (choice.optionsSourceFilter) {
+                sourceOptions = sourceOptions.filter(option => {
+                    return performBooleanCalculation(baseStateObject, choice.optionsSourceFilter, { option })
+                });
+            }
+
             let optionDisplayStrings = sourceOptions.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
 
             // We don't want to be able to select any aspect values that we currently already have selected through other means.
-            const alreadySelectedValues = calculateAspectCollection(baseStateObject, choice.optionsSource);
+            let alreadySelectedValues;
+            const aspectToFilter = Object.keys(choice.choiceToAttributesMapping).find(aspectName => choice.choiceToAttributesMapping[aspectName] === choice.optionDisplayProperty);
+            if (aspectToFilter) {
+                alreadySelectedValues = calculateAspectCollection(baseStateObject, aspectToFilter);
+            } else {
+                alreadySelectedValues = [];
+            }
+            
             const alreadySelectedValueDisplayStringsHashMap = convertArrayOfStringsToHashMap(alreadySelectedValues);
             // -But, we want to include the current value in the array in the case of multiple selections.
             const currentChoiceValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
             const singleChoice = []
             if (choice.multipleSelections) {
+                let numberOfSelections;
+                if (isNumeric(choice.multipleSelections)) {
+                    numberOfSelections = choice.multipleSelections;
+                } else {
+                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calcuation);
+                }
+
                 const selectLists = [];
                 for (let i = 0; i < choice.multipleSelections; i++) {
                     const valueForSelection = currentChoiceValue ? currentChoiceValue[i] : undefined;
