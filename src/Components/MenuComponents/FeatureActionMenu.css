@@ -7,6 +7,26 @@
     overscroll-behavior: contain;
 }
 
+.featureActionConfiguringHorizontal {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 1em;
+    text-align: center;
+}
+
+.featureActionConfiguringVertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+    justify-content: space-between;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
 .featureActionMenuHorizontal {
     display: flex;
     flex-direction: row;
@@ -17,6 +37,34 @@
 
 .featureActionMenuHorizontal .retroButtonWrapper {
     padding: 1em;
+}
+
+.featureActionCheckboxInputs {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.featureActionSingleCheckboxInput {
+    display: flex;
+    padding: 0.25em;
+    column-gap: 0.25em;
+}
+
+.featureActionUserInputs {
+    display: flex;
+    flex-direction: column;
+}
+
+.featureActionResourceDisplay {
+    margin-top: -1em;
+    display: flex;
+    flex-direction: column;
+}
+
+.featureActionHealingInputs {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0.5em;
 }
 
 @media only screen and (max-width: 600px) {

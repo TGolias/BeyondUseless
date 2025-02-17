@@ -336,7 +336,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <FeatureActionPageComponent featureAction={featureAction} feature={feature} origin={origin} copyLinkToItem={copyLinkToItem}></FeatureActionPageComponent>
+              <FeatureActionPageComponent featureAction={featureAction} feature={feature} origin={origin} data={decodedData} copyLinkToItem={copyLinkToItem}></FeatureActionPageComponent>
             </div>
           </>);
         } else {

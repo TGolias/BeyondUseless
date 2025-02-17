@@ -103,7 +103,7 @@ function createSingleFeatureActionsGroup(playerConfigs, setCenterScreenMenu, gro
     for (let actionForResource of actionsForResource) {
         const action = actionForResource.action;
         for (let row of featureActionRows) {
-            actionRows.push(<div onClick={() => openMenuForFeatureAction(action, actionForResource.feature, actionForResource.origin, setCenterScreenMenu)} className={row.addClass ? "featureActionsDisplayRow " + row.addClass : "featureActionsDisplayRow"}>{row.calculateValue(playerConfigs, action)}</div>);
+            actionRows.push(<div onClick={() => openMenuForFeatureAction(action, actionForResource.feature, actionForResource.origin, resource, setCenterScreenMenu)} className={row.addClass ? "featureActionsDisplayRow " + row.addClass : "featureActionsDisplayRow"}>{row.calculateValue(playerConfigs, action)}</div>);
         }
     }
 
@@ -114,9 +114,9 @@ function createSingleFeatureActionsGroup(playerConfigs, setCenterScreenMenu, gro
     </>);
 }
 
-function openMenuForFeatureAction(featureActon, feature, origin, setCenterScreenMenu) {
+function openMenuForFeatureAction(featureActon, feature, origin, resource, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "FeatureActionMenu", data: { menuTitle: featureActon.name, featureAction: featureActon, feature: feature, origin: origin } });
+    setCenterScreenMenu({ show: true, menuType: "FeatureActionMenu", data: { menuTitle: featureActon.name, featureAction: featureActon, feature: feature, origin: origin, resource: resource } });
 }
 
 function getResource(playerConfigs, actionFeature, resourceName) {

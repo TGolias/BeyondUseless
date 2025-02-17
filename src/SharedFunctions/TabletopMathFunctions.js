@@ -669,20 +669,17 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     return { dc, addendum };
 }
 
-export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName) {
-    const calculationsForAttackBonus = [];
+export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, aspectName, aspectBonusName, userInput) {
+    const calculationsForActionAspect = [];
 
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
-    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
-
-    // Start with the spell's calculation
-    calculationsForAttackBonus.push(...spell[aspectName].calcuation);
+    // Start with the feature action's calculation
+    calculationsForActionAspect.push(...featureAction[aspectName].calcuation);
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
         findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { featureAction, userInput });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -690,10 +687,10 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
             }
 
             if (aspectValue.calcuation) {
-                calculationsForAttackBonus.push(...aspectValue.calcuation);
+                calculationsForActionAspect.push(...aspectValue.calcuation);
             }
             else {
-                calculationsForAttackBonus.push({
+                calculationsForActionAspect.push({
                     type: "static",
                     value: aspectValue
                 });
@@ -701,7 +698,43 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
         });
     }
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForActionAspect, { featureAction, userInput });
+    return amount;
+}
+
+export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalParams = undefined) {
+    const calculationsForSpellAspect = [];
+
+    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
+    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
+
+    // Start with the spell's calculation
+    calculationsForSpellAspect.push(...spell[aspectName].calcuation);
+    
+    if (aspectBonusName) {
+        // See if there are additional bonuses to apply to this aspect.
+        findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
+            if (aspectValue.conditions) {
+                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
+                if (!conditionsAreMet) {
+                    // We did not meet the conditions for this bonus to apply.
+                    return;
+                }
+            }
+
+            if (aspectValue.calcuation) {
+                calculationsForSpellAspect.push(...aspectValue.calcuation);
+            }
+            else {
+                calculationsForSpellAspect.push({
+                    type: "static",
+                    value: aspectValue
+                });
+            }
+        });
+    }
+
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellAspect, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
     return amount;
 }
 

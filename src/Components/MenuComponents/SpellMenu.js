@@ -144,6 +144,9 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
                 </div>
             </div>
             <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
+            <div className="spellMenuCastingVertical">
+                <RetroButton text={"Not Healing Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", false)}} showTriangle={false} disabled={false}></RetroButton>
+            </div>
         </>);
     } else {
         if (menuConfig.spell.type.includes("healing")) {

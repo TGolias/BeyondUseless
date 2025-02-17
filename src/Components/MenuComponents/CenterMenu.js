@@ -201,11 +201,15 @@ const menuCollection = {
             newItemMenu.featureAction = data.featureAction;
             newItemMenu.feature = data.feature;
             newItemMenu.origin = data.origin;
+            newItemMenu.resource = data.resource;
+            newItemMenu.userInput = {};
+            newItemMenu.hpIsChanging = false;
+            newItemMenu.healAmount = 0;
             newItemMenu.copyLinkToItem = {};
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
-            return (<><FeatureActionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></FeatureActionMenu></>)
+            return (<><FeatureActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></FeatureActionMenu></>)
         }
     },
 }
