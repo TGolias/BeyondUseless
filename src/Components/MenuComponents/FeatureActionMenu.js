@@ -32,11 +32,22 @@ const userInputTypes = {
                 menuConfig.userInput[singleUserInput.name] = []
             }
 
+            const checkBoxInputsValueHolder = {};
             for (let i = 0; i < allCheckboxValues.length; i++) {
                 const singleCheckboxValue = allCheckboxValues[i];
+                checkBoxInputsValueHolder[singleCheckboxValue] = menuConfig.userInput[singleUserInput.name].includes(singleCheckboxValue);
                 checkBoxControls.push(<>
                     <div className="featureActionSingleCheckboxInput">
-                        <CheckboxInput baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name + "[" + i + "]"} inputHandler={menuStateChangeHandler}></CheckboxInput>
+                        <CheckboxInput baseStateObject={checkBoxInputsValueHolder} pathToProperty={singleCheckboxValue} inputHandler={(baseStateObject, pathToProperty, newValue) => {
+                            baseStateObject[pathToProperty] = newValue;
+                            const newArrayValue = [];
+                            for (let key of Object.keys(checkBoxInputsValueHolder)) {
+                                if (checkBoxInputsValueHolder[key]) {
+                                    newArrayValue.push(key);
+                                }
+                            }
+                            menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, newArrayValue);
+                        }}></CheckboxInput>
                         <span className="featureActionConfiguringVertical">{singleCheckboxValue}</span>
                     </div>
                 </>);

@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateOtherFeatureActionAspect } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateOtherFeatureActionAspect, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, copyLinkToItem}) {
     let description = parseStringForBoldMarkup(featureAction.description);
@@ -20,6 +20,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let savingThrowDcAddendum = undefined;
     let damage = undefined;
     let healing = undefined;
+    let restore = undefined
     let buffAmount = undefined;
     let buffDescription = undefined;
     let debuffAmount = undefined;
@@ -27,6 +28,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     if (data) {
         if (featureAction.type.includes("healing")) {
             healing = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "healing", "healingBonus", data.userInput);
+        }
+
+        if (featureAction.type.includes("restore")) {
+            restore = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "restore", "restoreBonus", data.userInput);
         }
     }
 
@@ -57,6 +62,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="featureActionPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: (restore ? "block" : "none")}}>
+                <div><b>Conditions Removed:</b> {restore}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (buffDescription ? "block" : "none")}}>
                 <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>

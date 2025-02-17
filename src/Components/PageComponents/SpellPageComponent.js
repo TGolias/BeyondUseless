@@ -71,6 +71,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let savingThrowDcAddendum = undefined;
     let damage = undefined;
     let healing = undefined;
+    let restore = undefined;
     let buffAmount = undefined;
     let buffDescription = undefined;
     let debuffAmount = undefined;
@@ -131,6 +132,10 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         if (spell.type.includes("healing")) {
             healing = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "healing", "healingBonus");
         }
+
+        if (spell.type.includes("restore")) {
+            restore = calculateOtherSpellAspect(data.playerConfigs, spell, "restore", "restoreBonus");
+        }
     }
 
     return <>
@@ -167,6 +172,9 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             </div>
             <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (restore ? "block" : "none")}}>
+                <div><b>Conditions Removed:</b> {restore}</div>
             </div>
             <div className="spellPageDescription" style={{display: (buffDescription ? "block" : "none")}}>
                 <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>

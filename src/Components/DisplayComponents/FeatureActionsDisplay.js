@@ -128,6 +128,8 @@ function getResource(playerConfigs, actionFeature, resourceName) {
             const resource = {...classResource};
 
             const classLevel = actionFeature.playerConfigForObject.levels;
+            resource.classLevel = classLevel;
+
             const resourcesForLevel = dndClass.resourcesPerLevel[classLevel - 1];
             resource.maxUses = resourcesForLevel[resourceName];
 

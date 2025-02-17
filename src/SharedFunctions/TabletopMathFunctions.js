@@ -1169,7 +1169,9 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
         return singleValue;
     };
     const performAddition = (currentTotal, valueToAdd) => {
-        if (isObject(valueToAdd)) {
+        if (Array.isArray(valueToAdd)) {
+            currentTotal["static"] = valueToAdd.join(", ");
+        } else if (isObject(valueToAdd)) {
             // The value to add is a die object. Iterate through each of the dice and add them to our totals.
             for (let key of Object.keys(valueToAdd)) {
                 if (currentTotal[key]) {
@@ -1229,11 +1231,13 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
                     diceString += (diceString.length > 0 ? "+" + stringToAdd : stringToAdd);
                 } else if (diceObjectValue < 0) {
                     diceString += stringToAdd;
-                }
+                } else if (diceObjectValue !== 0 && diceObjectValue !== false && diceObjectValue !== undefined && diceObjectValue !== null) {
+                    diceString += stringToAdd;
+                } // Zero, false, undefined, etc should not be added.
             }
         }
     }
-    return diceString.length === 0 ? "0" : diceString;
+    return diceString.length === 0 ? 0 : diceString;
 }
 
 export function performMathCalculation(playerConfigs, calculation, parameters = {}) {
