@@ -145,14 +145,14 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
             </div>
             <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
             <div className="spellMenuCastingVertical">
-                <RetroButton text={"Not Healing Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", false)}} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"Not using on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", false)}} showTriangle={false} disabled={false}></RetroButton>
             </div>
         </>);
     } else {
         if (menuConfig.spell.type.includes("healing")) {
             hpControls.push(<><div className="spellMenuCastingHorizontal">
                 <div className="spellMenuCastingVertical">
-                    <RetroButton text={"Heal Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", true)}} showTriangle={false} disabled={false}></RetroButton>
+                    <RetroButton text={"Use on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", true)}} showTriangle={false} disabled={false}></RetroButton>
                 </div>
             </div></>);
        }

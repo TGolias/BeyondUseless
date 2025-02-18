@@ -13,7 +13,7 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu = undefined,
 
     const percentTempHp = tempHp > hpMax ? 100 : (tempHp / hpMax) * 100;
 
-    const isDead = percentHpRemaining === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2;
+    const isDead = (percentHpRemaining === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2) || playerConfigs.currentStatus?.conditions.some(condition => condition.name === "Exhaustion" && condition.level === 6);
 
     controlLowHpSound(playLowHpAudio, percentHpRemaining);
 

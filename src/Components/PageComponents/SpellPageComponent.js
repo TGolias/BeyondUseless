@@ -131,10 +131,16 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 
         if (spell.type.includes("healing")) {
             healing = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "healing", "healingBonus");
+            if (healing.length === 0) {
+                healing = "0";
+            }
         }
 
         if (spell.type.includes("restore")) {
             restore = calculateOtherSpellAspect(data.playerConfigs, spell, "restore", "restoreBonus");
+            if (restore.length === 0) {
+                restore = "(none)";
+            }
         }
     }
 

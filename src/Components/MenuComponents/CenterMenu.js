@@ -12,6 +12,8 @@ import { PropertyMenu } from "./PropertyMenu";
 import { MasteryMenu } from "./MasteryMenu";
 import { ActionMenu } from "./ActionMenu";
 import { FeatureActionMenu } from "./FeatureActionMenu";
+import { ConditionMenu } from "./ConditionMenu";
+import { SelectListMenu } from "./SelectListMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -28,10 +30,11 @@ const menuCollection = {
             newHealthMenuConfig.newMaxHpModifier = playerConfigs.currentStatus.maxHpModifier ?? 0; 
             newHealthMenuConfig.newRemainingHp = playerConfigs.currentStatus.remainingHp ?? calculateHPMax(playerConfigs); 
             newHealthMenuConfig.changeHpAmount = 0;
+            newHealthMenuConfig.newConditions = playerConfigs.currentStatus.conditions ?? [];
             return newHealthMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
-            return (<><HealthMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HealthMenu></>)
+            return (<><HealthMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HealthMenu></>)
         }
     },
     HitDiceMenu: {
@@ -210,6 +213,64 @@ const menuCollection = {
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
             return (<><FeatureActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></FeatureActionMenu></>)
+        }
+    },
+    ConditionMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">
+                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                        if (menuConfig.copyLinkToItem && menuConfig.copyLinkToItem.onExecute) {
+                            menuConfig.copyLinkToItem.onExecute();
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton>
+                </div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.condition = data.condition;
+            if (data.conditionConfig) {
+                newItemMenu.conditionConfig = {...data.conditionConfig}
+            } else {
+                newItemMenu.conditionConfig = { name: data.condition.name }
+                if (newItemMenu.condition.type) {
+                    if (newItemMenu.condition.type.includes("damagetypes")) {
+                        newItemMenu.conditionConfig.damagetypes = [];
+                    }
+                    if (newItemMenu.condition.type.includes("conditions")) {
+                        newItemMenu.conditionConfig.conditions = [];
+                    }
+                    if (newItemMenu.condition.type.includes("level")) {
+                        newItemMenu.conditionConfig.level = 1;
+                    }
+                }
+            }
+            newItemMenu.onOkClicked = data.onOkClicked;
+            newItemMenu.onRemoveClicked = data.onRemoveClicked;
+            newItemMenu.copyLinkToItem = {};
+            return newItemMenu;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
+            return (<><ConditionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ConditionMenu></>)
+        }
+    },
+    SelectListMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{data.menuTitle}</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.menuText = data.menuText;
+            newItemMenu.onOkClicked = data.onOkClicked;
+            newItemMenu.options = data.options;
+            newItemMenu.valueSelected = undefined;
+            return newItemMenu;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler) => {
+            return (<><SelectListMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></SelectListMenu></>)
         }
     },
 }

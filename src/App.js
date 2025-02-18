@@ -17,6 +17,7 @@ import { PropertyPageComponent } from "./Components/PageComponents/PropertyPageC
 import { MasteryPageComponent } from "./Components/PageComponents/MasteryPageComponent";
 import { ActionPageComponent } from "./Components/PageComponents/ActionPageComponent";
 import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureActionPageComponent";
+import { ConditionPageComponent } from "./Components/PageComponents/ConditionPageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -356,6 +357,37 @@ export default function App() {
           return (<>
             <div>QueryParams '{missingParams.join(", ")}' missing for featureaction :(</div>
           </>)
+        }
+      case "condition":
+        const conditionName = params.get('name');
+        let conditionNameLower = conditionName?.toLowerCase();
+
+        const conditions = getCollection("conditions");
+        const conditionFound = conditions.find(condition => condition.name.toLowerCase() === conditionNameLower);
+
+        if (!conditionFound) {
+          return (<>
+            <div>Condition '{conditionFound}' not found :(</div>
+          </>)
+        } else {
+          const copyLinkToItem = {};
+          return (<>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={conditionFound.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <ConditionPageComponent condition={conditionFound} copyLinkToItem={copyLinkToItem}></ConditionPageComponent>
+            </div>
+          </>);
         }
       default: {
         return (<>

@@ -1,0 +1,13 @@
+.checkListInputWrapper{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.checkListInputSingleCheckboxWrapper {
+    display: flex;
+    padding: 0.25em;
+    column-gap: 0.25em;
+    align-items: center;
+}

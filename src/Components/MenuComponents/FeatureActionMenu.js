@@ -6,11 +6,15 @@ import { calculateHPMax, calculateOtherFeatureActionAspect, performMathCalculati
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { isNumeric } from "../../SharedFunctions/Utils";
-import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
+import { CheckListInput } from "../SimpleComponents/CheckListInput";
 
 const userInputTypes = {
     numberField: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+            if (!menuConfig.userInput[singleUserInput.name]) {
+                menuConfig.userInput[singleUserInput.name] = 0;
+            }
+
             const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
             const max = singleUserInput.max ? performMathCalculation(playerConfigs, singleUserInput.max, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
             return (<>
@@ -25,40 +29,16 @@ const userInputTypes = {
     },
     checkboxList: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            const checkBoxControls = []
-            const allCheckboxValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
-
             if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = []
+                menuConfig.userInput[singleUserInput.name] = [];
             }
 
-            const checkBoxInputsValueHolder = {};
-            for (let i = 0; i < allCheckboxValues.length; i++) {
-                const singleCheckboxValue = allCheckboxValues[i];
-                checkBoxInputsValueHolder[singleCheckboxValue] = menuConfig.userInput[singleUserInput.name].includes(singleCheckboxValue);
-                checkBoxControls.push(<>
-                    <div className="featureActionSingleCheckboxInput">
-                        <CheckboxInput baseStateObject={checkBoxInputsValueHolder} pathToProperty={singleCheckboxValue} inputHandler={(baseStateObject, pathToProperty, newValue) => {
-                            baseStateObject[pathToProperty] = newValue;
-                            const newArrayValue = [];
-                            for (let key of Object.keys(checkBoxInputsValueHolder)) {
-                                if (checkBoxInputsValueHolder[key]) {
-                                    newArrayValue.push(key);
-                                }
-                            }
-                            menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, newArrayValue);
-                        }}></CheckboxInput>
-                        <span className="featureActionConfiguringVertical">{singleCheckboxValue}</span>
-                    </div>
-                </>);
-            }
-            const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
-            const max = singleUserInput.max ? performMathCalculation(playerConfigs, singleUserInput.max, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
+            const allCheckboxValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
             return (<>
                 <div className="featureActionConfiguringHorizontal">
                     <div className="featureActionConfiguringVertical">
                         <div>{singleUserInput.displayName}</div>
-                        <div className="featureActionCheckboxInputs">{checkBoxControls}</div>
+                        <CheckListInput baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler} values={allCheckboxValues}></CheckListInput>
                     </div>
                 </div>
             </>);
@@ -88,7 +68,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
     }
 
     let resourceDisplay = []
-    const cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calcuation, { userInput: menuConfig.userInput, resource: menuConfig.resource }) ?? 0;
+    let cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calcuation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
     const newRemainingUses = menuConfig.resource.remainingUses - cost;
     let canUseAction = newRemainingUses >= 0 && cost !== 0;
 
@@ -134,7 +114,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
         hpControls.push(<>
             <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
             <div className="featureActionConfiguringVertical">
-                <RetroButton text={"Not Healing Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", false)}} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"Not Using on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", false)}} showTriangle={false} disabled={false}></RetroButton>
             </div>
         </>);
     } else {
@@ -142,7 +122,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
         if (menuConfig.featureAction.type.includes("healing")) {
             hpControls.push(<><div className="featureActionConfiguringHorizontal">
                 <div className="featureActionConfiguringVertical">
-                    <RetroButton text={"Heal Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", true)}} showTriangle={false} disabled={false}></RetroButton>
+                    <RetroButton text={"Use on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", true)}} showTriangle={false} disabled={false}></RetroButton>
                 </div>
             </div></>);
         }

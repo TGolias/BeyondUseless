@@ -1237,7 +1237,7 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
             }
         }
     }
-    return diceString.length === 0 ? 0 : diceString;
+    return diceString;
 }
 
 export function performMathCalculation(playerConfigs, calculation, parameters = {}) {

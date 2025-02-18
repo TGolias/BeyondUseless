@@ -13,6 +13,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         };
     }
 
+    let showActionSummary = false;
     let attackRoll = undefined;
     let attackRollAddendum = undefined
     let savingThrowType = undefined;
@@ -28,10 +29,16 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     if (data) {
         if (featureAction.type.includes("healing")) {
             healing = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "healing", "healingBonus", data.userInput);
+            if (healing.length === 0) {
+                healing = "0";
+            }
         }
 
         if (featureAction.type.includes("restore")) {
             restore = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "restore", "restoreBonus", data.userInput);
+            if (restore.length === 0) {
+                restore = "(none)";
+            }
         }
     }
 
@@ -41,8 +48,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             <div className="featureActionPageDescription" style={{display: (feature ? "block" : "none")}}>
                 <div><b>Learned from:</b> {origin.value.name} - {feature.name}</div>
             </div>
-            <br style={{display: (data ? "block" : "none")}}></br>
-            <div className="featureActionPageDescription" style={{display: (data ? "block" : "none")}}>
+            <br style={{display: (showActionSummary ? "block" : "none")}}></br>
+            <div className="featureActionPageDescription" style={{display: (showActionSummary ? "block" : "none")}}>
                 <div><b>Action Summary</b></div>
             </div>
             <div className="featureActionPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
