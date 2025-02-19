@@ -2,8 +2,9 @@ import React from "react";
 import './HPandLVLDisplay.css';
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { playAudio } from "../../SharedFunctions/Utils";
+import { CheckIfPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
 
-export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu = undefined, playLowHpAudio}) {
+export function HPandLVLDisplay({playerConfigs, inputChangeHandler = undefined, setCenterScreenMenu = undefined, playLowHpAudio}) {
     const level = playerConfigs.level;
     const hpMax = calculateHPMax(playerConfigs);
     const currentHp = (!!playerConfigs.currentStatus.remainingHp || playerConfigs.currentStatus.remainingHp === 0) ? playerConfigs.currentStatus.remainingHp : hpMax;
@@ -13,7 +14,7 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu = undefined,
 
     const percentTempHp = tempHp > hpMax ? 100 : (tempHp / hpMax) * 100;
 
-    const isDead = (percentHpRemaining === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2) || playerConfigs.currentStatus?.conditions?.some(condition => condition.name === "Exhaustion" && condition.level === 6);
+    const isDead = CheckIfPlayerDead(playerConfigs);
 
     controlLowHpSound(playLowHpAudio, percentHpRemaining);
 
@@ -21,7 +22,14 @@ export function HPandLVLDisplay({playerConfigs, setCenterScreenMenu = undefined,
         <div className="hp-corners" onClick={() => {
             if (setCenterScreenMenu) {
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "HealthMenu", data: undefined });
+                if (isDead) {
+                    if (inputChangeHandler) {
+                        showReviveMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu);
+                    }
+                    
+                } else {
+                    setCenterScreenMenu({ show: true, menuType: "HealthMenu", data: undefined });
+                }
             }
         }}>
             <div className={"healthWrapper"}>
@@ -81,4 +89,26 @@ function controlLowHpSound(playLowHpAudio, percentHpRemaining) {
             lowHpAudio.pause();
         }
     }
+}
+
+function showReviveMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu) {
+    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                            menuTitle: "Revive", menuText: "Would you like to Revive?", 
+                            buttons: [
+                                {
+                                    text: "Yes",
+                                    sound: "reviveaudio",
+                                    onClick: () => {
+                                        const playerConfigsClone = {...playerConfigs};
+                                        SetPlayerRevived(playerConfigsClone);
+                                        inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+                                        setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                    }
+                                },
+                                {
+                                    text: "No",
+                                    onClick: () => {}
+                                }
+                            ] 
+                        } });
 }
