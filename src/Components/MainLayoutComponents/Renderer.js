@@ -13,6 +13,8 @@ import { SpellSlotsDisplay } from "../DisplayComponents/SpellSlotsDisplay";
 import { OtherActionsDisplay } from "../DisplayComponents/OtherActionsDisplay";
 import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDisplay";
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
+import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
+import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -41,7 +43,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
                 </div>
                 <div style={{display: (conditions.length > 0 ? "block" : "none")}}>
-                    <ConditionsDisplay setCenterScreenMenu={setCenterScreenMenu} conditions={conditions} onAddOrUpdate={(newCondition) => onAddCondition(playerConfigs, inputChangeHandler, newCondition)} onRemove={(conditionNameToRemove) => onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRemove)}></ConditionsDisplay>
+                    <ConditionsDisplay setCenterScreenMenu={setCenterScreenMenu} conditions={conditions} onAddOrUpdate={(newCondition) => onAddCondition(playerConfigs, inputChangeHandler, newCondition, showDeathScreen)} onRemove={(conditionNameToRemove) => onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRemove)}></ConditionsDisplay>
                 </div>
                 <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
                     <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
@@ -86,26 +88,25 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     );
 }
 
-function onAddCondition(playerConfigs, inputChangeHandler, newCondition) {
-    const newConditions = [...(playerConfigs.currentStatus.conditions ?? [])];
-    const existingCurrentCondition = newConditions.find(condition => condition.name === newCondition.name);
-    if (existingCurrentCondition) {
-        const indexToReplace = newConditions.indexOf(existingCurrentCondition);
-        newConditions[indexToReplace] = newCondition;
+function onAddCondition(playerConfigs, inputChangeHandler, newCondition, showDeathScreen) {
+    const newConditions = AddOrUpdateCondition(playerConfigs.currentStatus.conditions, newCondition);
+    if (newCondition.name === "Exhaustion" && newCondition.level === 6) {
+        // First check if we hit exhaustion 6... That's insta-death.
+        const newPlayerConfigs = {...playerConfigs};
+        newPlayerConfigs.currentStatus = {...(playerConfigs.currentStatus ?? {})};
+        newPlayerConfigs.currentStatus.conditions = newConditions;
+
+        SetPlayerDead(newPlayerConfigs);
+        inputChangeHandler(playerConfigs, "currentStatus", newPlayerConfigs.currentStatus);
+        showDeathScreen();
     } else {
-        newConditions.push(newCondition);
+        inputChangeHandler(playerConfigs, "currentStatus.conditions", newConditions);
     }
-    inputChangeHandler(playerConfigs, "currentStatus.conditions", newConditions);
 }
 
 function onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRemove) {
-    if (playerConfigs.currentStatus.conditions) {
-        const existingCondition = playerConfigs.currentStatus.conditions.find(condition => condition.name === conditionNameToRemove);
-        if (existingCondition) {
-            const indexToRemove = playerConfigs.currentStatus.conditions.indexOf(existingCondition);
-            const newConditions = [...playerConfigs.currentStatus.conditions];
-            newConditions.splice(indexToRemove, 1);
-            inputChangeHandler(playerConfigs, "currentStatus.conditions", newConditions);
-        }
+    const newConditions = RemoveConditionByName(playerConfigs.currentStatus.conditions, conditionNameToRemove);
+    if (newConditions) {
+        inputChangeHandler(playerConfigs, "currentStatus.conditions", newConditions);
     }
 }

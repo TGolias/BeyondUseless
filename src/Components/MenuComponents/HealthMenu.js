@@ -7,8 +7,11 @@ import { calculateAspectCollection, calculateHPMax } from "../../SharedFunctions
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { getCollection } from "../../Collections";
 import { convertArrayToDictionary } from "../../SharedFunctions/Utils";
+import { CheckIfPlayerDead, SetPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
+import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
+import { SetPlayerLongRested } from "../../SharedFunctions/RestFunctions";
 
-export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
+export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler, showDeathScreen}) {
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
 
     const playerConfigsClone = {...playerConfigs};
@@ -37,16 +40,24 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
         playerConfigsClone.currentStatus.deathSavingThrowSuccesses = 0;
     }
 
-    const wasDead = playerConfigs.currentStatus.remainingHp === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2;
-    const willBeDead = playerConfigsClone.currentStatus.remainingHp === 0 && playerConfigs.currentStatus?.deathSavingThrowFailures > 2;
-
-    const willBeRevived = wasDead && !willBeDead;
-
     playerConfigsClone.currentStatus.conditions = [...menuConfig.newConditions];
     const currentConditionsMap = convertArrayToDictionary(menuConfig.newConditions, "name");
     const allConditions = getCollection("conditions");
     const allConditionsMap = convertArrayToDictionary(allConditions, "name");
     const notYetSelectedConditionNames = allConditions.filter(condition => !currentConditionsMap[condition.name]).map(condition => condition.name);
+
+    const wasDead = CheckIfPlayerDead(playerConfigs);
+    const willBeDead = CheckIfPlayerDead(playerConfigsClone);
+
+    const willBeRevived = wasDead && !willBeDead;
+    const willDie = !wasDead && willBeDead;
+
+    if (willBeRevived) {
+        SetPlayerRevived(playerConfigsClone);
+    }
+    if (willDie) {
+        SetPlayerDead(playerConfigsClone);
+    }
 
     return (<>
         <div className="healthMenuWrapperDiv">
@@ -68,9 +79,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                                             sound: "longrestaudio",
                                             onClick: () => {
                                                 // Clear out most of current status. There will be a couple things the stick around after a long rest, but most are cleared.
-                                                playerConfigsClone.currentStatus = {};
-                                                // Heroic inspiration sticks around.
-                                                playerConfigsClone.currentStatus.heroicInspiration = playerConfigs.currentStatus.heroicInspiration;
+                                                SetPlayerLongRested(playerConfigsClone);
                                                 inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                                                 setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                                             }
@@ -146,7 +155,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                                 const dndCondition = allConditionsMap[result];
                                 addToMenuStack({ menuType: "HealthMenu", menuConfig });
                                 setCenterScreenMenu({ show: true, menuType: "ConditionMenu", data: { menuTitle: dndCondition.name, condition: dndCondition,
-                                    onOkClicked: (newCondition) => {
+                                    onOkClicked: (newCondition, didConfigChange) => {
                                         // Next time: Gonna need to add the player's conditions to this menuconfig. Add them here, then make sure they get set to the playerclone before we hit the confirm button.
                                         const newConditions = [...menuConfig.newConditions, newCondition];
                                         menuStateChangeHandler(menuConfig, "newConditions", newConditions);
@@ -155,24 +164,12 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                             } } 
                         });
                     } } onAddOrUpdate={(newCondition) => {
-                        const newConditions = [...menuConfig.newConditions];
-                        const existingCurrentCondition = newConditions.find(condition => condition.name === newCondition.name);
-                        if (existingCurrentCondition) {
-                            const indexToReplace = newConditions.indexOf(existingCurrentCondition);
-                            newConditions[indexToReplace] = newCondition;
-                        } else {
-                            newConditions.push(newCondition);
-                        }
+                        const newConditions = AddOrUpdateCondition(menuConfig.newConditions, newCondition);
                         menuStateChangeHandler(menuConfig, "newConditions", newConditions);
                     }} onRemove={(conditionNameToRemove) => {
-                        if (menuConfig.newConditions) {
-                            const existingCondition = menuConfig.newConditions.find(condition => condition.name === conditionNameToRemove);
-                            if (existingCondition) {
-                                const indexToRemove = menuConfig.newConditions.indexOf(existingCondition);
-                                const newConditions = [...menuConfig.newConditions];
-                                newConditions.splice(indexToRemove, 1);
-                                menuStateChangeHandler(menuConfig, "newConditions", newConditions);
-                            }
+                        const newConditions = RemoveConditionByName(menuConfig.newConditions, conditionNameToRemove);
+                        if (newConditions) {
+                            menuStateChangeHandler(menuConfig, "newConditions", newConditions);
                         }
                     }}></ConditionsDisplay>
                 </div>
@@ -182,6 +179,9 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                 <RetroButton text="Confirm" onClickHandler={() => {
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                    if (willDie) {
+                        showDeathScreen();
+                    }
                 }} showTriangle={false} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });

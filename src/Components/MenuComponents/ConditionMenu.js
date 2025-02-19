@@ -44,6 +44,21 @@ export function ConditionMenu({setCenterScreenMenu, menuConfig, menuStateChangeH
         }
     }
 
+    let didConfigChange = false;
+    if (menuConfig.startingConditionConfig) {
+        if (JSON.stringify(menuConfig.startingConditionConfig?.damagetypes ?? []) !== JSON.stringify(menuConfig.conditionConfig?.damagetypes ?? [])) {
+            didConfigChange = true;
+        }
+        if (JSON.stringify(menuConfig.startingConditionConfig?.conditions ?? []) !== JSON.stringify(menuConfig.conditionConfig?.conditions ?? [])) {
+            didConfigChange = true;
+        }
+        if (menuConfig.startingConditionConfig?.level !== menuConfig.conditionConfig?.level) {
+            didConfigChange = true;
+        }
+    } else {
+        didConfigChange = true;
+    }
+
     let isOkValid = false;
     if (menuConfig.condition.type && (menuConfig.condition.type.includes("damagetypes") || menuConfig.condition.type.includes("conditions"))) {
         if (menuConfig.conditionConfig.conditions.length > 0 || menuConfig.conditionConfig.damagetypes.length) {
@@ -68,7 +83,7 @@ export function ConditionMenu({setCenterScreenMenu, menuConfig, menuStateChangeH
             <RetroButton text={"OK"} onClickHandler={() => {
                 setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })
                 if (menuConfig.onOkClicked) {
-                    menuConfig.onOkClicked(menuConfig.conditionConfig);
+                    menuConfig.onOkClicked(menuConfig.conditionConfig, didConfigChange);
                 }
             }} showTriangle={false} disabled={!isOkValid}></RetroButton>
             <RetroButton text={"Remove"} onClickHandler={() => {

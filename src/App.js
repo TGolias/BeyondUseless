@@ -184,7 +184,7 @@ export default function App() {
             </div>
             <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
               <div className="centerMenu pixel-corners">
-                <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
+                <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen}></CenterMenu>
               </div>
             </div>
           </>);
@@ -683,7 +683,7 @@ export default function App() {
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
         <div className="centerMenu pixel-corners">
-          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler}></CenterMenu>
+          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen}></CenterMenu>
         </div>
       </div>
       <div id="deathScreenWrapper" className="deathScreenWapper">

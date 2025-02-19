@@ -60,8 +60,10 @@ function createSingleConditionDisplay(dndCondition, conditionConfig, displayText
 function openConditionScreen(dndCondition, conditionConfig, setCenterScreenMenu, onAddOrUpdate, onRemove) {
     playAudio("menuaudio");
     setCenterScreenMenu({ show: true, menuType: "ConditionMenu", data: { menuTitle: dndCondition.name, condition: dndCondition, conditionConfig: conditionConfig,
-        onOkClicked: (newCondition) => {
-            onAddOrUpdate(newCondition);
+        onOkClicked: (newCondition, didConfigChange) => {
+            if (didConfigChange) {
+                onAddOrUpdate(newCondition);
+            }
         }, onRemoveClicked: (conditionNameToRemove) => {
             onRemove(conditionNameToRemove);
         } 
