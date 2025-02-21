@@ -14,7 +14,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         };
     }
 
-    let showActionSummary = false;
     let attackRoll = undefined;
     let attackRollAddendum = undefined
     let savingThrowType = undefined;
@@ -32,7 +31,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         featureAction.feature = origin.value.features.find(feature => feature.spellcasting);
 
         if (featureAction.challengeType === "attackRoll") {
-            showActionSummary = true;
             const attack = calculateSpellAttack(data.playerConfigs, featureAction, undefined)
             attackRoll = attack.amount;
             if (attack.addendum) {
@@ -41,7 +39,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.challengeType === "savingThrow") {
-            showActionSummary = true;
             savingThrowType = featureAction.savingThrowType;
 
             const savingThrowCalc = calculateSpellSaveDC(data.playerConfigs, featureAction, undefined);
@@ -52,13 +49,11 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("damage")) {
-            showActionSummary = true;
             damage = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "damage", "spellDamageBonus", { userInput: data.userInput });
             damage += " " + featureAction.damage.damageType;
         }
 
         if (featureAction.type.includes("buff")) {
-            showActionSummary = true;
             if (featureAction.buff.calcuation) {
                 buffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "buff", "buffBonus", { userInput: data.userInput });
             }
@@ -66,7 +61,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("debuff")) {
-            showActionSummary = true;
             if (featureAction.debuff.calcuation) {
                 debuffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "debuff", "debuffBonus", { userInput: data.userInput });
             }
@@ -88,7 +82,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("healing")) {
-            showActionSummary = true;
             healing = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "healing", "healingBonus", { userInput: data.userInput });
             if (healing.length === 0) {
                 healing = "0";
@@ -96,7 +89,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("restore")) {
-            showActionSummary = true;
             restore = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "restore", "restoreBonus", { userInput: data.userInput });
             if (restore.length === 0) {
                 restore = "(none)";
@@ -107,8 +99,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     return <>
         <div className="featureActionPageContainer">
             <div className="featureActionPageDescription">{description}</div>
-            <br style={{display: (showActionSummary ? "block" : "none")}}></br>
-            <div className="featureActionPageDescription" style={{display: (showActionSummary ? "block" : "none")}}>
+            <br></br>
+            <div className="featureActionPageDescription">
                 <div><b>Action Summary</b></div>
             </div>
             <div className="featureActionPageDescription" style={{display: (attackRoll ? "block" : "none")}}>
