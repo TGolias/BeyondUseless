@@ -9,7 +9,7 @@ import { getCollection } from "../../Collections";
 import { convertArrayToDictionary } from "../../SharedFunctions/Utils";
 import { CheckIfPlayerDead, SetPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
-import { SetPlayerLongRested } from "../../SharedFunctions/RestFunctions";
+import { SetPlayerLongRested, SetPlayerShortRested } from "../../SharedFunctions/RestFunctions";
 
 export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler, showDeathScreen}) {
     const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
@@ -100,7 +100,10 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                                         menuTitle: "Short Rest", 
                                         menuText: "Select any hit dice you'd like expend as part of your Short Rest.",
                                         soundOnHitDiceExpend: "shortrestaudio",
-                                        soundOnNoHitDiceExpend: "shortrestaudio"
+                                        soundOnNoHitDiceExpend: "shortrestaudio",
+                                        onBeforeConfirm: (newPlayerConfigs) => {
+                                            SetPlayerShortRested(newPlayerConfigs);
+                                        }
                                     } });
                                 }
                             }
@@ -113,7 +116,8 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                         menuTitle: "Expend Hit Dice", 
                         menuText: "Expend hit dice outside of a Short Rest.",
                         soundOnHitDiceExpend: "healaudio",
-                        soundOnNoHitDiceExpend: "selectionaudio"
+                        soundOnNoHitDiceExpend: "selectionaudio",
+                        onBeforeConfirm: (newPlayerConfigs) => {}
                     } });
                 }} showTriangle={false} disabled={wasDead}></RetroButton>
             </div>

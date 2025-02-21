@@ -1,8 +1,9 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { getHomePageUrl } from "../../SharedFunctions/Utils";
+import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
+import { getCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     let castingTime = "";
@@ -127,6 +128,20 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
                 debuffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "debuff", "debuffBonus");
             }
             debuffDescription = spell.debuff.description;
+            if (spell.debuff.conditions) {
+                if (!debuffDescription) {
+                    debuffDescription = "";
+                }
+                const allConditions = getCollection("conditions");
+                const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+                for (let condition of spell.debuff.conditions) {
+                    const dndCondition = allConditionsMap[condition];
+                    if (debuffDescription.length > 0) {
+                        debuffDescription.length += "\n\n";
+                    }
+                    debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
+                }
+            }
         }
 
         if (spell.type.includes("healing")) {
@@ -186,7 +201,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
                 <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>
             </div>
             <div className="spellPageDescription" style={{display: (debuffDescription ? "block" : "none")}}>
-                <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{debuffDescription}</div>
+                <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Learned from:</b> {featureName}</div>

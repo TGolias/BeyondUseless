@@ -302,6 +302,10 @@ export default function App() {
               const allClasses = getCollection("classes");
               originValue = allClasses.find(dndClass => dndClass.name.toLowerCase() === originNameLower);
               break;
+            case "subclass":
+              const allSubclasses = getCollection("subclasses");
+              originValue = allSubclasses.find(dndSubclass => dndSubclass.name.toLowerCase() === originNameLower);
+              break;
             default:
               return <div>origintype '{originTypeLower}' not supported :(</div>
           }

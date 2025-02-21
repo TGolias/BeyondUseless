@@ -36,10 +36,9 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
         <div className="featureActionResourceDisplay">
             <div className="featureActionConfiguringHorizontal">
                 <div className="featureActionConfiguringVertical">
-                    <div>{menuConfig.resource.displayName}</div>
-                    <div>Current: {oldRemainingUses} / {menuConfig.resource.maxUses}</div>
+                    <div>{menuConfig.resource.displayName}: {oldRemainingUses} / {menuConfig.resource.maxUses}</div>
                     <div>Cost: {cost}</div>
-                    <div>Remaining: {newRemainingUses} / {menuConfig.resource.maxUses}</div>
+                    <div>Will Be Remaining: {newRemainingUses}</div>
                 </div>
             </div>
         </div>

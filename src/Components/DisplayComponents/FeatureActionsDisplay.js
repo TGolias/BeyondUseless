@@ -75,11 +75,11 @@ function createSingleFeatureActionsGroup(playerConfigs, setCenterScreenMenu, gro
     actionsGrouping.push(<div className='featureActionsDisplayTitle'>{groupName}</div>);
 
     if (resource) {
-        let remainingUsesString;
         if (resource.maxUses > 4) {
-            remainingUsesString = resource.remainingUses + "/" + resource.maxUses;
+            const remainingUsesString = resource.remainingUses + "/" + resource.maxUses;
+            actionsGrouping.push(<div className='featureActionsDisplayResourceUsesText'>{remainingUsesString}</div>);
         } else {
-            remainingUsesString = "";
+            let remainingUsesString = "";
             const expendedUses = resource.maxUses - resource.remainingUses;
             for (let i = 0; i < resource.maxUses; i++) {
                 if (i > 0) {
@@ -91,8 +91,9 @@ function createSingleFeatureActionsGroup(playerConfigs, setCenterScreenMenu, gro
                     remainingUsesString += "O";
                 }
             }
+            actionsGrouping.push(<div className='featureActionsDisplayResourceUsesIcons'>{remainingUsesString}</div>);
         }
-        actionsGrouping.push(<div className='featureActionsDisplayResourceUses'>Remaining: {remainingUsesString}</div>);
+        
     }
 
     const actionRows = [];
@@ -120,27 +121,45 @@ function openMenuForFeatureAction(featureActon, feature, origin, resource, setCe
 }
 
 function getResource(playerConfigs, actionFeature, resourceName) {
+    const originName = actionFeature.playerConfigForObject.name;
+    let dndClass = undefined;
+
     switch (actionFeature.typeFoundOn) {
         case "class":
-            const allClasses = getCollection("classes");
-            const dndClass = allClasses.find(dndClass => dndClass.name === actionFeature.playerConfigForObject.name);
-            const classResource = dndClass.resources.find(resource => resource.name === resourceName);
-            const resource = {...classResource};
-
-            const classLevel = actionFeature.playerConfigForObject.levels;
-            resource.classLevel = classLevel;
-
-            const resourcesForLevel = dndClass.resourcesPerLevel[classLevel - 1];
-            resource.maxUses = resourcesForLevel[resourceName];
-
-            let remainingUses;
-            if (playerConfigs.currentStatus?.remainingResources && playerConfigs.currentStatus.remainingResources[resource.name]) {
-                remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
-            } else {
-                remainingUses = resource.maxUses;
+            if (originName) {
+                const allClasses = getCollection("classes");
+                dndClass = allClasses.find(dndClass => dndClass.name === originName);
             }
-            resource.remainingUses = remainingUses;
-            return resource;
+            
+        case "subclass":
+            if (originName) {
+                const allSubclasses = getCollection("subclasses");
+                const dndSubclass = allSubclasses.find(dndSubclass => dndSubclass.name === originName);
+                if (dndSubclass) {
+                    const allClasses = getCollection("classes");
+                    dndClass = allClasses.find(dndClass => dndClass.name === dndSubclass.class);
+                }
+            }
+    }
+
+    if (dndClass) {
+        const classResource = dndClass.resources.find(resource => resource.name === resourceName);
+        const resource = {...classResource};
+
+        const classLevel = actionFeature.playerConfigForObject.levels;
+        resource.classLevel = classLevel;
+
+        const resourcesForLevel = dndClass.resourcesPerLevel[classLevel - 1];
+        resource.maxUses = resourcesForLevel[resourceName];
+
+        let remainingUses;
+        if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
+            remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
+        } else {
+            remainingUses = resource.maxUses;
+        }
+        resource.remainingUses = remainingUses;
+        return resource;
     }
 
     return undefined;
@@ -152,6 +171,10 @@ function getFeatureOrigin(actionFeature) {
             const allClasses = getCollection("classes");
             const dndClass = allClasses.find(dndClass => dndClass.name === actionFeature.playerConfigForObject.name);
             return { type: "class", value: dndClass };
+        case "subclass":
+            const allSubclasses = getCollection("subclasses");
+            const dndSubclass = allSubclasses.find(dndSubclass => dndSubclass.name === actionFeature.playerConfigForObject.name);
+            return { type: "subclass", value: dndSubclass };
     }
 
     return undefined;

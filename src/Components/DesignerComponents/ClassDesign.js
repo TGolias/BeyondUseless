@@ -4,6 +4,7 @@ import { ChoiceDesign } from "./ChoiceDesign";
 import { getCollection } from "../../Collections";
 import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 import { FeatureDesign } from "./FeatureDesign";
+import { GetFeaturePropertyNameFromFeature } from "../../SharedFunctions/FeatureFunctions";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -25,10 +26,31 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
 
     const classFeatureRows = [];
     if (dndclass.features) {
-        for (let i = 0; i < dndclass.features.length; i++) {
-            const classFeature = dndclass.features[i];
+        const classFeatures = dndclass.features;
+        
+        // Get Subclass Features here first
+        const subclassFeatures = dndclass.features.filter(feature => feature.subclass);
+        let featuresFromSubclasses = [];
+        if (subclassFeatures) {
+            const subclasses = getCollection("subclasses");
+            for (let subclassFeature of subclassFeatures) {
+                const subclassFeaturePropertyName = GetFeaturePropertyNameFromFeature(baseStateObject, subclassFeature);
+                const subclassName = playerClassObject.features && playerClassObject.features[subclassFeaturePropertyName] ? playerClassObject.features[subclassFeaturePropertyName].name : undefined
+                if (subclassName) {
+                    const subclass = subclasses.find(subclass => subclass.name === subclassName);
+                    featuresFromSubclasses = [...featuresFromSubclasses, ...subclass.features];
+                }
+            }
+        }
+
+        const allFeatures = [...classFeatures, ...featuresFromSubclasses];
+        const allFeaturesSorted = allFeatures.sort((feature1, feature2) => feature1.classLevel - feature2.classLevel);
+
+        // Show all class and subclass features in order now.
+        for (let i = 0; i < allFeaturesSorted.length; i++) {
+            const classFeature = allFeaturesSorted[i];
             if (classLevel >= classFeature.classLevel) {
-                const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
+                const featurePropertyName = GetFeaturePropertyNameFromFeature(baseStateObject, classFeature);
                 const pathToClassFeatureProperty = "classes[" + classIndex + "].features." + featurePropertyName + ".";
                 const playerClassFeatureObject = playerClassObject.features ? playerClassObject.features[featurePropertyName] : undefined;
 

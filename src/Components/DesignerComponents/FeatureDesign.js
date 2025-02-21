@@ -41,7 +41,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
         const validFeatNames = validFeats.map(feat => feat.name);
 
         featureContent.push(<>
-            <div className="featSelector">
+            <div className="featureSelectList">
                 <SelectList options={validFeatNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "name"} inputHandler={inputHandler}></SelectList>
             </div>
         </>);
@@ -139,6 +139,25 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
     if (feature.choices) {
         featureContent.push(<>
             <ChoiceDesign baseStateObject={baseStateObject} choiceObject={feature} pathToPlayerChoices={pathToFeatureProperty + "choices."} inputHandler={inputHandler}></ChoiceDesign>
+        </>);
+    }
+
+    if (feature.actions) {
+        for (let action of feature.actions) {
+            featureContent.push(<>
+                <div>{rightTriangleUnicode}{action.name}</div>
+            </>);
+        }
+    }
+
+    if (feature.subclass) {
+        const subclasses = getCollection("subclasses");
+        const subclassesForClassNames = subclasses.filter(subclass => subclass.class === feature.subclass.class).map(subclass => subclass.name);
+
+        featureContent.push(<>
+            <div className="featureSelectList">
+                <SelectList options={subclassesForClassNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "name"} inputHandler={inputHandler}></SelectList>
+            </div>
         </>);
     }
 

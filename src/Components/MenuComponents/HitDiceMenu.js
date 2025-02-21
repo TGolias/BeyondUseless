@@ -100,6 +100,7 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
             <div className="centerMenuSeperator"></div>
             <div className="hitDiceMenuHorizontal">
                 <RetroButton text="Confirm" onClickHandler={() => {
+                    menuConfig.onBeforeConfirm(playerConfigsClone);
                     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={false} disabled={false} buttonSound={totalToBeExpendedString === "" ? menuConfig.soundOnNoHitDiceExpend : menuConfig.soundOnHitDiceExpend }></RetroButton>
