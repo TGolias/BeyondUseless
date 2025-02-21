@@ -26,6 +26,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
     </>);
 
     let cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calcuation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+    const oldRemainingUses = menuConfig.resource.remainingUses;
     const newRemainingUses = menuConfig.resource.remainingUses - cost;
     let canUseAction = newRemainingUses >= 0 && cost !== 0;
 
@@ -36,6 +37,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
             <div className="featureActionConfiguringHorizontal">
                 <div className="featureActionConfiguringVertical">
                     <div>{menuConfig.resource.displayName}</div>
+                    <div>Current: {oldRemainingUses} / {menuConfig.resource.maxUses}</div>
                     <div>Cost: {cost}</div>
                     <div>Remaining: {newRemainingUses} / {menuConfig.resource.maxUses}</div>
                 </div>
