@@ -49,7 +49,7 @@ export function UserInputsComponent({playerConfigs, menuConfig, menuStateChangeH
     }
 
     return (<>
-        <div className="userInputsWrapperDiv">{userInput}</div>
+        <div style={{display: (userInput.length ? "flex" : "none")}} className="userInputsWrapperDiv">{userInput}</div>
     </>);
 }
 

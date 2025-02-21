@@ -70,7 +70,7 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
         }
     }
 
-    return (<div className="useOnSelfComponentWrapper">{useOnSelfControls}</div>);
+    return (<div style={{display: (useOnSelfControls.length ? "flex" : "none")}} className="useOnSelfComponentWrapper">{useOnSelfControls}</div>);
 }
 
 function doesSpellOrFeatureActionTypeInclude(menuConfig, typeToCheck) {
