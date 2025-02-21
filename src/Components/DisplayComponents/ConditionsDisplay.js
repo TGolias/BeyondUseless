@@ -4,7 +4,7 @@ import { getCollection } from "../../Collections";
 import { convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 
-export function ConditionsDisplay({conditions, setCenterScreenMenu, onAddOrUpdate, onRemove, addConditionClicked = undefined}) {
+export function ConditionsDisplay({conditions, setCenterScreenMenu = undefined, onAddOrUpdate = undefined, onRemove = undefined, addConditionClicked = undefined}) {
     const allConditions = getCollection("conditions");
     const conditionName2Condition = convertArrayToDictionary(allConditions, "name");
 
@@ -58,14 +58,18 @@ function createSingleConditionDisplay(dndCondition, conditionConfig, displayText
 }
 
 function openConditionScreen(dndCondition, conditionConfig, setCenterScreenMenu, onAddOrUpdate, onRemove) {
-    playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "ConditionMenu", data: { menuTitle: dndCondition.name, condition: dndCondition, conditionConfig: conditionConfig,
-        onOkClicked: (newCondition, didConfigChange) => {
-            if (didConfigChange) {
-                onAddOrUpdate(newCondition);
-            }
-        }, onRemoveClicked: (conditionNameToRemove) => {
-            onRemove(conditionNameToRemove);
-        } 
-    } });
+    if (setCenterScreenMenu) {
+        playAudio("menuaudio");
+        setCenterScreenMenu({ show: true, menuType: "ConditionMenu", data: { menuTitle: dndCondition.name, condition: dndCondition, conditionConfig: conditionConfig,
+            onOkClicked: (newCondition, didConfigChange) => {
+                if (didConfigChange && onAddOrUpdate) {
+                    onAddOrUpdate(newCondition);
+                }
+            }, onRemoveClicked: (conditionNameToRemove) => {
+                if (onRemove) {
+                    onRemove(conditionNameToRemove);
+                }
+            } 
+        } });
+    }
 }

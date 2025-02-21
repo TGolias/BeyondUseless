@@ -28,14 +28,14 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let debuffDescription = undefined;
     if (data) {
         if (featureAction.type.includes("healing")) {
-            healing = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "healing", "healingBonus", data.userInput);
+            healing = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "healing", "healingBonus", { userInput: data.userInput });
             if (healing.length === 0) {
                 healing = "0";
             }
         }
 
         if (featureAction.type.includes("restore")) {
-            restore = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "restore", "restoreBonus", data.userInput);
+            restore = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "restore", "restoreBonus", { userInput: data.userInput });
             if (restore.length === 0) {
                 restore = "(none)";
             }

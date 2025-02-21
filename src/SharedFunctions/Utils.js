@@ -31,9 +31,12 @@ export function isObject(value) {
     return value instanceof Object;
 }
 
-export function isNumeric(stringValue) {
+export function isNumeric(someValue) {
     try {
-        return !isNaN(parseInt(stringValue));
+        if (someValue && typeof someValue === "string") {
+            return /^\d+$/.test(someValue);
+        }
+        return !isNaN(parseInt(someValue));
     } catch {
         return false;
     }

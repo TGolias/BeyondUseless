@@ -39,33 +39,10 @@
     padding: 1em;
 }
 
-.featureActionCheckboxInputs {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-}
-
-.featureActionSingleCheckboxInput {
-    display: flex;
-    padding: 0.25em;
-    column-gap: 0.25em;
-}
-
-.featureActionUserInputs {
-    display: flex;
-    flex-direction: column;
-}
-
 .featureActionResourceDisplay {
     margin-top: -1em;
     display: flex;
     flex-direction: column;
-}
-
-.featureActionHealingInputs {
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 0.5em;
 }
 
 @media only screen and (max-width: 600px) {

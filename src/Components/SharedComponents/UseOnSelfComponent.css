@@ -1,0 +1,22 @@
+.useOnSelfComponentWrapper {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+    width: 100%;
+    align-items: center;
+}
+
+.useOnSelfComponentHealAmount {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.useOnSelfComponentWrapper > .hp-corners {
+    width: 100%;
+}
+
+.useOnSelfComponentWrapper > .conditionsDisplayWrapper {
+    width: 100%;
+}

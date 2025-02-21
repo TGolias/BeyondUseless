@@ -669,7 +669,7 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     return { dc, addendum };
 }
 
-export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, aspectName, aspectBonusName, userInput) {
+export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, aspectName, aspectBonusName, additionalParams = undefined) {
     const calculationsForActionAspect = [];
 
     // Start with the feature action's calculation
@@ -679,7 +679,7 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
         // See if there are additional bonuses to apply to this aspect.
         findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { featureAction, userInput });
+                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { featureAction, ...additionalParams });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -698,7 +698,7 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
         });
     }
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForActionAspect, { featureAction, userInput });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForActionAspect, { featureAction, ...additionalParams });
     return amount;
 }
 

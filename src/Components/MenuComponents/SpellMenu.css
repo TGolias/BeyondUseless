@@ -43,13 +43,6 @@
     padding: 1em;
 }
 
-.spellMenuHealing {
-    margin-top: -1em;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 0.5em;
-}
-
 @media only screen and (max-width: 600px) {
     .spellMenuWrapperDiv {
         flex-grow: 1;

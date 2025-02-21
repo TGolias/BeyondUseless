@@ -8,6 +8,8 @@ import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 import { getCollection } from "../../Collections";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
+import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
+import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 
 export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -122,47 +124,12 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
         data.castAtLevel = menuConfig.useSpellSlotLevel;
     }
 
-    let hpControls = [];
-    if (menuConfig.hpIsChanging) {
-        const maxHp = calculateHPMax(playerConfigsClone);
-        if (playerConfigsClone.currentStatus.remainingHp === undefined) {
-            playerConfigsClone.currentStatus.remainingHp = maxHp;
-        }
-    
-        let newRemainingHp = playerConfigsClone.currentStatus.remainingHp + (menuConfig.healAmount ?? 0);
-        if (newRemainingHp > maxHp) {
-            newRemainingHp = maxHp;
-        }
-    
-        playerConfigsClone.currentStatus.remainingHp = newRemainingHp;
-
-        hpControls.push(<>
-            <div className="spellMenuCastingHorizontal">
-                <div className="spellMenuCastingVertical">
-                    <div>Heal Amount</div>
-                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"healAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
-                </div>
-            </div>
-            <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
-            <div className="spellMenuCastingVertical">
-                <RetroButton text={"Not using on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", false)}} showTriangle={false} disabled={false}></RetroButton>
-            </div>
-        </>);
-    } else {
-        if (menuConfig.spell.type.includes("healing")) {
-            hpControls.push(<><div className="spellMenuCastingHorizontal">
-                <div className="spellMenuCastingVertical">
-                    <RetroButton text={"Use on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "hpIsChanging", true)}} showTriangle={false} disabled={false}></RetroButton>
-                </div>
-            </div></>);
-       }
-    }
-
     return (<>
         <div className="spellMenuWrapperDiv">
             <SpellPageComponent spell={menuConfig.spell} data={data} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
         <div style={{display: (menuConfig.spell.level ? "flex" : "none")}} className="spellMenuCastingHorizontal">
             <div style={{display: (spellcastingLevel > 0 ? "flex" : "none")}} className="spellMenuCastingVertical">
                 <div>Cast LVL</div>
@@ -185,10 +152,10 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
                 <CheckboxInput baseStateObject={menuConfig} pathToProperty={"useRitual"} inputHandler={menuStateChangeHandler} disabled={menuConfig.useFreeUse}></CheckboxInput>
             </div>
         </div>
-        <div style={{display: (hpControls.length > 0 ? "flex" : "none")}} className="spellMenuHealing">{hpControls}</div>
+        <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">
-            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={menuConfig.hpIsChanging ? "healaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => { setCenterScreenMenu({ show: false, menuType: undefined, data: undefined }) }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
