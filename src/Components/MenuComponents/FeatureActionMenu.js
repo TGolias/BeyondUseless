@@ -20,19 +20,19 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
     data.playerConfigs = playerConfigs;
     data.userInput = menuConfig.userInput;
 
-    const middleDisplays = [];
-    middleDisplays.push(<>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
-    </>);
+    const resourceDisplay = [];
 
     let cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calcuation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+    if (!cost) {
+        cost = 0;
+    }
     const oldRemainingUses = menuConfig.resource.remainingUses;
     const newRemainingUses = menuConfig.resource.remainingUses - cost;
     let canUseAction = newRemainingUses >= 0 && cost !== 0;
 
     playerConfigsClone.currentStatus.remainingResources[menuConfig.resource.name] = newRemainingUses;
 
-    middleDisplays.push(<>
+    resourceDisplay.push(<>
         <div className="featureActionResourceDisplay">
             <div className="featureActionConfiguringHorizontal">
                 <div className="featureActionConfiguringVertical">
@@ -45,16 +45,14 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
         </div>
     </>);
 
-    middleDisplays.push(<>
-        <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
-    </>);
-
     return (<>
         <div className="featureActionMenuWrapperDiv">
             <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={data} copyLinkToItem={menuConfig.copyLinkToItem}></FeatureActionPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
-        {middleDisplays}
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
+        {resourceDisplay}
+        <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="featureActionMenuHorizontal">
             <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
