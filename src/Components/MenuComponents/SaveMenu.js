@@ -3,7 +3,7 @@ import './SaveMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { createFileNameFromPlayerConfigs, downloadFile } from "../../SharedFunctions/Utils";
 
-export function SaveMenu({playerConfigs, setCenterScreenMenu}) {
+export function SaveMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig}) {
 
     const [, forceUpdate] = useReducer(x => !x, false);
 
@@ -17,13 +17,11 @@ export function SaveMenu({playerConfigs, setCenterScreenMenu}) {
         if (saveSlotData) {
             const playerData = JSON.parse(saveSlotData);
             const thisSaveSlotNumber = saveSlotNumber;
+            const slotText = "Slot" + thisSaveSlotNumber + ": " + playerData.name;
             saveSlotRows.push(<>
                 <div className="saveMenuSaveSlot">
-                    <RetroButton text={"Slot" + thisSaveSlotNumber + ": " + playerData.name} onClickHandler={() => {
-                        localStorage.setItem(getSlotName(thisSaveSlotNumber), JSON.stringify(playerConfigs));
-                        forceUpdate();
-                    }} showTriangle={false} disabled={false}></RetroButton>
-                    <RetroButton text="X" onClickHandler={() => RemoveSaveSlot(thisSaveSlotNumber, forceUpdate)} showTriangle={false} disabled={false}></RetroButton>
+                    <RetroButton text={slotText} onClickHandler={() => SaveOverSlot(playerConfigs, thisSaveSlotNumber, slotText, menuConfig, addToMenuStack, setCenterScreenMenu)} showTriangle={false} disabled={false}></RetroButton>
+                    <RetroButton text="X" onClickHandler={() => RemoveSaveSlot(thisSaveSlotNumber, slotText, menuConfig, addToMenuStack, setCenterScreenMenu)} showTriangle={false} disabled={false}></RetroButton>
                 </div>
             </>);
             saveSlotNumber++;
@@ -41,7 +39,7 @@ export function SaveMenu({playerConfigs, setCenterScreenMenu}) {
             <RetroButton text="New Slot" onClickHandler={() => {
                 localStorage.setItem(saveSlotToCheck, JSON.stringify(playerConfigs));
                 forceUpdate();
-            }} showTriangle={false} disabled={false}></RetroButton>
+            }} showTriangle={false} disabled={false} buttonSound={"saveaudio"}></RetroButton>
             <RetroButton text="Save to File" onClickHandler={() => {
                 const fileName = createFileNameFromPlayerConfigs(playerConfigs);
                 downloadFile(fileName, playerConfigs);
@@ -61,21 +59,63 @@ function getSlotName(slotNumber) {
     return "SAVE_SLOT" + slotNumber;
 }
 
-function RemoveSaveSlot(slotNumberToRemove, forceUpdate) {
-    let slotNumberToCheck = slotNumberToRemove;
-    let saveSlotExists = true;
-    while (saveSlotExists) {
-        const saveSlotToBeOverwritten = getSlotName(slotNumberToCheck);
-        const saveSlotToOverwriteWith = getSlotName(slotNumberToCheck + 1);
+function SaveOverSlot(playerConfigs, slotNumberToSaveOver, oldSlotText, menuConfig, addToMenuStack, setCenterScreenMenu) {
+    addToMenuStack({ menuType: "SaveMenu", menuConfig });
+    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+        menuTitle: "Overwrite Save", 
+        menuText: "Are you sure you would like overwrite save\n\n<b>" + oldSlotText + "</b>\n\nwith\n\n<b>" + playerConfigs.name + "</b>?", 
+        buttons: [
+            {
+                text: "Confirm",
+                sound: "saveaudio",
+                onClick: () => {
+                    localStorage.setItem(getSlotName(slotNumberToSaveOver), JSON.stringify(playerConfigs));
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            },
+            {
+                text: "Cancel",
+                onClick: () => {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            }
+        ] 
+    } });
+}
 
-        const saveDataToOverwriteWith = localStorage.getItem(saveSlotToOverwriteWith);
-        if (saveDataToOverwriteWith) {
-            localStorage.setItem(saveSlotToBeOverwritten, saveDataToOverwriteWith);
-        } else {
-            localStorage.removeItem(saveSlotToBeOverwritten);
-            saveSlotExists = false;
-        }
-        slotNumberToCheck++;
-    }
-    forceUpdate();
+function RemoveSaveSlot(slotNumberToRemove, slotText, menuConfig, addToMenuStack, setCenterScreenMenu) {
+    addToMenuStack({ menuType: "SaveMenu", menuConfig });
+    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+        menuTitle: "Delete Save", 
+        menuText: "Are you sure you would like delete\n\n<b>" + slotText + "</b>?", 
+        buttons: [
+            {
+                text: "Confirm",
+                onClick: () => {
+                    let slotNumberToCheck = slotNumberToRemove;
+                    let saveSlotExists = true;
+                    while (saveSlotExists) {
+                        const saveSlotToBeOverwritten = getSlotName(slotNumberToCheck);
+                        const saveSlotToOverwriteWith = getSlotName(slotNumberToCheck + 1);
+
+                        const saveDataToOverwriteWith = localStorage.getItem(saveSlotToOverwriteWith);
+                        if (saveDataToOverwriteWith) {
+                            localStorage.setItem(saveSlotToBeOverwritten, saveDataToOverwriteWith);
+                        } else {
+                            localStorage.removeItem(saveSlotToBeOverwritten);
+                            saveSlotExists = false;
+                        }
+                        slotNumberToCheck++;
+                    }
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            },
+            {
+                text: "Cancel",
+                onClick: () => {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            }
+        ] 
+    } });
 }

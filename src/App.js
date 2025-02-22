@@ -603,9 +603,8 @@ export default function App() {
       text: "SAVE",
       buttonSound: "menuaudio",
       clickHandler: () => {
-        localStorage.setItem("SAVED_CHARACTER", JSON.stringify(playerConfigs));
-        setCenterScreenMenu({ show: true, menuType: "SaveMenu", data: {} });
         setShowStartMenu(false);
+        setCenterScreenMenu({ show: true, menuType: "SaveMenu", data: {} });
       }
     },
     {

@@ -1,6 +1,7 @@
 import React from "react";
 import './ConfirmationMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
+import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
 export function ConfirmationMenu({menuConfig}) {
     const buttons = [];
@@ -10,9 +11,13 @@ export function ConfirmationMenu({menuConfig}) {
         </>);
     }
 
+    const formattedText = parseStringForBoldMarkup(menuConfig.menuText);
+
     return (<>
         <div className="confirmationMenuWrapperDiv">
-            <div className="confirmationMenuText">{menuConfig.menuText}</div>
+            <div className="confirmationMenuText">
+                <div>{formattedText}</div>
+            </div>
             <div className="centerMenuSeperator"></div>
             <div className="confirmationMenuHorizontal">{buttons}</div>
         </div>

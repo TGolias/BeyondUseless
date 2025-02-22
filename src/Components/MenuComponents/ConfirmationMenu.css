@@ -6,6 +6,9 @@
 }
 
 .confirmationMenuText {
+    display: flex;
+    align-items: center;
+    white-space: pre-line;
     padding-top: 0.5em;
 }
 
@@ -28,7 +31,5 @@
 
     .confirmationMenuText {
         flex-grow: 1;
-        display: flex;
-        align-items: center;
     }
 }
