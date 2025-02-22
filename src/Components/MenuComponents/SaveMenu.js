@@ -1,6 +1,7 @@
 import React, { useReducer } from "react";
 import './SaveMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
+import { createFileNameFromPlayerConfigs, downloadFile } from "../../SharedFunctions/Utils";
 
 export function SaveMenu({playerConfigs, setCenterScreenMenu}) {
 
@@ -31,6 +32,10 @@ export function SaveMenu({playerConfigs, setCenterScreenMenu}) {
         }
     }
 
+    if (saveSlotRows.length === 0) {
+        saveSlotRows.push(<div className="saveMenuNoSaveData">No Save Data</div>)
+    }
+
     return (<>
         <div className="saveMenuButtonsWrapper">
             <RetroButton text="New Slot" onClickHandler={() => {
@@ -38,11 +43,12 @@ export function SaveMenu({playerConfigs, setCenterScreenMenu}) {
                 forceUpdate();
             }} showTriangle={false} disabled={false}></RetroButton>
             <RetroButton text="Save to File" onClickHandler={() => {
-                
+                const fileName = createFileNameFromPlayerConfigs(playerConfigs);
+                downloadFile(fileName, playerConfigs);
             }} showTriangle={false} disabled={false}></RetroButton>
         </div>
-        <div style={{display: (saveSlotRows.length > 0 ? "flex" : "none")}} className="centerMenuSeperator"></div>
-        <div style={{display: (saveSlotRows.length > 0 ? "flex" : "none")}} className="saveMenuSaveSlots">{saveSlotRows}</div>
+        <div className="centerMenuSeperator"></div>
+        <div className="saveMenuSaveSlots">{saveSlotRows}</div>
         <div className="centerMenuSeperator"></div>
         <div className="saveMenuButtonsWrapper">
             <RetroButton text="OK" onClickHandler={() => setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })} showTriangle={false} disabled={false}></RetroButton>

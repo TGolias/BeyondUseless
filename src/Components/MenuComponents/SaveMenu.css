@@ -30,6 +30,12 @@
     white-space: nowrap;
 }
 
+.saveMenuNoSaveData {
+    font-size: 1.25em;
+    width: 100%;
+    text-align: center;
+}
+
 .saveMenuButtonsWrapper {
     display: flex;
     justify-content: space-between;

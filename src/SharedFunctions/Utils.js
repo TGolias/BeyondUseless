@@ -64,3 +64,24 @@ export function getHomePageUrl() {
     const windowLocationWithoutQueryParams = indexOfQuery === -1 ? window.location.href : window.location.href.substring(0, indexOfQuery);
     return windowLocationWithoutQueryParams;
 }
+
+export function downloadFile(fileName, fileData) {
+    const fileDataJson = JSON.stringify(fileData);
+    const blob = new Blob([fileDataJson], { type: "application/json" });
+    const fileUrl = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.setAttribute("href", fileUrl);
+    downloadLink.setAttribute("download", fileName);
+    downloadLink.style.visibility = "hidden";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(fileUrl);
+}
+
+export function createFileNameFromPlayerConfigs(playerConfigs) {
+    const date = new Date();
+    const fileNameWithSpaces = playerConfigs.name + "_" + date.toISOString();
+    const fileNameWithoutSpaces = fileNameWithSpaces.replace(/[\s:\-.]+/g, "_");
+    return fileNameWithoutSpaces + ".save";
+}
