@@ -877,6 +877,17 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateFeatures(playerConfigs).map(x => x.feature.name);
     }
 
+    if (aspectName.startsWith("classLevel")) {
+        const classToSearchFor = aspectName.substring(10);
+        const classConfig = playerConfigs.classes.find(classConfig => classConfig.name === classToSearchFor);
+        if (classConfig) {
+            return classConfig.levels;
+        } else {
+            // We don't have this class.
+            return 0;
+        }
+    }
+
     const aspectCollection = calculateAspectCollectionCore(playerConfigs, aspectName);
     return aspectCollection;
 }
@@ -1209,7 +1220,7 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
         return currentTotal;
     };
 
-    const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, {}, parameters);
+    const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return {}; }, parameters);
 
     let diceString = "";
     const diceObjectKeys = Object.keys(diceObject);
@@ -1278,7 +1289,7 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
         return currentTotal + valueToAdd;
     };
 
-    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, 0, parameters);
+    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return 0; }, parameters);
 }
 
 export function performBooleanCalculation(playerConfigs, calculation, parameters = {}) {
@@ -1328,14 +1339,14 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
         return currentTotal && valueToAdd;
     };
 
-    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, true, parameters);
+    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return true; }, parameters);
 }
 
-function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, defaultValue, parameters) {
-    let total = defaultValue;
+function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, getDefaultValue, parameters) {
+    let total = getDefaultValue();
     for (let i = 0; i < calculation.length; i++) {
         const singleCalculation = calculation[i];
-        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerCalc) => performCalculation(playerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, defaultValue, parameters));
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerCalc) => performCalculation(playerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, getDefaultValue, parameters));
 
         singleValue = performSpecialTransformations(playerConfigs, singleCalculation, singleValue);
 
