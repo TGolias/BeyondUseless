@@ -60,7 +60,6 @@ function getSlotName(slotNumber) {
 }
 
 function SaveOverSlot(playerConfigs, slotNumberToSaveOver, oldSlotText, menuConfig, addToMenuStack, setCenterScreenMenu) {
-    addToMenuStack({ menuType: "SaveMenu", menuConfig });
     setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
         menuTitle: "Overwrite Save", 
         menuText: "Are you sure you would like overwrite save\n\n<b>" + oldSlotText + "</b>\n\nwith\n\n<b>" + playerConfigs.name + "</b>?", 
@@ -76,6 +75,7 @@ function SaveOverSlot(playerConfigs, slotNumberToSaveOver, oldSlotText, menuConf
             {
                 text: "Cancel",
                 onClick: () => {
+                    addToMenuStack({ menuType: "SaveMenu", menuConfig });
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }
             }

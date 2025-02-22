@@ -3,6 +3,7 @@ import './FeatureActionsDisplay.css';
 import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
 import { getCollection } from '../../Collections';
 import { playAudio } from '../../SharedFunctions/Utils';
+import { GetUsesForResource } from '../../SharedFunctions/ResourcesFunctions';
 
 const featureActionRows = [
     {
@@ -148,9 +149,9 @@ function getResource(playerConfigs, actionFeature, resourceName) {
 
         const classLevel = actionFeature.playerConfigForObject.levels;
         resource.classLevel = classLevel;
-
         const resourcesForLevel = dndClass.resourcesPerLevel[classLevel - 1];
-        resource.maxUses = resourcesForLevel[resourceName];
+
+        resource.maxUses = GetUsesForResource(playerConfigs, classResource, resourcesForLevel);
 
         let remainingUses;
         if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {

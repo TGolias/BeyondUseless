@@ -1,3 +1,4 @@
+import { GetUsesForResource } from "./ResourcesFunctions";
 import { getAllPlayerDNDClasses } from "./TabletopMathFunctions";
 
 export function SetPlayerShortRested(playerConfigs) {
@@ -14,7 +15,7 @@ export function SetPlayerShortRested(playerConfigs) {
                         const remainingResources = playerConfigs?.currentStatus?.remainingResources ? playerConfigs?.currentStatus?.remainingResources[resource.name] : undefined;
                         if (remainingResources || remainingResources === 0) {
                             const resourcesForThisLevel = dndClass.resourcesPerLevel[classConfig.levels - 1];
-                            const maxResourcesForThisLevel = resourcesForThisLevel[resource.name];
+                            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resource, resourcesForThisLevel);
                             let newResourceAmount = remainingResources + shortRestRecharge;
                             if (newResourceAmount > maxResourcesForThisLevel) {
                                 newResourceAmount = maxResourcesForThisLevel;
