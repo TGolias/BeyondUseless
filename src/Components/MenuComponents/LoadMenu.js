@@ -61,7 +61,7 @@ function getSlotName(slotNumber) {
 function LoadFromSlot(slotNumberToLoad, slotText, menuConfig, addToMenuStack, setCenterScreenMenu, loadCharacter) {
     setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
         menuTitle: "Load Character", 
-        menuText: "Are you sure you would like load\n\n<b>" + slotText + "</b>?", 
+        menuText: "Are you sure you would like load\n\n<b>" + slotText + "</b>?\n\nUnsaved changes will be lost!", 
         buttons: [
             {
                 text: "Confirm",
