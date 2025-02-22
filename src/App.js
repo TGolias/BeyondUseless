@@ -184,7 +184,7 @@ export default function App() {
             </div>
             <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
               <div className="centerMenu pixel-corners">
-                <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen}></CenterMenu>
+                <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
               </div>
             </div>
           </>);
@@ -454,6 +454,21 @@ export default function App() {
     }, 6000);
   }
 
+  function loadCharacter(newPlayerConfigs) {
+    // Before we load, we want to make sure there aren't any pending changes waiting to be added to history, that would be tragic.
+    if (addChangesToHistoryTimeout) {
+      clearTimeout(addChangesToHistoryTimeout.timeout)
+      setAddChangesToHistoryTimeout(null);
+    }
+
+    setPlayerConfigs(newPlayerConfigs);
+    setHistory([newPlayerConfigs]);
+    setCurrentHistoryIndex(0);
+    setShowStartMenu(false);
+
+    localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
+  }
+
   function muteSound(value) {
     const audioElements = document.getElementsByTagName("audio");
 
@@ -585,18 +600,36 @@ export default function App() {
     {
       text: "NEW",
       clickHandler: () => {
-        if (addChangesToHistoryTimeout) {
-          clearTimeout(addChangesToHistoryTimeout.timeout)
-          setAddChangesToHistoryTimeout(null);
-        }
-
-        const newPlayerConfigs = defaultPlayerConfiguration;
-        setPlayerConfigs(newPlayerConfigs);
-        setHistory([newPlayerConfigs]);
-        setCurrentHistoryIndex(0);
         setShowStartMenu(false);
-
-        localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
+        setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+          menuTitle: "New Character", 
+          menuText: "Are you sure you would like to create a new character?", 
+          buttons: [
+              {
+                text: "Confirm",
+                onClick: () => {
+                  if (addChangesToHistoryTimeout) {
+                    clearTimeout(addChangesToHistoryTimeout.timeout)
+                    setAddChangesToHistoryTimeout(null);
+                  }
+          
+                  const newPlayerConfigs = defaultPlayerConfiguration;
+                  setPlayerConfigs(newPlayerConfigs);
+                  setHistory([newPlayerConfigs]);
+                  setCurrentHistoryIndex(0);
+          
+                  localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
+                  setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+              },
+              {
+                text: "Cancel",
+                onClick: () => {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+              }
+          ] 
+        } });
       }
     },
     {
@@ -610,24 +643,8 @@ export default function App() {
     {
       text: "LOAD",
       clickHandler: () => {
-        const newPlayerConfigsJsonString = localStorage.getItem("SAVED_CHARACTER");
-
-        // See if we even have a character to load.
-        if (newPlayerConfigsJsonString) {
-          // Before we load, we want to make sure there aren't any pending changes waiting to be added to history, that would be tragic.
-          if (addChangesToHistoryTimeout) {
-            clearTimeout(addChangesToHistoryTimeout.timeout)
-            setAddChangesToHistoryTimeout(null);
-          }
-
-          const newPlayerConfigs = JSON.parse(newPlayerConfigsJsonString);
-          setPlayerConfigs(newPlayerConfigs);
-          setHistory([newPlayerConfigs]);
-          setCurrentHistoryIndex(0);
-          setShowStartMenu(false);
-
-          localStorage.setItem("CURRENT_CHARACTER", newPlayerConfigsJsonString);
-        }
+        setShowStartMenu(false);
+        setCenterScreenMenu({ show: true, menuType: "LoadMenu", data: {} });
       }
     },
     {
@@ -687,7 +704,7 @@ export default function App() {
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
         <div className="centerMenu pixel-corners">
-          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen}></CenterMenu>
+          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
         </div>
       </div>
       <div id="deathScreenWrapper" className="deathScreenWapper">

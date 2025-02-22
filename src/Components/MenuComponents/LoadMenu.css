@@ -1,10 +1,10 @@
-.saveMenuOuterWrapper {
+.loadMenuOuterWrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-.saveMenuSaveSlots {
+.loadMenuSaveSlots {
     display: flex;
     flex-direction: column;
     gap: 1em;
@@ -15,30 +15,29 @@
     overflow-y: auto;
 }
 
-.saveMenuSaveSlot {
+.loadMenuSaveSlot {
     display: flex;
     justify-content: space-between;
-    gap: 1em;
     width: 100%;
 }
 
-.saveMenuSaveSlot > *:first-child {
+.loadMenuSaveSlot > *:first-child {
     flex: 1;
 }
 
-.saveMenuSaveSlot * {
+.loadMenuSaveSlot * {
     overflow-x: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.saveMenuNoSaveData {
+.loadMenuNoSaveData {
     font-size: 1.25em;
     width: 100%;
     text-align: center;
 }
 
-.saveMenuButtonsWrapper {
+.loadMenuButtonsWrapper {
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -46,7 +45,7 @@
 }
 
 @media only screen and (max-width: 600px) {
-    .saveMenuSaveSlots {
+    .loadMenuSaveSlots {
         flex-grow: 1;
     }
 }
