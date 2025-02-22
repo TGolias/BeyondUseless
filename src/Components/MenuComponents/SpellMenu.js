@@ -1,13 +1,11 @@
 import React from "react";
 import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
-import { calculateHPMax, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { CircleButton } from "../SimpleComponents/CircleButton";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 import { getCollection } from "../../Collections";
-import { TextInput } from "../SimpleComponents/TextInput";
-import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 

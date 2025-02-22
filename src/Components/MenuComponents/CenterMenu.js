@@ -14,6 +14,7 @@ import { ActionMenu } from "./ActionMenu";
 import { FeatureActionMenu } from "./FeatureActionMenu";
 import { ConditionMenu } from "./ConditionMenu";
 import { SelectListMenu } from "./SelectListMenu";
+import { SaveMenu } from "./SaveMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -275,6 +276,20 @@ const menuCollection = {
             return (<><SelectListMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></SelectListMenu></>)
         }
     },
+    SaveMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">Save Menu</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newHealthMenuConfig = {};
+            return newHealthMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen) => {
+            return (<><SaveMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></SaveMenu></>)
+        }
+    }
 }
 
 const defaultMenuConfig = {

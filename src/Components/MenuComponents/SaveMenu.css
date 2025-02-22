@@ -1,0 +1,44 @@
+.saveMenuOuterWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.saveMenuSaveSlots {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding: 1em;
+    margin: -0.5em;
+    overflow-y: auto;
+}
+
+.saveMenuSaveSlot {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    width: 100%;
+}
+
+.saveMenuSaveSlot > *:first-child {
+    flex: 1;
+}
+
+.saveMenuSaveSlot * {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.saveMenuButtonsWrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .saveMenuSaveSlots {
+        flex-grow: 1;
+    }
+}

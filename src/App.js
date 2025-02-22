@@ -601,9 +601,10 @@ export default function App() {
     },
     {
       text: "SAVE",
-      buttonSound: "saveaudio",
+      buttonSound: "menuaudio",
       clickHandler: () => {
         localStorage.setItem("SAVED_CHARACTER", JSON.stringify(playerConfigs));
+        setCenterScreenMenu({ show: true, menuType: "SaveMenu", data: {} });
         setShowStartMenu(false);
       }
     },
