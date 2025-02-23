@@ -734,7 +734,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
         });
     }
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellAspect, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellAspect, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
     return amount;
 }
 

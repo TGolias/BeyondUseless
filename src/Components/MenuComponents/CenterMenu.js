@@ -91,6 +91,7 @@ const menuCollection = {
             const newSpellMenu = {};
             newSpellMenu.spell = data.spell;
             newSpellMenu.useSpellSlotLevel = data.spell.level;
+            newSpellMenu.userInput = {};
             newSpellMenu.useFreeUse = false;
             newSpellMenu.useRitual = false;
             newSpellMenu.hpIsChanging = false;

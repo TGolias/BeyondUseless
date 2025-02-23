@@ -3,6 +3,7 @@ import './UserInputsComponent.css'
 import { performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { CheckListInput } from "../SimpleComponents/CheckListInput";
+import { SelectList } from "../SimpleComponents/SelectList";
 
 const userInputTypes = {
     numberField: {
@@ -32,6 +33,21 @@ const userInputTypes = {
                 <div className="userInputsSingleInput">
                     <div>{singleUserInput.displayName}</div>
                     <CheckListInput baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler} values={allCheckboxValues}></CheckListInput>
+                </div>
+            </>);
+        }
+    },
+    selectList: {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+            if (!menuConfig.userInput[singleUserInput.name]) {
+                menuConfig.userInput[singleUserInput.name] = undefined;
+            }
+
+            const allSelectListValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+            return (<>
+                <div className="userInputsSingleInput">
+                    <div>{singleUserInput.displayName}</div>
+                    <SelectList options={allSelectListValues} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></SelectList>
                 </div>
             </>);
         }

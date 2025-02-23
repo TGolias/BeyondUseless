@@ -113,6 +113,7 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
     const data = {};
     data.playerConfigs = playerConfigs;
     data.feature = menuConfig.spell.feature;
+    data.userInput = menuConfig.userInput;
 
     if (menuConfig.spell.freeUses) {
         data.freeUses = remainingFreeUses;

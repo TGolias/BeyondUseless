@@ -112,20 +112,20 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         }
 
         if (spell.type.includes("damage")) {
-            damage = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus");
+            damage = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
             damage += " " + spell.damage.damageType;
         }
 
         if (spell.type.includes("buff")) {
             if (spell.buff.calcuation) {
-                buffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "buff", "buffBonus");
+                buffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
             }
             buffDescription = spell.buff.description;
         }
 
         if (spell.type.includes("debuff")) {
             if (spell.debuff.calcuation) {
-                debuffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "debuff", "debuffBonus");
+                debuffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
             }
             debuffDescription = spell.debuff.description;
             if (spell.debuff.conditions) {
@@ -145,14 +145,14 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         }
 
         if (spell.type.includes("healing")) {
-            healing = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "healing", "healingBonus");
+            healing = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
             if (healing.length === 0) {
                 healing = "0";
             }
         }
 
         if (spell.type.includes("restore")) {
-            restore = calculateOtherSpellAspect(data.playerConfigs, spell, "restore", "restoreBonus");
+            restore = calculateOtherSpellAspect(data.playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
             if (restore.length === 0) {
                 restore = "(none)";
             }
@@ -197,10 +197,10 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             <div className="spellPageDescription" style={{display: (restore ? "block" : "none")}}>
                 <div><b>Conditions Removed:</b> {restore}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (buffDescription ? "block" : "none")}}>
-                <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>
+            <div className="spellPageDescription" style={{display: (buffAmount || buffDescription ? "block" : "none")}}>
+                <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{parseStringForBoldMarkup(buffDescription)}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (debuffDescription ? "block" : "none")}}>
+            <div className="spellPageDescription" style={{display: (debuffAmount ? "block" : "none")}}>
                 <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
