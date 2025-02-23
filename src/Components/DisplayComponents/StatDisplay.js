@@ -15,17 +15,19 @@ export function StatDisplay({playerConfigs, name, value}) {
     const playerSkillProficienciesMap = convertArrayOfStringsToHashMap(playerSkillProficiencies);
     const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
     const playerExpertiseMap = convertArrayOfStringsToHashMap(playerExpertise);
+    const playerHalfSkillProficiencies = calculateAspectCollection(playerConfigs, "halfSkillProficiencies");
+    const playerHalfSkillProficienciesMap = convertArrayOfStringsToHashMap(playerHalfSkillProficiencies)
 
     const dndSkillProficiencies = getCollection("skillProficiencies");
     const skillproficiencyRows = [];
     for (const skillProficiency of dndSkillProficiencies) {
         if (skillProficiency.modifier === name) {
-            const skillBonus = calculateSkillBonus(playerConfigs, skillProficiency, playerSkillProficienciesMap[skillProficiency.name], playerExpertiseMap[skillProficiency.name]);
+            const skillBonus = calculateSkillBonus(playerConfigs, skillProficiency, playerSkillProficienciesMap[skillProficiency.name], playerExpertiseMap[skillProficiency.name], playerHalfSkillProficienciesMap[skillProficiency.name]);
             skillproficiencyRows.push(<>
                 <div className="proficencyCircleWrapper">
                     <div className={"outer-circle" + (playerExpertiseMap[skillProficiency.name] ? " pixel-corners" : "")}>
                         <div className={"dot pixel-corners" + (playerSkillProficienciesMap[skillProficiency.name] ? " fill" : "")}>
-                            <div className={(false /*TODO: Later on we need to be able to calculate half proficency for bards*/) ? "half-fill" : ""}></div>
+                            <div className={(!playerSkillProficienciesMap[skillProficiency.name] && playerHalfSkillProficienciesMap[skillProficiency.name]) ? "half-fill" : ""}></div>
                         </div>
                     </div>
                 </div>

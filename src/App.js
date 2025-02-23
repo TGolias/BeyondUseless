@@ -18,6 +18,7 @@ import { MasteryPageComponent } from "./Components/PageComponents/MasteryPageCom
 import { ActionPageComponent } from "./Components/PageComponents/ActionPageComponent";
 import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureActionPageComponent";
 import { ConditionPageComponent } from "./Components/PageComponents/ConditionPageComponent";
+import { GetAllPossibleFeaturesFromObject } from "./SharedFunctions/FeatureFunctions";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -306,6 +307,10 @@ export default function App() {
               const allSubclasses = getCollection("subclasses");
               originValue = allSubclasses.find(dndSubclass => dndSubclass.name.toLowerCase() === originNameLower);
               break;
+            case "species":
+              const allSpecies = getCollection("species");
+              originValue = allSpecies.find(dndSpecies => dndSpecies.name.toLowerCase() === originNameLower);
+              break;
             default:
               return <div>origintype '{originTypeLower}' not supported :(</div>
           }
@@ -315,8 +320,10 @@ export default function App() {
           }
           const origin = { type: originTypeLower, value: originValue }
 
-          const allPossibleFeatures = originValue.features;
-          const feature = allPossibleFeatures.find(feature => feature.name.toLowerCase() === featureNameLower);
+          const allPossibleFeatures = GetAllPossibleFeaturesFromObject(originValue);
+          const feature = allPossibleFeatures.find(feature => {
+            return feature.name.toLowerCase() === featureNameLower;
+          });
           if (!feature) {
             return <div>Feature with name '{featureNameLower}' not found on {originNameLower}</div>
           }

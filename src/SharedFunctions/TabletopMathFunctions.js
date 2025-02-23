@@ -117,9 +117,11 @@ export function calculatePassivePerception(playerConfigs) {
     const playerSkillProficienciesMap = convertArrayOfStringsToHashMap(playerSkillProficiencies);
     const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
     const playerExpertiseMap = convertArrayOfStringsToHashMap(playerExpertise);
+    const playerHalfSkillProficiencies = calculateAspectCollection(playerConfigs, "halfSkillProficiencies");
+    const playerHalfSkillProficienciesMap = convertArrayOfStringsToHashMap(playerHalfSkillProficiencies)
 
     // They seemingly simplified this... it's just 10 plus your perception skill modifer.
-    let passivePerception = 10 + calculateSkillBonus(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name]);
+    let passivePerception = 10 + calculateSkillBonus(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name], playerHalfSkillProficienciesMap[perceptionSkillProf.name]);
     return passivePerception;
 }
 
@@ -282,7 +284,7 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
     return baseStatValue;
 }
 
-export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise) {
+export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency) {
     let skillBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, dndSkillProficiency.modifier));
     if (hasProficiency) {
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
@@ -291,6 +293,10 @@ export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProfi
             // Add it again!!!
             skillBonus += proficencyBonus;
         }
+    } else if (hasHalfProficiency) {
+        let proficencyBonus = calculateProficiencyBonus(playerConfigs);
+        const halfProficencyBonusRoundDown = Math.floor(proficencyBonus / 2);
+        skillBonus += halfProficencyBonusRoundDown;
     }
     return skillBonus;
 }
@@ -946,7 +952,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         const allDndSpeciesFeatures = dndspecies?.features ? [...dndspecies.features] : [];
 
         if (dndspecies.choices) {
-            findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "species", playerConfigs.species.choices));
+            findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "species[" + playerConfigs.species.name  + "]", playerConfigs.species.choices));
 
             findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", "features", (aspectValue) => {
                 for (let speciesFeature of aspectValue) {
@@ -1047,6 +1053,15 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
 
                                 if (dndSubclass.choices) {
                                     findAspectsFromChoice(playerConfigs, dndSubclass, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "subclass", classFeaturePlayerConfig.choices));
+                                }
+
+                                if (dndSubclass.features) {
+                                    // TODO: We really need to unify the logic for looking through features.
+                                    for (const subclassFeature of dndSubclass.features) {
+                                        if (subclassFeature[aspectName]) {
+                                            onAspectFound(subclassFeature[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -2,8 +2,9 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateOtherFeatureActionAspect, calculateSpellAttack, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateSpellAttack, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
+import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, copyLinkToItem}) {
     let description = parseStringForBoldMarkup(featureAction.description);
@@ -14,6 +15,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         };
     }
 
+    let featureActionDescriptionAddendum = undefined;
     let attackRoll = undefined;
     let attackRollAddendum = undefined
     let savingThrowType = undefined;
@@ -27,8 +29,14 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let debuffAmount = undefined;
     let debuffDescription = undefined;
     if (data) {
+        const featureActionDescriptionAddendumString = calculateAddendumAspect(data.playerConfigs, "featureActionDescriptionAddendum", { featureAction });
+        if (featureActionDescriptionAddendumString) {
+            featureActionDescriptionAddendum = parseStringForBoldMarkup(featureActionDescriptionAddendumString);
+        }
+
         // This works for now... We probably will need something better to get the associated spellcasting ability eventually.
-        featureAction.feature = origin.value.features.find(feature => feature.spellcasting);
+        const allPossibleFeatures = GetAllPossibleFeaturesFromObject(origin.value);
+        featureAction.feature = allPossibleFeatures.find(feature => feature.spellcasting);
 
         if (featureAction.challengeType === "attackRoll") {
             const attack = calculateSpellAttack(data.playerConfigs, featureAction, undefined)
@@ -99,6 +107,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     return <>
         <div className="featureActionPageContainer">
             <div className="featureActionPageDescription">{description}</div>
+            <div className="featureActionPageDescription" style={{display: (featureActionDescriptionAddendum ? "block" : "none")}}>{featureActionDescriptionAddendum}</div>
             <br></br>
             <div className="featureActionPageDescription">
                 <div><b>Action Summary</b></div>

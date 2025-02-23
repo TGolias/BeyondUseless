@@ -6,3 +6,37 @@ export function GetFeaturePropertyNameFromFeature(playerConfigs, feature) {
         return featureNameWithoutSpaces + playerConfigs.level;
     }
 }
+
+export function GetAllPossibleFeaturesFromObject(object) {
+    let allFeatures = []
+    if (object.features) {
+        allFeatures = [...allFeatures, ...object.features];
+    }
+    if (object.choices) {
+        for (let choice of object.choices) {
+            const featuresFromChoice = GetFeaturesFromChoice(choice);
+            allFeatures = [...allFeatures, ...featuresFromChoice];
+        }
+    }
+    return allFeatures;
+}
+
+function GetFeaturesFromChoice(choice) {
+    let allFeaturesFromChoice = [];
+    if (choice.options && choice.options.length > 0) {
+        for (let option of choice.options) {
+            if (choice.choiceToAttributesMapping && choice.choiceToAttributesMapping.features) {
+                const featuresFromChoice = option[choice.choiceToAttributesMapping.features];
+                if (featuresFromChoice) {
+                    allFeaturesFromChoice = [...allFeaturesFromChoice, ...featuresFromChoice];
+                }
+            }
+
+            if (option.choices) {
+                const featuresFromInnerChoice = GetFeaturesFromChoice(choice);
+                allFeaturesFromChoice = [...allFeaturesFromChoice, ...featuresFromInnerChoice];
+            }
+        }
+    }
+    return allFeaturesFromChoice;
+}

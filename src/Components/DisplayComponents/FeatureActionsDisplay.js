@@ -4,6 +4,7 @@ import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunction
 import { getCollection } from '../../Collections';
 import { playAudio } from '../../SharedFunctions/Utils';
 import { GetUsesForResource } from '../../SharedFunctions/ResourcesFunctions';
+import { performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
 
 const featureActionRows = [
     {
@@ -35,20 +36,20 @@ const featureActionRows = [
 ];
 
 export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterScreenMenu}) {
-    const resourcelessActions = [];
     const resourceName2Actions = {};
     const resourceName2Resource = {};
     for (let actionFeature of actionFeatures) {
         for (let action of actionFeature.feature.actions) {
+            const featureOrigin = getFeatureOrigin(actionFeature);
             if (action.cost.resourceType) {
-                const featureOrigin = getFeatureOrigin(actionFeature);
                 if (!resourceName2Actions[action.cost.resourceType]) {
-                    resourceName2Resource[action.cost.resourceType] = getResource(playerConfigs, actionFeature, action.cost.resourceType);
+                    resourceName2Resource[action.cost.resourceType] = getResourceForResourceType(playerConfigs, actionFeature, action.cost.resourceType);
                     resourceName2Actions[action.cost.resourceType] = [];
                 }
                 resourceName2Actions[action.cost.resourceType].push({ action, feature: actionFeature.feature, origin: featureOrigin })
-            } else {
-                resourcelessActions.push(action);
+            } else if (action.cost.uses) {
+                resourceName2Resource[action.name] = getResourceForUses(playerConfigs, action);
+                resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
             }
         }
     }
@@ -58,10 +59,6 @@ export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterS
         const actionsForResource = resourceName2Actions[resourceName];
         const resource = resourceName2Resource[resourceName];
         controlsToDisplay.push(createSingleFeatureActionsGroup(playerConfigs, setCenterScreenMenu, resource.displayName, actionsForResource, resource));
-    }
-
-    if (resourcelessActions.length > 0) {
-        controlsToDisplay.push(createSingleFeatureActionsGroup(playerConfigs, setCenterScreenMenu, "Feature Actions", resourcelessActions));
     }
 
     return (
@@ -121,7 +118,7 @@ function openMenuForFeatureAction(featureActon, feature, origin, resource, setCe
     setCenterScreenMenu({ show: true, menuType: "FeatureActionMenu", data: { menuTitle: featureActon.name, featureAction: featureActon, feature: feature, origin: origin, resource: resource } });
 }
 
-function getResource(playerConfigs, actionFeature, resourceName) {
+function getResourceForResourceType(playerConfigs, actionFeature, resourceName) {
     const originName = actionFeature.playerConfigForObject.name;
     let dndClass = undefined;
 
@@ -166,6 +163,21 @@ function getResource(playerConfigs, actionFeature, resourceName) {
     return undefined;
 }
 
+function getResourceForUses(playerConfigs, action) {
+    const resource = {};
+    resource.name = action.name;
+    resource.displayName = action.name;
+    resource.maxUses = performMathCalculation(playerConfigs, action.cost.uses.calcuation);;
+    let remainingUses;
+    if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
+        remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
+    } else {
+        remainingUses = resource.maxUses;
+    }
+    resource.remainingUses = remainingUses;
+    return resource;
+}
+
 function getFeatureOrigin(actionFeature) {
     switch (actionFeature.typeFoundOn) {
         case "class":
@@ -176,6 +188,17 @@ function getFeatureOrigin(actionFeature) {
             const allSubclasses = getCollection("subclasses");
             const dndSubclass = allSubclasses.find(dndSubclass => dndSubclass.name === actionFeature.playerConfigForObject.name);
             return { type: "subclass", value: dndSubclass };
+        case "species":
+            const allSpecies = getCollection("species");
+            const dndSpecies = allSpecies.find(singleDndSpecies => singleDndSpecies.name === actionFeature.playerConfigForObject.name);
+            return { type: "species", value: dndSpecies };
+    }
+
+    if (actionFeature.typeFoundOn.startsWith("species[")) {
+        const speciesName = actionFeature.typeFoundOn.substring(8, actionFeature.typeFoundOn.indexOf("]", 8));
+        const allSpecies = getCollection("species");
+        const dndSpecies = allSpecies.find(singleDndSpecies => singleDndSpecies.name === speciesName);
+        return { type: "species", value: dndSpecies };
     }
 
     return undefined;
