@@ -2,13 +2,18 @@ import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
 import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
-import { calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
+import { HasAtLeastOneOpenHand } from '../../SharedFunctions/EquipmentFunctions';
+import { RetroButton } from '../SimpleComponents/RetroButton';
 
 const rows = [
     {
         name: "Name",
+        calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
+            return unarmedStrike.name;
+        },
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            return weapon.name + (isThrown ? " (Thrown)" : "")
+            return weapon.name + (isThrown ? " (Thrown)" : "");
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             return dndCantrip.name;
@@ -17,6 +22,15 @@ const rows = [
     },
     {
         name: "Atk/DC",
+        calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
+            if (unarmedStrike.challengeType === "savingThrow") {
+                const unarmedAttackDC = calculateUnarmedAttackDC(playerConfigs);
+                return "DC" + unarmedAttackDC.dc;
+            } else {
+                const attack = calculateUnarmedAttackBonus(playerConfigs);
+                return (attack.amount < 0 ? "" : "+") + attack.amount;
+            }
+        },
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
             const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
             return (attack.amount < 0 ? "" : "+") + attack.amount;
@@ -33,6 +47,14 @@ const rows = [
     },
     {
         name: "Damage",
+        calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
+            if (unarmedStrike.type.includes("damage")) {
+                let amount = calculateUnarmedDamage(playerConfigs);
+                amount += " Bludgeoning";
+                return amount;
+            }
+            return "";
+        },
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
             let amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false);
             amount += " " + weapon.damage.damageType;
@@ -57,6 +79,18 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     const weaponOrDamageCantripRows = [];
     for (let row of rows) {
         weaponOrDamageCantripRows.push(<div className={row.addClass}>{row.name}</div>)
+    }
+
+    const hasAtLeastOneOpenHand = HasAtLeastOneOpenHand(playerConfigs);
+    if (hasAtLeastOneOpenHand) {
+        // Start with Unarmed Strikes
+        const unarmedStrikes = getCollection("unarmed");
+        for (let unarmedStrike of unarmedStrikes) {
+            hasWeapons = true;
+            for (let row of rows) {
+                weaponOrDamageCantripRows.push(<div onClick={() => openMenuForUnarmedStrike(unarmedStrike, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateUnarmedStrikeValue(playerConfigs, unarmedStrike)}</div>)
+            }
+        }
     }
 
     // Check weapons
@@ -98,6 +132,10 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
             <div className='outerWeaponOrDamageCantrip pixel-corners'>
                 <div className='weaponOrDamageCantripTitle'>{hasWeapons && !hasDamageCantrips ? "Weapons" : (!hasWeapons && hasDamageCantrips ? "Damage Cantrips" : (!hasWeapons && !hasDamageCantrips ? "No Weapons + Damage Cantrips" : "Weapons + Damage Cantrips"))}</div>
                 <div style={{display: (hasWeapons || hasDamageCantrips ? "grid" : "none")}} className='weaponOrDamageCantripGrid'>{weaponOrDamageCantripRows}</div>
+                <div className='weaponOrDamageCantripManageEquipment'><RetroButton text={"Manage Held Equipment"} onClickHandler={() => {
+                    playAudio("menuaudio");
+                    setCenterScreenMenu({ show: true, menuType: "ManageHeldEquipmentMenu" });
+                }} showTriangle={false} disabled={false}></RetroButton></div>
             </div>
         </>
     )
@@ -121,4 +159,9 @@ function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
 function openMenuForItem(dndItem, setCenterScreenMenu) {
     playAudio("menuaudio");
     setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+}
+
+function openMenuForUnarmedStrike(dndUnarmedStrike, setCenterScreenMenu) {
+    playAudio("menuaudio");
+    setCenterScreenMenu({ show: true, menuType: "UnarmedStrikeMenu", data: { menuTitle: dndUnarmedStrike.name, unarmedStrike: dndUnarmedStrike } });
 }

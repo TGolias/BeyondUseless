@@ -72,6 +72,10 @@ const allCollections = [
     {
         name: "subclasses",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/subclasses.json"
+    },
+    {
+        name: "unarmed",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/unarmed.json"
     }
 ]
 

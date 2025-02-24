@@ -2,11 +2,23 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateSpellAttack, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, copyLinkToItem}) {
+    let actionTime = "";
+    if (Array.isArray(featureAction.actionTime)) {
+        for (let singleActionTime of featureAction.actionTime) {
+            if (actionTime.length > 0) {
+                actionTime += " or "
+            }
+            actionTime += singleActionTime;
+        }
+    } else {
+        actionTime = featureAction.castingTime;
+    }
+    const range = calculateRange(data?.playerConfigs, featureAction.range);
     let description = parseStringForBoldMarkup(featureAction.description);
 
     if (copyLinkToItem) {
@@ -82,7 +94,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 for (let condition of featureAction.debuff.conditions) {
                     const dndCondition = allConditionsMap[condition];
                     if (debuffDescription.length > 0) {
-                        debuffDescription.length += "\n\n";
+                        debuffDescription += "\n\n";
                     }
                     debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
                 }
@@ -106,6 +118,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
 
     return <>
         <div className="featureActionPageContainer">
+            <div><b>Action Time:</b> {actionTime}</div>
+            <div><b>Range:</b> {range}</div>
+            <div><b>Duration:</b> {featureAction.duration}</div>
             <div className="featureActionPageDescription">{description}</div>
             <div className="featureActionPageDescription" style={{display: (featureActionDescriptionAddendum ? "block" : "none")}}>{featureActionDescriptionAddendum}</div>
             <br></br>
@@ -133,10 +148,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             <div className="featureActionPageDescription" style={{display: (restore ? "block" : "none")}}>
                 <div><b>Conditions Removed:</b> {restore}</div>
             </div>
-            <div className="featureActionPageDescription" style={{display: (buffDescription ? "block" : "none")}}>
+            <div className="featureActionPageDescription" style={{display: ((buffAmount || buffDescription) ? "block" : "none")}}>
                 <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>
             </div>
-            <div className="featureActionPageDescription" style={{display: (debuffDescription ? "block" : "none")}}>
+            <div className="featureActionPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
                 <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (feature ? "block" : "none")}}>

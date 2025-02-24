@@ -19,6 +19,7 @@ import { ActionPageComponent } from "./Components/PageComponents/ActionPageCompo
 import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureActionPageComponent";
 import { ConditionPageComponent } from "./Components/PageComponents/ConditionPageComponent";
 import { GetAllPossibleFeaturesFromObject } from "./SharedFunctions/FeatureFunctions";
+import { UnarmedStrikePageComponent } from "./Components/PageComponents/UnarmedStrikePageComponent";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -280,6 +281,37 @@ export default function App() {
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
               <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem}></ActionPageComponent>
+            </div>
+          </>);
+        }
+      case "unarmedstrike":
+        const unarmedStrikeName = params.get('name');
+        let unarmedStrikeNameLower = unarmedStrikeName?.toLowerCase();
+
+        const unarmedStrikes = getCollection("unarmed");
+        const unarmedStrikeFound = unarmedStrikes.find(unarmedStrike => unarmedStrike.name.toLowerCase() === unarmedStrikeNameLower);
+
+        if (!unarmedStrikeFound) {
+          return (<>
+            <div>Unarmed Strike '{unarmedStrikeNameLower}' not found :(</div>
+          </>)
+        } else {
+          const copyLinkToItem = {};
+          return (<>
+            <div className="viewPage">
+              <span className="viewPageLabel">
+                <RetroButton text={unarmedStrikeFound.name} onClickHandler={() => {
+                  if (copyLinkToItem.onExecute) {
+                    copyLinkToItem.onExecute();
+                  }
+                }} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={"X"} onClickHandler={() => {
+                  // Send them back to the home page.
+                  window.history.pushState(null, "", getHomePageUrl());
+                  forceUpdate();
+                }} showTriangle={false} disabled={false}></RetroButton>
+              </span>
+              <UnarmedStrikePageComponent unarmedStrike={unarmedStrikeFound} copyLinkToItem={copyLinkToItem} data={decodedData}></UnarmedStrikePageComponent>
             </div>
           </>);
         }

@@ -16,6 +16,8 @@ import { ConditionMenu } from "./ConditionMenu";
 import { SelectListMenu } from "./SelectListMenu";
 import { SaveMenu } from "./SaveMenu";
 import { LoadMenu } from "./LoadMenu";
+import { UnarmedStrikeMenu } from "./UnarmedStrikeMenu";
+import { ManageHeldEquipmentMenu } from "./ManageHeldEquipmentMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -36,7 +38,7 @@ const menuCollection = {
             return newHealthMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><HealthMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></HealthMenu></>)
+            return (<><HealthMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></HealthMenu></>);
         }
     },
     HitDiceMenu: {
@@ -56,7 +58,7 @@ const menuCollection = {
             return newHitDiceMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><HitDiceMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HitDiceMenu></>)
+            return (<><HitDiceMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></HitDiceMenu></>);
         }
     },
     ConfirmationMenu: {
@@ -72,7 +74,7 @@ const menuCollection = {
             return newConfirmationMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ConfirmationMenu menuConfig={menuConfig}></ConfirmationMenu></>)
+            return (<><ConfirmationMenu menuConfig={menuConfig}></ConfirmationMenu></>);
         }
     },
     SpellMenu: {
@@ -100,7 +102,7 @@ const menuCollection = {
             return newSpellMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><SpellMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></SpellMenu></>)
+            return (<><SpellMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></SpellMenu></>);
         }
     },
     ItemMenu: {
@@ -122,7 +124,29 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ItemMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig}></ItemMenu></>)
+            return (<><ItemMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig}></ItemMenu></>);
+        }
+    },
+    UnarmedStrikeMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">
+                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                        if (menuConfig.copyLinkToItem && menuConfig.copyLinkToItem.onExecute) {
+                            menuConfig.copyLinkToItem.onExecute();
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton>
+                </div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.unarmedStrike = data.unarmedStrike;
+            newItemMenu.copyLinkToItem = {};
+            return newItemMenu;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><UnarmedStrikeMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></UnarmedStrikeMenu></>);
         }
     },
     PropertyMenu: {
@@ -144,7 +168,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><PropertyMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></PropertyMenu></>)
+            return (<><PropertyMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></PropertyMenu></>);
         }
     },
     MasteryMenu: {
@@ -166,7 +190,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><MasteryMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></MasteryMenu></>)
+            return (<><MasteryMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></MasteryMenu></>);
         }
     },
     ActionMenu: {
@@ -188,7 +212,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ActionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ActionMenu></>)
+            return (<><ActionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ActionMenu></>);
         }
     },
     FeatureActionMenu: {
@@ -216,7 +240,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><FeatureActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></FeatureActionMenu></>)
+            return (<><FeatureActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></FeatureActionMenu></>);
         }
     },
     ConditionMenu: {
@@ -257,7 +281,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ConditionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ConditionMenu></>)
+            return (<><ConditionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ConditionMenu></>);
         }
     },
     SelectListMenu: {
@@ -275,7 +299,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><SelectListMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></SelectListMenu></>)
+            return (<><SelectListMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></SelectListMenu></>);
         }
     },
     SaveMenu: {
@@ -289,7 +313,7 @@ const menuCollection = {
             return newHealthMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><SaveMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig}></SaveMenu></>)
+            return (<><SaveMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig}></SaveMenu></>);
         }
     },
     LoadMenu: {
@@ -303,7 +327,23 @@ const menuCollection = {
             return newHealthMenuConfig;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><LoadMenu setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} loadCharacter={loadCharacter}></LoadMenu></>)
+            return (<><LoadMenu setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} loadCharacter={loadCharacter}></LoadMenu></>);
+        }
+    },
+    ManageHeldEquipmentMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            const titleName = "Manage Held Equipment";
+            return (<>
+                <div className="menuTitleBarTitle">{titleName}</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newHealthMenuConfig = {};
+            newHealthMenuConfig.items = playerConfigs.items;
+            return newHealthMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><ManageHeldEquipmentMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ManageHeldEquipmentMenu></>);
         }
     }
 }

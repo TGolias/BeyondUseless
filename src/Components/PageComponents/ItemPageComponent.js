@@ -83,6 +83,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     }
 
     // Get aspects from playerConfigs
+    let showItemSummary = false;
     let itemDescriptionAddendum = undefined;
     let weaponAttack = undefined;
     let weaponAttackAddendum = undefined
@@ -126,6 +127,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                             cleaveWeaponDamage += " " + item.damage.damageType;
                         }
                     }
+                    showItemSummary = true;
                 }
 
                 // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
@@ -143,6 +145,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                         lightWeaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, true, false);
                         lightWeaponDamageThrown += " " + item.damage.damageType;
                     }
+                    showItemSummary = true;
                 }
                 break;
         }
@@ -160,8 +163,8 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
             <div><b>Weight:</b> {item.weight}</div>
             <div className="itemPageDescription">{description}</div>
             <div style={{display: (itemDescriptionAddendum ? "block" : "none")}} className="itemPageDescription">{itemDescriptionAddendum}</div>
-            <br style={{display: (data ? "block" : "none")}}></br>
-            <div className="itemPageDescription" style={{display: (data ? "block" : "none")}}>
+            <br style={{display: (showItemSummary ? "block" : "none")}}></br>
+            <div className="itemPageDescription" style={{display: (showItemSummary ? "block" : "none")}}>
                 <div><b>Item Summary</b></div>
             </div>
             <div className="itemPageDescription" style={{display: (weaponAttack ? "block" : "none")}}>

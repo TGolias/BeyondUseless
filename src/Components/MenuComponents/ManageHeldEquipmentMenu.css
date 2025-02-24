@@ -1,0 +1,61 @@
+.manageHeldEquipmentMenuDescriptionText {
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5em;
+    white-space: pre-line;
+    line-height: 1.25em;
+    overflow-y: auto;
+    margin: -0.5em;
+    padding: 0.5em;
+}
+
+.manageHeldEquipmentMenuItemsGrid {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    margin: -0.5em;
+}
+
+.manageHeldEquipmentMenuRow {
+    min-height: 3.5em;
+    font-weight: normal;
+}
+
+.manageHeldEquipmentMenuItemsGrid > * {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    padding: 0.5em;
+    text-align: center;
+    border-top: 4px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+}
+
+.manageHeldEquipmentMenuItemsGrid > .firstCol {
+    border-left: 0;
+    padding-left: 1em;
+}
+
+.manageHeldEquipmentMenuItemsGrid > .lastCol {
+    border-right: 0;
+    padding-right: 1em;
+}
+
+.manageHeldEquipmentMenuItemsGrid > .manageHeldEquipmentMenuHeaderCell {
+    font-weight: bold;
+    border-top: 0;
+}
+
+.manageHeldEquipmentMenuButtonsWrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .manageHeldEquipmentMenuItemsGrid {
+        
+    }
+}

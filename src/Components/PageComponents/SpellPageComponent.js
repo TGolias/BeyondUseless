@@ -137,7 +137,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
                 for (let condition of spell.debuff.conditions) {
                     const dndCondition = allConditionsMap[condition];
                     if (debuffDescription.length > 0) {
-                        debuffDescription.length += "\n\n";
+                        debuffDescription += "\n\n";
                     }
                     debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
                 }
@@ -200,7 +200,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             <div className="spellPageDescription" style={{display: (buffAmount || buffDescription ? "block" : "none")}}>
                 <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{parseStringForBoldMarkup(buffDescription)}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (debuffAmount ? "block" : "none")}}>
+            <div className="spellPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
                 <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>

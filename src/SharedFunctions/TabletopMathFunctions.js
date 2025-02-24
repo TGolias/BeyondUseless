@@ -1,5 +1,6 @@
 import { getCollection } from "../Collections";
-import { getValueFromObjectAndPath } from "./ComponentFunctions";
+import { getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
+import { GetHeldItems } from "./EquipmentFunctions";
 import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
@@ -310,6 +311,275 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
     return savingThrowBonus;
 }
 
+export function calculateUnarmedAttackBonus(playerConfigs) {
+    const calculationsForAttackBonus = [];
+
+    let highestValidAbility = undefined;
+    let highestValidAbilityModifier = undefined;
+
+    let strengthModifier = calculateAspectCollection(playerConfigs, "strengthModifier");
+    highestValidAbility = "strength";
+    highestValidAbilityModifier = strengthModifier;
+
+    findAllConfiguredAspects(playerConfigs, "alternateUnarmedAttackModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon);
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this alternate modifier to apply.
+                return;
+            }
+        }
+
+        let modifierName;
+        if (aspectValue.calcuation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            modifierName = aspectValue;
+        }
+
+        const modifierValue = calculateAspectCollection(playerConfigs, modifierName + "Modifier");
+        // Do greater than or equal to here. We have a perference towards these alternate modifiers. Long term, I should probably just show all calculations though.
+        if (highestValidAbilityModifier === undefined || modifierValue >= highestValidAbilityModifier) {
+            highestValidAbility = modifierName;
+            highestValidAbilityModifier = modifierValue;
+        }
+    });
+
+    calculationsForAttackBonus.push({
+        type: "static",
+        value: highestValidAbilityModifier
+    });
+
+    // Always add proficiency bonus for unarmed attacks. Pretty sweet I guess.
+    calculationsForAttackBonus.push({
+        type: "aspect",
+        value: "proficiencyBonus",
+    });
+    
+    // See if there are additional bonuses to apply to our attack.
+    findAllConfiguredAspects(playerConfigs, "unarmedAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForAttackBonus.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    let addendum = calculateAddendumAspect(playerConfigs, "unarmedAttackAddendum", { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+
+    return { amount, addendum };
+}
+
+export function calculateUnarmedDamage(playerConfigs) {
+    let calculationsForAttackDamage;
+
+    // By default the unarmed attack base is 1.
+    let highestUnarmedAttackDie = 1;
+    let highestUnarmedAttackCalculation = [
+        {
+            type: "static",
+            value: 1
+        }
+    ];
+
+    findAllConfiguredAspects(playerConfigs, "alternateUnarmedDamageCalculation", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon);
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this alternate modifier to apply.
+                return;
+            }
+        }
+
+        // This is a pain, we have to check the dies in the alternate calculations and see what is the highest. Long term, I should probably just show all calculations though.
+        if (aspectValue.calcuation && aspectValue.calcuation.length > 0) {
+            let unarmedAttackCalculationDie = aspectValue.calcuation[0].value;
+            if (unarmedAttackCalculationDie >= highestUnarmedAttackDie) {
+                highestUnarmedAttackDie = unarmedAttackCalculationDie;
+                highestUnarmedAttackCalculation = aspectValue.calcuation;
+            }
+        }
+    });
+
+    calculationsForAttackDamage = [...highestUnarmedAttackCalculation];
+
+    let highestValidAbility = undefined;
+    let highestValidAbilityModifier = undefined;
+
+    let strengthModifier = calculateAspectCollection(playerConfigs, "strengthModifier");
+    highestValidAbility = "strength";
+    highestValidAbilityModifier = strengthModifier;
+
+    findAllConfiguredAspects(playerConfigs, "alternateUnarmedDamageModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon);
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this alternate modifier to apply.
+                return;
+            }
+        }
+
+        let modifierName;
+        if (aspectValue.calcuation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            modifierName = aspectValue;
+        }
+
+        const modifierValue = calculateAspectCollection(playerConfigs, modifierName + "Modifier");
+        // Do greater than or equal to here. We have a perference towards these alternate modifiers. Long term, I should probably just show all calculations though.
+        if (highestValidAbilityModifier === undefined || modifierValue >= highestValidAbilityModifier) {
+            highestValidAbility = modifierName;
+            highestValidAbilityModifier = modifierValue;
+        }
+    });
+
+    calculationsForAttackDamage.push({
+        type: "static",
+        value: highestValidAbilityModifier
+    });
+    
+    // See if there are additional bonuses to apply to our damage.
+    findAllConfiguredAspects(playerConfigs, "unarmedDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForAttackDamage.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForAttackDamage.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    let calculationToPerform;
+    if (highestUnarmedAttackDie === 1) {
+        // Ensure unarmed attack damage is at least 1.
+        calculationToPerform = []
+        calculationToPerform.push({
+            type: "highestOf",
+            values: [
+                calculationsForAttackDamage,
+                [
+                    {
+                        type: "static",
+                        value: 1
+                    }
+                ]
+            ]
+        });
+    } else {
+        // We have an alternate / better way of calculating damage. We want the calculation to show the whole thing, even with a potentially negative modifier.
+        calculationToPerform = calculationsForAttackDamage;
+    }
+
+    const calculationString = performDiceRollCalculation(playerConfigs, calculationToPerform, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    return calculationString;
+}
+
+export function calculateUnarmedAttackDC(playerConfigs) {
+    const calculationsForUnarmedDC = [];
+
+    // Start with 8.
+    calculationsForUnarmedDC.push({
+        type: "static",
+        value: 8
+    });
+
+    let highestValidAbility = undefined;
+    let highestValidAbilityModifier = undefined;
+
+    let strengthModifier = calculateAspectCollection(playerConfigs, "strengthModifier");
+    highestValidAbility = "strength";
+    highestValidAbilityModifier = strengthModifier;
+
+    findAllConfiguredAspects(playerConfigs, "alternateUnarmedAttackModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditon) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon);
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this alternate modifier to apply.
+                return;
+            }
+        }
+
+        let modifierName;
+        if (aspectValue.calcuation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        }
+        else {
+            modifierName = aspectValue;
+        }
+
+        const modifierValue = calculateAspectCollection(playerConfigs, modifierName + "Modifier");
+        // Do greater than or equal to here. We have a perference towards these alternate modifiers. Long term, I should probably just show all calculations though.
+        if (highestValidAbilityModifier === undefined || modifierValue >= highestValidAbilityModifier) {
+            highestValidAbility = modifierName;
+            highestValidAbilityModifier = modifierValue;
+        }
+    });
+
+    // Add the ability modifier.
+    calculationsForUnarmedDC.push({
+        type: "static",
+        value: highestValidAbilityModifier
+    });
+
+    // Always add proficiency bonus for unarmed attacks. Pretty sweet I guess.
+    calculationsForUnarmedDC.push({
+        type: "aspect",
+        value: "proficiencyBonus"
+    });
+    
+    // See if there are additional bonuses to apply to our DC.
+    findAllConfiguredAspects(playerConfigs, "unarmedDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calcuation) {
+            calculationsForUnarmedDC.push(...aspectValue.calcuation);
+        }
+        else {
+            calculationsForUnarmedDC.push({
+                type: "static",
+                value: aspectValue
+            });
+        }
+    });
+
+    const dc = performDiceRollCalculation(playerConfigs, calculationsForUnarmedDC, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+
+    return { dc, addendum };
+}
+
 export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
     const calculationsForAttackBonus = [];
 
@@ -457,29 +727,8 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
     let calculationsForDamage = undefined;
     if (weapon.properties && weapon.properties.includes("Versatile")) {
         // Check if they can actually two-hand the weapon.
-        let canTwoHandWeapon = true;
-        let thisWeaponFound = false;
-
-        const items = getCollection('items');
-        // Convert to a dictionary for quick searches because the list could be LONG.
-        const itemsDictionary = convertArrayToDictionary(items, "name");
-        for (let playerItem of playerConfigs.items) {
-            if (playerItem.equipped) {
-                const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
-                if (actualItem.type === "Weapon" || (actualItem.type === "Armor" && actualItem.armorType === "Shield")) {
-                    if (actualItem.name === weapon.name && !thisWeaponFound) {
-                        // We use thisItemFound to track and make sure someone dual wielding Quarterstaff doesn't get the Versatile two-handed damage for both. 
-                        thisWeaponFound = true;
-                        continue;
-                    } else {
-                        // We found a weapon or shield equipped that was not this weapon. Sorry, but you have to one-hand it.
-                        canTwoHandWeapon = false;
-                    }
-                }
-            }
-        }
-
-        if (canTwoHandWeapon && weapon.twoHandedDamage) {
+        const heldItems = GetHeldItems(playerConfigs);
+        if (heldItems.length === 1 && heldItems[0].name === weapon.name) {
             calculationsForDamage = [...weapon.twoHandedDamage.calcuation];
         }
     }
@@ -769,6 +1018,25 @@ export function calculateRange(playerConfigs, range) {
         }
     }
     return undefined;
+}
+
+export function calculateSavingThrowTypes(savingThrowType) {
+    if (Array.isArray(savingThrowType)) {
+        let savingThrowString = "";
+        for (let i = 0; i < savingThrowType.length; i++) {
+            if (i > 0) {
+                if (i === savingThrowType.length - 1) {
+                    savingThrowString += " or ";
+                } else {
+                    savingThrowString += ", ";
+                }
+            }
+            savingThrowString += getCapitalizedAbilityScoreName(savingThrowType[i]);
+        }
+        return savingThrowString;
+    } else {
+        return getCapitalizedAbilityScoreName(savingThrowType);
+    }
 }
 
 export function calculateAddendumAspect(playerConfigs, addendumName, parameters) {
@@ -1343,9 +1611,13 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
         }
 
         if (singleCalculation.includes) {
-            const valueThatShouldBeIncluded = performMathCalculation(playerConfigs, singleCalculation.includes, parameters)
-            const valueToReturn = singleValue.includes(valueThatShouldBeIncluded);
-            return valueToReturn;
+            if (singleValue) {
+                const valueThatShouldBeIncluded = performMathCalculation(playerConfigs, singleCalculation.includes, parameters)
+                const valueToReturn = singleValue.includes(valueThatShouldBeIncluded);
+                return valueToReturn;
+            } else {
+                return false;
+            }
         }
 
         return singleValue;
