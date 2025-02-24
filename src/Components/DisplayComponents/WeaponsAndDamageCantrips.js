@@ -81,19 +81,6 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
         weaponOrDamageCantripRows.push(<div className={row.addClass}>{row.name}</div>)
     }
 
-    const openHands = GetOpenHands(playerConfigs.items);
-    const hasAtLeastOneOpenHand = openHands > 0;
-    if (hasAtLeastOneOpenHand) {
-        // Start with Unarmed Strikes
-        const unarmedStrikes = getCollection("unarmed");
-        for (let unarmedStrike of unarmedStrikes) {
-            hasWeapons = true;
-            for (let row of rows) {
-                weaponOrDamageCantripRows.push(<div onClick={() => openMenuForUnarmedStrike(unarmedStrike, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateUnarmedStrikeValue(playerConfigs, unarmedStrike)}</div>)
-            }
-        }
-    }
-
     // Check weapons
     for (let item of playerConfigs.items) {
         if (item.equipped) {
@@ -125,6 +112,20 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     for (let spell of allPlayerSpells) {
         if (!spell.level) {
             hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, spell, setCenterScreenMenu) || hasDamageCantrips;
+        }
+    }
+
+    const openHands = GetOpenHands(playerConfigs.items);
+    const hasAtLeastOneOpenHand = openHands > 0;
+    // Check unarmed strikes.
+    const unarmedStrikes = getCollection("unarmed");
+    for (let unarmedStrike of unarmedStrikes) {
+        // Grappling requires an open hand.
+        if (unarmedStrike.name !== "Unarmed Strike: Grapple" || hasAtLeastOneOpenHand) {
+            hasWeapons = true;
+            for (let row of rows) {
+                weaponOrDamageCantripRows.push(<div onClick={() => openMenuForUnarmedStrike(unarmedStrike, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateUnarmedStrikeValue(playerConfigs, unarmedStrike)}</div>)
+            }
         }
     }
 
