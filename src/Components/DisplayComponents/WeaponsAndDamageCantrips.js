@@ -3,7 +3,7 @@ import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
 import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
 import { calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
-import { HasAtLeastOneOpenHand } from '../../SharedFunctions/EquipmentFunctions';
+import { GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
 
 const rows = [
@@ -81,7 +81,8 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
         weaponOrDamageCantripRows.push(<div className={row.addClass}>{row.name}</div>)
     }
 
-    const hasAtLeastOneOpenHand = HasAtLeastOneOpenHand(playerConfigs);
+    const openHands = GetOpenHands(playerConfigs.items);
+    const hasAtLeastOneOpenHand = openHands > 0;
     if (hasAtLeastOneOpenHand) {
         // Start with Unarmed Strikes
         const unarmedStrikes = getCollection("unarmed");

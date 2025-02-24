@@ -727,7 +727,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
     let calculationsForDamage = undefined;
     if (weapon.properties && weapon.properties.includes("Versatile")) {
         // Check if they can actually two-hand the weapon.
-        const heldItems = GetHeldItems(playerConfigs);
+        const heldItems = GetHeldItems(playerConfigs.items);
         if (heldItems.length === 1 && heldItems[0].name === weapon.name) {
             calculationsForDamage = [...weapon.twoHandedDamage.calcuation];
         }
