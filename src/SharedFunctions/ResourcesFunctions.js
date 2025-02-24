@@ -5,6 +5,7 @@ export function GetUsesForResource(playerConfigs, resource, resourcesForLevel) {
         const uses = performMathCalculation(playerConfigs, resource.uses.calcuation);
         return uses;
     } else {
-        resource.maxUses = resourcesForLevel[resource.name];
+        const uses = resourcesForLevel[resource.name];
+        return uses;
     }
 }
