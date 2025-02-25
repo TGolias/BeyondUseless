@@ -38,7 +38,7 @@ export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
         }
     }
 
-    // Now put any details about it.
+    // Now put any details about it.aspectMenuSmallScreenGrow
     let details = [];
     if (menuConfig.addendumsToShow) {
         for (let addendumToShow of menuConfig.addendumsToShow) {
@@ -50,9 +50,9 @@ export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
     }
 
     return (<>
-        <div className="aspectMenuAspectValue">{finalAspect}</div>
+        <div className={(details.length === 0 ? "aspectMenuAspectValue aspectMenuSmallScreenGrow" : "aspectMenuAspectValue")}>{finalAspect}</div>
         <div className="centerMenuSeperator" style={{display: (details.length > 0 ? "flex" : "none")}}></div>
-        <div className="aspectMenuAspectDetails" style={{display: (details.length > 0 ? "flex" : "none")}}>{details}</div>
+        <div className={(details.length > 0 ? "aspectMenuAspectDetails aspectMenuSmallScreenGrow" : "aspectMenuAspectDetails")} style={{display: (details.length > 0 ? "flex" : "none")}}>{details}</div>
         <div className="centerMenuSeperator"></div>
         <div className="aspectMenuHorizontal">
             <RetroButton text={"OK"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
