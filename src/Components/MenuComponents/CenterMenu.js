@@ -19,6 +19,7 @@ import { LoadMenu } from "./LoadMenu";
 import { UnarmedStrikeMenu } from "./UnarmedStrikeMenu";
 import { ManageHeldEquipmentMenu } from "./ManageHeldEquipmentMenu";
 import { ArmorMenu } from "./ArmorMenu";
+import { AspectMenu } from "./AspectMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -349,7 +350,7 @@ const menuCollection = {
     },
     ArmorMenu: {
         createMenuTitle: (playerConfigs, data, menuConfig) => {
-            const titleName = "Armor Equipment";
+            const titleName = "Manage Armor";
             return (<>
                 <div className="menuTitleBarTitle">{titleName}</div>
             </>)
@@ -361,6 +362,23 @@ const menuCollection = {
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><ArmorMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ArmorMenu></>);
+        }
+    },
+    AspectMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{data.menuTitle}</div>
+            </>);
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newHealthMenuConfig = {};
+            newHealthMenuConfig.aspectName = data.aspectName;
+            newHealthMenuConfig.addendumsToShow = data.addendumsToShow;
+            newHealthMenuConfig.leadingPlus = data.leadingPlus;
+            return newHealthMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><AspectMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></AspectMenu></>);
         }
     }
 }

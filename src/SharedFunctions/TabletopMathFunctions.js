@@ -285,6 +285,20 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
     return baseStatValue;
 }
 
+export function calculateSkillProficiency(playerConfigs, skillProficiencyName) {
+    const dndSkillProficiencies = getCollection("skillProficiencies");
+    const dndSkillProficiency = dndSkillProficiencies.find(prof => prof.name === skillProficiencyName);
+
+    const playerSkillProficiencies = calculateAspectCollection(playerConfigs, "skillProficiencies");
+    const hasProficiency = playerSkillProficiencies.some(prof => prof === skillProficiencyName)
+    const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
+    const hasExpertise = playerExpertise.some(prof => prof === skillProficiencyName)
+    const playerHalfSkillProficiencies = calculateAspectCollection(playerConfigs, "halfSkillProficiencies");
+    const hasHalfProficiency = playerHalfSkillProficiencies.some(prof => prof === skillProficiencyName)
+
+    return calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency);
+}
+
 export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency) {
     let skillBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, dndSkillProficiency.modifier));
     if (hasProficiency) {
@@ -299,6 +313,19 @@ export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProfi
         const halfProficencyBonusRoundDown = Math.floor(proficencyBonus / 2);
         skillBonus += halfProficencyBonusRoundDown;
     }
+
+    findAllConfiguredAspects(playerConfigs, "skillProficiency" + dndSkillProficiency.name + "Bonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let initiativeBonus;
+        if (aspectValue.calculation) {
+            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation);
+        }
+        else {
+            initiativeBonus = aspectValue;
+        }
+
+        skillBonus += initiativeBonus;
+    });
+
     return skillBonus;
 }
 
@@ -308,6 +335,19 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
         savingThrowBonus += proficencyBonus;
     }
+
+    findAllConfiguredAspects(playerConfigs, modifier + "SavingThrowBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let initiativeBonus;
+        if (aspectValue.calculation) {
+            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation);
+        }
+        else {
+            initiativeBonus = aspectValue;
+        }
+
+        savingThrowBonus += initiativeBonus;
+    });
+
     return savingThrowBonus;
 }
 
@@ -1039,7 +1079,7 @@ export function calculateSavingThrowTypes(savingThrowType) {
     }
 }
 
-export function calculateAddendumAspect(playerConfigs, addendumName, parameters) {
+export function calculateAddendumAspect(playerConfigs, addendumName, parameters = {}) {
     let addendumString = "";
 
     findAllConfiguredAspects(playerConfigs, addendumName, (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -1145,6 +1185,14 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateTierForPlayerLevel(playerConfigs);
         case "proficiencyBonus":
             return calculateProficiencyBonus(playerConfigs);
+        case "initiativeBonus":
+            return calculateInitiativeBonus(playerConfigs);
+        case "speed":
+            return calculateSpeed(playerConfigs);
+        case "size":
+            return calculateSize(playerConfigs);
+        case "passivePerception":
+            return calculatePassivePerception(playerConfigs);
         case "features":
             return calculateFeatures(playerConfigs);
         case "featureNames": 
@@ -1160,6 +1208,18 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             // We don't have this class.
             return 0;
         }
+    }
+
+    if (aspectName.startsWith("skillProficiency")) {
+        const skillProficiencyName = aspectName.substring(16);
+        return calculateSkillProficiency(playerConfigs, skillProficiencyName);
+    }
+
+    if (aspectName.endsWith("SavingThrow")) {
+        const savingThrowName = aspectName.substring(0, aspectName.length - 11);
+        const playerSavingThrowProficiencies = calculateAspectCollection(playerConfigs, "savingThrowProficiencies");
+        const hasSavingThrowProficiency = playerSavingThrowProficiencies.some(save => save === savingThrowName);
+        return calculateSavingThrowBonus(playerConfigs, savingThrowName, hasSavingThrowProficiency);
     }
 
     const aspectCollection = calculateAspectCollectionCore(playerConfigs, aspectName);
@@ -1382,7 +1442,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
 
         if (playerConfigs.items) {
             // Check equipped items for the aspect.
-            const items = getCollection('items');
+            const items = getCollection("items");
             // Convert to a dictionary for quick searches because the list could be LONG.
             const itemsDictionary = convertArrayToDictionary(items, "name");
             for (let item of playerConfigs.items) {
@@ -1392,6 +1452,17 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                         onAspectFound(dndItem.aspects[aspectName], "item", item);
                     }
                 }
+            }
+        }
+    }
+
+    if (playerConfigs?.currentStatus?.conditions) {
+        const dndConditions = getCollection("conditions");
+        const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
+        for (let playerCondition of playerConfigs?.currentStatus?.conditions) {
+            const dndCondition = dndConditionsMap[playerCondition.name]
+            if (dndCondition[aspectName]) {
+                onAspectFound(dndCondition[aspectName], "condition", playerCondition);
             }
         }
     }

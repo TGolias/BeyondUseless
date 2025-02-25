@@ -15,6 +15,7 @@ import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDispla
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
+import { playAudio } from "../../SharedFunctions/Utils";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -49,20 +50,35 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
                 </div>
                 <div className="encounterStats">
-                    <BasicStatDisplay statValue={(initiativeBonus >= 0) ? "+" + initiativeBonus : initiativeBonus}>Initiative</BasicStatDisplay>
-                    <BasicStatDisplay statValue={speed}>Speed</BasicStatDisplay>
-                    <BasicStatDisplay statValue={size}>Size</BasicStatDisplay>
-                    <BasicStatDisplay statValue={passivePerception}>Passive<br></br>Perception</BasicStatDisplay>
+                    <BasicStatDisplay statValue={(initiativeBonus >= 0) ? "+" + initiativeBonus : initiativeBonus} onClick={() => {
+                        playAudio("menuaudio");
+                        setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: "Initiative", aspectName: "initiativeBonus", addendumsToShow: ["initiativeAddendum"], leadingPlus: true } });
+                    }}>Initiative</BasicStatDisplay>
+                    <BasicStatDisplay statValue={speed} onClick={() => {
+                        playAudio("menuaudio");
+                        setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: "Speed", aspectName: "speed", addendumsToShow: ["speedAddendum"] } });
+                    }}>Speed</BasicStatDisplay>
+                    <BasicStatDisplay statValue={size} onClick={() => {
+                        playAudio("menuaudio");
+                        setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: "Size", aspectName: "size", addendumsToShow: ["sizeAddendum"] } });
+                    }}>Size</BasicStatDisplay>
+                    <BasicStatDisplay statValue={passivePerception} onClick={() => {
+                        playAudio("menuaudio");
+                        setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: "Passive Perception", aspectName: "passivePerception", addendumsToShow: ["passivePerceptionAddendum"] } });
+                    }}>Passive<br></br>Perception</BasicStatDisplay>
                 </div>
                 <div className="baseStats">
-                    <BasicStatDisplay statValue={"+" + proficiencyBonus}>Proficency<br></br>Bonus</BasicStatDisplay>
-                    <StatDisplay name="strength" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "strength")}/>
-                    <StatDisplay name="dexterity" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "dexterity")}/>
-                    <StatDisplay name="constitution" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "constitution")}/>
+                    <BasicStatDisplay statValue={"+" + proficiencyBonus} onClick={() => {
+                        playAudio("menuaudio");
+                        setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: "Proficency Bonus", aspectName: "proficiencyBonus", addendumsToShow: ["proficiencyBonusAddendum"], leadingPlus: true } });
+                    }}>Proficency<br></br>Bonus</BasicStatDisplay>
+                    <StatDisplay name="strength" playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} value={calculateBaseStat(playerConfigs, "strength")}/>
+                    <StatDisplay name="dexterity" playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} value={calculateBaseStat(playerConfigs, "dexterity")}/>
+                    <StatDisplay name="constitution" playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} value={calculateBaseStat(playerConfigs, "constitution")}/>
                     <HeroicInspirationDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler}/>
-                    <StatDisplay name="intelligence" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "intelligence")}/>
-                    <StatDisplay name="wisdom" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "wisdom")}/>
-                    <StatDisplay name="charisma" playerConfigs={playerConfigs} value={calculateBaseStat(playerConfigs, "charisma")}/>
+                    <StatDisplay name="intelligence" playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} value={calculateBaseStat(playerConfigs, "intelligence")}/>
+                    <StatDisplay name="wisdom" playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} value={calculateBaseStat(playerConfigs, "wisdom")}/>
+                    <StatDisplay name="charisma" playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} value={calculateBaseStat(playerConfigs, "charisma")}/>
                 </div>
                 <div>
                     <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>

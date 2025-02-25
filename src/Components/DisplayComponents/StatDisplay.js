@@ -1,10 +1,11 @@
 import React from 'react';
 import './StatDisplay.css';
 import { calculateAspectCollection, calculateModifierForBaseStat, calculateSavingThrowBonus, calculateSkillBonus } from '../../SharedFunctions/TabletopMathFunctions';
-import { convertArrayOfStringsToHashMap } from '../../SharedFunctions/Utils';
+import { convertArrayOfStringsToHashMap, playAudio } from '../../SharedFunctions/Utils';
 import { getCollection } from '../../Collections';
+import { getCapitalizedAbilityScoreName } from '../../SharedFunctions/ComponentFunctions';
 
-export function StatDisplay({playerConfigs, name, value}) {
+export function StatDisplay({playerConfigs, name, value, setCenterScreenMenu}) {
     const modifierAmount = calculateModifierForBaseStat(value);
 
     const playerSavingThrowProficiencies = calculateAspectCollection(playerConfigs, "savingThrowProficiencies");
@@ -16,7 +17,7 @@ export function StatDisplay({playerConfigs, name, value}) {
     const playerExpertise = calculateAspectCollection(playerConfigs, "expertise");
     const playerExpertiseMap = convertArrayOfStringsToHashMap(playerExpertise);
     const playerHalfSkillProficiencies = calculateAspectCollection(playerConfigs, "halfSkillProficiencies");
-    const playerHalfSkillProficienciesMap = convertArrayOfStringsToHashMap(playerHalfSkillProficiencies)
+    const playerHalfSkillProficienciesMap = convertArrayOfStringsToHashMap(playerHalfSkillProficiencies);
 
     const dndSkillProficiencies = getCollection("skillProficiencies");
     const skillproficiencyRows = [];
@@ -24,16 +25,18 @@ export function StatDisplay({playerConfigs, name, value}) {
         if (skillProficiency.modifier === name) {
             const skillBonus = calculateSkillBonus(playerConfigs, skillProficiency, playerSkillProficienciesMap[skillProficiency.name], playerExpertiseMap[skillProficiency.name], playerHalfSkillProficienciesMap[skillProficiency.name]);
             skillproficiencyRows.push(<>
-                <div className="proficencyCircleWrapper">
-                    <div className={"outer-circle" + (playerExpertiseMap[skillProficiency.name] ? " pixel-corners" : "")}>
-                        <div className={"dot pixel-corners" + (playerSkillProficienciesMap[skillProficiency.name] ? " fill" : "")}>
-                            <div className={(!playerSkillProficienciesMap[skillProficiency.name] && playerHalfSkillProficienciesMap[skillProficiency.name]) ? "half-fill" : ""}></div>
+                <div className="saveAndSkillsWrapper" onClick={() => openSkillProfMenu(setCenterScreenMenu, skillProficiency.name)}>
+                    <div className="proficencyCircleWrapper">
+                        <div className={"outer-circle" + (playerExpertiseMap[skillProficiency.name] ? " pixel-corners" : "")}>
+                            <div className={"dot pixel-corners" + (playerSkillProficienciesMap[skillProficiency.name] ? " fill" : "")}>
+                                <div className={(!playerSkillProficienciesMap[skillProficiency.name] && playerHalfSkillProficienciesMap[skillProficiency.name]) ? "half-fill" : ""}></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="skillModifier">{(skillBonus < 0 ? "" : "+") + skillBonus}</div>
-                <div className="proficencyScore">
-                    <div className="proficencyScoreText">{skillProficiency.name}</div>
+                    <div className="skillModifier">{(skillBonus < 0 ? "" : "+") + skillBonus}</div>
+                    <div className="proficencyScore">
+                        <div className="proficencyScoreText">{skillProficiency.name}</div>
+                    </div>
                 </div>
             </>)
         }
@@ -56,7 +59,7 @@ export function StatDisplay({playerConfigs, name, value}) {
                         </div>
                     </div>
                 </div>
-                <div className="saveAndSkillsWrapper">
+                <div className="saveAndSkillsWrapper" onClick={() => openSavingThrowMenu(setCenterScreenMenu, name)}>
                     <div className="proficencyCircleWrapper">
                         <div className={"outer-circle"}>
                             <div className={"dot pixel-corners" + (playerSavingThrowProficienciesMap[name] ? " fill" : "")}></div>
@@ -67,10 +70,18 @@ export function StatDisplay({playerConfigs, name, value}) {
                         <div className="proficencyScoreText boldText">Saving Throws</div>
                     </div>
                 </div>
-                <div className="saveAndSkillsWrapper">
-                    {skillproficiencyRows}
-                </div>
+                {skillproficiencyRows}
             </div>
         </>
     )
+}
+
+function openSavingThrowMenu(setCenterScreenMenu, baseStatName) {
+    playAudio("menuaudio");
+    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: (getCapitalizedAbilityScoreName(baseStatName) + " Saving Throws"), aspectName: (baseStatName + "SavingThrow"), addendumsToShow: [(baseStatName + "SavingThrowAddendum")], leadingPlus: true } });
+}
+
+function openSkillProfMenu(setCenterScreenMenu, skillProfName) {
+    playAudio("menuaudio");
+    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: skillProfName, aspectName: ("skillProficiency" + skillProfName), addendumsToShow: [("skillProficiency" + skillProfName + "Addendum")], leadingPlus: true } });
 }
