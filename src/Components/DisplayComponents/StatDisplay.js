@@ -78,10 +78,10 @@ export function StatDisplay({playerConfigs, name, value, setCenterScreenMenu}) {
 
 function openSavingThrowMenu(setCenterScreenMenu, baseStatName) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: (getCapitalizedAbilityScoreName(baseStatName) + " Saving Throws"), aspectName: (baseStatName + "SavingThrow"), addendumsToShow: [(baseStatName + "SavingThrowAddendum")], leadingPlus: true } });
+    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: (getCapitalizedAbilityScoreName(baseStatName) + " Saving Throws"), aspectName: (baseStatName + "SavingThrow"), addendumsToShow: [(baseStatName + "SavingThrowAddendum"), "allSavingThrowAddendum"], leadingPlus: true } });
 }
 
 function openSkillProfMenu(setCenterScreenMenu, skillProfName) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: skillProfName, aspectName: ("skillProficiency" + skillProfName), addendumsToShow: [("skillProficiency" + skillProfName + "Addendum")], leadingPlus: true } });
+    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: skillProfName, aspectName: ("skillProficiency" + skillProfName), addendumsToShow: [("skillProficiency" + skillProfName + "Addendum"), "skillProficiencyAllAddendum"], leadingPlus: true } });
 }
