@@ -2,14 +2,30 @@ import { getCollection } from "../Collections";
 import { getItemFromItemTemplate } from "./TabletopMathFunctions";
 import { convertArrayToDictionary } from "./Utils";
 
-export function CanEquipItem(item, openHands) {
+export function CanEquipItem(playerItems, item) {
     if (IsItemHoldable(item)) {
+        const openHands = GetOpenHands(playerItems);
         const isTryingToEquipTwoHanded = item.type === "Weapon" && item.properties && item.properties.includes("Two-Handed");
         if (isTryingToEquipTwoHanded) {
             return openHands >= 2;
         } else {
             return openHands >= 1;
         }
+    }
+    if (IsWearableArmor(item)) {
+        const items = getCollection('items');
+        // Convert to a dictionary for quick searches because the list could be LONG.
+        const itemsDictionary = convertArrayToDictionary(items, "name");
+        const alreadyWearingArmor = playerItems.some(playerItem => { 
+            if (playerItem.equipped) {
+                const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
+                if (IsWearableArmor(actualItem)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        return !alreadyWearingArmor;
     }
     return true;
 }
@@ -43,4 +59,8 @@ export function GetHeldItems(playerItems) {
 
 export function IsItemHoldable(item) {
     return item.type === "Weapon" || (item.type === "Armor" && item.armorType === "Shield") || item.holdable;
+}
+
+export function IsWearableArmor(item) {
+    return item.type === "Armor" && item.armorType !== "Shield";
 }

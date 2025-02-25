@@ -80,7 +80,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                 if (isNumeric(choice.multipleSelections)) {
                     numberOfSelections = choice.multipleSelections;
                 } else {
-                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calcuation);
+                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calculation);
                 }
 
                 const selectLists = [];

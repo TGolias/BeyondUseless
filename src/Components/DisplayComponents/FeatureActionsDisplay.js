@@ -167,7 +167,7 @@ function getResourceForUses(playerConfigs, action) {
     const resource = {};
     resource.name = action.name;
     resource.displayName = action.name;
-    resource.maxUses = performMathCalculation(playerConfigs, action.cost.uses.calcuation);;
+    resource.maxUses = performMathCalculation(playerConfigs, action.cost.uses.calculation);;
     let remainingUses;
     if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
         remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];

@@ -117,14 +117,14 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         }
 
         if (spell.type.includes("buff")) {
-            if (spell.buff.calcuation) {
+            if (spell.buff.calculation) {
                 buffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
             }
             buffDescription = spell.buff.description;
         }
 
         if (spell.type.includes("debuff")) {
-            if (spell.debuff.calcuation) {
+            if (spell.debuff.calculation) {
                 debuffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
             }
             debuffDescription = spell.debuff.description;

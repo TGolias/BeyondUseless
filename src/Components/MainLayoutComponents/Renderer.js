@@ -40,7 +40,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 <div className="playerName">{playerConfigs.name}</div>
                 <div className="healthBarAndDefense">
                     <HPandLVLDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} playLowHpAudio={true}></HPandLVLDisplay>
-                    <ArmorClassDisplay playerConfigs={playerConfigs}></ArmorClassDisplay>
+                    <ArmorClassDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></ArmorClassDisplay>
                 </div>
                 <div style={{display: (conditions.length > 0 ? "block" : "none")}}>
                     <ConditionsDisplay setCenterScreenMenu={setCenterScreenMenu} conditions={conditions} onAddOrUpdate={(newCondition) => onAddCondition(playerConfigs, inputChangeHandler, newCondition, showDeathScreen)} onRemove={(conditionNameToRemove) => onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRemove)}></ConditionsDisplay>

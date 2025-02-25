@@ -135,9 +135,8 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
                 <div className='weaponOrDamageCantripTitle'>{hasWeapons && !hasDamageCantrips ? "Weapons" : (!hasWeapons && hasDamageCantrips ? "Damage Cantrips" : (!hasWeapons && !hasDamageCantrips ? "No Weapons + Damage Cantrips" : "Weapons + Damage Cantrips"))}</div>
                 <div style={{display: (hasWeapons || hasDamageCantrips ? "grid" : "none")}} className='weaponOrDamageCantripGrid'>{weaponOrDamageCantripRows}</div>
                 <div className='weaponOrDamageCantripManageEquipment'><RetroButton text={"Manage Held Equipment"} onClickHandler={() => {
-                    playAudio("menuaudio");
                     setCenterScreenMenu({ show: true, menuType: "ManageHeldEquipmentMenu" });
-                }} showTriangle={false} disabled={false}></RetroButton></div>
+                }} showTriangle={false} disabled={false} buttonSound={"menuaudio"}></RetroButton></div>
             </div>
         </>
     )

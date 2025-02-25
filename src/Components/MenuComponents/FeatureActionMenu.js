@@ -22,7 +22,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
 
     const resourceDisplay = [];
 
-    let cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calcuation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+    let cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calculation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
     if (!cost) {
         cost = 0;
     }

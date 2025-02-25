@@ -61,14 +61,14 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
         const alreadyKnownSpells = getAllSpells(spellcastingFeatures);
         const spellName2AlreadyKnownSpell = convertArrayToDictionary(alreadyKnownSpells, "name");
 
-        const spellcastingAbility = performMathCalculation(baseStateObject, feature.spellcasting.ability.calcuation, parameters);
+        const spellcastingAbility = performMathCalculation(baseStateObject, feature.spellcasting.ability.calculation, parameters);
         featureContent.push(<>
             <div>Spellcasting Ability</div>
             <div>{rightTriangleUnicode}{getCapitalizedAbilityScoreName(spellcastingAbility)}</div>
         </>);
 
         if (feature.spellcasting.cantripsKnown) {
-            let cantripsKnown = performMathCalculation(baseStateObject, feature.spellcasting.cantripsKnown.calcuation, parameters);
+            let cantripsKnown = performMathCalculation(baseStateObject, feature.spellcasting.cantripsKnown.calculation, parameters);
             featureContent.push(<>
                 <div>{cantripsKnown} Cantrip{(cantripsKnown > 1 ? "s" : "")} Known</div>
             </>);
@@ -102,7 +102,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
         }
 
         if (feature.spellcasting.spellsKnown) {
-            let spellsKnown = performMathCalculation(baseStateObject, feature.spellcasting.spellsKnown.calcuation, parameters);
+            let spellsKnown = performMathCalculation(baseStateObject, feature.spellcasting.spellsKnown.calculation, parameters);
             featureContent.push(<>
                 <div>{spellsKnown} Spell{(spellsKnown > 1 ? "s" : "")} Known</div>
             </>);

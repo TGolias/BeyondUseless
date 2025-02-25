@@ -74,14 +74,14 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("buff")) {
-            if (featureAction.buff.calcuation) {
+            if (featureAction.buff.calculation) {
                 buffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "buff", "buffBonus", { userInput: data.userInput });
             }
             buffDescription = featureAction.buff.description;
         }
 
         if (featureAction.type.includes("debuff")) {
-            if (featureAction.debuff.calcuation) {
+            if (featureAction.debuff.calculation) {
                 debuffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "debuff", "debuffBonus", { userInput: data.userInput });
             }
             debuffDescription = featureAction.debuff.description;

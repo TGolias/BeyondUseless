@@ -1,26 +1,15 @@
-.manageHeldEquipmentMenuDescriptionText {
-    display: flex;
-    flex-direction: column;
-    row-gap: 0.5em;
-    white-space: pre-line;
-    line-height: 1.25em;
-    overflow-y: auto;
-    margin: -0.5em;
-    padding: 0.5em;
-}
-
-.manageHeldEquipmentMenuItemsGrid {
+.armorMenuItemsGrid {
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto 1fr auto;
     margin: -0.5em;
 }
 
-.manageHeldEquipmentMenuRow {
+.armorMenuRow {
     min-height: 3.5em;
     font-weight: normal;
 }
 
-.manageHeldEquipmentMenuItemsGrid > * {
+.armorMenuItemsGrid > * {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,22 +21,22 @@
     border-right: 2px solid black;
 }
 
-.manageHeldEquipmentMenuItemsGrid > .firstCol {
+.armorMenuItemsGrid > .firstCol {
     border-left: 0;
     padding-left: 1em;
 }
 
-.manageHeldEquipmentMenuItemsGrid > .lastCol {
+.armorMenuItemsGrid > .lastCol {
     border-right: 0;
     padding-right: 1em;
 }
 
-.manageHeldEquipmentMenuItemsGrid > .manageHeldEquipmentMenuHeaderCell {
+.armorMenuItemsGrid > .armorMenuHeaderCell {
     font-weight: bold;
     border-top: 0;
 }
 
-.manageHeldEquipmentMenuButtonsWrapper {
+.armorMenuButtonsWrapper {
     display: flex;
     justify-content: space-between;
     width: 100%;
@@ -55,7 +44,7 @@
 }
 
 @media only screen and (max-width: 600px) {
-    .manageHeldEquipmentMenuDescriptionText {
+    .armorMenuItemsGrid {
         flex-grow: 1;
     }
 }

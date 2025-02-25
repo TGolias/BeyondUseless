@@ -1,11 +1,10 @@
 import React from "react";
-import './ManageHeldEquipmentMenu.css';
+import './ArmorMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { calculateWeaponAttackBonus, calculateWeaponDamage, getItemFromItemTemplate } from "../../SharedFunctions/TabletopMathFunctions";
+import { getItemFromItemTemplate, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
 import { getCollection } from "../../Collections";
-import { CanEquipItem, GetOpenHands, IsItemHoldable } from "../../SharedFunctions/EquipmentFunctions";
-import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
+import { CanEquipItem } from "../../SharedFunctions/EquipmentFunctions";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 
 const rows = [
@@ -27,38 +26,23 @@ const rows = [
         addOnClick: true,
     },
     {
-        name: "Atk/DC",
+        name: "AC",
         calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
-            if (item.type === "Weapon") {
-                const attack = calculateWeaponAttackBonus(playerConfigs, item, false);
-                return (attack.amount < 0 ? "" : "+") + attack.amount;
-            } else {
-                return "";
+            if (item.aspects) {
+                if (item.aspects.armorClass) {
+                    return performMathCalculation(playerConfigs, item.aspects.armorClass.calculation);
+                } else if (item.aspects.armorClassBonus) {
+                    return "+" + performMathCalculation(playerConfigs, item.aspects.armorClassBonus.calculation);
+                }
             }
-        },
-        addOnClick: true,
-    },
-    {
-        name: "Damage",
-        calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
-            if (item.type === "Weapon") {
-                let amount = calculateWeaponDamage(playerConfigs, item, false, false, false);
-                amount += " " + item.damage.damageType;
-                return amount;
-            } else {
-                return "";
-            }
+            return "";
         },
         addOnClick: true,
         addClass: "lastCol"
     }
 ];
 
-export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
-    const misc = getCollection("misc");
-    const equippingWeapons = misc.find(miscEntry => miscEntry.name === "EquippingWeapons");
-    const equippingItemsDescription = parseStringForBoldMarkup(equippingWeapons.description);
-
+export function ArmorMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const itemRows = [];
     if (menuConfig.items && menuConfig.items.length > 0) {
         const items = getCollection("items");
@@ -67,7 +51,7 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
         // Do the header row first.
         for (let row of rows) {
             itemRows.push(<>
-                <div className={row.addClass ? "manageHeldEquipmentMenuHeaderCell " + row.addClass : "manageHeldEquipmentMenuHeaderCell"}>{row.name}</div>
+                <div className={row.addClass ? "armorMenuHeaderCell " + row.addClass : "armorMenuHeaderCell"}>{row.name}</div>
             </>);
         }
 
@@ -75,10 +59,10 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
             const itemConfig = menuConfig.items[i];
             let dndItem = itemName2Item[itemConfig.name];
             dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
-            if (IsItemHoldable(dndItem)) {
+            if (dndItem.type === "Armor") {
                 for (let row of rows) {
                     itemRows.push(<>
-                        <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                        <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "armorMenuRow " + row.addClass : "armorMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                     </>);
                 }
             }
@@ -86,11 +70,9 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
     }
 
     return (<>
-        <div className="manageHeldEquipmentMenuDescriptionText">{equippingItemsDescription}</div>
+        <div className="armorMenuItemsGrid">{itemRows}</div>
         <div className="centerMenuSeperator"></div>
-        <div className="manageHeldEquipmentMenuItemsGrid">{itemRows}</div>
-        <div className="centerMenuSeperator"></div>
-        <div className="manageHeldEquipmentMenuButtonsWrapper">
+        <div className="armorMenuButtonsWrapper">
             <RetroButton text="OK" onClickHandler={() => {
                 inputChangeHandler(playerConfigs, "items", menuConfig.items);
                 setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
@@ -102,6 +84,6 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
 
 function openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) {
     playAudio("menuaudio");
-    addToMenuStack({ menuType: "ManageHeldEquipmentMenu", menuConfig });
+    addToMenuStack({ menuType: "ArmorMenu", menuConfig });
     setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
 }

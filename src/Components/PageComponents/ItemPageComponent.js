@@ -16,11 +16,11 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     switch (item.type) {
         case "Weapon":
             typeString = item.weaponRange + " " + item.type + " (" + item.weaponType + ")";
-            baseDamage = performDiceRollCalculation({}, item.damage.calcuation, {});
+            baseDamage = performDiceRollCalculation({}, item.damage.calculation, {});
             baseDamage += " " + item.damage.damageType;
 
             if (item.properties.includes("Versatile")) {
-                twoHandedDamage = performDiceRollCalculation({}, item.twoHandedDamage.calcuation, {});
+                twoHandedDamage = performDiceRollCalculation({}, item.twoHandedDamage.calculation, {});
                 twoHandedDamage += " " + item.twoHandedDamage.damageType;
             }
 

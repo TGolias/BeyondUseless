@@ -14,8 +14,8 @@ export function calculateArmorClass(playerConfigs) {
     // Check if there are any other ways to calculate armor class.
     findAllConfiguredAspects(playerConfigs, "armorClass", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let newArmorClass;
-        if (aspectValue.calcuation) {
-            newArmorClass = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            newArmorClass = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             newArmorClass = aspectValue;
@@ -29,8 +29,8 @@ export function calculateArmorClass(playerConfigs) {
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "armorClassBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let armorClassBonus;
-        if (aspectValue.calcuation) {
-            armorClassBonus = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            armorClassBonus = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             armorClassBonus = aspectValue;
@@ -49,8 +49,8 @@ export function calculateInitiativeBonus(playerConfigs) {
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "initiativeBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let initiativeBonus;
-        if (aspectValue.calcuation) {
-            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             initiativeBonus = aspectValue;
@@ -81,8 +81,8 @@ export function calculateSpeed(playerConfigs) {
     // There might be multiple speeds between the species / subspecies, override with whatever we see is the highest.
     findAllConfiguredAspects(playerConfigs, "speed", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let newSpeed;
-        if (aspectValue.calcuation) {
-            newSpeed = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            newSpeed = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             newSpeed = aspectValue;
@@ -96,8 +96,8 @@ export function calculateSpeed(playerConfigs) {
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "speedBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let speedBonus;
-        if (aspectValue.calcuation) {
-            speedBonus = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            speedBonus = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             speedBonus = aspectValue;
@@ -331,8 +331,8 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         }
 
         let modifierName;
-        if (aspectValue.calcuation) {
-            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             modifierName = aspectValue;
@@ -367,8 +367,8 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForAttackBonus.push(...aspectValue.calculation);
         }
         else {
             calculationsForAttackBonus.push({
@@ -406,11 +406,11 @@ export function calculateUnarmedDamage(playerConfigs) {
         }
 
         // This is a pain, we have to check the dies in the alternate calculations and see what is the highest. Long term, I should probably just show all calculations though.
-        if (aspectValue.calcuation && aspectValue.calcuation.length > 0) {
-            let unarmedAttackCalculationDie = aspectValue.calcuation[0].value;
+        if (aspectValue.calculation && aspectValue.calculation.length > 0) {
+            let unarmedAttackCalculationDie = aspectValue.calculation[0].value;
             if (unarmedAttackCalculationDie >= highestUnarmedAttackDie) {
                 highestUnarmedAttackDie = unarmedAttackCalculationDie;
-                highestUnarmedAttackCalculation = aspectValue.calcuation;
+                highestUnarmedAttackCalculation = aspectValue.calculation;
             }
         }
     });
@@ -434,8 +434,8 @@ export function calculateUnarmedDamage(playerConfigs) {
         }
 
         let modifierName;
-        if (aspectValue.calcuation) {
-            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             modifierName = aspectValue;
@@ -464,8 +464,8 @@ export function calculateUnarmedDamage(playerConfigs) {
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForAttackDamage.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForAttackDamage.push(...aspectValue.calculation);
         }
         else {
             calculationsForAttackDamage.push({
@@ -526,8 +526,8 @@ export function calculateUnarmedAttackDC(playerConfigs) {
         }
 
         let modifierName;
-        if (aspectValue.calcuation) {
-            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation);
         }
         else {
             modifierName = aspectValue;
@@ -563,8 +563,8 @@ export function calculateUnarmedAttackDC(playerConfigs) {
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForUnarmedDC.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForUnarmedDC.push(...aspectValue.calculation);
         }
         else {
             calculationsForUnarmedDC.push({
@@ -607,8 +607,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
 
         let modifierName;
-        if (aspectValue.calcuation) {
-            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation, { weapon, isThrown });
+        if (aspectValue.calculation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown });
         }
         else {
             modifierName = aspectValue;
@@ -650,8 +650,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForAttackBonus.push(...aspectValue.calculation);
         }
         else {
             calculationsForAttackBonus.push({
@@ -673,7 +673,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
 
             const dndProperty = propertiesMap[firstString]
             if (dndProperty && dndProperty.weaponAttackAddendum) {
-                const propertyString = performMathCalculation(playerConfigs, dndProperty.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, propertyStrings: stringSplit });
+                const propertyString = performMathCalculation(playerConfigs, dndProperty.weaponAttackAddendum.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, propertyStrings: stringSplit });
                 if (propertyString) {
                     if (addendum.length > 0) {
                         // Newline between different addendums.
@@ -694,7 +694,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
             const dndMastery = allMasteries.find(mastery => mastery.name === weapon.mastery);
 
             if (dndMastery && dndMastery.weaponAttackAddendum) {
-                const masteryString = performMathCalculation(playerConfigs, dndMastery.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+                const masteryString = performMathCalculation(playerConfigs, dndMastery.weaponAttackAddendum.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
                 if (masteryString) {
                     if (addendum.length > 0) {
                         // Newline between different addendums.
@@ -710,7 +710,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         const allMisc = getCollection("misc");
         const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
 
-        const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calcuation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+        const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
         if (rangedString) {
             if (addendum.length > 0) {
                 // Newline between different addendums.
@@ -729,13 +729,13 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
         // Check if they can actually two-hand the weapon.
         const heldItems = GetHeldItems(playerConfigs.items);
         if (heldItems.length === 1 && heldItems[0].name === weapon.name) {
-            calculationsForDamage = [...weapon.twoHandedDamage.calcuation];
+            calculationsForDamage = [...weapon.twoHandedDamage.calculation];
         }
     }
 
     if (!calculationsForDamage) {
         // There are no overrides for weapon damage. Start with the normal weapon damage.
-        calculationsForDamage = [...weapon.damage.calcuation];
+        calculationsForDamage = [...weapon.damage.calculation];
     }
 
     let highestValidAbility = undefined;
@@ -762,8 +762,8 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
         }
 
         let modifierName;
-        if (aspectValue.calcuation) {
-            modifierName = performMathCalculation(playerConfigs, aspectValue.calcuation, { weapon, isThrown });
+        if (aspectValue.calculation) {
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown });
         }
         else {
             modifierName = aspectValue;
@@ -794,8 +794,8 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForDamage.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForDamage.push(...aspectValue.calculation);
         }
         else {
             calculationsForDamage.push({
@@ -812,7 +812,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
 export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     const calculationsForAttackBonus = [];
 
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
+    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Always add spellcasting ability modifier.
@@ -837,8 +837,8 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForAttackBonus.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForAttackBonus.push(...aspectValue.calculation);
         }
         else {
             calculationsForAttackBonus.push({
@@ -857,7 +857,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
             const allMisc = getCollection("misc");
             const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
     
-            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calcuation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
             if (rangedString) {
                 if (addendum.length > 0) {
@@ -876,7 +876,7 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     const calculationsForSpellSaveDCBonus = [];
 
 
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
+    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Start with 8. Because that's what the rules say.
@@ -907,8 +907,8 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
             }
         }
 
-        if (aspectValue.calcuation) {
-            calculationsForSpellSaveDCBonus.push(...aspectValue.calcuation);
+        if (aspectValue.calculation) {
+            calculationsForSpellSaveDCBonus.push(...aspectValue.calculation);
         }
         else {
             calculationsForSpellSaveDCBonus.push({
@@ -928,7 +928,7 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
     const calculationsForActionAspect = [];
 
     // Start with the feature action's calculation
-    calculationsForActionAspect.push(...featureAction[aspectName].calcuation);
+    calculationsForActionAspect.push(...featureAction[aspectName].calculation);
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
@@ -941,8 +941,8 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
                 }
             }
 
-            if (aspectValue.calcuation) {
-                calculationsForActionAspect.push(...aspectValue.calcuation);
+            if (aspectValue.calculation) {
+                calculationsForActionAspect.push(...aspectValue.calculation);
             }
             else {
                 calculationsForActionAspect.push({
@@ -960,11 +960,11 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
 export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalParams = undefined) {
     const calculationsForSpellAspect = [];
 
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calcuation);
+    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Start with the spell's calculation
-    calculationsForSpellAspect.push(...spell[aspectName].calcuation);
+    calculationsForSpellAspect.push(...spell[aspectName].calculation);
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
@@ -977,8 +977,8 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
                 }
             }
 
-            if (aspectValue.calcuation) {
-                calculationsForSpellAspect.push(...aspectValue.calcuation);
+            if (aspectValue.calculation) {
+                calculationsForSpellAspect.push(...aspectValue.calculation);
             }
             else {
                 calculationsForSpellAspect.push({
@@ -999,7 +999,7 @@ export function calculateRange(playerConfigs, range) {
             let rangeString = "";
             if (range.normal) {
                 if (isObject(range.normal)) {
-                    rangeString += performMathCalculation(playerConfigs, range.normal.calcuation);
+                    rangeString += performMathCalculation(playerConfigs, range.normal.calculation);
                 } else {
                     rangeString += range.normal;
                 }
@@ -1007,7 +1007,7 @@ export function calculateRange(playerConfigs, range) {
             if (range.long) {
                 rangeString += "/";
                 if (isObject(range.long)) {
-                    rangeString += performMathCalculation(playerConfigs, range.normal.calcuation);
+                    rangeString += performMathCalculation(playerConfigs, range.normal.calculation);
                 } else {
                     rangeString += range.long;
                 }
@@ -1053,8 +1053,8 @@ export function calculateAddendumAspect(playerConfigs, addendumName, parameters)
             }
         }
 
-        if (aspectValue.calcuation) {
-            valueToAdd = performMathCalculation(playerConfigs, aspectValue.calcuation, parameters);
+        if (aspectValue.calculation) {
+            valueToAdd = performMathCalculation(playerConfigs, aspectValue.calculation, parameters);
         }
         else {
             valueToAdd = aspectValue;

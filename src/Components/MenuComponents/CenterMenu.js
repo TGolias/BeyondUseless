@@ -18,6 +18,7 @@ import { SaveMenu } from "./SaveMenu";
 import { LoadMenu } from "./LoadMenu";
 import { UnarmedStrikeMenu } from "./UnarmedStrikeMenu";
 import { ManageHeldEquipmentMenu } from "./ManageHeldEquipmentMenu";
+import { ArmorMenu } from "./ArmorMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -344,6 +345,22 @@ const menuCollection = {
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><ManageHeldEquipmentMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ManageHeldEquipmentMenu></>);
+        }
+    },
+    ArmorMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            const titleName = "Armor Equipment";
+            return (<>
+                <div className="menuTitleBarTitle">{titleName}</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newHealthMenuConfig = {};
+            newHealthMenuConfig.items = playerConfigs.items;
+            return newHealthMenuConfig;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><ArmorMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ArmorMenu></>);
         }
     }
 }
