@@ -1,6 +1,6 @@
 import React from "react";
 import './ItemPageComponent.css';
-import { calculateAddendumAspect, calculateAspectCollection, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAspectCollection, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, convertDiceRollCalculationToValue, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
@@ -16,11 +16,13 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     switch (item.type) {
         case "Weapon":
             typeString = item.weaponRange + " " + item.type + " (" + item.weaponType + ")";
-            baseDamage = performDiceRollCalculation({}, item.damage.calculation, {});
+            const baseDamageDice = performDiceRollCalculation({}, item.damage.calculation, {});
+            baseDamage = convertDiceRollCalculationToValue(baseDamageDice);
             baseDamage += " " + item.damage.damageType;
 
             if (item.properties.includes("Versatile")) {
-                twoHandedDamage = performDiceRollCalculation({}, item.twoHandedDamage.calculation, {});
+                const twoHandedDamageDice = performDiceRollCalculation({}, item.twoHandedDamage.calculation, {});
+                twoHandedDamage = convertDiceRollCalculationToValue(twoHandedDamageDice);
                 twoHandedDamage += " " + item.twoHandedDamage.damageType;
             }
 

@@ -71,7 +71,7 @@
 
 .proficencyCircleWrapper {
     display: flex;
-    align-items: end;
+    align-items: center;
     padding-left: 0.25em;
     padding-right: 0.25em;
     height: 2.0em;
@@ -129,4 +129,16 @@
 
 .boldText {
     font-weight: bold;
+}
+
+@media only screen and (max-width: 600px) {
+    .proficencyScore {
+        padding-left: 0.3em;
+        padding-right: 0.3em;
+    }
+
+    .proficencyCircleWrapper {
+        padding-left: 1px;
+        padding-right: 1px;
+    }
 }

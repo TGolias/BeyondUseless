@@ -86,3 +86,25 @@ export function parseStringForBoldMarkup(stringToParse) {
     }
     return stringWithMarkup;
 }
+
+const sizes = ["Tiny", "Small", "Medium", "Large", "Huge", "Gargantuan"];
+
+export function convertSizeToNumber(size) {
+    if (size) {
+        const index = sizes.indexOf(size);
+        if (index > -1) {
+            return index;
+        }
+    }
+    return 2; // Medium is a good default.
+}
+
+export function convertNumberToSize(number) {
+    if (number < 0) {
+        return "Tiny"; // The only thing smaller than Tiny is... Tiny. Yes.
+    }
+    if (number >= sizes.length) {
+        return "Gargantuan"; // The only thing larger than Gargantuan is... Gargantuan. Yes.
+    }
+    return sizes[number];
+}

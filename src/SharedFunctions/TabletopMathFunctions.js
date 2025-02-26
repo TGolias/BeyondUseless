@@ -1,5 +1,5 @@
 import { getCollection } from "../Collections";
-import { getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
+import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
 import { GetHeldItems } from "./EquipmentFunctions";
 import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
@@ -9,7 +9,7 @@ export function calculateProficiencyBonus(playerConfigs) {
 
 export function calculateArmorClass(playerConfigs) {
     // Start with unarmored dc. 10 + dex modifier.
-    let armorClass = 10 + calculateAspectCollection(playerConfigs, "dexterityModifier");
+    let startingArmorClass = 10 + calculateAspectCollection(playerConfigs, "dexterityModifier");
 
     // Check if there are any other ways to calculate armor class.
     findAllConfiguredAspects(playerConfigs, "armorClass", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -21,54 +21,75 @@ export function calculateArmorClass(playerConfigs) {
             newArmorClass = aspectValue;
         }
 
-        if (newArmorClass > armorClass) {
-            armorClass = newArmorClass;
+        if (newArmorClass > startingArmorClass) {
+            startingArmorClass = newArmorClass;
         }
     });
+
+    let armorClass = {};
+    armorClass = addDiceObjectsTogether(armorClass, startingArmorClass);
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "armorClassBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let armorClassBonus;
         if (aspectValue.calculation) {
-            armorClassBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            armorClassBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
             armorClassBonus = aspectValue;
         }
-
-        armorClass += armorClassBonus;
+        armorClass = addDiceObjectsTogether(armorClass, armorClassBonus);
     });
 
-    return armorClass;
+    const finalArmorClass = convertDiceRollCalculationToValue(armorClass);
+    if (!finalArmorClass) {
+        return 0
+    }
+    return finalArmorClass;
 }
 
 export function calculateInitiativeBonus(playerConfigs) {
     // Start with our dex modifier.
-    let totalInitiativeBonus = calculateAspectCollection(playerConfigs, "dexterityModifier");
+    let totalInitiativeBonus = {};
+    totalInitiativeBonus = addDiceObjectsTogether(totalInitiativeBonus, calculateAspectCollection(playerConfigs, "dexterityModifier"));
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "initiativeBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let initiativeBonus;
         if (aspectValue.calculation) {
-            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation);
+            initiativeBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
             initiativeBonus = aspectValue;
         }
-
-        totalInitiativeBonus += initiativeBonus;
+        totalInitiativeBonus = addDiceObjectsTogether(totalInitiativeBonus, initiativeBonus);
     });
 
-    return totalInitiativeBonus;
+    const finalInitiativeBonus = convertDiceRollCalculationToValue(totalInitiativeBonus);
+    if (!finalInitiativeBonus) {
+        return 0
+    }
+    return finalInitiativeBonus;
 }
 
 export function calculateSize(playerConfigs) {
     // Default to Medium because it seems to be the 'default' among most races where size is selectable.
     let size = "Medium";
 
-    // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "size", (aspectValue, typeFoundOn, playerConfigForObject) => {
         size = aspectValue;
+    });
+
+    findAllConfiguredAspects(playerConfigs, "sizeBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let sizeBonus;
+        if (aspectValue.calculation) {
+            sizeBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+        }
+        else {
+            sizeBonus = aspectValue;
+        }
+        const newSizeNumber = convertSizeToNumber(size) + sizeBonus;
+        size = convertNumberToSize(newSizeNumber);
     });
 
     return size;
@@ -76,7 +97,7 @@ export function calculateSize(playerConfigs) {
 
 export function calculateSpeed(playerConfigs) {
     // Start with 0, lol. All races have a base speed set, and if we end up seeing 0 in the UI, we'll know something is wrong for sure.
-    let speed = 0;
+    let startingSpeed = 0;
 
     // There might be multiple speeds between the species / subspecies, override with whatever we see is the highest.
     findAllConfiguredAspects(playerConfigs, "speed", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -88,21 +109,23 @@ export function calculateSpeed(playerConfigs) {
             newSpeed = aspectValue;
         }
 
-        if (newSpeed > speed) {
-            speed = newSpeed;
+        if (newSpeed > startingSpeed) {
+            startingSpeed = newSpeed;
         }
     });
+
+    let speed = {};
+    speed = addDiceObjectsTogether(speed, startingSpeed);
 
     findAllConfiguredAspects(playerConfigs, "speedBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let speedBonus;
         if (aspectValue.calculation) {
-            speedBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            speedBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
             speedBonus = aspectValue;
         }
-
-        speed += speedBonus;
+        speed = addDiceObjectsTogether(speed, speedBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "forcedSpeed", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -115,10 +138,14 @@ export function calculateSpeed(playerConfigs) {
         }
 
         // The speed is being forced to this value.
-        speed = forcedSpeed;
+        speed = addDiceObjectsTogether({}, forcedSpeed);
     });
 
-    return speed;
+    const finalSpeed = convertDiceRollCalculationToValue(speed);
+    if (!finalSpeed) {
+        return 0;
+    }
+    return finalSpeed;
 }
 
 export function calculatePassivePerception(playerConfigs) {
@@ -134,8 +161,14 @@ export function calculatePassivePerception(playerConfigs) {
     const playerHalfSkillProficienciesMap = convertArrayOfStringsToHashMap(playerHalfSkillProficiencies)
 
     // They seemingly simplified this... it's just 10 plus your perception skill modifer.
-    let passivePerception = 10 + calculateSkillBonus(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name], playerHalfSkillProficienciesMap[perceptionSkillProf.name]);
-    return passivePerception;
+    let passivePerception = {}
+    passivePerception = addDiceObjectsTogether(passivePerception, 10);
+    passivePerception = addDiceObjectsTogether(passivePerception, calculateSkillBonusAsDiceObject(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name], playerHalfSkillProficienciesMap[perceptionSkillProf.name]));
+    const finalPassivePerception = convertDiceRollCalculationToValue(passivePerception);
+    if (!finalPassivePerception) {
+        return 0;
+    }
+    return finalPassivePerception;
 }
 
 export function calculateModifierForBaseStat(baseStatValue) {
@@ -312,83 +345,98 @@ export function calculateSkillProficiency(playerConfigs, skillProficiencyName) {
 }
 
 export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency) {
-    let skillBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, dndSkillProficiency.modifier));
+    const skillBonus = calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency);
+    const finalSkillBonus = convertDiceRollCalculationToValue(skillBonus);
+    if (!finalSkillBonus) {
+        return 0;
+    }
+    return finalSkillBonus;
+}
+
+export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency) {
+    let startingSkillBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, dndSkillProficiency.modifier));
     if (hasProficiency) {
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
-        skillBonus += proficencyBonus;
+        startingSkillBonus += proficencyBonus;
         if (hasExpertise) {
             // Add it again!!!
-            skillBonus += proficencyBonus;
+            startingSkillBonus += proficencyBonus;
         }
     } else if (hasHalfProficiency) {
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
         const halfProficencyBonusRoundDown = Math.floor(proficencyBonus / 2);
-        skillBonus += halfProficencyBonusRoundDown;
+        startingSkillBonus += halfProficencyBonusRoundDown;
     }
 
+    let skillBonus = {};
+    skillBonus = addDiceObjectsTogether(skillBonus, startingSkillBonus);
+
     findAllConfiguredAspects(playerConfigs, "skillProficiency" + dndSkillProficiency.name + "Bonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
-        let initiativeBonus;
+        let skillProficiencyBonus;
         if (aspectValue.calculation) {
-            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            skillProficiencyBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
-            initiativeBonus = aspectValue;
+            skillProficiencyBonus = aspectValue;
         }
-
-        skillBonus += initiativeBonus;
+        skillBonus = addDiceObjectsTogether(skillBonus, skillProficiencyBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "skillProficiencyAllBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
-        let initiativeBonus;
+        let skillProficiencyBonus;
         if (aspectValue.calculation) {
-            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            skillProficiencyBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
-            initiativeBonus = aspectValue;
+            skillProficiencyBonus = aspectValue;
         }
-
-        skillBonus += initiativeBonus;
+        skillBonus = addDiceObjectsTogether(skillBonus, skillProficiencyBonus);
     });
 
     return skillBonus;
 }
 
 export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficiency) {
-    let savingThrowBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, modifier));
+    let startingSavingThrow = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, modifier));
     if (hasProficiency) {
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
-        savingThrowBonus += proficencyBonus;
+        startingSavingThrow += proficencyBonus;
     }
 
+    let savingThrow = {};
+    savingThrow = addDiceObjectsTogether(savingThrow, startingSavingThrow);
+
     findAllConfiguredAspects(playerConfigs, modifier + "SavingThrowBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
-        let initiativeBonus;
+        let savingThrowBonus;
         if (aspectValue.calculation) {
-            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            savingThrowBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
-            initiativeBonus = aspectValue;
+            savingThrowBonus = aspectValue;
         }
-
-        savingThrowBonus += initiativeBonus;
+        savingThrow = addDiceObjectsTogether(savingThrow, savingThrowBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allSavingThrowBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
-        let initiativeBonus;
+        let savingThrowBonus;
         if (aspectValue.calculation) {
-            initiativeBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            savingThrowBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
-            initiativeBonus = aspectValue;
+            savingThrowBonus = aspectValue;
         }
-
-        savingThrowBonus += initiativeBonus;
+        savingThrow = addDiceObjectsTogether(savingThrow, savingThrowBonus);
     });
 
-    return savingThrowBonus;
+    let finalSavingThrow = convertDiceRollCalculationToValue(savingThrow);
+    if (!finalSavingThrow) {
+        return 0;
+    }
+    return finalSavingThrow;
 }
 
 export function calculateUnarmedAttackBonus(playerConfigs) {
-    const calculationsForAttackBonus = [];
+    let attackBonus = {};
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -422,36 +470,30 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         }
     });
 
-    calculationsForAttackBonus.push({
-        type: "static",
-        value: highestValidAbilityModifier
-    });
+    attackBonus = addDiceObjectsTogether(attackBonus, highestValidAbilityModifier);
 
     // Always add proficiency bonus for unarmed attacks. Pretty sweet I guess.
-    calculationsForAttackBonus.push({
-        type: "aspect",
-        value: "proficiencyBonus",
-    });
+    attackBonus = addDiceObjectsTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additional bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "unarmedAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let unarmedAttackBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackBonus.push(...aspectValue.calculation);
+            unarmedAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
         }
         else {
-            calculationsForAttackBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            unarmedAttackBonus = aspectValue;
         }
+
+        attackBonus = addDiceObjectsTogether(attackBonus, unarmedAttackBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -463,34 +505,32 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
             }
         }
 
+        let allAttackBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackBonus.push(...aspectValue.calculation);
+            allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
         }
         else {
-            calculationsForAttackBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            allAttackBonus = aspectValue
         }
+
+        attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
     });
 
-    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    let amount = convertDiceRollCalculationToValue(attackBonus);
+    if (!amount) {
+        amount = "0";
+    }
     let addendum = calculateAddendumAspects(playerConfigs, ["unarmedAttackAddendum", "allAttackAddendum"], { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     return { amount, addendum };
 }
 
 export function calculateUnarmedDamage(playerConfigs) {
-    let calculationsForAttackDamage;
+    let attackDamage = {};
 
     // By default the unarmed attack base is 1.
     let highestUnarmedAttackDie = 1;
-    let highestUnarmedAttackCalculation = [
-        {
-            type: "static",
-            value: 1
-        }
-    ];
+    let highestUnarmedAttack = { static: 1 }
 
     findAllConfiguredAspects(playerConfigs, "alternateUnarmedDamageCalculation", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
@@ -506,12 +546,12 @@ export function calculateUnarmedDamage(playerConfigs) {
             let unarmedAttackCalculationDie = aspectValue.calculation[0].value;
             if (unarmedAttackCalculationDie >= highestUnarmedAttackDie) {
                 highestUnarmedAttackDie = unarmedAttackCalculationDie;
-                highestUnarmedAttackCalculation = aspectValue.calculation;
+                highestUnarmedAttack = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
             }
         }
     });
 
-    calculationsForAttackDamage = [...highestUnarmedAttackCalculation];
+    attackDamage = highestUnarmedAttack;
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -522,7 +562,7 @@ export function calculateUnarmedDamage(playerConfigs) {
 
     findAllConfiguredAspects(playerConfigs, "alternateUnarmedDamageModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon);
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this alternate modifier to apply.
                 return;
@@ -545,65 +585,43 @@ export function calculateUnarmedDamage(playerConfigs) {
         }
     });
 
-    calculationsForAttackDamage.push({
-        type: "static",
-        value: highestValidAbilityModifier
-    });
+    attackDamage = addDiceObjectsTogether(attackDamage, highestValidAbilityModifier);
     
     // See if there are additional bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "unarmedDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let unarmedDamageBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackDamage.push(...aspectValue.calculation);
+            unarmedDamageBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
         }
         else {
-            calculationsForAttackDamage.push({
-                type: "static",
-                value: aspectValue
-            });
+            unarmedDamageBonus = aspectValue;
         }
+
+        attackDamage = addDiceObjectsTogether(attackDamage, unarmedDamageBonus);
     });
 
-    let calculationToPerform;
-    if (highestUnarmedAttackDie === 1) {
-        // Ensure unarmed attack damage is at least 1.
-        calculationToPerform = []
-        calculationToPerform.push({
-            type: "highestOf",
-            values: [
-                calculationsForAttackDamage,
-                [
-                    {
-                        type: "static",
-                        value: 1
-                    }
-                ]
-            ]
-        });
-    } else {
-        // We have an alternate / better way of calculating damage. We want the calculation to show the whole thing, even with a potentially negative modifier.
-        calculationToPerform = calculationsForAttackDamage;
+    const calculationString = convertDiceRollCalculationToValue(attackDamage);
+    if (!calculationString || (isNumeric(calculationString) && parseInt(calculationString) < 1)) {
+        // One should be the lowest damage
+        return "1";
     }
 
-    const calculationString = performDiceRollCalculation(playerConfigs, calculationToPerform, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
     return calculationString;
 }
 
 export function calculateUnarmedAttackDC(playerConfigs) {
-    const calculationsForUnarmedDC = [];
+    let unarmedDC = {};
 
     // Start with 8.
-    calculationsForUnarmedDC.push({
-        type: "static",
-        value: 8
-    });
+    unarmedDC = addDiceObjectsTogether(unarmedDC, 8);
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -614,7 +632,7 @@ export function calculateUnarmedAttackDC(playerConfigs) {
 
     findAllConfiguredAspects(playerConfigs, "alternateUnarmedAttackModifier", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon);
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this alternate modifier to apply.
                 return;
@@ -623,7 +641,7 @@ export function calculateUnarmedAttackDC(playerConfigs) {
 
         let modifierName;
         if (aspectValue.calculation) {
-            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation);
+            modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
         }
         else {
             modifierName = aspectValue;
@@ -638,46 +656,42 @@ export function calculateUnarmedAttackDC(playerConfigs) {
     });
 
     // Add the ability modifier.
-    calculationsForUnarmedDC.push({
-        type: "static",
-        value: highestValidAbilityModifier
-    });
+    unarmedDC = addDiceObjectsTogether(unarmedDC, highestValidAbilityModifier);
 
     // Always add proficiency bonus for unarmed attacks. Pretty sweet I guess.
-    calculationsForUnarmedDC.push({
-        type: "aspect",
-        value: "proficiencyBonus"
-    });
+    unarmedDC = addDiceObjectsTogether(unarmedDC, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additional bonuses to apply to our DC.
     findAllConfiguredAspects(playerConfigs, "unarmedDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let unarmedDCBonus;
         if (aspectValue.calculation) {
-            calculationsForUnarmedDC.push(...aspectValue.calculation);
+            unarmedDCBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
         }
         else {
-            calculationsForUnarmedDC.push({
-                type: "static",
-                value: aspectValue
-            });
+            unarmedDCBonus = aspectValue;
         }
+        unarmedDC = addDiceObjectsTogether(unarmedDC, unarmedDCBonus);
     });
 
-    const dc = performDiceRollCalculation(playerConfigs, calculationsForUnarmedDC, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    let dc = convertDiceRollCalculationToValue(unarmedDC);
+    if (!dc) {
+        dc = "0";
+    }
     const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     return { dc, addendum };
 }
 
 export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
-    const calculationsForAttackBonus = [];
+    let attackBonus = {};
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -718,10 +732,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     });
 
-    calculationsForAttackBonus.push({
-        type: "static",
-        value: highestValidAbilityModifier
-    });
+    attackBonus = addDiceObjectsTogether(attackBonus, highestValidAbilityModifier);
 
     // Check if we should add the proficency bonus.
     let isProficient = false;
@@ -729,55 +740,53 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         const weaponProficienyMap = calculateAspectCollection(playerConfigs, "weaponProficiencies");
         isProficient = weapon.tags.some(tag => weaponProficienyMap.includes(tag));
         if (isProficient) {
-            calculationsForAttackBonus.push({
-                type: "aspect",
-                value: "proficiencyBonus",
-            });
+            attackBonus = addDiceObjectsTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
         }
     }
     
     // See if there are additional bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "weaponAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let weaponAttackBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackBonus.push(...aspectValue.calculation);
+            weaponAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
         }
         else {
-            calculationsForAttackBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            weaponAttackBonus = aspectValue;
         }
+        attackBonus = addDiceObjectsTogether(attackBonus, weaponAttackBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let allAttackBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackBonus.push(...aspectValue.calculation);
+            allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
         }
         else {
-            calculationsForAttackBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            allAttackBonus = aspectValue;
         }
+        attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
     });
 
-    const amount = performMathCalculation(playerConfigs, calculationsForAttackBonus, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    let amount = convertDiceRollCalculationToValue(attackBonus);
+    if (!amount) {
+        amount = "0";
+    }
     let addendum = calculateAddendumAspects(playerConfigs, ["weaponAttackAddendum", "allAttackAddendum"], { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     if (weapon.properties) {
@@ -840,18 +849,19 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
 }
 
 export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack) {
-    let calculationsForDamage = undefined;
+    let damage = undefined;
     if (weapon.properties && weapon.properties.includes("Versatile")) {
         // Check if they can actually two-hand the weapon.
         const heldItems = GetHeldItems(playerConfigs.items);
         if (heldItems.length === 1 && heldItems[0].name === weapon.name) {
-            calculationsForDamage = [...weapon.twoHandedDamage.calculation];
+
+            damage = performDiceRollCalculation(playerConfigs, weapon.twoHandedDamage.calculation);
         }
     }
 
-    if (!calculationsForDamage) {
+    if (!damage) {
         // There are no overrides for weapon damage. Start with the normal weapon damage.
-        calculationsForDamage = [...weapon.damage.calculation];
+        damage = performDiceRollCalculation(playerConfigs, weapon.damage.calculation);
     }
 
     let highestValidAbility = undefined;
@@ -894,74 +904,65 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
     });
 
     if ((!isExtraLightAttack && !isExtraCleaveAttack) || highestValidAbilityModifier < 0) {
-        calculationsForDamage.push({
-            type: "static",
-            value: highestValidAbilityModifier
-        });
+        damage = addDiceObjectsTogether(damage, highestValidAbilityModifier);
     }
     
     // See if there are additional bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "weaponDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditon, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let weaponDamageBonus;
         if (aspectValue.calculation) {
-            calculationsForDamage.push(...aspectValue.calculation);
+            weaponDamageBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
+        } else {
+            weaponDamageBonus = aspectValue;
         }
-        else {
-            calculationsForDamage.push({
-                type: "static",
-                value: aspectValue
-            });
-        }
+        damage = addDiceObjectsTogether(damage, weaponDamageBonus);
     });
 
-    const calculationString = performDiceRollCalculation(playerConfigs, calculationsForDamage, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
-    return calculationString;
+    const finalDamage = convertDiceRollCalculationToValue(damage);
+    if (!finalDamage) {
+        return 0;
+    }
+    return finalDamage;
 }
 
 export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
-    const calculationsForAttackBonus = [];
+    let attackBonus = {};
 
     const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Always add spellcasting ability modifier.
-    calculationsForAttackBonus.push({
-        type: "aspect",
-        value: spellcastingAbility + "Modifier"
-    });
+    attackBonus = addDiceObjectsTogether(attackBonus, spellcastingAbilityModifier);
 
     // Always add proficieny bonus for spellcasting.
-    calculationsForAttackBonus.push({
-        type: "aspect",
-        value: "proficiencyBonus"
-    });
+    attackBonus = addDiceObjectsTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let spellAttackBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackBonus.push(...aspectValue.calculation);
+            spellAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
         }
         else {
-            calculationsForAttackBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            spellAttackBonus = aspectValue;
         }
+        attackBonus = addDiceObjectsTogether(attackBonus, spellAttackBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -973,18 +974,20 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
             }
         }
 
+        let allAttackBonus;
         if (aspectValue.calculation) {
-            calculationsForAttackBonus.push(...aspectValue.calculation);
+            allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
         }
         else {
-            calculationsForAttackBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            allAttackBonus = aspectValue;
         }
+        attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
     });
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForAttackBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    let amount = convertDiceRollCalculationToValue(attackBonus);
+    if (!amount) {
+        amount = "0";
+    }
     let addendum = calculateAddendumAspects(playerConfigs, ["spellAttackAddendum", "allAttackAddendum"], { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     if (spell.challengeType === "attackRoll") {
@@ -1009,62 +1012,88 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 }
 
 export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
-    const calculationsForSpellSaveDCBonus = [];
-
+    let spellSaveDC = {};
 
     const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Start with 8. Because that's what the rules say.
-    calculationsForSpellSaveDCBonus.push({
-        type: "static",
-        value: 8
-    });
+    spellSaveDC = addDiceObjectsTogether(spellSaveDC, 8);
 
     // Always add spellcasting ability modifier.
-    calculationsForSpellSaveDCBonus.push({
-        type: "aspect",
-        value: spellcastingAbility + "Modifier"
-    });
+    spellSaveDC = addDiceObjectsTogether(spellSaveDC, spellcastingAbilityModifier);
 
     // Always add proficieny bonus for spellcasting.
-    calculationsForSpellSaveDCBonus.push({
-        type: "aspect",
-        value: "proficiencyBonus"
-    });
+    spellSaveDC = addDiceObjectsTogether(spellSaveDC, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
             }
         }
 
+        let spellSaveDCBonus;
         if (aspectValue.calculation) {
-            calculationsForSpellSaveDCBonus.push(...aspectValue.calculation);
+            spellSaveDCBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
         }
         else {
-            calculationsForSpellSaveDCBonus.push({
-                type: "static",
-                value: aspectValue
-            });
+            spellSaveDCBonus = aspectValue;
         }
+        spellSaveDC = addDiceObjectsTogether(spellSaveDC, spellSaveDCBonus);
     });
 
-    const dc = performDiceRollCalculation(playerConfigs, calculationsForSpellSaveDCBonus, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    let dc = convertDiceRollCalculationToValue(spellSaveDC);
+    if (!dc) {
+        dc = "0";
+    }
     const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     return { dc, addendum };
 }
 
-export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, aspectName, aspectBonusName, additionalParams = undefined) {
-    const calculationsForActionAspect = [];
+export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalParams = undefined) {
+    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
+    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
+    // Start with the spell's calculation
+    let spellAspect = performDiceRollCalculation(playerConfigs, spell[aspectName].calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
+    
+    if (aspectBonusName) {
+        // See if there are additional bonuses to apply to this aspect.
+        findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
+            if (aspectValue.conditions) {
+                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
+                if (!conditionsAreMet) {
+                    // We did not meet the conditions for this bonus to apply.
+                    return;
+                }
+            }
+
+            let aspectBonus
+            if (aspectValue.calculation) {
+                aspectBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
+            }
+            else {
+                aspectBonus = aspectValue;
+            }
+            spellAspect = addDiceObjectsTogether(spellAspect, aspectBonus);
+        });
+    }
+
+    const amount = convertDiceRollCalculationToValue(spellAspect);
+    if (!amount) {
+        return 0;
+    }
+    return amount;
+}
+
+export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, aspectName, aspectBonusName, additionalParams = undefined) {
     // Start with the feature action's calculation
-    calculationsForActionAspect.push(...featureAction[aspectName].calculation);
+    let actionAspect = performDiceRollCalculation(playerConfigs, featureAction[aspectName].calculation, { featureAction, ...additionalParams });
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
@@ -1077,55 +1106,21 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
                 }
             }
 
+            let aspectBonus;
             if (aspectValue.calculation) {
-                calculationsForActionAspect.push(...aspectValue.calculation);
+                aspectBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { featureAction, playerConfigForObject, ...additionalParams });
             }
             else {
-                calculationsForActionAspect.push({
-                    type: "static",
-                    value: aspectValue
-                });
+                aspectBonus = aspectValue;
             }
+            actionAspect = addDiceObjectsTogether(actionAspect, aspectBonus);
         });
     }
 
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForActionAspect, { featureAction, ...additionalParams });
-    return amount;
-}
-
-export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalParams = undefined) {
-    const calculationsForSpellAspect = [];
-
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
-    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
-
-    // Start with the spell's calculation
-    calculationsForSpellAspect.push(...spell[aspectName].calculation);
-    
-    if (aspectBonusName) {
-        // See if there are additional bonuses to apply to this aspect.
-        findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
-            if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
-                if (!conditionsAreMet) {
-                    // We did not meet the conditions for this bonus to apply.
-                    return;
-                }
-            }
-
-            if (aspectValue.calculation) {
-                calculationsForSpellAspect.push(...aspectValue.calculation);
-            }
-            else {
-                calculationsForSpellAspect.push({
-                    type: "static",
-                    value: aspectValue
-                });
-            }
-        });
+    const amount = convertDiceRollCalculationToValue(actionAspect);
+    if (!amount) {
+        return 0;
     }
-
-    const amount = performDiceRollCalculation(playerConfigs, calculationsForSpellAspect, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
     return amount;
 }
 
@@ -1678,31 +1673,37 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
         return singleValue;
     };
     const performAddition = (currentTotal, valueToAdd) => {
-        if (Array.isArray(valueToAdd)) {
-            currentTotal["static"] = valueToAdd.join(", ");
-        } else if (isObject(valueToAdd)) {
-            // The value to add is a die object. Iterate through each of the dice and add them to our totals.
-            for (let key of Object.keys(valueToAdd)) {
-                if (currentTotal[key]) {
-                    currentTotal[key] += valueToAdd[key];
-                } else {
-                    currentTotal[key] = valueToAdd[key];
-                }
-            }
-        } else {
-            // The value to add is just a numeric value. Add it to the "static" amount.
-            if (currentTotal["static"]) {
-                currentTotal["static"] += valueToAdd;
-            } else {
-                currentTotal["static"] = valueToAdd;
-            }
-        }
-
-        return currentTotal;
+        return addDiceObjectsTogether(currentTotal, valueToAdd);
     };
 
     const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return {}; }, parameters);
+    return diceObject;
+}
 
+export function addDiceObjectsTogether(diceObject1, diceObject2) {
+    if (Array.isArray(diceObject2)) {
+        diceObject1["static"] = diceObject2.join(", ");
+    } else if (isObject(diceObject2)) {
+        // The value to add is a die object. Iterate through each of the dice and add them to our totals.
+        for (let key of Object.keys(diceObject2)) {
+            if (diceObject1[key]) {
+                diceObject1[key] += diceObject2[key];
+            } else {
+                diceObject1[key] = diceObject2[key];
+            }
+        }
+    } else {
+        // The value to add is just a numeric value. Add it to the "static" amount.
+        if (diceObject1["static"]) {
+            diceObject1["static"] += diceObject2;
+        } else {
+            diceObject1["static"] = diceObject2;
+        }
+    }
+    return diceObject1;
+}
+
+export function convertDiceRollCalculationToValue(diceObject) {
     let diceString = "";
     const diceObjectKeys = Object.keys(diceObject);
     if (diceObjectKeys.length > 0) {
