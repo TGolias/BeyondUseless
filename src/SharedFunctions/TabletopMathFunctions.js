@@ -16,8 +16,7 @@ export function calculateArmorClass(playerConfigs) {
         let newArmorClass;
         if (aspectValue.calculation) {
             newArmorClass = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             newArmorClass = aspectValue;
         }
 
@@ -34,8 +33,7 @@ export function calculateArmorClass(playerConfigs) {
         let armorClassBonus;
         if (aspectValue.calculation) {
             armorClassBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             armorClassBonus = aspectValue;
         }
         armorClass = addDiceObjectsTogether(armorClass, armorClassBonus);
@@ -58,8 +56,7 @@ export function calculateInitiativeBonus(playerConfigs) {
         let initiativeBonus;
         if (aspectValue.calculation) {
             initiativeBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             initiativeBonus = aspectValue;
         }
         totalInitiativeBonus = addDiceObjectsTogether(totalInitiativeBonus, initiativeBonus);
@@ -84,8 +81,7 @@ export function calculateSize(playerConfigs) {
         let sizeBonus;
         if (aspectValue.calculation) {
             sizeBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             sizeBonus = aspectValue;
         }
         const newSizeNumber = convertSizeToNumber(size) + sizeBonus;
@@ -104,8 +100,7 @@ export function calculateSpeed(playerConfigs) {
         let newSpeed;
         if (aspectValue.calculation) {
             newSpeed = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             newSpeed = aspectValue;
         }
 
@@ -121,8 +116,7 @@ export function calculateSpeed(playerConfigs) {
         let speedBonus;
         if (aspectValue.calculation) {
             speedBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             speedBonus = aspectValue;
         }
         speed = addDiceObjectsTogether(speed, speedBonus);
@@ -132,8 +126,7 @@ export function calculateSpeed(playerConfigs) {
         let forcedSpeed;
         if (aspectValue.calculation) {
             forcedSpeed = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             forcedSpeed = aspectValue;
         }
 
@@ -375,8 +368,7 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
         let skillProficiencyBonus;
         if (aspectValue.calculation) {
             skillProficiencyBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             skillProficiencyBonus = aspectValue;
         }
         skillBonus = addDiceObjectsTogether(skillBonus, skillProficiencyBonus);
@@ -386,8 +378,7 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
         let skillProficiencyBonus;
         if (aspectValue.calculation) {
             skillProficiencyBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             skillProficiencyBonus = aspectValue;
         }
         skillBonus = addDiceObjectsTogether(skillBonus, skillProficiencyBonus);
@@ -410,8 +401,7 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         let savingThrowBonus;
         if (aspectValue.calculation) {
             savingThrowBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             savingThrowBonus = aspectValue;
         }
         savingThrow = addDiceObjectsTogether(savingThrow, savingThrowBonus);
@@ -421,8 +411,7 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         let savingThrowBonus;
         if (aspectValue.calculation) {
             savingThrowBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             savingThrowBonus = aspectValue;
         }
         savingThrow = addDiceObjectsTogether(savingThrow, savingThrowBonus);
@@ -457,8 +446,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         let modifierName;
         if (aspectValue.calculation) {
             modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             modifierName = aspectValue;
         }
 
@@ -488,8 +476,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         let unarmedAttackBonus;
         if (aspectValue.calculation) {
             unarmedAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
-        }
-        else {
+        } else {
             unarmedAttackBonus = aspectValue;
         }
 
@@ -508,8 +495,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         let allAttackBonus;
         if (aspectValue.calculation) {
             allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
-        }
-        else {
+        } else {
             allAttackBonus = aspectValue
         }
 
@@ -572,8 +558,7 @@ export function calculateUnarmedDamage(playerConfigs) {
         let modifierName;
         if (aspectValue.calculation) {
             modifierName = performMathCalculation(playerConfigs, aspectValue.calculation);
-        }
-        else {
+        } else {
             modifierName = aspectValue;
         }
 
@@ -600,8 +585,7 @@ export function calculateUnarmedDamage(playerConfigs) {
         let unarmedDamageBonus;
         if (aspectValue.calculation) {
             unarmedDamageBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
-        }
-        else {
+        } else {
             unarmedDamageBonus = aspectValue;
         }
 
@@ -642,8 +626,7 @@ export function calculateUnarmedAttackDC(playerConfigs) {
         let modifierName;
         if (aspectValue.calculation) {
             modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
-        }
-        else {
+        } else {
             modifierName = aspectValue;
         }
 
@@ -674,8 +657,7 @@ export function calculateUnarmedAttackDC(playerConfigs) {
         let unarmedDCBonus;
         if (aspectValue.calculation) {
             unarmedDCBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
-        }
-        else {
+        } else {
             unarmedDCBonus = aspectValue;
         }
         unarmedDC = addDiceObjectsTogether(unarmedDC, unarmedDCBonus);
@@ -719,8 +701,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         let modifierName;
         if (aspectValue.calculation) {
             modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown });
-        }
-        else {
+        } else {
             modifierName = aspectValue;
         }
 
@@ -757,8 +738,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         let weaponAttackBonus;
         if (aspectValue.calculation) {
             weaponAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
-        }
-        else {
+        } else {
             weaponAttackBonus = aspectValue;
         }
         attackBonus = addDiceObjectsTogether(attackBonus, weaponAttackBonus);
@@ -776,8 +756,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         let allAttackBonus;
         if (aspectValue.calculation) {
             allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
-        }
-        else {
+        } else {
             allAttackBonus = aspectValue;
         }
         attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
@@ -890,8 +869,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
         let modifierName;
         if (aspectValue.calculation) {
             modifierName = performMathCalculation(playerConfigs, aspectValue.calculation, { weapon, isThrown });
-        }
-        else {
+        } else {
             modifierName = aspectValue;
         }
 
@@ -958,8 +936,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
         let spellAttackBonus;
         if (aspectValue.calculation) {
             spellAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
-        }
-        else {
+        } else {
             spellAttackBonus = aspectValue;
         }
         attackBonus = addDiceObjectsTogether(attackBonus, spellAttackBonus);
@@ -977,8 +954,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
         let allAttackBonus;
         if (aspectValue.calculation) {
             allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
-        }
-        else {
+        } else {
             allAttackBonus = aspectValue;
         }
         attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
@@ -1039,8 +1015,7 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
         let spellSaveDCBonus;
         if (aspectValue.calculation) {
             spellSaveDCBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
-        }
-        else {
+        } else {
             spellSaveDCBonus = aspectValue;
         }
         spellSaveDC = addDiceObjectsTogether(spellSaveDC, spellSaveDCBonus);
@@ -1076,8 +1051,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
             let aspectBonus
             if (aspectValue.calculation) {
                 aspectBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
-            }
-            else {
+            } else {
                 aspectBonus = aspectValue;
             }
             spellAspect = addDiceObjectsTogether(spellAspect, aspectBonus);
@@ -1109,8 +1083,7 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
             let aspectBonus;
             if (aspectValue.calculation) {
                 aspectBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { featureAction, playerConfigForObject, ...additionalParams });
-            }
-            else {
+            } else {
                 aspectBonus = aspectValue;
             }
             actionAspect = addDiceObjectsTogether(actionAspect, aspectBonus);
@@ -1202,8 +1175,7 @@ export function calculateAddendumAspect(playerConfigs, addendumName, parameters 
 
         if (aspectValue.calculation) {
             valueToAdd = performMathCalculation(playerConfigs, aspectValue.calculation, { ...parameters, playerConfigForObject });
-        }
-        else {
+        } else {
             valueToAdd = aspectValue;
         }
 
@@ -1563,29 +1535,33 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         }
     }
 
-    if (playerConfigs?.currentStatus?.conditions) {
-        const dndConditions = getCollection("conditions");
-        const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
-        // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
-        const dndConditionsChecked = {};
-        for (let playerCondition of playerConfigs?.currentStatus?.conditions) {
-            findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(aspectValue, "condition", playerCondition));
+    if (aspectName !== "features") {
+        if (playerConfigs?.currentStatus?.conditions) {
+            const dndConditions = getCollection("conditions");
+            const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
+            // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
+            const dndConditionsChecked = {};
+            for (let playerCondition of playerConfigs?.currentStatus?.conditions) {
+                findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(aspectValue, "condition", playerCondition));
+            }
         }
-    }
 
-    if (aspectName !== "features" && playerConfigs?.currentStatus?.activeEffects) {
-        const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-        const playerSpells = getAllSpells(spellCastingFeatures);
-        const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
+        if (playerConfigs?.currentStatus?.activeEffects) {
+            const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+            const playerSpells = getAllSpells(spellCastingFeatures);
+            const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
 
-        for (let activeEffect of playerConfigs?.currentStatus?.activeEffects) {
-            switch (activeEffect.type) {
-                case "spell":
-                    const spell = spellName2Spell[activeEffect.name];
-                    if (spell && spell.aspects && spell.aspects[aspectName]) {
-                        onAspectFound(spell.aspects[aspectName], "spell", activeEffect);
+            for (let activeEffect of playerConfigs?.currentStatus?.activeEffects) {
+                if (activeEffect.onSelf) {
+                    switch (activeEffect.type) {
+                        case "spell":
+                            const spell = spellName2Spell[activeEffect.name];
+                            if (spell && spell.aspects && spell.aspects[aspectName]) {
+                                onAspectFound(spell.aspects[aspectName], "spell", activeEffect);
+                            }
+                            break;
                     }
-                    break;
+                }
             }
         }
     }

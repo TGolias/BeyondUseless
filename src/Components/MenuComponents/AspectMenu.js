@@ -2,7 +2,7 @@ import React from "react";
 import './AspectMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateAddendumAspect, calculateAspectCollection } from "../../SharedFunctions/TabletopMathFunctions";
-import { isNumeric, isObject } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, isNumeric, isObject } from "../../SharedFunctions/Utils";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
 export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
@@ -31,11 +31,7 @@ export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
     }
 
     if (menuConfig.leadingPlus) {
-        if (isNumeric(finalAspect)) {
-            finalAspect = (finalAspect < 0 ? "" : "+") + finalAspect;
-        } else {
-            finalAspect = "+" + finalAspect;
-        }
+        finalAspect = addLeadingPlusIfNumericAndPositive(finalAspect);
     }
 
     // Now put any details about it.aspectMenuSmallScreenGrow

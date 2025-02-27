@@ -32,8 +32,7 @@ export function ConditionsDisplay({conditions, setCenterScreenMenu = undefined, 
                     allConditionDisplays.push(createSingleConditionDisplay(dndCondition, conditionConfig, dndCondition.name + " " + conditionConfig.level, highlightColorClass, setCenterScreenMenu, onAddOrUpdate, onRemove));
                 }
             }
-        }
-        else {
+        } else {
             allConditionDisplays.push(createSingleConditionDisplay(dndCondition, conditionConfig, dndCondition.name, highlightColorClass, setCenterScreenMenu, onAddOrUpdate, onRemove));
         }
     }

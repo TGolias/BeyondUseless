@@ -10,3 +10,7 @@
 .actionPageDescription {
     padding-top: 0.75em;
 }
+
+.actionPageDescription:first-child {
+    padding-top: 0;
+}

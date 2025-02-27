@@ -8,8 +8,7 @@ export function getValueFromObjectAndPath(baseStateObject, pathToProperty) {
             let pathSegment = totalPath[i];
             if (propertyValue) {
                 propertyValue = propertyValue[pathSegment];
-            }
-            else {
+            } else {
                 return undefined;
             }
         }

@@ -10,3 +10,7 @@
 .featureActionPageDescription {
     padding-top: 0.75em;
 }
+
+.featureActionPageDescription:first-child {
+    padding-top: 0;
+}

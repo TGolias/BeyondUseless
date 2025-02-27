@@ -1,7 +1,7 @@
 import React from 'react';
 import './StatDisplay.css';
 import { calculateAspectCollection, calculateModifierForBaseStat, calculateSavingThrowBonus, calculateSkillBonus } from '../../SharedFunctions/TabletopMathFunctions';
-import { convertArrayOfStringsToHashMap, playAudio } from '../../SharedFunctions/Utils';
+import { addLeadingPlusIfNumericAndPositive, convertArrayOfStringsToHashMap, playAudio } from '../../SharedFunctions/Utils';
 import { getCollection } from '../../Collections';
 import { getCapitalizedAbilityScoreName } from '../../SharedFunctions/ComponentFunctions';
 
@@ -33,7 +33,7 @@ export function StatDisplay({playerConfigs, name, value, setCenterScreenMenu}) {
                             </div>
                         </div>
                     </div>
-                    <div className="skillModifier">{(skillBonus < 0 ? "" : "+") + skillBonus}</div>
+                    <div className="skillModifier">{addLeadingPlusIfNumericAndPositive(skillBonus)}</div>
                     <div className="proficencyScore">
                         <div className="proficencyScoreText">{skillProficiency.name}</div>
                     </div>
@@ -65,7 +65,7 @@ export function StatDisplay({playerConfigs, name, value, setCenterScreenMenu}) {
                             <div className={"dot pixel-corners" + (playerSavingThrowProficienciesMap[name] ? " fill" : "")}></div>
                         </div>
                     </div>
-                    <div className="skillModifier">{(savingThrowBonus < 0 ? "" : "+") + savingThrowBonus}</div>
+                    <div className="skillModifier">{addLeadingPlusIfNumericAndPositive(savingThrowBonus)}</div>
                     <div className="proficencyScore">
                         <div className="proficencyScoreText boldText">Saving Throws</div>
                     </div>

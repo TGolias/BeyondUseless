@@ -14,3 +14,7 @@
 .spellPageDescription {
     padding-top: 0.75em;
 }
+
+.spellPageDescription:first-child {
+    padding-top: 0;
+}

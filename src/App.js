@@ -558,8 +558,7 @@ export default function App() {
         } else {
           newNextPropertyObject = {};
         }
-      }
-      else {
+      } else {
         // Sometimes some slippery arrays make their way in here... those get cloned differently.
         if (Array.isArray(nextPropertyObject)) {
           newNextPropertyObject = [...nextPropertyObject]

@@ -14,3 +14,7 @@
 .propertyPageDescription {
     padding-top: 0.75em;
 }
+
+.propertyPageDescription:first-child {
+    padding-top: 0;
+}

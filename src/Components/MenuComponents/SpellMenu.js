@@ -154,13 +154,59 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">
-            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => { setCenterScreenMenu({ show: false, menuType: undefined, data: undefined }) }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
 
-function castSpellClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu) {
+function castSpellClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+    if (menuConfig.spell.duration !== "Instantaneous") {
+        if (menuConfig.spell.range === "Self") {
+            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, true);
+        } else if (menuConfig.spell.aspects) {
+            setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                menuTitle: "Casting on Self", 
+                menuText: "Are you casting this on yourself?", 
+                buttons: [
+                    {
+                        text: "Yes",
+                        onClick: () => {
+                            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, true);
+                        }
+                    },
+                    {
+                        text: "No",
+                        onClick: () => {
+                            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, false);
+                        }
+                    }
+                ] 
+            } });
+        } else {
+            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, false);
+        }
+    } else {
+        castSpellWithoutAddingToEffects(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu);
+    }
+}
+
+function castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, castOnSelf) {
+    playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
+    playerConfigsClone.currentStatus.activeEffects.push({
+        type: "spell",
+        onSelf: castOnSelf,
+        name: menuConfig.spell.name,
+        concentration: menuConfig.spell.concentration,
+        castAtLevel: menuConfig.useSpellSlotLevel,
+        userInput: menuConfig.userInput
+    });
+
+    inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+}
+
+function castSpellWithoutAddingToEffects(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu) {
     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
 }

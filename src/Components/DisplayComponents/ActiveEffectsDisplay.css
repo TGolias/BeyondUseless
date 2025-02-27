@@ -1,0 +1,27 @@
+.activeEffectsDisplayWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5em;
+}
+
+.singleActiveEffect {
+    width: 100%;
+    padding: 0.5em;
+    height: 3.5em;
+    display: flex;
+    column-gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.singleActiveEffectTextWrapper {
+    display: grid;
+}
+
+.singleActiveEffectText {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    white-space: nowrap;
+}

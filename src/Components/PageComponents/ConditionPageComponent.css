@@ -10,3 +10,7 @@
 .conditonPageDescription {
     padding-top: 0.75em;
 }
+
+.conditonPageDescription:first-child {
+    padding-top: 0;
+}

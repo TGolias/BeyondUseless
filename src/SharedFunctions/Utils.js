@@ -85,3 +85,11 @@ export function createFileNameFromPlayerConfigs(playerConfigs) {
     const fileNameWithoutSpaces = fileNameWithSpaces.replace(/[\s:\-.]+/g, "_");
     return fileNameWithoutSpaces + ".save";
 }
+
+export function addLeadingPlusIfNumericAndPositive(value) {
+    if (isNumeric(value) && parseInt(value) >= 0) {
+        return "+" + value;
+    } else {
+        return value;
+    }
+}

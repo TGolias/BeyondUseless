@@ -1,7 +1,7 @@
 import React from "react";
 import './ConditionPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
@@ -40,7 +40,7 @@ export function ConditionPageComponent({condition, copyLinkToItem, data}) {
                     skillsDescription += "\n\n";
                 }
                 const skillValue = calculateSkillProficiency(data.playerConfigs, skillName);
-                skillsDescription += "<b>" + skillName + ":</b> " + (skillValue < 0 ? skillValue : "+" + skillValue);
+                skillsDescription += "<b>" + skillName + ":</b> " + (addLeadingPlusIfNumericAndPositive(skillValue));
             }
         }
     }

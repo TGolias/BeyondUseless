@@ -1,7 +1,7 @@
 import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
-import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
+import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
 import { calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
 import { GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
@@ -28,12 +28,12 @@ const rows = [
                 return "DC" + unarmedAttackDC.dc;
             } else {
                 const attack = calculateUnarmedAttackBonus(playerConfigs);
-                return (attack.amount < 0 ? "" : "+") + attack.amount;
+                return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         },
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
             const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
-            return (attack.amount < 0 ? "" : "+") + attack.amount;
+            return addLeadingPlusIfNumericAndPositive(attack.amount);
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
@@ -41,7 +41,7 @@ const rows = [
                 return "DC" + spellSave.dc;
             } else {
                 const attack = calculateSpellAttack(playerConfigs, dndCantrip, 0);
-                return (attack.amount.length === 0 || attack.amount.startsWith("-") ? "" : "+") + attack.amount;
+                return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         }
     },

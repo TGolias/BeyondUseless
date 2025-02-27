@@ -11,6 +11,10 @@
     padding-top: 0.75em;
 }
 
+.itemPageDescription:first-child {
+    padding-top: 0;
+}
+
 .propertyOfTheItem .retroButtonText {
     font-size: 1em;
     display: inline;

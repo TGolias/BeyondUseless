@@ -1,7 +1,7 @@
 import React from "react";
 import './ActionPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
@@ -40,7 +40,7 @@ export function ActionPageComponent({action, copyLinkToItem, data}) {
                     skillsDescription += "\n\n";
                 }
                 const skillValue = calculateSkillProficiency(data.playerConfigs, skillName);
-                skillsDescription += "<b>" + skillName + ":</b> " + (skillValue < 0 ? skillValue : "+" + skillValue);
+                skillsDescription += "<b>" + skillName + ":</b> " + (addLeadingPlusIfNumericAndPositive(skillValue));
             }
         }
     }
@@ -50,8 +50,8 @@ export function ActionPageComponent({action, copyLinkToItem, data}) {
     return <>
         <div className="actionPageContainer">
             <div className="actionPageDescription">{description}</div>
-            <div className="actionPageDescription" style={{display: (skillDescriptionRows ? "block" : "none")}}>{skillDescriptionRows}</div>
-            <div className="actionPageDescription" style={{display: (conditionsRows ? "block" : "none")}}>{conditionsRows}</div>
+            <div className="actionPageDescription" style={{display: (skillDescriptionRows.length ? "block" : "none")}}>{skillDescriptionRows}</div>
+            <div className="actionPageDescription" style={{display: (conditionsRows.length ? "block" : "none")}}>{conditionsRows}</div>
         </div>
     </>
 }

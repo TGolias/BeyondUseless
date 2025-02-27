@@ -20,6 +20,7 @@ import { UnarmedStrikeMenu } from "./UnarmedStrikeMenu";
 import { ManageHeldEquipmentMenu } from "./ManageHeldEquipmentMenu";
 import { ArmorMenu } from "./ArmorMenu";
 import { AspectMenu } from "./AspectMenu";
+import { ViewMenu } from "./ViewMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -380,7 +381,28 @@ const menuCollection = {
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><AspectMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></AspectMenu></>);
         }
-    }
+    },
+    ViewMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">
+                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                        if (menuConfig.copyLinkToView && menuConfig.copyLinkToView.onExecute) {
+                            menuConfig.copyLinkToView.onExecute();
+                        }
+                    }} showTriangle={false} disabled={false}></RetroButton>
+                </div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {...data};
+            newItemMenu.copyLinkToView = {};
+            return newItemMenu;
+        },
+        createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><ViewMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ViewMenu></>);
+        }
+    },
 }
 
 const defaultMenuConfig = {

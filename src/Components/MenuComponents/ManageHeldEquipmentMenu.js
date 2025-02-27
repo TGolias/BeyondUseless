@@ -2,7 +2,7 @@ import React from "react";
 import './ManageHeldEquipmentMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateWeaponAttackBonus, calculateWeaponDamage, getItemFromItemTemplate } from "../../SharedFunctions/TabletopMathFunctions";
-import { convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
 import { getCollection } from "../../Collections";
 import { CanEquipItem, GetOpenHands, IsItemHoldable } from "../../SharedFunctions/EquipmentFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
@@ -31,7 +31,7 @@ const rows = [
         calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
             if (item.type === "Weapon") {
                 const attack = calculateWeaponAttackBonus(playerConfigs, item, false);
-                return (attack.amount < 0 ? "" : "+") + attack.amount;
+                return addLeadingPlusIfNumericAndPositive(attack.amount);
             } else {
                 return "";
             }

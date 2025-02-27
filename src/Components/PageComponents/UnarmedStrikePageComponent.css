@@ -10,3 +10,7 @@
 .unarmedAttackPageDescription {
     padding-top: 0.75em;
 }
+
+.unarmedAttackPageDescription:first-child {
+    padding-top: 0;
+}

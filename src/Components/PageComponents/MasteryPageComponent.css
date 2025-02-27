@@ -14,3 +14,7 @@
 .masteryPageDescription {
     padding-top: 0.75em;
 }
+
+.masteryPageDescription:first-child {
+    padding-top: 0;
+}

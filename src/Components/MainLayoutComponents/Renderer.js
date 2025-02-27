@@ -15,7 +15,8 @@ import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDispla
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
-import { playAudio } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, playAudio } from "../../SharedFunctions/Utils";
+import { ActiveEffectsDisplay } from "../DisplayComponents/ActiveEffectsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
@@ -27,6 +28,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     const passivePerception = calculatePassivePerception(playerConfigs);
 
     const conditions = playerConfigs.currentStatus.conditions ?? [];
+    const activeEffects = playerConfigs.currentStatus.activeEffects ?? [];
 
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
 
@@ -49,8 +51,11 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
                     <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
                 </div>
+                <div style={{display: (activeEffects.length > 0 ? "block" : "none")}}>
+                    <ActiveEffectsDisplay playerConfigs={playerConfigs} activeEffects={activeEffects} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></ActiveEffectsDisplay>
+                </div>
                 <div className="encounterStats">
-                    <BasicStatDisplay statValue={(initiativeBonus >= 0) ? "+" + initiativeBonus : initiativeBonus} onClick={() => {
+                    <BasicStatDisplay statValue={addLeadingPlusIfNumericAndPositive(initiativeBonus)} onClick={() => {
                         playAudio("menuaudio");
                         setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: "Initiative", aspectName: "initiativeBonus", addendumsToShow: ["initiativeAddendum"], leadingPlus: true } });
                     }}>Initiative</BasicStatDisplay>
