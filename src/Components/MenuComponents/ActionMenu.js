@@ -3,10 +3,13 @@ import './ActionMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 
-export function ActionMenu({setCenterScreenMenu, menuConfig}) {
+export function ActionMenu({playerConfigs, setCenterScreenMenu, menuConfig}) {
+    const data = {};
+    data.playerConfigs = playerConfigs;
+
     return (<>
         <div className="actionMenuWrapperDiv">
-            <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToItem}></ActionPageComponent>
+            <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToItem} data={data}></ActionPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
         <div className="actionMenuHorizontal">

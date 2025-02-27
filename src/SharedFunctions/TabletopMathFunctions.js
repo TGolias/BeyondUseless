@@ -1572,6 +1572,23 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(aspectValue, "condition", playerCondition));
         }
     }
+
+    if (aspectName !== "features" && playerConfigs?.currentStatus?.activeEffects) {
+        const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+        const playerSpells = getAllSpells(spellCastingFeatures);
+        const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
+
+        for (let activeEffect of playerConfigs?.currentStatus?.activeEffects) {
+            switch (activeEffect.type) {
+                case "spell":
+                    const spell = spellName2Spell[activeEffect.name];
+                    if (spell && spell.aspects && spell.aspects[aspectName]) {
+                        onAspectFound(spell.aspects[aspectName], "spell", activeEffect);
+                    }
+                    break;
+            }
+        }
+    }
 }
 
 function findAspectFromCondition(dndConditionsChecked, dndConditionsMap, conditionName, aspectName, onAspectFound) {

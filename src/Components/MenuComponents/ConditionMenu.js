@@ -8,7 +8,10 @@ import { CheckListInput } from "../SimpleComponents/CheckListInput";
 const rightTriangleUnicode = '\u25B6';
 const downTriangleUnicode = '\u25BC';
 
-export function ConditionMenu({setCenterScreenMenu, menuConfig, menuStateChangeHandler}) {
+export function ConditionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler}) {
+
+    const data = {};
+    data.playerConfigs = playerConfigs;
 
     const adjustConditionControls = [];
     if (menuConfig.condition.type) {
@@ -74,7 +77,7 @@ export function ConditionMenu({setCenterScreenMenu, menuConfig, menuStateChangeH
 
     return (<>
         <div className="conditionMenuWrapperDiv">
-            <ConditionPageComponent condition={menuConfig.condition} copyLinkToItem={menuConfig.copyLinkToItem}></ConditionPageComponent>
+            <ConditionPageComponent condition={menuConfig.condition} copyLinkToItem={menuConfig.copyLinkToItem} data={data}></ConditionPageComponent>
         </div>
         <div style={{display: (adjustConditionControls.length > 0 ? "block" : "none")}} className="centerMenuSeperator"></div>
         <div style={{display: (adjustConditionControls.length > 0 ? "flex" : "none")}} className="conditionMenuAdjustControls">{adjustConditionControls}</div>

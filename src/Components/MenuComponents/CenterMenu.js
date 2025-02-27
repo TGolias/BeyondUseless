@@ -214,7 +214,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ActionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ActionMenu></>);
+            return (<><ActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ActionMenu></>);
         }
     },
     FeatureActionMenu: {
@@ -283,7 +283,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ConditionMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ConditionMenu></>);
+            return (<><ConditionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ConditionMenu></>);
         }
     },
     SelectListMenu: {

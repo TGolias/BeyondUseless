@@ -68,7 +68,7 @@ export function getShortenedAbilityScoreName(lowercaseName) {
 }
 
 export function parseStringForBoldMarkup(stringToParse) {
-    if (!stringToParse) {
+    if (!stringToParse || stringToParse.length === 0) {
         return [];
     }
 

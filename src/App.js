@@ -280,7 +280,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem}></ActionPageComponent>
+              <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem} data={decodedData}></ActionPageComponent>
             </div>
           </>);
         }
@@ -428,7 +428,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ConditionPageComponent condition={conditionFound} copyLinkToItem={copyLinkToItem}></ConditionPageComponent>
+              <ConditionPageComponent condition={conditionFound} copyLinkToItem={copyLinkToItem} data={decodedData}></ConditionPageComponent>
             </div>
           </>);
         }
