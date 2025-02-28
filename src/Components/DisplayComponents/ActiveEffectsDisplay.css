@@ -7,21 +7,28 @@
 
 .singleActiveEffect {
     width: 100%;
-    padding: 0.5em;
-    height: 3.5em;
     display: flex;
-    column-gap: 0.5em;
-    justify-content: space-between;
     align-items: center;
 }
 
 .singleActiveEffectTextWrapper {
+    flex-grow: 1;
     display: grid;
 }
 
 .singleActiveEffectText {
+    padding-top: 1.25em;
+    padding-left: 1.25em;
+    padding-bottom: 1.25em;
+    padding-right: 0.5em;
     overflow-x: hidden;
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
+}
+
+.singleActiveEffect > .retroButtonWrapper {
+    padding-top: 1.25em;
+    padding-right: 1.25em;
+    padding-bottom: 1.25em;
 }

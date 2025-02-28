@@ -37,7 +37,7 @@
     align-content: center;
     row-gap: 1em;
     column-gap: 1em;
-    max-height: 65em;
+    max-height: 70em;
 }
 
 .baseStats > * {

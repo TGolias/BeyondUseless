@@ -8,6 +8,7 @@ import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 import { getCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
+import { tryAddActiveEffect } from "../../SharedFunctions/ActiveEffectsFunctions";
 
 export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -161,52 +162,8 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 }
 
 function castSpellClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
-    if (menuConfig.spell.duration !== "Instantaneous") {
-        if (menuConfig.spell.range === "Self") {
-            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, true);
-        } else if (menuConfig.spell.aspects) {
-            setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
-                menuTitle: "Casting on Self", 
-                menuText: "Are you casting this on yourself?", 
-                buttons: [
-                    {
-                        text: "Yes",
-                        onClick: () => {
-                            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, true);
-                        }
-                    },
-                    {
-                        text: "No",
-                        onClick: () => {
-                            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, false);
-                        }
-                    }
-                ] 
-            } });
-        } else {
-            castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, false);
-        }
-    } else {
-        castSpellWithoutAddingToEffects(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu);
-    }
-}
-
-function castSpellWithAddingToEffects(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu, castOnSelf) {
-    playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
-    playerConfigsClone.currentStatus.activeEffects.push({
-        type: "spell",
-        onSelf: castOnSelf,
-        name: menuConfig.spell.name,
-        concentration: menuConfig.spell.concentration,
-        castAtLevel: menuConfig.useSpellSlotLevel,
-        userInput: menuConfig.userInput
+    tryAddActiveEffect(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+        inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+        setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });
-
-    inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-}
-
-function castSpellWithoutAddingToEffects(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu) {
-    inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
 }

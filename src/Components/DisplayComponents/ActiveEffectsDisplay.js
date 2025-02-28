@@ -2,7 +2,7 @@ import React from "react";
 import './ActiveEffectsDisplay.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { playAudio } from "../../SharedFunctions/Utils";
-import { getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
+import { getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function ActiveEffectsDisplay({playerConfigs, activeEffects, inputChangeHandler, setCenterScreenMenu}) {
 
@@ -43,5 +43,12 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScree
             playAudio("menuaudio");
             setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", spell: playerSpell, data: { playerConfigs: playerConfigs, castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, feature: playerSpell.feature } } });
             break;
+        case "featureaction":
+            const actionFeatures = getAllActionFeatures(playerConfigs);
+            const actionFeature = actionFeatures.find(feature => feature.feature.actions.some(action => action.name === activeEffect.name));
+            const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
+
+            playAudio("menuaudio");
+            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, data: { playerConfigs: playerConfigs, userInput: activeEffect.userInput } } });
     }
 }

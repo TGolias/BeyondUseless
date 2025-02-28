@@ -63,6 +63,7 @@
     align-items: center;
     row-gap: 5px;
     width: 100%;
+    height: 2.5em;
 }
 
 .saveAndSkillsWrapper > * {
@@ -74,7 +75,7 @@
     align-items: center;
     padding-left: 0.25em;
     padding-right: 0.25em;
-    height: 2.0em;
+    height: 100%;
 }
 
 .outer-circle {
@@ -102,15 +103,15 @@
 
 .skillModifier {
     text-align: end;
-    height: 2.0em;
-    line-height: 2.0em;
+    height: 100%;
+    line-height: 2.35em;
 }
 
 .proficencyScore {
     padding-left: 0.5em;
     padding-right: 0.5em;
-    height: 2.0em;
-    line-height: 2.1em;
+    height: 100%;
+    line-height: 2.5em;
     
     width: 100%;
     overflow: hidden;
