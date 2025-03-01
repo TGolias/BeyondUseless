@@ -1,7 +1,7 @@
 import { getCollection } from "../Collections";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
 import { GetHeldItems } from "./EquipmentFunctions";
-import { convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
+import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
     return 2 + Math.floor((playerConfigs.level - 1) / 4);
@@ -25,8 +25,8 @@ export function calculateArmorClass(playerConfigs) {
         }
     });
 
-    let armorClass = {};
-    armorClass = addDiceObjectsTogether(armorClass, startingArmorClass);
+    let armorClass = createDiceObjectWithType({});
+    armorClass = addDiceObjectsWithTypeTogether(armorClass, startingArmorClass);
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "armorClassBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -36,10 +36,10 @@ export function calculateArmorClass(playerConfigs) {
         } else {
             armorClassBonus = aspectValue;
         }
-        armorClass = addDiceObjectsTogether(armorClass, armorClassBonus);
+        armorClass = addDiceObjectsWithTypeTogether(armorClass, armorClassBonus);
     });
 
-    const finalArmorClass = convertDiceRollCalculationToValue(armorClass);
+    const finalArmorClass = convertDiceRollWithTypeToValue(armorClass);
     if (!finalArmorClass) {
         return 0
     }
@@ -48,8 +48,8 @@ export function calculateArmorClass(playerConfigs) {
 
 export function calculateInitiativeBonus(playerConfigs) {
     // Start with our dex modifier.
-    let totalInitiativeBonus = {};
-    totalInitiativeBonus = addDiceObjectsTogether(totalInitiativeBonus, calculateAspectCollection(playerConfigs, "dexterityModifier"));
+    let totalInitiativeBonus = createDiceObjectWithType({});
+    totalInitiativeBonus = addDiceObjectsWithTypeTogether(totalInitiativeBonus, calculateAspectCollection(playerConfigs, "dexterityModifier"));
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "initiativeBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -59,10 +59,10 @@ export function calculateInitiativeBonus(playerConfigs) {
         } else {
             initiativeBonus = aspectValue;
         }
-        totalInitiativeBonus = addDiceObjectsTogether(totalInitiativeBonus, initiativeBonus);
+        totalInitiativeBonus = addDiceObjectsWithTypeTogether(totalInitiativeBonus, initiativeBonus);
     });
 
-    const finalInitiativeBonus = convertDiceRollCalculationToValue(totalInitiativeBonus);
+    const finalInitiativeBonus = convertDiceRollWithTypeToValue(totalInitiativeBonus);
     if (!finalInitiativeBonus) {
         return 0
     }
@@ -109,8 +109,8 @@ export function calculateSpeed(playerConfigs) {
         }
     });
 
-    let speed = {};
-    speed = addDiceObjectsTogether(speed, startingSpeed);
+    let speed = createDiceObjectWithType({});
+    speed = addDiceObjectsWithTypeTogether(speed, startingSpeed);
 
     findAllConfiguredAspects(playerConfigs, "speedBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let speedBonus;
@@ -119,7 +119,7 @@ export function calculateSpeed(playerConfigs) {
         } else {
             speedBonus = aspectValue;
         }
-        speed = addDiceObjectsTogether(speed, speedBonus);
+        speed = addDiceObjectsWithTypeTogether(speed, speedBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "forcedSpeed", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -131,10 +131,10 @@ export function calculateSpeed(playerConfigs) {
         }
 
         // The speed is being forced to this value.
-        speed = addDiceObjectsTogether({}, forcedSpeed);
+        speed = addDiceObjectsWithTypeTogether(createDiceObjectWithType({}), forcedSpeed);
     });
 
-    const finalSpeed = convertDiceRollCalculationToValue(speed);
+    const finalSpeed = convertDiceRollWithTypeToValue(speed);
     if (!finalSpeed) {
         return 0;
     }
@@ -154,10 +154,10 @@ export function calculatePassivePerception(playerConfigs) {
     const playerHalfSkillProficienciesMap = convertArrayOfStringsToHashMap(playerHalfSkillProficiencies)
 
     // They seemingly simplified this... it's just 10 plus your perception skill modifer.
-    let passivePerception = {}
-    passivePerception = addDiceObjectsTogether(passivePerception, 10);
-    passivePerception = addDiceObjectsTogether(passivePerception, calculateSkillBonusAsDiceObject(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name], playerHalfSkillProficienciesMap[perceptionSkillProf.name]));
-    const finalPassivePerception = convertDiceRollCalculationToValue(passivePerception);
+    let passivePerception = createDiceObjectWithType({})
+    passivePerception = addDiceObjectsWithTypeTogether(passivePerception, 10);
+    passivePerception = addDiceObjectsWithTypeTogether(passivePerception, calculateSkillBonusAsDiceObject(playerConfigs, perceptionSkillProf, playerSkillProficienciesMap[perceptionSkillProf.name], playerExpertiseMap[perceptionSkillProf.name], playerHalfSkillProficienciesMap[perceptionSkillProf.name]));
+    const finalPassivePerception = convertDiceRollWithTypeToValue(passivePerception);
     if (!finalPassivePerception) {
         return 0;
     }
@@ -339,7 +339,7 @@ export function calculateSkillProficiency(playerConfigs, skillProficiencyName) {
 
 export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency) {
     const skillBonus = calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency);
-    const finalSkillBonus = convertDiceRollCalculationToValue(skillBonus);
+    const finalSkillBonus = convertDiceRollWithTypeToValue(skillBonus);
     if (!finalSkillBonus) {
         return 0;
     }
@@ -361,8 +361,8 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
         startingSkillBonus += halfProficencyBonusRoundDown;
     }
 
-    let skillBonus = {};
-    skillBonus = addDiceObjectsTogether(skillBonus, startingSkillBonus);
+    let skillBonus = createDiceObjectWithType({});
+    skillBonus = addDiceObjectsWithTypeTogether(skillBonus, startingSkillBonus);
 
     findAllConfiguredAspects(playerConfigs, "skillProficiency" + dndSkillProficiency.name + "Bonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let skillProficiencyBonus;
@@ -371,7 +371,7 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
         } else {
             skillProficiencyBonus = aspectValue;
         }
-        skillBonus = addDiceObjectsTogether(skillBonus, skillProficiencyBonus);
+        skillBonus = addDiceObjectsWithTypeTogether(skillBonus, skillProficiencyBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "skillProficiencyAllBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -381,7 +381,7 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
         } else {
             skillProficiencyBonus = aspectValue;
         }
-        skillBonus = addDiceObjectsTogether(skillBonus, skillProficiencyBonus);
+        skillBonus = addDiceObjectsWithTypeTogether(skillBonus, skillProficiencyBonus);
     });
 
     return skillBonus;
@@ -394,8 +394,8 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         startingSavingThrow += proficencyBonus;
     }
 
-    let savingThrow = {};
-    savingThrow = addDiceObjectsTogether(savingThrow, startingSavingThrow);
+    let savingThrow = createDiceObjectWithType({});
+    savingThrow = addDiceObjectsWithTypeTogether(savingThrow, startingSavingThrow);
 
     findAllConfiguredAspects(playerConfigs, modifier + "SavingThrowBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let savingThrowBonus;
@@ -404,7 +404,7 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         } else {
             savingThrowBonus = aspectValue;
         }
-        savingThrow = addDiceObjectsTogether(savingThrow, savingThrowBonus);
+        savingThrow = addDiceObjectsWithTypeTogether(savingThrow, savingThrowBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allSavingThrowBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -414,10 +414,10 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
         } else {
             savingThrowBonus = aspectValue;
         }
-        savingThrow = addDiceObjectsTogether(savingThrow, savingThrowBonus);
+        savingThrow = addDiceObjectsWithTypeTogether(savingThrow, savingThrowBonus);
     });
 
-    let finalSavingThrow = convertDiceRollCalculationToValue(savingThrow);
+    let finalSavingThrow = convertDiceRollWithTypeToValue(savingThrow);
     if (!finalSavingThrow) {
         return 0;
     }
@@ -425,7 +425,7 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
 }
 
 export function calculateUnarmedAttackBonus(playerConfigs) {
-    let attackBonus = {};
+    let attackBonus = createDiceObjectWithType({});
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -458,10 +458,10 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         }
     });
 
-    attackBonus = addDiceObjectsTogether(attackBonus, highestValidAbilityModifier);
+    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, highestValidAbilityModifier);
 
     // Always add proficiency bonus for unarmed attacks. Pretty sweet I guess.
-    attackBonus = addDiceObjectsTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
+    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additional bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "unarmedAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -480,7 +480,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
             unarmedAttackBonus = aspectValue;
         }
 
-        attackBonus = addDiceObjectsTogether(attackBonus, unarmedAttackBonus);
+        attackBonus = addDiceObjectsWithTypeTogether(attackBonus, unarmedAttackBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -499,10 +499,10 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
             allAttackBonus = aspectValue
         }
 
-        attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
+        attackBonus = addDiceObjectsWithTypeTogether(attackBonus, allAttackBonus);
     });
 
-    let amount = convertDiceRollCalculationToValue(attackBonus);
+    let amount = convertDiceRollWithTypeToValue(attackBonus);
     if (!amount) {
         amount = "0";
     }
@@ -512,11 +512,9 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
 }
 
 export function calculateUnarmedDamage(playerConfigs) {
-    let attackDamage = {};
-
     // By default the unarmed attack base is 1.
-    let highestUnarmedAttackDie = 1;
-    let highestUnarmedAttack = { static: 1 }
+    let highestUnarmedAverage = 1;
+    let highestUnarmedAttack = createDiceObjectWithType({ static: 1 }, "Bludgeoning");
 
     findAllConfiguredAspects(playerConfigs, "alternateUnarmedDamageCalculation", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditon) {
@@ -529,15 +527,16 @@ export function calculateUnarmedDamage(playerConfigs) {
 
         // This is a pain, we have to check the dies in the alternate calculations and see what is the highest. Long term, I should probably just show all calculations though.
         if (aspectValue.calculation && aspectValue.calculation.length > 0) {
-            let unarmedAttackCalculationDie = aspectValue.calculation[0].value;
-            if (unarmedAttackCalculationDie >= highestUnarmedAttackDie) {
-                highestUnarmedAttackDie = unarmedAttackCalculationDie;
-                highestUnarmedAttack = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            let alternateUnarmedAttackDamageCalculation = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+            let alternateUnarmedAttackAverage = computeAverageDiceRoll(alternateUnarmedAttackDamageCalculation);
+            if (alternateUnarmedAttackAverage >= highestUnarmedAverage) {
+                highestUnarmedAverage = alternateUnarmedAttackAverage;
+                highestUnarmedAttack = alternateUnarmedAttackDamageCalculation;
             }
         }
     });
 
-    attackDamage = highestUnarmedAttack;
+    let attackDamage = highestUnarmedAttack;
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -570,7 +569,7 @@ export function calculateUnarmedDamage(playerConfigs) {
         }
     });
 
-    attackDamage = addDiceObjectsTogether(attackDamage, highestValidAbilityModifier);
+    attackDamage = addDiceObjectsWithTypeTogether(attackDamage, createDiceObjectWithType(highestValidAbilityModifier));
     
     // See if there are additional bonuses to apply to our damage.
     findAllConfiguredAspects(playerConfigs, "unarmedDamageBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -589,23 +588,23 @@ export function calculateUnarmedDamage(playerConfigs) {
             unarmedDamageBonus = aspectValue;
         }
 
-        attackDamage = addDiceObjectsTogether(attackDamage, unarmedDamageBonus);
+        attackDamage = addDiceObjectsWithTypeTogether(attackDamage, unarmedDamageBonus);
     });
 
-    const calculationString = convertDiceRollCalculationToValue(attackDamage);
-    if (!calculationString || (isNumeric(calculationString) && parseInt(calculationString) < 1)) {
+    const calculationString = convertDiceRollWithTypeToValue(attackDamage);
+    if (!calculationString || calculationString.startsWith("-")) {
         // One should be the lowest damage
-        return "1";
+        return "1 Bludgeoning";
     }
 
     return calculationString;
 }
 
 export function calculateUnarmedAttackDC(playerConfigs) {
-    let unarmedDC = {};
+    let unarmedDC = createDiceObjectWithType({});
 
     // Start with 8.
-    unarmedDC = addDiceObjectsTogether(unarmedDC, 8);
+    unarmedDC = addDiceObjectsWithTypeTogether(unarmedDC, 8);
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -639,10 +638,10 @@ export function calculateUnarmedAttackDC(playerConfigs) {
     });
 
     // Add the ability modifier.
-    unarmedDC = addDiceObjectsTogether(unarmedDC, highestValidAbilityModifier);
+    unarmedDC = addDiceObjectsWithTypeTogether(unarmedDC, highestValidAbilityModifier);
 
     // Always add proficiency bonus for unarmed attacks. Pretty sweet I guess.
-    unarmedDC = addDiceObjectsTogether(unarmedDC, calculateProficiencyBonus(playerConfigs));
+    unarmedDC = addDiceObjectsWithTypeTogether(unarmedDC, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additional bonuses to apply to our DC.
     findAllConfiguredAspects(playerConfigs, "unarmedDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -660,10 +659,10 @@ export function calculateUnarmedAttackDC(playerConfigs) {
         } else {
             unarmedDCBonus = aspectValue;
         }
-        unarmedDC = addDiceObjectsTogether(unarmedDC, unarmedDCBonus);
+        unarmedDC = addDiceObjectsWithTypeTogether(unarmedDC, unarmedDCBonus);
     });
 
-    let dc = convertDiceRollCalculationToValue(unarmedDC);
+    let dc = convertDiceRollWithTypeToValue(unarmedDC);
     if (!dc) {
         dc = "0";
     }
@@ -673,7 +672,7 @@ export function calculateUnarmedAttackDC(playerConfigs) {
 }
 
 export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
-    let attackBonus = {};
+    let attackBonus = createDiceObjectWithType({});
 
     let highestValidAbility = undefined;
     let highestValidAbilityModifier = undefined;
@@ -713,7 +712,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         }
     });
 
-    attackBonus = addDiceObjectsTogether(attackBonus, highestValidAbilityModifier);
+    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, highestValidAbilityModifier);
 
     // Check if we should add the proficency bonus.
     let isProficient = false;
@@ -721,7 +720,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         const weaponProficienyMap = calculateAspectCollection(playerConfigs, "weaponProficiencies");
         isProficient = weapon.tags.some(tag => weaponProficienyMap.includes(tag));
         if (isProficient) {
-            attackBonus = addDiceObjectsTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
+            attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
         }
     }
     
@@ -741,7 +740,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         } else {
             weaponAttackBonus = aspectValue;
         }
-        attackBonus = addDiceObjectsTogether(attackBonus, weaponAttackBonus);
+        attackBonus = addDiceObjectsWithTypeTogether(attackBonus, weaponAttackBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -759,10 +758,10 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown) {
         } else {
             allAttackBonus = aspectValue;
         }
-        attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
+        attackBonus = addDiceObjectsWithTypeTogether(attackBonus, allAttackBonus);
     });
 
-    let amount = convertDiceRollCalculationToValue(attackBonus);
+    let amount = convertDiceRollWithTypeToValue(attackBonus);
     if (!amount) {
         amount = "0";
     }
@@ -882,7 +881,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
     });
 
     if ((!isExtraLightAttack && !isExtraCleaveAttack) || highestValidAbilityModifier < 0) {
-        damage = addDiceObjectsTogether(damage, highestValidAbilityModifier);
+        damage = addDiceObjectsWithTypeTogether(damage, highestValidAbilityModifier);
     }
     
     // See if there are additional bonuses to apply to our damage.
@@ -901,10 +900,10 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
         } else {
             weaponDamageBonus = aspectValue;
         }
-        damage = addDiceObjectsTogether(damage, weaponDamageBonus);
+        damage = addDiceObjectsWithTypeTogether(damage, weaponDamageBonus);
     });
 
-    const finalDamage = convertDiceRollCalculationToValue(damage);
+    const finalDamage = convertDiceRollWithTypeToValue(damage);
     if (!finalDamage) {
         return 0;
     }
@@ -912,16 +911,16 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
 }
 
 export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
-    let attackBonus = {};
+    let attackBonus = createDiceObjectWithType({});
 
     const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Always add spellcasting ability modifier.
-    attackBonus = addDiceObjectsTogether(attackBonus, spellcastingAbilityModifier);
+    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, spellcastingAbilityModifier);
 
     // Always add proficieny bonus for spellcasting.
-    attackBonus = addDiceObjectsTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
+    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -939,7 +938,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
         } else {
             spellAttackBonus = aspectValue;
         }
-        attackBonus = addDiceObjectsTogether(attackBonus, spellAttackBonus);
+        attackBonus = addDiceObjectsWithTypeTogether(attackBonus, spellAttackBonus);
     });
 
     findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -957,10 +956,10 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
         } else {
             allAttackBonus = aspectValue;
         }
-        attackBonus = addDiceObjectsTogether(attackBonus, allAttackBonus);
+        attackBonus = addDiceObjectsWithTypeTogether(attackBonus, allAttackBonus);
     });
 
-    let amount = convertDiceRollCalculationToValue(attackBonus);
+    let amount = convertDiceRollWithTypeToValue(attackBonus);
     if (!amount) {
         amount = "0";
     }
@@ -988,19 +987,19 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 }
 
 export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
-    let spellSaveDC = {};
+    let spellSaveDC = createDiceObjectWithType({});
 
     const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
 
     // Start with 8. Because that's what the rules say.
-    spellSaveDC = addDiceObjectsTogether(spellSaveDC, 8);
+    spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, 8);
 
     // Always add spellcasting ability modifier.
-    spellSaveDC = addDiceObjectsTogether(spellSaveDC, spellcastingAbilityModifier);
+    spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, spellcastingAbilityModifier);
 
     // Always add proficieny bonus for spellcasting.
-    spellSaveDC = addDiceObjectsTogether(spellSaveDC, calculateProficiencyBonus(playerConfigs));
+    spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additoinal bonuses to apply to our attack.
     findAllConfiguredAspects(playerConfigs, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
@@ -1018,10 +1017,10 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
         } else {
             spellSaveDCBonus = aspectValue;
         }
-        spellSaveDC = addDiceObjectsTogether(spellSaveDC, spellSaveDCBonus);
+        spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, spellSaveDCBonus);
     });
 
-    let dc = convertDiceRollCalculationToValue(spellSaveDC);
+    let dc = convertDiceRollWithTypeToValue(spellSaveDC);
     if (!dc) {
         dc = "0";
     }
@@ -1054,11 +1053,11 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
             } else {
                 aspectBonus = aspectValue;
             }
-            spellAspect = addDiceObjectsTogether(spellAspect, aspectBonus);
+            spellAspect = addDiceObjectsWithTypeTogether(spellAspect, aspectBonus);
         });
     }
 
-    const amount = convertDiceRollCalculationToValue(spellAspect);
+    const amount = convertDiceRollWithTypeToValue(spellAspect);
     if (!amount) {
         return 0;
     }
@@ -1086,11 +1085,11 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
             } else {
                 aspectBonus = aspectValue;
             }
-            actionAspect = addDiceObjectsTogether(actionAspect, aspectBonus);
+            actionAspect = addDiceObjectsWithTypeTogether(actionAspect, aspectBonus);
         });
     }
 
-    const amount = convertDiceRollCalculationToValue(actionAspect);
+    const amount = convertDiceRollWithTypeToValue(actionAspect);
     if (!amount) {
         return 0;
     }
@@ -1126,17 +1125,8 @@ export function calculateRange(playerConfigs, range) {
 
 export function calculateSavingThrowTypes(savingThrowType) {
     if (Array.isArray(savingThrowType)) {
-        let savingThrowString = "";
-        for (let i = 0; i < savingThrowType.length; i++) {
-            if (i > 0) {
-                if (i === savingThrowType.length - 1) {
-                    savingThrowString += " or ";
-                } else {
-                    savingThrowString += ", ";
-                }
-            }
-            savingThrowString += getCapitalizedAbilityScoreName(savingThrowType[i]);
-        }
+        const saveThrowsCapitalized = savingThrowType.map(save => getCapitalizedAbilityScoreName(save));
+        const savingThrowString = concatStringArrayToOrStringWithCommas(saveThrowsCapitalized);
         return savingThrowString;
     } else {
         return getCapitalizedAbilityScoreName(savingThrowType);
@@ -1219,8 +1209,17 @@ function findAllValidFeatures(playerConfigs, onFeatureFound) {
                 }
                 return;
         }
-        for (let feature of aspectValue) {
-            onFeatureFound(feature, typeFoundOn, playerConfigForObject);
+
+        if (typeFoundOn.startsWith("species[")) {
+            for (let speciesFeature of aspectValue) {
+                if (speciesFeature.level <= playerConfigs.level) {
+                    onFeatureFound(speciesFeature, typeFoundOn, playerConfigForObject);
+                }
+            }
+        } else {
+            for (let feature of aspectValue) {
+                onFeatureFound(feature, typeFoundOn, playerConfigForObject);
+            }
         }
     });
 }
@@ -1644,38 +1643,112 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
                 const diceCalculationObject = {};
                 const diceProperty = "d" + singleCalculation.value
                 diceCalculationObject[diceProperty] = 1;
+                
                 return diceCalculationObject;
         }
         return 0;
     };
     const performSpecialTransformations = (playerConfigs, singleCalculation, singleValue) => {
+        let transformedValue = singleValue;
         if (singleCalculation.multiplier) {
             const multiplier = performMathCalculation(playerConfigs, singleCalculation.multiplier, parameters);
 
-            if (isObject(singleValue)) {
+            if (isObject(transformedValue)) {
                 // This value to multipy against is a die object. Multiply each of the dice in it by the mulitplier.
-                for (let key of Object.keys(singleValue)) {
-                    singleValue[key] *= multiplier;
+                for (let key of Object.keys(transformedValue)) {
+                    transformedValue[key] *= multiplier;
                 }
             } else {
                 // This value to multipy against is just simple numeric value. We can just multiply the two values.
-                return singleValue * multiplier;
+                transformedValue = transformedValue * multiplier;
             }
         }
 
-        return singleValue;
+        return createDiceObjectWithType(transformedValue, singleCalculation.diceType);
     };
     const performAddition = (currentTotal, valueToAdd) => {
-        return addDiceObjectsTogether(currentTotal, valueToAdd);
+        return addDiceObjectsWithTypeTogether(currentTotal, valueToAdd);
     };
 
     const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return {}; }, parameters);
     return diceObject;
 }
 
+export function computeAverageDiceRoll(diceObjectWithType) {
+    let total = 0;
+    for (let diceType of Object.keys(diceObjectWithType)) {
+        const diceObject = diceObjectWithType[diceType];
+        for (let diceObjectKey of diceObject) {
+            if (diceObjectKey === "static") {
+                total += diceObject[diceObjectKey];
+            }
+            else if (diceObjectKey.startsWith("d")) {
+                const dieSizeString = diceObjectKey.substring(1);
+                if (isNumeric(dieSizeString)) {
+                    const dieSize = parseInt(dieSizeString);
+                    const averageRoll = calculateSingleDieAverage(dieSize);
+                    const allRolls = diceObject[diceObjectKey] * averageRoll;
+                    total += allRolls;
+                }
+            }
+        }
+    }
+    return total;
+}
+
+export function calculateSingleDieAverage(dieSize) {
+    let allPossibleValuesAddedUp = 0;
+    for (let singlePossibleValue = 1; singlePossibleValue <= dieSize; singlePossibleValue++) {
+        allPossibleValuesAddedUp += singlePossibleValue;
+    }
+    const averageValue = ((allPossibleValuesAddedUp) / (dieSize));
+    return averageValue
+}
+
+export function createDiceObjectWithType(diceObject, diceType) {
+    let diceTypeProperty;
+    if (diceType) {
+        if (Array.isArray(diceType)) {
+            diceTypeProperty = concatStringArrayToOrStringWithCommas(diceType);
+        } else {
+            diceTypeProperty = diceType
+        }
+    } else {
+        diceTypeProperty = "";
+    }
+    const diceObjectWithType = {}
+    diceObjectWithType[diceTypeProperty] = diceObject;
+    return diceObjectWithType;
+}
+
+export function addDiceObjectsWithTypeTogether(diceObjectWithType1, diceObjectWithType2) {
+    if (isObject(diceObjectWithType2)) {
+        for (let diceType of Object.keys(diceObjectWithType2)) {
+            const diceObject2 = diceObjectWithType2[diceType];
+            if (diceType === "") {
+                // If blank, try to use the first / main type from what we are adding it to.
+                const keys = Object.keys(diceObjectWithType1);
+                if (keys.length > 0) {
+                    diceType = keys[0];
+                }
+            }
+    
+            if (!diceObjectWithType1[diceType]) {
+                diceObjectWithType1[diceType] = {};
+            }
+            diceObjectWithType1[diceType] = addDiceObjectsTogether(diceObjectWithType1[diceType], diceObject2);
+        }
+    } else {
+        // This ain't a dice.
+        const diceType = Object.keys(diceObjectWithType1)[0];
+        diceObjectWithType1[diceType] = addDiceObjectsTogether(diceObjectWithType1[diceType], diceObjectWithType2);
+    }
+    return diceObjectWithType1;
+}
+
 export function addDiceObjectsTogether(diceObject1, diceObject2) {
     if (Array.isArray(diceObject2)) {
-        diceObject1["static"] = diceObject2.join(", ");
+        diceObject1["static"] = concatStringArrayToAndStringWithCommas(diceObject2);
     } else if (isObject(diceObject2)) {
         // The value to add is a die object. Iterate through each of the dice and add them to our totals.
         for (let key of Object.keys(diceObject2)) {
@@ -1696,7 +1769,27 @@ export function addDiceObjectsTogether(diceObject1, diceObject2) {
     return diceObject1;
 }
 
-export function convertDiceRollCalculationToValue(diceObject) {
+export function convertDiceRollWithTypeToValue(diceObjectWithType) {
+    let valueToReturn = "";
+    for (let diceType of Object.keys(diceObjectWithType)) {
+        const diceObject = diceObjectWithType[diceType];
+        let value = convertDiceRollToValue(diceObject);
+        if (value) {
+            if (valueToReturn.length > 0) {
+                valueToReturn += " + "
+            }
+
+            if (diceType === "") {
+                valueToReturn += value;
+            } else {
+                valueToReturn += (value + " " + diceType)
+            }
+        }
+    }
+    return valueToReturn;
+}
+
+export function convertDiceRollToValue(diceObject) {
     let diceString = "";
     const diceObjectKeys = Object.keys(diceObject);
     if (diceObjectKeys.length > 0) {

@@ -49,20 +49,17 @@ const rows = [
         name: "Damage",
         calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
             if (unarmedStrike.type.includes("damage")) {
-                let amount = calculateUnarmedDamage(playerConfigs);
-                amount += " Bludgeoning";
+                const amount = calculateUnarmedDamage(playerConfigs);
                 return amount;
             }
             return "";
         },
         calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            let amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false);
-            amount += " " + weapon.damage.damageType;
+            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false);
             return amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
-            let amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, 0, "damage", "spellDamageBonus");
-            amount += " " + dndCantrip.damage.damageType;
+            const amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, 0, "damage", "spellDamageBonus");
             return amount;
         },
         addClass: "lastCol"

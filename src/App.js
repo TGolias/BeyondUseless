@@ -7,7 +7,7 @@ import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./S
 import { fetchAllCollections, getCollection } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
-import { getHomePageUrl, isNumeric, playAudio } from "./SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, getHomePageUrl, isNumeric, playAudio } from "./SharedFunctions/Utils";
 import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
 import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
 import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
@@ -398,7 +398,7 @@ export default function App() {
             missingParams.push("originname")
           }
           return (<>
-            <div>QueryParams '{missingParams.join(", ")}' missing for featureaction :(</div>
+            <div>QueryParams '{concatStringArrayToAndStringWithCommas(missingParams)}' missing for featureaction :(</div>
           </>)
         }
       case "condition":

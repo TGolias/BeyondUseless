@@ -23,7 +23,7 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
             const healAmountString = calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, "healing", "healingBonus");
             if (isNumeric(healAmountString)) {
                 // This is a static value, set it to the heal amount.
-                menuConfig.healAmount = parseInt(healAmountString);
+                menuConfig.healAmount = healAmountString ? parseInt(healAmountString) : 0;
             } else if (healAmountString) {
                 // This is a dynamic string that includes a dice roll, give an input to put the healing amount in.
                 useOnSelfControls.push(<>
@@ -47,11 +47,13 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
 
         if (doesSpellOrFeatureActionTypeInclude(menuConfig, "restore")) {
             const restore = calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.featureAction, "restore", "restoreBonus", { userInput: menuConfig.userInput });
-            const allConditionsRestored = restore.split(", ");
-            if (allConditionsRestored) {
-                const conditionsRestoredMap = convertArrayOfStringsToHashMap(allConditionsRestored.filter(condition => condition));
-                if (Object.keys(conditionsRestoredMap).length > 0 && newPlayerConfigs.currentStatus.conditions) {
-                    newPlayerConfigs.currentStatus.conditions = [...newPlayerConfigs.currentStatus.conditions].filter(condition => !conditionsRestoredMap[condition.name]);
+            if (restore) {
+                const allConditionsRestored = restore.split(/, | and | or /g);;
+                if (allConditionsRestored) {
+                    const conditionsRestoredMap = convertArrayOfStringsToHashMap(allConditionsRestored.filter(condition => condition));
+                    if (Object.keys(conditionsRestoredMap).length > 0 && newPlayerConfigs.currentStatus.conditions) {
+                        newPlayerConfigs.currentStatus.conditions = [...newPlayerConfigs.currentStatus.conditions].filter(condition => !conditionsRestoredMap[condition.name]);
+                    }
                 }
             }
         }

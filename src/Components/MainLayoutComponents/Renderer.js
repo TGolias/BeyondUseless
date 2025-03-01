@@ -15,11 +15,11 @@ import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDispla
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
-import { addLeadingPlusIfNumericAndPositive, playAudio } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, playAudio } from "../../SharedFunctions/Utils";
 import { ActiveEffectsDisplay } from "../DisplayComponents/ActiveEffectsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
-    const languagesString = calculateAspectCollection(playerConfigs, "languages").join(", ");
+    const languagesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "languages"));
     
     const proficiencyBonus = calculateProficiencyBonus(playerConfigs);
     const initiativeBonus = calculateInitiativeBonus(playerConfigs);

@@ -2,7 +2,7 @@ import React from "react";
 import './AspectMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateAddendumAspect, calculateAspectCollection } from "../../SharedFunctions/TabletopMathFunctions";
-import { addLeadingPlusIfNumericAndPositive, isNumeric, isObject } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, isNumeric, isObject } from "../../SharedFunctions/Utils";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
 export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
@@ -11,18 +11,7 @@ export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
     let finalAspect;
     const aspectCollection = calculateAspectCollection(playerConfigs, menuConfig.aspectName);
     if (Array.isArray(aspectCollection)) {
-        finalAspect = "";
-        for (let i = 0; i < aspectCollection.length; i++) {
-            if (i > 0) {
-                if (i === aspectCollection.length - 1) {
-                    finalAspect += " and ";
-                } else {
-                    finalAspect += ", ";
-                }
-            }
-            const singleAspect = aspectCollection[i];
-            finalAspect += singleAspect;
-        }
+        finalAspect = concatStringArrayToAndStringWithCommas(aspectCollection);
     } else if (isObject(aspectCollection)) {
         // I don't actually know lol. Calculation maybe? For now just do this.
         finalAspect = aspectCollection;

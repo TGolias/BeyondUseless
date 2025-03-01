@@ -93,3 +93,28 @@ export function addLeadingPlusIfNumericAndPositive(value) {
         return value;
     }
 }
+
+export function concatStringArrayToAndStringWithCommas(arrayOfStrings) {
+    return concatStringArrayToSomeStringWithCommas(arrayOfStrings, "and");
+}
+
+export function concatStringArrayToOrStringWithCommas(arrayOfStrings) {
+    return concatStringArrayToSomeStringWithCommas(arrayOfStrings, "or");
+}
+
+function concatStringArrayToSomeStringWithCommas(arrayOfStrings, stringBeforeLast) {
+    let result = "";
+    if (arrayOfStrings && arrayOfStrings.length) {
+        for (let i = 0; i < arrayOfStrings.length; i++) {
+            if (i > 0) {
+                if (i === arrayOfStrings.length - 1) {
+                    result += (" " + stringBeforeLast + " ");
+                } else {
+                    result += ", ";
+                }
+            }
+            result += arrayOfStrings[i];
+        } 
+    }
+    return result
+}

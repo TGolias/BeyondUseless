@@ -42,8 +42,7 @@ const rows = [
         name: "Damage",
         calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
             if (item.type === "Weapon") {
-                let amount = calculateWeaponDamage(playerConfigs, item, false, false, false);
-                amount += " " + item.damage.damageType;
+                const amount = calculateWeaponDamage(playerConfigs, item, false, false, false);
                 return amount;
             } else {
                 return "";

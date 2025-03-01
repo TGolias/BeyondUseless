@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
@@ -37,18 +37,8 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 
     if (spell.materialComponents) {
         componentsString += " (";
-        let materialComponentsString = "";
-        for (let component of spell.materialComponents) {
-            if (materialComponentsString.length > 0) {
-                if (component === spell.materialComponents[spell.materialComponents.length - 1]) {
-                    materialComponentsString += " and ";
-                } else {
-                    materialComponentsString += ", ";
-                }
-            }
-            materialComponentsString += component;
-        }
-        componentsString += materialComponentsString
+        const materialComponentsString = concatStringArrayToAndStringWithCommas(spell.materialComponents);
+        componentsString += materialComponentsString;
         componentsString += ")";
     }
 
@@ -113,7 +103,6 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 
         if (spell.type.includes("damage")) {
             damage = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
-            damage += " " + spell.damage.damageType;
         }
 
         if (spell.type.includes("buff")) {

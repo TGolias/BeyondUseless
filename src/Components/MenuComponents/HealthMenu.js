@@ -6,13 +6,13 @@ import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateAspectCollection, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { getCollection } from "../../Collections";
-import { convertArrayToDictionary } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary } from "../../SharedFunctions/Utils";
 import { CheckIfPlayerDead, SetPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerLongRested, SetPlayerShortRested } from "../../SharedFunctions/RestFunctions";
 
 export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler, showDeathScreen}) {
-    const resistancesString = calculateAspectCollection(playerConfigs, "resistances").join(", ");
+    const resistancesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "resistances"));
 
     const playerConfigsClone = {...playerConfigs};
     playerConfigsClone.currentStatus = {...playerConfigsClone.currentStatus};

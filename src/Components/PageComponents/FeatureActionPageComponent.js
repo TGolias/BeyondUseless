@@ -70,7 +70,6 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
 
         if (featureAction.type.includes("damage")) {
             damage = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "damage", "spellDamageBonus", { userInput: data.userInput });
-            damage += " " + featureAction.damage.damageType;
         }
 
         if (featureAction.type.includes("buff")) {

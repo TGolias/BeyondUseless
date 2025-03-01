@@ -39,7 +39,7 @@ export function tryAddActiveEffect(playerConfigsClone, menuConfig, setCenterScre
     const actionObject = effectType.getActionObject(menuConfig);
     if (actionObject.duration !== "Instantaneous") {
         if (actionObject.range === "Self") {
-            castSpellWithAddingToEffects(playerConfigsClone, menuConfig, true);
+            castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, true);
             callback();
         } else if (actionObject.aspects) {
             setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 

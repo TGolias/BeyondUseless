@@ -1,6 +1,6 @@
 import React from "react";
 import './ItemPageComponent.css';
-import { calculateAddendumAspect, calculateAspectCollection, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, convertDiceRollCalculationToValue, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAspectCollection, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, convertDiceRollWithTypeToValue, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
@@ -17,13 +17,11 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
         case "Weapon":
             typeString = item.weaponRange + " " + item.type + " (" + item.weaponType + ")";
             const baseDamageDice = performDiceRollCalculation({}, item.damage.calculation, {});
-            baseDamage = convertDiceRollCalculationToValue(baseDamageDice);
-            baseDamage += " " + item.damage.damageType;
+            baseDamage = convertDiceRollWithTypeToValue(baseDamageDice);
 
             if (item.properties.includes("Versatile")) {
                 const twoHandedDamageDice = performDiceRollCalculation({}, item.twoHandedDamage.calculation, {});
-                twoHandedDamage = convertDiceRollCalculationToValue(twoHandedDamageDice);
-                twoHandedDamage += " " + item.twoHandedDamage.damageType;
+                twoHandedDamage = convertDiceRollWithTypeToValue(twoHandedDamageDice);
             }
 
             if (item.properties) {
@@ -114,11 +112,9 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                     }
 
                     weaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, false, false);
-                    weaponDamage += " " + item.damage.damageType;
 
                     if (item.properties.includes("Light")) {
                         lightWeaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, true, false);
-                        lightWeaponDamage += " " + item.damage.damageType;
                     }
 
                     if (item.mastery === "Cleave") {
@@ -126,7 +122,6 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                         const hasWeaponMastery = item.tags.some(tag => weaponMasteries.includes(tag));
                         if (hasWeaponMastery) {
                             cleaveWeaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, false, true);
-                            cleaveWeaponDamage += " " + item.damage.damageType;
                         }
                     }
                     showItemSummary = true;
@@ -141,11 +136,9 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                     }
 
                     weaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, false, false);
-                    weaponDamageThrown += " " + item.damage.damageType;
 
                     if (item.properties.includes("Light")) {
                         lightWeaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, true, false);
-                        lightWeaponDamageThrown += " " + item.damage.damageType;
                     }
                     showItemSummary = true;
                 }
