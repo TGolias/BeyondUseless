@@ -3,6 +3,7 @@ import './ActiveEffectsDisplay.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
+import { getCollection } from "../../Collections";
 
 export function ActiveEffectsDisplay({playerConfigs, activeEffects, inputChangeHandler, setCenterScreenMenu}) {
 
@@ -50,5 +51,13 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScree
 
             playAudio("menuaudio");
             setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, data: { playerConfigs: playerConfigs, userInput: activeEffect.userInput } } });
+            break;
+        case "action":
+            const actions = getCollection("actions")
+            const action = actions.find(act => act.name === activeEffect.name);
+
+            playAudio("menuaudio");
+            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", action: action, data: { playerConfigs: playerConfigs, userInput: activeEffect.userInput } } });
+            break;
     }
 }

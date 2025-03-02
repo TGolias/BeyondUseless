@@ -3,6 +3,7 @@ import './ViewMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
 import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageComponent";
+import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 
 export function ViewMenu({setCenterScreenMenu, menuConfig}) {
 
@@ -16,6 +17,11 @@ export function ViewMenu({setCenterScreenMenu, menuConfig}) {
         case "featureaction":
             pageComponentRow.push(<>
                 <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={menuConfig.data} copyLinkToItem={menuConfig.copyLinkToView}></FeatureActionPageComponent>
+            </>);
+            break;
+        case "action":
+            pageComponentRow.push(<>
+                <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToView} data={menuConfig.data} ></ActionPageComponent>
             </>);
             break;
     }

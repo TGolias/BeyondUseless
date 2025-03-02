@@ -6,6 +6,20 @@ import { CheckListInput } from "../SimpleComponents/CheckListInput";
 import { SelectList } from "../SimpleComponents/SelectList";
 
 const userInputTypes = {
+    textField: {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+            if (!menuConfig.userInput[singleUserInput.name]) {
+                menuConfig.userInput[singleUserInput.name] = "";
+            }
+
+            return (<>
+                <div className="userInputsSingleInput">
+                    <div>{singleUserInput.displayName}</div>
+                    <TextInput isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></TextInput>
+                </div>
+            </>);
+        }
+    },
     numberField: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
             if (!menuConfig.userInput[singleUserInput.name]) {
@@ -73,8 +87,11 @@ function getUserInputForSpellOrFeatureAction(menuConfig) {
     if (menuConfig.spell) {
         // This is a spell.
         return menuConfig.spell.userInput;
-    } else {
+    } else if (menuConfig.featureAction) {
         // This is a feature action.
         return menuConfig.featureAction.userInput;
+    } else {
+        // This is an action.
+        return menuConfig.action.userInput;
     }
 }

@@ -211,11 +211,12 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
             newItemMenu.action = data.action;
+            newItemMenu.userInput = {};
             newItemMenu.copyLinkToItem = {};
             return newItemMenu;
         },
         createMenuLayout: (playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ActionMenu></>);
+            return (<><ActionMenu playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></ActionMenu></>);
         }
     },
     FeatureActionMenu: {

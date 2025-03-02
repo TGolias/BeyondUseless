@@ -31,6 +31,22 @@ const effectTypes = {
                 userInput: menuConfig.userInput
             }
         }
+    },
+    ActionMenu: {
+        getActionObject: (menuConfig) => {
+            return menuConfig.action;
+        },
+        menuTitle: "Using on Self",
+        menuText: "Are you targeting yourself?",
+        createActiveEffect: (menuConfig, useOnSelf) => {
+            return {
+                type: "action",
+                onSelf: useOnSelf,
+                name: menuConfig.action.name,
+                concentration: menuConfig.action.concentration,
+                userInput: menuConfig.userInput
+            }
+        }
     }
 }
 

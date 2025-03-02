@@ -134,6 +134,16 @@ export function calculateSpeed(playerConfigs) {
         speed = addDiceObjectsWithTypeTogether(createDiceObjectWithType({}), forcedSpeed);
     });
 
+    findAllConfiguredAspects(playerConfigs, "speedMultiplier", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let speedMultiplier;
+        if (aspectValue.calculation) {
+            speedMultiplier = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            speedMultiplier = aspectValue;
+        }
+        speed = multiplyDiceObjectsWithTypeByMultiplier(speed, speedMultiplier);
+    });
+
     const finalSpeed = convertDiceRollWithTypeToValue(speed);
     if (!finalSpeed) {
         return 0;
@@ -1550,6 +1560,11 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             const playerSpells = getAllSpells(spellCastingFeatures);
             const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
 
+            const actionFeatures = getAllActionFeatures(playerConfigs);
+
+            const actions = getCollection("actions");
+            const actionName2Action = convertArrayToDictionary(actions, "name");
+
             for (let activeEffect of playerConfigs?.currentStatus?.activeEffects) {
                 if (activeEffect.onSelf) {
                     switch (activeEffect.type) {
@@ -1557,6 +1572,21 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                             const spell = spellName2Spell[activeEffect.name];
                             if (spell && spell.aspects && spell.aspects[aspectName]) {
                                 onAspectFound(spell.aspects[aspectName], "spell", activeEffect);
+                            }
+                            break;
+                        case "featureaction":
+                            const actionFeature = actionFeatures.find(feature => feature.feature.actions.some(action => action.name === activeEffect.name));
+                            if (actionFeature) {
+                                const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
+                                if (featureAction && featureAction.aspects && featureAction.aspects[aspectName]) {
+                                    onAspectFound(featureAction.aspects[aspectName], "featureAction", activeEffect);
+                                }
+                            }
+                            break;
+                        case "action":
+                            const action = actionName2Action[activeEffect.name];
+                            if (action && action.aspects && action.aspects[aspectName]) {
+                                onAspectFound(action.aspects[aspectName], "action", activeEffect);
                             }
                             break;
                     }
@@ -1649,6 +1679,11 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
         return 0;
     };
     const performSpecialTransformations = (playerConfigs, singleCalculation, singleValue) => {
+        if (singleCalculation.type === "if-then") {
+            // It is already in the correct format.
+            return singleValue;
+        }
+
         let transformedValue = singleValue;
         if (singleCalculation.multiplier) {
             const multiplier = performMathCalculation(playerConfigs, singleCalculation.multiplier, parameters);
@@ -1718,6 +1753,16 @@ export function createDiceObjectWithType(diceObject, diceType) {
     }
     const diceObjectWithType = {}
     diceObjectWithType[diceTypeProperty] = diceObject;
+    return diceObjectWithType;
+}
+
+export function multiplyDiceObjectsWithTypeByMultiplier(diceObjectWithType, multiplier) {
+    for (let diceType of Object.keys(diceObjectWithType)) {
+        const diceObject = diceObjectWithType[diceType];
+        for (let key of Object.keys(diceObject)) {
+            diceObject[key] = (diceObject[key] * multiplier);
+        }
+    }
     return diceObjectWithType;
 }
 
@@ -1853,6 +1898,8 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
             return valueToAdd;
         } else if (isNumeric(valueToAdd)) {
             return currentTotal + parseInt(valueToAdd);
+        } else if (Array.isArray(currentTotal), Array.isArray(valueToAdd)) {
+            return [...currentTotal, ...valueToAdd];
         }
         return currentTotal + valueToAdd;
     };
