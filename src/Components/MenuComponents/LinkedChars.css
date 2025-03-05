@@ -1,0 +1,46 @@
+.linkedCharsMenuChars {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding: 1em;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    margin: -0.5em;
+    overflow-y: auto;
+}
+
+.linkedCharsMenuChar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    width: 100%;
+}
+
+.linkedCharsMenuChar > *:first-child {
+    flex: 1;
+}
+
+.linkedCharsMenuChar * {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.linkedCharsMenuTitle {
+    width: 100%;
+    text-align: center;
+    font-size: 1.25em;
+}
+
+.linkedCharsButtonsWrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .linkedCharsMenuChars {
+        flex-grow: 1;
+    }
+}

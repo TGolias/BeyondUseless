@@ -7,7 +7,7 @@ import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./S
 import { fetchAllCollections, getCollection } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
-import { concatStringArrayToAndStringWithCommas, getHomePageUrl, isNumeric, playAudio } from "./SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, getHomePageUrl, guidGenerator, isNumeric, playAudio } from "./SharedFunctions/Utils";
 import { DeathScreenDisplay } from "./Components/DisplayComponents/DeathScreenDisplay";
 import { SpellPageComponent } from "./Components/PageComponents/SpellPageComponent";
 import { ItemPageComponent } from "./Components/PageComponents/ItemPageComponent";
@@ -20,6 +20,8 @@ import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureA
 import { ConditionPageComponent } from "./Components/PageComponents/ConditionPageComponent";
 import { GetAllPossibleFeaturesFromObject } from "./SharedFunctions/FeatureFunctions";
 import { UnarmedStrikePageComponent } from "./Components/PageComponents/UnarmedStrikePageComponent";
+import { SendMessageToAllActiveConnections, SetMyPlayerConfigs, SetMySessionId } from "./SharedFunctions/LinkedPlayerFunctions";
+import { updatedPlayerConfigsMessage } from "./SharedFunctions/LinkedPlayerMessageFunctions";
 
 const timeoutBeforeAddedToHistory = 5000;
 
@@ -46,6 +48,8 @@ const defaultPlayerConfiguration = {
 
 let needsToLoad = true;
 let storageListenerAdded = false;
+
+const sessionId = guidGenerator();
 
 export default function App() {
   const [, forceUpdate] = useReducer(x => !x, false);
@@ -93,6 +97,9 @@ export default function App() {
       }
     });
   }
+
+  SetMySessionId(sessionId);
+  SetMyPlayerConfigs(playerConfigs);
 
   const url = new URL(decodeURI(window.location.href));
   const params = new URLSearchParams(url.search);
@@ -186,7 +193,7 @@ export default function App() {
             </div>
             <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
               <div className="centerMenu pixel-corners">
-                <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
+                <CenterMenu sessionId={sessionId} playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
               </div>
             </div>
           </>);
@@ -593,6 +600,10 @@ export default function App() {
 
     // We only want want to add to the undo / redo stack if the value changed.
     if (valueChanged) {
+      // If we have any active connections, send them our updated player configs.
+      const updateMessageForPeers = updatedPlayerConfigsMessage(sessionId, newBaseStateObject);
+      SendMessageToAllActiveConnections(updateMessageForPeers);
+
       // We want to add these changes to the history... but only after a timeout, in case they're still typing!
       const addToHistoryTimeout = setTimeout(() => { 
         addChangesToHistory(newBaseStateObject);
@@ -686,6 +697,13 @@ export default function App() {
       }
     },
     {
+      text: "LINK CABLE",
+      clickHandler: () => {
+        setShowStartMenu(false);
+        setCenterScreenMenu({ show: true, menuType: "LinkCableMenu", data: {} });
+      }
+    },
+    {
       text: (isSoundMuted ? "SOUND ON" : "SOUND OFF"),
       clickHandler: () => {
         const newMuteValue = !isSoundMuted;
@@ -694,10 +712,6 @@ export default function App() {
         muteSound(newMuteValue);
         setShowStartMenu(false);
       }
-    },
-    {
-      text: "GITHUB",
-      clickHandler: () => window.open("https://github.com/TGolias/BeyondUseless")
     },
     {
       text: "EXIT",
@@ -742,7 +756,7 @@ export default function App() {
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
         <div className="centerMenu pixel-corners">
-          <CenterMenu playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
+          <CenterMenu sessionId={sessionId} playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
         </div>
       </div>
       <div id="deathScreenWrapper" className="deathScreenWapper">

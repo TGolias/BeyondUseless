@@ -1,0 +1,28 @@
+.linkCreateMenuWrapperDiv {
+    margin: -0.5em;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    justify-content: center;
+    align-items: center;
+}
+
+.linkCreateMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.linkCreateMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .linkCreateMenuWrapperDiv {
+        flex-grow: 1;
+    }
+}

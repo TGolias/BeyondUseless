@@ -1,0 +1,44 @@
+.linkCableMenuWrapperDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding: 1em;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+    margin: -0.5em;
+    overflow-y: auto;
+    align-items: center;
+}
+
+.linkCableMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.linkCableMenuGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.5em;
+    align-items: center;
+    padding-top: 0.5em;
+}
+
+.linkCableMenuGrid > * {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.linkCableMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .linkCableMenuWrapperDiv {
+        flex-grow: 1;
+    }
+}
