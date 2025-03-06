@@ -17,7 +17,7 @@ export function LinkRecieveMenu({sessionId, playerConfigs, setCenterScreenMenu, 
         peerConnection = createPeerConnection();
         getDataChannelFromConnection(peerConnection).then(dataChannel => {
             if (dataChannel) {
-                AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel).then(result => {
+                AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, false).then(result => {
                     if (result) {
                         menuStateChangeHandler(menuConfig, "connectionSuccessful", true);
                     }

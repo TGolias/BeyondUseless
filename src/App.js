@@ -20,7 +20,7 @@ import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureA
 import { ConditionPageComponent } from "./Components/PageComponents/ConditionPageComponent";
 import { GetAllPossibleFeaturesFromObject } from "./SharedFunctions/FeatureFunctions";
 import { UnarmedStrikePageComponent } from "./Components/PageComponents/UnarmedStrikePageComponent";
-import { SendMessageToAllActiveConnections, SetMyPlayerConfigs, SetMySessionId } from "./SharedFunctions/LinkedPlayerFunctions";
+import { SendMessageToAllActiveConnections, SetLoadCharacter, SetMyPlayerConfigs, SetMySessionId } from "./SharedFunctions/LinkedPlayerFunctions";
 import { updatedPlayerConfigsMessage } from "./SharedFunctions/LinkedPlayerMessageFunctions";
 
 const timeoutBeforeAddedToHistory = 5000;
@@ -92,8 +92,9 @@ export default function App() {
     storageListenerAdded = true;
     window.addEventListener('storage', (event) => {
       if (event.key === "CURRENT_CHARACTER") {
-        // The configs for the current character were changed in a different window... Let's do this the easy way and refresh the view.
-        window.location.reload();
+        // The configs for the current character were changed in a different window... Load from them.
+        const newPlayerConfigs = JSON.parse(event.newValue);
+        loadCharacterWithoutSettingToLocalStorage(newPlayerConfigs);
       }
     });
   }
@@ -501,6 +502,14 @@ export default function App() {
   }
 
   function loadCharacter(newPlayerConfigs) {
+    loadCharacterWithoutSettingToLocalStorage(newPlayerConfigs);
+
+    localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
+  }
+
+  SetLoadCharacter(loadCharacter);
+
+  function loadCharacterWithoutSettingToLocalStorage(newPlayerConfigs) {
     // Before we load, we want to make sure there aren't any pending changes waiting to be added to history, that would be tragic.
     if (addChangesToHistoryTimeout) {
       clearTimeout(addChangesToHistoryTimeout.timeout)
@@ -511,8 +520,6 @@ export default function App() {
     setHistory([newPlayerConfigs]);
     setCurrentHistoryIndex(0);
     setShowStartMenu(false);
-
-    localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
   }
 
   function muteSound(value) {

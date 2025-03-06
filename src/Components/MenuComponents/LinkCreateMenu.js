@@ -16,7 +16,7 @@ export function LinkCreateMenu({sessionId, playerConfigs, setCenterScreenMenu, m
 
         peerConnection = createPeerConnection();
         const dataChannel = createDataChannel(peerConnection);
-        AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel).then(result => {
+        AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, true).then(result => {
             if (result) {
                 menuStateChangeHandler(menuConfig, "connectionSuccessful", true);
             }

@@ -80,7 +80,7 @@ export async function acceptConnectionOfferAndGiveAnswer(peerConnection, offer) 
     return peerConnection.localDescription;
 }
 
-export function AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel) {
+export function AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, creator) {
     return new Promise(resolve => {
         const openListener = dataChannel.addEventListener('open', () => {
             // Send them our establish message now that we're connected! They should be doing the same for us.
@@ -91,7 +91,7 @@ export function AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, p
         const messageListener = dataChannel.addEventListener('message', (event) => {
             const peerMessage = JSON.parse(event.data);
             if (peerMessage.type === "establish") {
-                AddLinkedPlayer(peerMessage.sessionId, peerMessage.playerConfigs, peerConnection, dataChannel);
+                AddLinkedPlayer(peerMessage.sessionId, peerMessage.playerConfigs, peerConnection, dataChannel, creator);
                 dataChannel.removeEventListener('message', messageListener);
                 resolve(true);
             }

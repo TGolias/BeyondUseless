@@ -3,6 +3,7 @@ import { acceptConnectionOfferAndGiveAnswer, AddCurrentOfferWhenDataChannelOpene
 
 let mySessionId = undefined;
 let myPlayerConfigs = undefined;
+let loadCharacter = undefined;
 const allActiveConnections = {};
 let onConnectionChangedHandler = undefined;
 
@@ -16,7 +17,11 @@ export function SetMyPlayerConfigs(playerConfigs) {
     myPlayerConfigs = playerConfigs;
 }
 
-export function AddLinkedPlayer(sessionId, remotePlayerConfigs, peerConnection, channel) {
+export function SetLoadCharacter(loadCharacterFunc) {
+    loadCharacter = loadCharacterFunc;
+}
+
+export function AddLinkedPlayer(sessionId, remotePlayerConfigs, peerConnection, channel, creator) {
     if (openRequests[sessionId]) {
         // This is no longer an open request: we've sealed the deal!
         delete openRequests[sessionId];
@@ -54,12 +59,24 @@ export function AddLinkedPlayer(sessionId, remotePlayerConfigs, peerConnection, 
             onConnectionRemove(sessionId);
         });
 
-        AddOrUpdateRemoteCharacter(sessionId, remotePlayerConfigs);
+        if (remotePlayerConfigs.name === myPlayerConfigs.name && creator) {
+            // Special case: If we are mirroring, and we are the ones who created the connection, use our player configs for the first update so that it syncs with the other.
+            AddOrUpdateRemoteCharacter(sessionId, myPlayerConfigs);
+        } else {
+            AddOrUpdateRemoteCharacter(sessionId, remotePlayerConfigs);
+        }
         onConnectionAdd(sessionId);
     }
 }
 
 function AddOrUpdateRemoteCharacter(messageRecievedFromSessionId, remotePlayerConfigs) {
+    if (remotePlayerConfigs.name === myPlayerConfigs.name) {
+        if (loadCharacter) {
+            // This allows for mirroring functionality.
+            loadCharacter(remotePlayerConfigs);
+        }
+    }
+
     const remoteCharacterString = localStorage.getItem("REMOTE_CHARACTERS");
     const remoteCharacters = remoteCharacterString ? JSON.parse(remoteCharacterString) : {};
     remoteCharacters[remotePlayerConfigs.name] = remotePlayerConfigs;
@@ -82,7 +99,7 @@ async function OnNewConnectionMessage(messageRecievedFromSessionId, message) {
         // We aren't already connected to this... Let's try to connect.
         const peerConnection = createPeerConnection();
         const dataChannel = createDataChannel(peerConnection);
-        AddCurrentOfferWhenDataChannelOpened(mySessionId, myPlayerConfigs, peerConnection, dataChannel);
+        AddCurrentOfferWhenDataChannelOpened(mySessionId, myPlayerConfigs, peerConnection, dataChannel, true);
 
         openRequests[message.newConnectionSessionId] = peerConnection;
         
@@ -104,7 +121,7 @@ async function OnPeerRequest(messageRecievedFromSessionId, message) {
         const peerConnection = createPeerConnection();
         getDataChannelFromConnection(peerConnection).then(dataChannel => {
             if (dataChannel) {
-                AddCurrentOfferWhenDataChannelOpened(mySessionId, myPlayerConfigs, peerConnection, dataChannel);
+                AddCurrentOfferWhenDataChannelOpened(mySessionId, myPlayerConfigs, peerConnection, dataChannel, false);
             }
         });
 
