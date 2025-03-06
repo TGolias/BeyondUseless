@@ -112,7 +112,6 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 
     // Create config for the spell component.
     const data = {};
-    data.feature = menuConfig.spell.feature;
     data.userInput = menuConfig.userInput;
 
     if (menuConfig.spell.freeUses) {

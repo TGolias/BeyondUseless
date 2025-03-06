@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
@@ -68,9 +68,6 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let debuffAmount = undefined;
     let debuffDescription = undefined;
     if (data) {
-        spell.feature = data.feature;
-        featureName = data.feature.name;
-
         if (data.freeUses !== undefined) {
             freeUses = data.freeUses;
         }
@@ -79,67 +76,77 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
         }
         
         if (playerConfigs) {
-            const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: spell });
-            if (spellCastingConditionAddendumString) {
-                spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
-            }
+            // Get the spell specifically for the character so that we can set the feature.
+            const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+            const allSpells = getAllSpells(spellCastingFeatures);
+            const spellForPlayer = allSpells.find(s => s.name === spell.name);
+            if (spellForPlayer) {
+                // When you get the spell for a player specifically it comes with the feature property on it.
+                spell.feature = spellForPlayer.feature;
+                featureName = spellForPlayer.feature.name;
 
-            if (spell.challengeType === "attackRoll") {
-                const attack = calculateSpellAttack(playerConfigs, spell, castAtLevel)
-                attackRoll = attack.amount;
-                if (attack.addendum) {
-                    attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
+                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: spell });
+                if (spellCastingConditionAddendumString) {
+                    spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
                 }
-            }
 
-            if (spell.challengeType === "savingThrow") {
-                savingThrowType = spell.savingThrowType;
-
-                const savingThrowCalc = calculateSpellSaveDC(playerConfigs, spell, castAtLevel);
-                savingThrowDc = savingThrowCalc.dc;
-                if (savingThrowCalc.addendum) {
-                    savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
-                }
-            }
-
-            if (spell.type.includes("damage")) {
-                damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
-            }
-
-            if (spell.type.includes("buff")) {
-                if (spell.buff.calculation) {
-                    buffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
-                }
-                buffDescription = spell.buff.description;
-            }
-
-            if (spell.type.includes("debuff")) {
-                if (spell.debuff.calculation) {
-                    debuffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
-                }
-                debuffDescription = spell.debuff.description;
-                if (spell.debuff.conditions) {
-                    if (!debuffDescription) {
-                        debuffDescription = "";
+                if (spell.challengeType === "attackRoll") {
+                    const attack = calculateSpellAttack(playerConfigs, spell, castAtLevel)
+                    attackRoll = attack.amount;
+                    if (attack.addendum) {
+                        attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
-                    const allConditions = getCollection("conditions");
-                    const allConditionsMap = convertArrayToDictionary(allConditions, "name");
-                    for (let condition of spell.debuff.conditions) {
-                        const dndCondition = allConditionsMap[condition];
-                        if (debuffDescription.length > 0) {
-                            debuffDescription += "\n\n";
+                }
+
+                if (spell.challengeType === "savingThrow") {
+                    savingThrowType = spell.savingThrowType;
+
+                    const savingThrowCalc = calculateSpellSaveDC(playerConfigs, spell, castAtLevel);
+                    savingThrowDc = savingThrowCalc.dc;
+                    if (savingThrowCalc.addendum) {
+                        savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
+                    }
+                }
+
+                if (spell.type.includes("damage")) {
+                    damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
+                }
+
+                if (spell.type.includes("buff")) {
+                    if (spell.buff.calculation) {
+                        buffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
+                    }
+                    buffDescription = spell.buff.description;
+                }
+
+                if (spell.type.includes("debuff")) {
+                    if (spell.debuff.calculation) {
+                        debuffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
+                    }
+                    debuffDescription = spell.debuff.description;
+                    if (spell.debuff.conditions) {
+                        if (!debuffDescription) {
+                            debuffDescription = "";
                         }
-                        debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
+                        const allConditions = getCollection("conditions");
+                        const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+                        for (let condition of spell.debuff.conditions) {
+                            const dndCondition = allConditionsMap[condition];
+                            if (debuffDescription.length > 0) {
+                                debuffDescription += "\n\n";
+                            }
+                            debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
+                        }
                     }
                 }
-            }
 
-            if (spell.type.includes("healing")) {
-                healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
-            }
+                if (spell.type.includes("healing")) {
+                    healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
+                }
 
-            if (spell.type.includes("restore")) {
-                restore = calculateOtherSpellAspect(playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
+                if (spell.type.includes("restore")) {
+                    restore = calculateOtherSpellAspect(playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
+                }
             }
         }
     }
@@ -188,7 +195,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div className="spellPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
                 <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
-            <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
+            <div className="spellPageDescription" style={{display: (featureName ? "block" : "none")}}>
                 <div><b>Learned from:</b> {featureName}</div>
             </div>
             <div className="spellPageDescription" style={{display: (freeUses !== undefined ? "block" : "none")}}>
