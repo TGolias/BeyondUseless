@@ -3,12 +3,12 @@ import './PropertyPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
 
-export function PropertyPageComponent({property, data, copyLinkToItem}) {
+export function PropertyPageComponent({property, playerConfigs, copyLinkToItem}) {
     let description = parseStringForBoldMarkup(property.description);
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(property, data);
+            copyToClipboard(property, playerConfigs);
         };
     }
 
@@ -19,7 +19,6 @@ export function PropertyPageComponent({property, data, copyLinkToItem}) {
     </>
 }
 
-function copyToClipboard(property, data) {
-    const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(property.name + "\n" + getHomePageUrl() + "?view=property&name=" + encodeURI(property.name) + "&data=" + encodeURI(stringifiedJson));
+function copyToClipboard(property, playerConfigs) {
+    navigator.clipboard.writeText(property.name + "\n" + getHomePageUrl() + "?view=property&name=" + encodeURI(property.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

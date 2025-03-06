@@ -11,17 +11,17 @@ export function ViewMenu({setCenterScreenMenu, menuConfig}) {
     switch (menuConfig.viewType) {
         case "spell":
             pageComponentRow.push(<>
-                <SpellPageComponent spell={menuConfig.spell} data={menuConfig.data} copyLinkToSpell={menuConfig.copyLinkToView}></SpellPageComponent>
+                <SpellPageComponent spell={menuConfig.spell} data={menuConfig.data} playerConfigs={menuConfig.playerConfigs} copyLinkToSpell={menuConfig.copyLinkToView}></SpellPageComponent>
             </>);
             break;
         case "featureaction":
             pageComponentRow.push(<>
-                <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={menuConfig.data} copyLinkToItem={menuConfig.copyLinkToView}></FeatureActionPageComponent>
+                <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={menuConfig.data} playerConfigs={menuConfig.playerConfigs} copyLinkToItem={menuConfig.copyLinkToView}></FeatureActionPageComponent>
             </>);
             break;
         case "action":
             pageComponentRow.push(<>
-                <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToView} data={menuConfig.data} ></ActionPageComponent>
+                <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToView} data={menuConfig.data} playerConfigs={menuConfig.playerConfigs}></ActionPageComponent>
             </>);
             break;
     }

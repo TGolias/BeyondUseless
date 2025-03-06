@@ -26,12 +26,11 @@ export function ActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
     }
 
     const data = {};
-    data.playerConfigs = playerConfigs;
     data.userInput = menuConfig.userInput;
 
     return (<>
         <div className="actionMenuWrapperDiv">
-            <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToItem} data={data}></ActionPageComponent>
+            <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToItem} data={data} playerConfigs={playerConfigs}></ActionPageComponent>
         </div>
         {userInputRows}
         <div className="centerMenuSeperator"></div>

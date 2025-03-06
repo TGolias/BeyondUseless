@@ -42,7 +42,7 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScree
             const playerSpell = playerSpells.find(spell => spell.name === activeEffect.name);
 
             playAudio("menuaudio");
-            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", spell: playerSpell, data: { playerConfigs: playerConfigs, castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, feature: playerSpell.feature } } });
+            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", spell: playerSpell, playerConfigs: playerConfigs, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, feature: playerSpell.feature } } });
             break;
         case "featureaction":
             const actionFeatures = getAllActionFeatures(playerConfigs);
@@ -50,14 +50,14 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScree
             const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
 
             playAudio("menuaudio");
-            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, data: { playerConfigs: playerConfigs, userInput: activeEffect.userInput } } });
+            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, playerConfigs: playerConfigs, data: { userInput: activeEffect.userInput } } });
             break;
         case "action":
             const actions = getCollection("actions")
             const action = actions.find(act => act.name === activeEffect.name);
 
             playAudio("menuaudio");
-            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", action: action, data: { playerConfigs: playerConfigs, userInput: activeEffect.userInput } } });
+            setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", action: action, playerConfigs: playerConfigs, data: { userInput: activeEffect.userInput } } });
             break;
     }
 }

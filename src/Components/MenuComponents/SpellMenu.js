@@ -112,7 +112,6 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 
     // Create config for the spell component.
     const data = {};
-    data.playerConfigs = playerConfigs;
     data.feature = menuConfig.spell.feature;
     data.userInput = menuConfig.userInput;
 
@@ -126,7 +125,7 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 
     return (<>
         <div className="spellMenuWrapperDiv">
-            <SpellPageComponent spell={menuConfig.spell} data={data} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
+            <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>

@@ -10,9 +10,6 @@ const downTriangleUnicode = '\u25BC';
 
 export function ConditionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler}) {
 
-    const data = {};
-    data.playerConfigs = playerConfigs;
-
     const adjustConditionControls = [];
     if (menuConfig.condition.type) {
         if (menuConfig.condition.type.includes("damagetypes")) {
@@ -77,7 +74,7 @@ export function ConditionMenu({playerConfigs, setCenterScreenMenu, menuConfig, m
 
     return (<>
         <div className="conditionMenuWrapperDiv">
-            <ConditionPageComponent condition={menuConfig.condition} copyLinkToItem={menuConfig.copyLinkToItem} data={data}></ConditionPageComponent>
+            <ConditionPageComponent condition={menuConfig.condition} copyLinkToItem={menuConfig.copyLinkToItem} playerConfigs={playerConfigs}></ConditionPageComponent>
         </div>
         <div style={{display: (adjustConditionControls.length > 0 ? "block" : "none")}} className="centerMenuSeperator"></div>
         <div style={{display: (adjustConditionControls.length > 0 ? "flex" : "none")}} className="conditionMenuAdjustControls">{adjustConditionControls}</div>

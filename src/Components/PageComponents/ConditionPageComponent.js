@@ -5,7 +5,7 @@ import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, getHomePa
 import { calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
-export function ConditionPageComponent({condition, copyLinkToItem, data}) {
+export function ConditionPageComponent({condition, copyLinkToItem, playerConfigs}) {
     let description = parseStringForBoldMarkup(condition.description);
 
     let additionalConditionsDescription = "";
@@ -28,18 +28,18 @@ export function ConditionPageComponent({condition, copyLinkToItem, data}) {
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(condition, data);
+            copyToClipboard(condition, playerConfigs);
         };
     }
 
     let skillsDescription = "";
-    if (data && data.playerConfigs) {
+    if (playerConfigs) {
         if (condition.showSkills) {
             for (let skillName of condition.showSkills) {
                 if (skillsDescription.length > 0) {
                     skillsDescription += "\n\n";
                 }
-                const skillValue = calculateSkillProficiency(data.playerConfigs, skillName);
+                const skillValue = calculateSkillProficiency(playerConfigs, skillName);
                 skillsDescription += "<b>" + skillName + ":</b> " + (addLeadingPlusIfNumericAndPositive(skillValue));
             }
         }
@@ -56,7 +56,6 @@ export function ConditionPageComponent({condition, copyLinkToItem, data}) {
     </>
 }
 
-function copyToClipboard(condition, data) {
-    const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(condition.name + "\n" + getHomePageUrl() + "?view=condition&name=" + encodeURI(condition.name) + "&data=" + encodeURIComponent(stringifiedJson));
+function copyToClipboard(condition, playerConfigs) {
+    navigator.clipboard.writeText(condition.name + "\n" + getHomePageUrl() + "?view=condition&name=" + encodeURI(condition.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

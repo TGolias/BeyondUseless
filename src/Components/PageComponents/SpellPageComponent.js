@@ -5,7 +5,7 @@ import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, getHo
 import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
-export function SpellPageComponent({spell, data, copyLinkToSpell}) {
+export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
     let castingTime = "";
     if (Array.isArray(spell.castingTime)) {
         for (let singleCastingTime of spell.castingTime) {
@@ -23,7 +23,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
         castingCondition = spell.castingCondition;
     }
 
-    const range = calculateRange(data?.playerConfigs, spell.range);
+    const range = calculateRange(playerConfigs, spell.range);
 
     let componentsString = "";
     if (spell.components) {
@@ -46,7 +46,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
 
     if (copyLinkToSpell) {
         copyLinkToSpell.onExecute = () => {
-            copyToClipboard(spell, data);
+            copyToClipboard(spell, data, playerConfigs);
         };
     }
 
@@ -78,67 +78,69 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
             castAtLevel = data.castAtLevel;
         }
         
-        const spellCastingConditionAddendumString = calculateAddendumAspect(data.playerConfigs, "spellCastingConditionAddendum", { spell: spell });
-        if (spellCastingConditionAddendumString) {
-            spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
-        }
-
-        if (spell.challengeType === "attackRoll") {
-            const attack = calculateSpellAttack(data.playerConfigs, spell, castAtLevel)
-            attackRoll = attack.amount;
-            if (attack.addendum) {
-                attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
+        if (playerConfigs) {
+            const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: spell });
+            if (spellCastingConditionAddendumString) {
+                spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
             }
-        }
 
-        if (spell.challengeType === "savingThrow") {
-            savingThrowType = spell.savingThrowType;
-
-            const savingThrowCalc = calculateSpellSaveDC(data.playerConfigs, spell, castAtLevel);
-            savingThrowDc = savingThrowCalc.dc;
-            if (savingThrowCalc.addendum) {
-                savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
-            }
-        }
-
-        if (spell.type.includes("damage")) {
-            damage = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
-        }
-
-        if (spell.type.includes("buff")) {
-            if (spell.buff.calculation) {
-                buffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
-            }
-            buffDescription = spell.buff.description;
-        }
-
-        if (spell.type.includes("debuff")) {
-            if (spell.debuff.calculation) {
-                debuffAmount = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
-            }
-            debuffDescription = spell.debuff.description;
-            if (spell.debuff.conditions) {
-                if (!debuffDescription) {
-                    debuffDescription = "";
+            if (spell.challengeType === "attackRoll") {
+                const attack = calculateSpellAttack(playerConfigs, spell, castAtLevel)
+                attackRoll = attack.amount;
+                if (attack.addendum) {
+                    attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
                 }
-                const allConditions = getCollection("conditions");
-                const allConditionsMap = convertArrayToDictionary(allConditions, "name");
-                for (let condition of spell.debuff.conditions) {
-                    const dndCondition = allConditionsMap[condition];
-                    if (debuffDescription.length > 0) {
-                        debuffDescription += "\n\n";
+            }
+
+            if (spell.challengeType === "savingThrow") {
+                savingThrowType = spell.savingThrowType;
+
+                const savingThrowCalc = calculateSpellSaveDC(playerConfigs, spell, castAtLevel);
+                savingThrowDc = savingThrowCalc.dc;
+                if (savingThrowCalc.addendum) {
+                    savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
+                }
+            }
+
+            if (spell.type.includes("damage")) {
+                damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
+            }
+
+            if (spell.type.includes("buff")) {
+                if (spell.buff.calculation) {
+                    buffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
+                }
+                buffDescription = spell.buff.description;
+            }
+
+            if (spell.type.includes("debuff")) {
+                if (spell.debuff.calculation) {
+                    debuffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
+                }
+                debuffDescription = spell.debuff.description;
+                if (spell.debuff.conditions) {
+                    if (!debuffDescription) {
+                        debuffDescription = "";
                     }
-                    debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
+                    const allConditions = getCollection("conditions");
+                    const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+                    for (let condition of spell.debuff.conditions) {
+                        const dndCondition = allConditionsMap[condition];
+                        if (debuffDescription.length > 0) {
+                            debuffDescription += "\n\n";
+                        }
+                        debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;
+                    }
                 }
             }
-        }
 
-        if (spell.type.includes("healing")) {
-            healing = calculateOtherSpellAspect(data.playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
-        }
+            if (spell.type.includes("healing")) {
+                healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
+            }
 
-        if (spell.type.includes("restore")) {
-            restore = calculateOtherSpellAspect(data.playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
+            if (spell.type.includes("restore")) {
+                restore = calculateOtherSpellAspect(playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
+            }
         }
     }
 
@@ -196,7 +198,7 @@ export function SpellPageComponent({spell, data, copyLinkToSpell}) {
     </>
 }
 
-function copyToClipboard(spell, data) {
+function copyToClipboard(spell, data, playerConfigs) {
     const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURIComponent(spell.name) + "&data=" + encodeURIComponent(stringifiedJson));
+    navigator.clipboard.writeText(spell.name + "\n" + getHomePageUrl() + "?view=spell&name=" + encodeURIComponent(spell.name) + "&data=" + encodeURIComponent(stringifiedJson) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

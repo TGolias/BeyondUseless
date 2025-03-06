@@ -6,7 +6,7 @@ import { getHomePageUrl } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection } from "../../Collections";
 
-export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMenu, addToMenuStack = undefined}) {
+export function ItemPageComponent({item, playerConfigs, copyLinkToItem, setCenterScreenMenu, addToMenuStack = undefined}) {
     let typeString;
     let baseDamage = undefined;
     let twoHandedDamage = undefined;
@@ -62,7 +62,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
                 </>);
             }
 
-            rangeString = calculateRange(data?.playerConfigs, item.range);
+            rangeString = calculateRange(playerConfigs, item.range);
             if (item.properties.includes("Thrown")) {
                 rangeString += " (Thrown)";
             }
@@ -79,7 +79,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(item, data);
+            copyToClipboard(item, playerConfigs);
         };
     }
 
@@ -96,8 +96,8 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     let weaponDamageThrown = undefined;
     let lightWeaponDamageThrown = undefined;
 
-    if (data) {
-        const itemDescriptionAddendumString = calculateAddendumAspect(data.playerConfigs, "itemDescriptionAddendum", { item });
+    if (playerConfigs) {
+        const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "itemDescriptionAddendum", { item });
         if (itemDescriptionAddendumString) {
             itemDescriptionAddendum = parseStringForBoldMarkup(itemDescriptionAddendumString);
         }
@@ -106,23 +106,23 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
             case "Weapon":
                 // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
                 if (!(item.weaponRange == "Ranged" && item.properties.includes("Thrown"))) {
-                    const attack = calculateWeaponAttackBonus(data.playerConfigs, item, false);
+                    const attack = calculateWeaponAttackBonus(playerConfigs, item, false);
                     weaponAttack = attack.amount;
                     if (attack.addendum) {
                         weaponAttackAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
 
-                    weaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, false, false);
+                    weaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, false);
 
                     if (item.properties.includes("Light")) {
-                        lightWeaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, true, false);
+                        lightWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, true, false);
                     }
 
                     if (item.mastery === "Cleave") {
-                        const weaponMasteries = calculateAspectCollection(data.playerConfigs, "weaponmasteries");
+                        const weaponMasteries = calculateAspectCollection(playerConfigs, "weaponmasteries");
                         const hasWeaponMastery = item.tags.some(tag => weaponMasteries.includes(tag));
                         if (hasWeaponMastery) {
-                            cleaveWeaponDamage = calculateWeaponDamage(data.playerConfigs, item, false, false, true);
+                            cleaveWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, true);
                         }
                     }
                     showItemSummary = true;
@@ -130,16 +130,16 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
 
                 // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
                 if (item.properties.includes("Thrown")) {
-                    const attack = calculateWeaponAttackBonus(data.playerConfigs, item, true);
+                    const attack = calculateWeaponAttackBonus(playerConfigs, item, true);
                     weaponAttackThrown = attack.amount;
                     if (attack.addendum) {
                         weaponAttackThrownAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
 
-                    weaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, false, false);
+                    weaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, false, false);
 
                     if (item.properties.includes("Light")) {
-                        lightWeaponDamageThrown = calculateWeaponDamage(data.playerConfigs, item, true, true, false);
+                        lightWeaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, true, false);
                     }
                     showItemSummary = true;
                 }
@@ -195,7 +195,6 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
     </>
 }
 
-function copyToClipboard(item, data) {
-    const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + "&data=" + encodeURI(stringifiedJson));
+function copyToClipboard(item, playerConfigs) {
+    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

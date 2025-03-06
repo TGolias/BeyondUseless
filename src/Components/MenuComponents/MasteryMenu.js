@@ -4,12 +4,9 @@ import { RetroButton } from "../SimpleComponents/RetroButton";
 import { MasteryPageComponent } from "../PageComponents/MasteryPageComponent";
 
 export function MasteryMenu({playerConfigs, setCenterScreenMenu, menuConfig}) {
-    const data = {};
-    data.playerConfigs = playerConfigs;
-
     return (<>
         <div className="masteryMenuWrapperDiv">
-            <MasteryPageComponent mastery={menuConfig.mastery} data={data} copyLinkToItem={menuConfig.copyLinkToItem}></MasteryPageComponent>
+            <MasteryPageComponent mastery={menuConfig.mastery} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem}></MasteryPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
         <div className="masteryMenuHorizontal">

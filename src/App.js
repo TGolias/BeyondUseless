@@ -123,6 +123,18 @@ export default function App() {
       decodedData = JSON.parse(stringifiedJson);
     }
 
+    let linkedPlayer = undefined;
+    const playerName = params.get('playerName');
+    if (playerName) {
+      if (playerConfigs.name === playerName) {
+        linkedPlayer = playerConfigs;
+      } else {
+        const remoteCharacterString = localStorage.getItem("REMOTE_CHARACTERS");
+        const remoteCharacters = remoteCharacterString ? JSON.parse(remoteCharacterString) : {};
+        linkedPlayer = remoteCharacters[playerName];
+      }
+    }
+
     const lowerCaseMode = view.toLowerCase();
     switch (lowerCaseMode) {
       case "spell":
@@ -157,7 +169,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell}></SpellPageComponent>
+              <SpellPageComponent spell={spellFound} data={decodedData} copyLinkToSpell={copyLinkToSpell} playerConfigs={linkedPlayer}></SpellPageComponent>
             </div>
           </>);
         }
@@ -190,7 +202,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ItemPageComponent item={itemFound} data={decodedData} copyLinkToItem={copyLinkToItem} setCenterScreenMenu={setCenterScreenMenu}></ItemPageComponent>
+              <ItemPageComponent item={itemFound} playerConfigs={linkedPlayer} copyLinkToItem={copyLinkToItem} setCenterScreenMenu={setCenterScreenMenu}></ItemPageComponent>
             </div>
             <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
               <div className="centerMenu pixel-corners">
@@ -226,7 +238,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <PropertyPageComponent property={propertyFound} data={decodedData} copyLinkToItem={copyLinkToItem}></PropertyPageComponent>
+              <PropertyPageComponent property={propertyFound} playerConfigs={linkedPlayer} copyLinkToItem={copyLinkToItem}></PropertyPageComponent>
             </div>
           </>);
         }
@@ -257,7 +269,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <MasteryPageComponent mastery={masteryFound} data={decodedData} copyLinkToItem={copyLinkToItem}></MasteryPageComponent>
+              <MasteryPageComponent mastery={masteryFound} playerConfigs={linkedPlayer} copyLinkToItem={copyLinkToItem}></MasteryPageComponent>
             </div>
           </>);
         }
@@ -288,7 +300,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem} data={decodedData}></ActionPageComponent>
+              <ActionPageComponent action={actionFound} copyLinkToItem={copyLinkToItem} data={decodedData} playerConfigs={linkedPlayer}></ActionPageComponent>
             </div>
           </>);
         }
@@ -319,7 +331,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <UnarmedStrikePageComponent unarmedStrike={unarmedStrikeFound} copyLinkToItem={copyLinkToItem} data={decodedData}></UnarmedStrikePageComponent>
+              <UnarmedStrikePageComponent unarmedStrike={unarmedStrikeFound} copyLinkToItem={copyLinkToItem} playerConfigs={linkedPlayer}></UnarmedStrikePageComponent>
             </div>
           </>);
         }
@@ -388,7 +400,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <FeatureActionPageComponent featureAction={featureAction} feature={feature} origin={origin} data={decodedData} copyLinkToItem={copyLinkToItem}></FeatureActionPageComponent>
+              <FeatureActionPageComponent featureAction={featureAction} feature={feature} origin={origin} data={decodedData} playerConfigs={linkedPlayer} copyLinkToItem={copyLinkToItem}></FeatureActionPageComponent>
             </div>
           </>);
         } else {
@@ -436,7 +448,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ConditionPageComponent condition={conditionFound} copyLinkToItem={copyLinkToItem} data={decodedData}></ConditionPageComponent>
+              <ConditionPageComponent condition={conditionFound} copyLinkToItem={copyLinkToItem} playerConfigs={linkedPlayer}></ConditionPageComponent>
             </div>
           </>);
         }

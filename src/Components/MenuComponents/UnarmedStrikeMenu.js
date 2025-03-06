@@ -4,12 +4,9 @@ import { RetroButton } from "../SimpleComponents/RetroButton";
 import { UnarmedStrikePageComponent } from "../PageComponents/UnarmedStrikePageComponent";
 
 export function UnarmedStrikeMenu({playerConfigs, setCenterScreenMenu, menuConfig}) {
-    const data = {};
-    data.playerConfigs = playerConfigs;
-
     return (<>
         <div className="unarmedAttackMenuWrapperDiv">
-            <UnarmedStrikePageComponent unarmedStrike={menuConfig.unarmedStrike} data={data} copyLinkToItem={menuConfig.copyLinkToItem}></UnarmedStrikePageComponent>
+            <UnarmedStrikePageComponent unarmedStrike={menuConfig.unarmedStrike} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem}></UnarmedStrikePageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
         <div className="unarmedAttackMenuHorizontal">

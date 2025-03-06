@@ -5,7 +5,7 @@ import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, getHomePa
 import { calculateOtherFeatureActionAspect, calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
-export function ActionPageComponent({action, copyLinkToItem, data}) {
+export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs}) {
     let description = parseStringForBoldMarkup(action.description);
 
     let conditionsDescription = "";
@@ -28,7 +28,7 @@ export function ActionPageComponent({action, copyLinkToItem, data}) {
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(action, data);
+            copyToClipboard(action, data, playerConfigs);
         };
     }
 
@@ -36,20 +36,20 @@ export function ActionPageComponent({action, copyLinkToItem, data}) {
     let buffAmount = undefined;
     let buffDescription = undefined;
     let skillsDescription = "";
-    if (data && data.playerConfigs) {
+    if (data && playerConfigs) {
         if (action.showSkills) {
             for (let skillName of action.showSkills) {
                 if (skillsDescription.length > 0) {
                     skillsDescription += "\n\n";
                 }
-                const skillValue = calculateSkillProficiency(data.playerConfigs, skillName);
+                const skillValue = calculateSkillProficiency(playerConfigs, skillName);
                 skillsDescription += "<b>" + skillName + ":</b> " + (addLeadingPlusIfNumericAndPositive(skillValue));
             }
         }
 
         if (action.type.includes("buff")) {
             if (action.buff.calculation) {
-                buffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, action, "buff", "buffBonus", { userInput: data.userInput });
+                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, action, "buff", "buffBonus", { userInput: data.userInput });
             }
             buffDescription = action.buff.description;
             showActionSummary = true;
@@ -74,7 +74,7 @@ export function ActionPageComponent({action, copyLinkToItem, data}) {
     </>
 }
 
-function copyToClipboard(action, data) {
+function copyToClipboard(action, data, playerConfigs) {
     const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(action.name + "\n" + getHomePageUrl() + "?view=action&name=" + encodeURI(action.name) + "&data=" + encodeURIComponent(stringifiedJson));
+    navigator.clipboard.writeText(action.name + "\n" + getHomePageUrl() + "?view=action&name=" + encodeURI(action.name) + "&data=" + encodeURIComponent(stringifiedJson) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

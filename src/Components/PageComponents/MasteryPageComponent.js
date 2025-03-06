@@ -3,12 +3,12 @@ import './MasteryPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
 
-export function MasteryPageComponent({mastery, data, copyLinkToItem}) {
+export function MasteryPageComponent({mastery, playerConfigs, copyLinkToItem}) {
     let description = parseStringForBoldMarkup(mastery.description);
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(mastery, data);
+            copyToClipboard(mastery, playerConfigs);
         };
     }
 
@@ -19,7 +19,6 @@ export function MasteryPageComponent({mastery, data, copyLinkToItem}) {
     </>
 }
 
-function copyToClipboard(mastery, data) {
-    const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(mastery.name + "\n" + getHomePageUrl() + "?view=mastery&name=" + encodeURI(mastery.name) + "&data=" + encodeURI(stringifiedJson));
+function copyToClipboard(mastery, playerConfigs) {
+    navigator.clipboard.writeText(mastery.name + "\n" + getHomePageUrl() + "?view=mastery&name=" + encodeURI(mastery.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

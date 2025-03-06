@@ -1,11 +1,11 @@
 import React from "react";
 import './UnarmedStrikePageComponent.css';
 import { calculateAddendumAspect, calculateRange, calculateSavingThrowTypes, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage } from "../../SharedFunctions/TabletopMathFunctions";
-import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
+import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { getCollection } from "../../Collections";
 
-export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}) {
+export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLinkToItem}) {
     let actionTime = "";
     if (Array.isArray(unarmedStrike.actionTime)) {
         for (let singleActionTime of unarmedStrike.actionTime) {
@@ -17,12 +17,12 @@ export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}
     } else {
         actionTime = unarmedStrike.castingTime;
     }
-    const range = calculateRange(data?.playerConfigs, unarmedStrike.range);
+    const range = calculateRange(playerConfigs, unarmedStrike.range);
     let description = parseStringForBoldMarkup(unarmedStrike.description);
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(unarmedStrike, data);
+            copyToClipboard(unarmedStrike, playerConfigs);
         };
     }
 
@@ -36,8 +36,8 @@ export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}
     let unarmedDamage = undefined;
     let debuffDescription = undefined;
 
-    if (data) {
-        const itemDescriptionAddendumString = calculateAddendumAspect(data.playerConfigs, "unarmedAttackDescriptionAddendum", { unarmedStrike });
+    if (playerConfigs) {
+        const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "unarmedAttackDescriptionAddendum", { unarmedStrike });
         if (itemDescriptionAddendumString) {
             itemDescriptionAddendum = parseStringForBoldMarkup(itemDescriptionAddendumString);
         }
@@ -45,13 +45,13 @@ export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}
         if (unarmedStrike.challengeType === "savingThrow") {
             savingThrowType = calculateSavingThrowTypes(unarmedStrike.savingThrowType);
 
-            const savingThrowCalc = calculateUnarmedAttackDC(data.playerConfigs);
+            const savingThrowCalc = calculateUnarmedAttackDC(playerConfigs);
             savingThrowDc = savingThrowCalc.dc;
             if (savingThrowCalc.addendum) {
                 savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
             }
         } else {
-            const attack = calculateUnarmedAttackBonus(data.playerConfigs);
+            const attack = calculateUnarmedAttackBonus(playerConfigs);
             unarmedAttackBonus = attack.amount;
             if (attack.addendum) {
                 unarmedAttackAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -59,7 +59,7 @@ export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}
         }
 
         if (unarmedStrike.type.includes("damage")) {
-            unarmedDamage = calculateUnarmedDamage(data.playerConfigs);
+            unarmedDamage = calculateUnarmedDamage(playerConfigs);
             unarmedDamage += " Bludgeoning";
         }
 
@@ -88,8 +88,8 @@ export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}
             <div><b>Range:</b> {range}</div>
             <div className="unarmedAttackPageDescription">{description}</div>
             <div style={{display: (itemDescriptionAddendum ? "block" : "none")}} className="unarmedAttackPageDescription">{itemDescriptionAddendum}</div>
-            <br style={{display: (data ? "block" : "none")}}></br>
-            <div className="unarmedAttackPageDescription" style={{display: (data ? "block" : "none")}}>
+            <br style={{display: (playerConfigs ? "block" : "none")}}></br>
+            <div className="unarmedAttackPageDescription" style={{display: (playerConfigs ? "block" : "none")}}>
                 <div><b>Item Summary</b></div>
             </div>
             <div className="unarmedAttackPageDescription" style={{display: (unarmedAttackBonus ? "block" : "none")}}>
@@ -114,7 +114,6 @@ export function UnarmedStrikePageComponent({unarmedStrike, data, copyLinkToItem}
     </>
 }
 
-function copyToClipboard(unarmedStrike, data) {
-    const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(unarmedStrike.name + "\n" + getHomePageUrl() + "?view=unarmedstrike&name=" + encodeURI(unarmedStrike.name) + "&data=" + encodeURI(stringifiedJson));
+function copyToClipboard(unarmedStrike, playerConfigs) {
+    navigator.clipboard.writeText(unarmedStrike.name + "\n" + getHomePageUrl() + "?view=unarmedstrike&name=" + encodeURI(unarmedStrike.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

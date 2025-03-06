@@ -6,7 +6,7 @@ import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateRa
 import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
-export function FeatureActionPageComponent({featureAction, feature, origin, data, copyLinkToItem}) {
+export function FeatureActionPageComponent({featureAction, feature, origin, data, playerConfigs, copyLinkToItem}) {
     let actionTime = "";
     if (Array.isArray(featureAction.actionTime)) {
         for (let singleActionTime of featureAction.actionTime) {
@@ -18,12 +18,12 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     } else {
         actionTime = featureAction.castingTime;
     }
-    const range = calculateRange(data?.playerConfigs, featureAction.range);
+    const range = calculateRange(playerConfigs, featureAction.range);
     let description = parseStringForBoldMarkup(featureAction.description);
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(featureAction, feature, origin, data);
+            copyToClipboard(featureAction, feature, origin, data, playerConfigs);
         };
     }
 
@@ -40,8 +40,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let buffDescription = undefined;
     let debuffAmount = undefined;
     let debuffDescription = undefined;
-    if (data) {
-        const featureActionDescriptionAddendumString = calculateAddendumAspect(data.playerConfigs, "featureActionDescriptionAddendum", { featureAction });
+    if (data && playerConfigs) {
+        const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", { featureAction });
         if (featureActionDescriptionAddendumString) {
             featureActionDescriptionAddendum = parseStringForBoldMarkup(featureActionDescriptionAddendumString);
         }
@@ -51,7 +51,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         featureAction.feature = allPossibleFeatures.find(feature => feature.spellcasting);
 
         if (featureAction.challengeType === "attackRoll") {
-            const attack = calculateSpellAttack(data.playerConfigs, featureAction, undefined)
+            const attack = calculateSpellAttack(playerConfigs, featureAction, undefined)
             attackRoll = attack.amount;
             if (attack.addendum) {
                 attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -61,7 +61,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         if (featureAction.challengeType === "savingThrow") {
             savingThrowType = featureAction.savingThrowType;
 
-            const savingThrowCalc = calculateSpellSaveDC(data.playerConfigs, featureAction, undefined);
+            const savingThrowCalc = calculateSpellSaveDC(playerConfigs, featureAction, undefined);
             savingThrowDc = savingThrowCalc.dc;
             if (savingThrowCalc.addendum) {
                 savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
@@ -69,19 +69,19 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("damage")) {
-            damage = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "damage", "spellDamageBonus", { userInput: data.userInput });
+            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", { userInput: data.userInput });
         }
 
         if (featureAction.type.includes("buff")) {
             if (featureAction.buff.calculation) {
-                buffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "buff", "buffBonus", { userInput: data.userInput });
+                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "buff", "buffBonus", { userInput: data.userInput });
             }
             buffDescription = featureAction.buff.description;
         }
 
         if (featureAction.type.includes("debuff")) {
             if (featureAction.debuff.calculation) {
-                debuffAmount = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "debuff", "debuffBonus", { userInput: data.userInput });
+                debuffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "debuff", "debuffBonus", { userInput: data.userInput });
             }
             debuffDescription = featureAction.debuff.description;
             if (featureAction.debuff.conditions) {
@@ -101,11 +101,11 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("healing")) {
-            healing = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "healing", "healingBonus", { userInput: data.userInput });
+            healing = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "healing", "healingBonus", { userInput: data.userInput });
         }
 
         if (featureAction.type.includes("restore")) {
-            restore = calculateOtherFeatureActionAspect(data.playerConfigs, featureAction, "restore", "restoreBonus", { userInput: data.userInput });
+            restore = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "restore", "restoreBonus", { userInput: data.userInput });
         }
     }
 
@@ -154,7 +154,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     </>
 }
 
-function copyToClipboard(featureAction, feature, origin, data) {
+function copyToClipboard(featureAction, feature, origin, data, playerConfigs) {
     const stringifiedJson = JSON.stringify(data);
-    navigator.clipboard.writeText(featureAction.name + "\n" + getHomePageUrl() + "?view=featureaction&name=" + encodeURI(featureAction.name) + "&featurename=" + encodeURI(feature.name) + "&origintype=" + encodeURI(origin.type) + "&originname=" + encodeURI(origin.value.name) + "&data=" + encodeURIComponent(stringifiedJson));
+    navigator.clipboard.writeText(featureAction.name + "\n" + getHomePageUrl() + "?view=featureaction&name=" + encodeURI(featureAction.name) + "&featurename=" + encodeURI(feature.name) + "&origintype=" + encodeURI(origin.type) + "&originname=" + encodeURI(origin.value.name) + "&data=" + encodeURIComponent(stringifiedJson) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
 }

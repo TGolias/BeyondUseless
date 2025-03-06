@@ -18,7 +18,6 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
     }
     
     const data = {};
-    data.playerConfigs = playerConfigs;
     data.userInput = menuConfig.userInput;
 
     const resourceDisplay = [];
@@ -47,7 +46,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
 
     return (<>
         <div className="featureActionMenuWrapperDiv">
-            <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={data} copyLinkToItem={menuConfig.copyLinkToItem}></FeatureActionPageComponent>
+            <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={data} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem}></FeatureActionPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
