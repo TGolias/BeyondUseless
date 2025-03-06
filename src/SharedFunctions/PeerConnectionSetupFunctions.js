@@ -38,14 +38,14 @@ export async function createConnectionOffer(peerConnection) {
                 }
                 resolve();
             } else {
-                // After we get at least one cantidate, give it 5 seconds for another candidate to trickle in before we give up.
+                // After we get at least one cantidate, give it 2 seconds for another candidate to trickle in before we give up.
                 if (timeout) {
                     clearTimeout(timeout);
                 }
                 timeout = setTimeout(() => {
                     peerConnection.removeEventListener("icecandidate", iceListener);
                     resolve();
-                }, 5000);
+                }, 2000);
             }
         });
     });
