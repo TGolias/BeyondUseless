@@ -3,6 +3,7 @@ import './LinkRecieveMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { acceptConnectionOfferAndGiveAnswer, AddCurrentOfferWhenDataChannelOpened, createPeerConnection, getDataChannelFromConnection } from "../../SharedFunctions/PeerConnectionSetupFunctions";
+import { decodeForCopying, encodeForCopying } from "../../SharedFunctions/Utils";
 
 var peerConnection = undefined;
 
@@ -44,7 +45,7 @@ export function LinkRecieveMenu({sessionId, playerConfigs, setCenterScreenMenu, 
                 if (newValue) {
                     let offer = undefined
                     try {
-                        offer = JSON.parse(atob(newValue));
+                        offer = JSON.parse(decodeForCopying(newValue));
                     } catch {
                         menuStateChangeHandler(menuConfig, "isInvalidCode", true);
                     }
@@ -75,7 +76,7 @@ export function LinkRecieveMenu({sessionId, playerConfigs, setCenterScreenMenu, 
                 <div>Send response code back to player you are Linking with:</div>
                 <br></br>
                 <RetroButton text={"Copy Code"} onClickHandler={() => {
-                    navigator.clipboard.writeText(btoa(JSON.stringify(menuConfig.answerCode)));
+                    navigator.clipboard.writeText(encodeForCopying(JSON.stringify(menuConfig.answerCode)));
                 }} showTriangle={false} disabled={false}></RetroButton>
             </>);
         }

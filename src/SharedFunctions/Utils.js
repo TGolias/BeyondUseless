@@ -1,3 +1,5 @@
+import { encode, decode } from 'base32768'
+
 export function convertArrayOfStringsToHashMap(arrayOfStrings) {
     const hashMap = {};
     for (let i = 0; i < arrayOfStrings.length; i++) {
@@ -100,6 +102,20 @@ export function concatStringArrayToAndStringWithCommas(arrayOfStrings) {
 
 export function concatStringArrayToOrStringWithCommas(arrayOfStrings) {
     return concatStringArrayToSomeStringWithCommas(arrayOfStrings, "or");
+}
+
+export function encodeForCopying(stringToEncode) {
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(stringToEncode);
+    const encodedString = encode(uint8Array);
+    return encodedString;
+}
+
+export function decodeForCopying(stringToDecode) {
+    const uint8Array = decode(stringToDecode);
+    const decoder = new TextDecoder();
+    const decodedString = decoder.decode(uint8Array);
+    return decodedString;
 }
 
 function concatStringArrayToSomeStringWithCommas(arrayOfStrings, stringBeforeLast) {

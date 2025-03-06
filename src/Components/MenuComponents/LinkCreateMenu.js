@@ -3,6 +3,7 @@ import './LinkCreateMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { AddCurrentOfferWhenDataChannelOpened, completeConnectionOfferWithAnswer, createConnectionOffer, createDataChannel, createPeerConnection } from "../../SharedFunctions/PeerConnectionSetupFunctions";
+import { decodeForCopying, encodeForCopying } from "../../SharedFunctions/Utils";
 
 var peerConnection = undefined;
 
@@ -47,7 +48,7 @@ export function LinkCreateMenu({sessionId, playerConfigs, setCenterScreenMenu, m
             linkRows.push(<>
                 <br></br>
                 <RetroButton text={"Copy Code"} onClickHandler={() => {
-                    navigator.clipboard.writeText(btoa(JSON.stringify(menuConfig.offerCode)));
+                    navigator.clipboard.writeText(encodeForCopying(JSON.stringify(menuConfig.offerCode)));
                     menuStateChangeHandler(menuConfig, "isOfferCodeCopied", true);
                 }} showTriangle={false} disabled={false}></RetroButton>
             </>);
@@ -61,7 +62,7 @@ export function LinkCreateMenu({sessionId, playerConfigs, setCenterScreenMenu, m
                     if (newValue) {
                         let answer = undefined
                         try {
-                            answer = JSON.parse(atob(newValue));
+                            answer = JSON.parse(decodeForCopying(newValue));
                         } catch {
                             menuStateChangeHandler(menuConfig, "isInvalidResponseCode", true);
                         }
