@@ -16,9 +16,9 @@ export function LinkCreateMenu({sessionId, playerConfigs, setCenterScreenMenu, m
 
         peerConnection = createPeerConnection();
         const dataChannel = createDataChannel(peerConnection);
-        AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, true).then(result => {
+        AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, true, menuConfig.mirror).then(result => {
             if (result) {
-                menuStateChangeHandler(menuConfig, "connectionSuccessful", true);
+                menuStateChangeHandler(menuConfig, "connectionFinished", result.message);
             }
         });
 
@@ -32,52 +32,46 @@ export function LinkCreateMenu({sessionId, playerConfigs, setCenterScreenMenu, m
 
     const linkRows = [];
 
-    if (menuConfig.connectionSuccessful) {
-        // The connection has been added to our collection, no need to maintain it here anymore.
+    if (menuConfig.connectionFinished) {
+        // The connection has been added to our collection (or failed), no need to maintain it here anymore.
         peerConnection = undefined;
 
         linkRows.push(<>
-            <div>Connection Successful!</div>
+            <div>{menuConfig.connectionFinished}</div>
         </>);
     } else {
         linkRows.push(<>
-            <div>Send Link to the player you would like to Link with:</div>
+            <div>Send <b>link code</b> to the player you would like to Link with:</div>
         </>);
     
         if (menuConfig.offerCode) {
             linkRows.push(<>
                 <br></br>
-                <RetroButton text={"Copy Code"} onClickHandler={() => {
+                <RetroButton text={"Copy Link Code"} onClickHandler={() => {
                     navigator.clipboard.writeText(encodeForCopying(JSON.stringify(menuConfig.offerCode)));
                     menuStateChangeHandler(menuConfig, "isOfferCodeCopied", true);
                 }} showTriangle={false} disabled={false}></RetroButton>
+            </>);
+        } else {
+            linkRows.push(<>
+                <br></br>
+                <div>Generating code...</div>
             </>);
         }
         
         if (menuConfig.isOfferCodeCopied) {
             linkRows.push(<>
                 <br></br>
-                <div>Paste response code here:</div>
+                <div>Paste <b>response code</b> here or have it read from your clipboard:</div>
                 <TextInput isNumberValue={false} baseStateObject={{}} pathToProperty={""} inputHandler={(baseStateObject, pathToProperty, newValue) => {
-                    if (newValue) {
-                        let answer = undefined
-                        try {
-                            answer = JSON.parse(decodeForCopying(newValue));
-                        } catch {
-                            menuStateChangeHandler(menuConfig, "isInvalidResponseCode", true);
-                        }
-                        if (answer) {
-                            completeConnectionOfferWithAnswer(peerConnection, answer).then(success => {
-                                menuStateChangeHandler(menuConfig, "isInvalidResponseCode", false);
-                            }, failure => {
-                                menuStateChangeHandler(menuConfig, "isInvalidResponseCode", true);
-                            });
-                            menuStateChangeHandler(menuConfig, "isInvalidResponseCode", false);
-                        }
-                    } else {
-                        menuStateChangeHandler(menuConfig, "isInvalidResponseCode", false);
-                    }
+                    processResponseCode(newValue, menuConfig, menuStateChangeHandler);
                 }}></TextInput>
+                <RetroButton text={"Read From Clipboard"} onClickHandler={() => {
+                    navigator.clipboard.readText().then(text => {
+                        processResponseCode(text, menuConfig, menuStateChangeHandler);
+                        menuStateChangeHandler(menuConfig, "linkCodeInput", text);
+                    });
+                }} showTriangle={false} disabled={false}></RetroButton>
             </>);
         }
     
@@ -96,4 +90,25 @@ export function LinkCreateMenu({sessionId, playerConfigs, setCenterScreenMenu, m
             <RetroButton text={"Close"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
+}
+
+function processResponseCode(newValue, menuConfig, menuStateChangeHandler) {
+    if (newValue) {
+        let answer = undefined
+        try {
+            answer = JSON.parse(decodeForCopying(newValue));
+        } catch {
+            menuStateChangeHandler(menuConfig, "isInvalidResponseCode", true);
+        }
+        if (answer) {
+            completeConnectionOfferWithAnswer(peerConnection, answer).then(success => {
+                menuStateChangeHandler(menuConfig, "isInvalidResponseCode", false);
+            }, failure => {
+                menuStateChangeHandler(menuConfig, "isInvalidResponseCode", true);
+            });
+            menuStateChangeHandler(menuConfig, "isInvalidResponseCode", false);
+        }
+    } else {
+        menuStateChangeHandler(menuConfig, "isInvalidResponseCode", false);
+    }
 }

@@ -25,6 +25,7 @@ import { LinkCableMenu } from "./LinkCableMenu";
 import { LinkRecieveMenu } from "./LinkRecieveMenu";
 import { LinkCreateMenu } from "./LinkCreateMenu";
 import { LinkedChars } from "./LinkedChars";
+import { LinkedChar } from "./LinkedChar";
 
 const menuCollection = {
     HealthMenu: {
@@ -425,13 +426,19 @@ const menuCollection = {
     },
     LinkCreateMenu: {
         createMenuTitle: (playerConfigs, data, menuConfig) => {
-            const titleName = "Create Link";
+            let titleName;
+            if (data.mirror) {
+                titleName = "Recieve Mirror Link";
+            } else {
+                titleName = "Create Peer Link";
+            }
             return (<>
                 <div className="menuTitleBarTitle">{titleName}</div>
             </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
+            newItemMenu.mirror = data.mirror;
             return newItemMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
@@ -440,13 +447,19 @@ const menuCollection = {
     },
     LinkRecieveMenu: {
         createMenuTitle: (playerConfigs, data, menuConfig) => {
-            const titleName = "Recieve Link";
+            let titleName;
+            if (data.mirror) {
+                titleName = "Host Mirror Link";
+            } else {
+                titleName = "Recieve Peer Link";
+            }
             return (<>
                 <div className="menuTitleBarTitle">{titleName}</div>
             </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
+            newItemMenu.mirror = data.mirror;
             return newItemMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
@@ -466,6 +479,22 @@ const menuCollection = {
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><LinkedChars setCenterScreenMenu={setCenterScreenMenu}></LinkedChars></>);
+        }
+    },
+    LinkedChar: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{menuConfig.characterName}</div>
+            </>);
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.characterName = data.characterName;
+            newItemMenu.newActiveEffects = playerConfigs.currentStatus?.activeEffects ?? [];
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><LinkedChar playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></LinkedChar></>);
         }
     }
 }

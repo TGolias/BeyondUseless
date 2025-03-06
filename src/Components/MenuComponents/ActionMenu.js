@@ -3,7 +3,7 @@ import './ActionMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
-import { tryAddActiveEffect } from "../../SharedFunctions/ActiveEffectsFunctions";
+import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 
 export function ActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -43,7 +43,7 @@ export function ActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
 
 function useActionClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
     if (menuConfig.action.duration !== "Instantaneous") {
-        tryAddActiveEffect(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+        tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
             inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
             setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
         });

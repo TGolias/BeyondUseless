@@ -20,7 +20,7 @@ import { FeatureActionPageComponent } from "./Components/PageComponents/FeatureA
 import { ConditionPageComponent } from "./Components/PageComponents/ConditionPageComponent";
 import { GetAllPossibleFeaturesFromObject } from "./SharedFunctions/FeatureFunctions";
 import { UnarmedStrikePageComponent } from "./Components/PageComponents/UnarmedStrikePageComponent";
-import { SendMessageToAllActiveConnections, SetLoadCharacter, SetMyPlayerConfigs, SetMySessionId } from "./SharedFunctions/LinkedPlayerFunctions";
+import { SendMessageToAllActiveConnections, SetLoadCharacter, SetMyPlayerConfigs, SetMySessionId, SetForceUpdate, SetStateChangeHandler } from "./SharedFunctions/LinkedPlayerFunctions";
 import { updatedPlayerConfigsMessage } from "./SharedFunctions/LinkedPlayerMessageFunctions";
 
 const timeoutBeforeAddedToHistory = 5000;
@@ -519,8 +519,6 @@ export default function App() {
     localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
   }
 
-  SetLoadCharacter(loadCharacter);
-
   function loadCharacterWithoutSettingToLocalStorage(newPlayerConfigs) {
     // Before we load, we want to make sure there aren't any pending changes waiting to be added to history, that would be tragic.
     if (addChangesToHistoryTimeout) {
@@ -632,6 +630,10 @@ export default function App() {
       setAddChangesToHistoryTimeout({ pathToProperty: pathToProperty, newState: newBaseStateObject, timeout: addToHistoryTimeout });
     }
   }
+
+  SetLoadCharacter(loadCharacter);
+  SetStateChangeHandler(stateChangeHandler);
+  SetForceUpdate(forceUpdate);
 
   function addChangesToHistory(newBaseStateObject) {
     // Now time to update our history for undo / redo.

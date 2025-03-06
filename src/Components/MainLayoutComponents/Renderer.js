@@ -52,7 +52,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
                 </div>
                 <div style={{display: (activeEffects.length > 0 ? "block" : "none")}}>
-                    <ActiveEffectsDisplay playerConfigs={playerConfigs} activeEffects={activeEffects} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></ActiveEffectsDisplay>
+                    <ActiveEffectsDisplay playerConfigs={playerConfigs} activeEffects={activeEffects} setCenterScreenMenu={setCenterScreenMenu} generateButtonText={(i) => "X"} onButtonClick={(i) => removeActiveEffect(playerConfigs, activeEffects, i, inputChangeHandler)}></ActiveEffectsDisplay>
                 </div>
                 <div className="encounterStats">
                     <BasicStatDisplay statValue={addLeadingPlusIfNumericAndPositive(initiativeBonus)} onClick={() => {
@@ -130,4 +130,10 @@ function onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRem
     if (newConditions) {
         inputChangeHandler(playerConfigs, "currentStatus.conditions", newConditions);
     }
+}
+
+function removeActiveEffect(playerConfigs, activeEffects, i, inputChangeHandler) {
+    const newActiveEffects = [...activeEffects];
+    newActiveEffects.splice(i, 1);
+    inputChangeHandler(playerConfigs, "currentStatus.activeEffects", newActiveEffects);
 }

@@ -80,27 +80,40 @@ export async function acceptConnectionOfferAndGiveAnswer(peerConnection, offer) 
     return peerConnection.localDescription;
 }
 
-export function AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, creator) {
+export function AddCurrentOfferWhenDataChannelOpened(sessionId, playerConfigs, peerConnection, dataChannel, creator, isMirror) {
     return new Promise(resolve => {
         const openListener = dataChannel.addEventListener('open', () => {
             // Send them our establish message now that we're connected! They should be doing the same for us.
-            dataChannel.send(JSON.stringify(establishIdentityPlayerMessage(sessionId, playerConfigs)));
+            dataChannel.send(JSON.stringify(establishIdentityPlayerMessage(sessionId, playerConfigs, isMirror)));
     
             dataChannel.removeEventListener('open', openListener);
         });
         const messageListener = dataChannel.addEventListener('message', (event) => {
             const peerMessage = JSON.parse(event.data);
             if (peerMessage.type === "establish") {
-                AddLinkedPlayer(peerMessage.sessionId, peerMessage.playerConfigs, peerConnection, dataChannel, creator);
-                dataChannel.removeEventListener('message', messageListener);
-                resolve(true);
+                if (peerMessage.isMirror === isMirror) {
+                    AddLinkedPlayer(peerMessage.sessionId, peerMessage.playerConfigs, peerConnection, dataChannel, creator, isMirror);
+                    dataChannel.removeEventListener('message', messageListener);
+                    peerConnection.removeEventListener('close', closeListener);
+                    resolve({ success: true, message: "Connection Successful!" });
+                }
+                else {
+                    dataChannel.removeEventListener('message', messageListener);
+                    peerConnection.removeEventListener('close', closeListener);
+                    peerConnection.close();
+                    if (isMirror) {
+                        resolve({ success: false, message: "Connection failed: User was attempting to establish a Mirror connection and peer was attempting to establish a Peer link." });
+                    } else {
+                        resolve({ success: false, message: "Connection failed: User was attempting to establish a Peer link and peer was attempting to establish a Mirror." });
+                    }
+                }
             }
         });
         const closeListener = peerConnection.addEventListener('close', () => {
             dataChannel.removeEventListener('open', openListener);
             dataChannel.removeEventListener('message', messageListener);
             peerConnection.removeEventListener('close', closeListener);
-            resolve(false);
+            resolve({ success: false, message: "Connection failed: Peer connection closed before link could be established." });
         });
     });
 }

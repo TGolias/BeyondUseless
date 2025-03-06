@@ -25,7 +25,7 @@ export function LinkCableMenu({playerConfigs, setCenterScreenMenu, menuConfig, a
             const activeConnection = activeConnections[activeConnectionKey];
             activeConnectionTableRows.push(<>
                 <div>{activeConnectionKey}</div>
-                <div>{activeConnection.remotePlayerConfigs.name}</div>
+                <div>{activeConnection.isMirror ? "" : activeConnection.remotePlayerConfigs.name}<b>{activeConnection.isMirror ? "Mirror" : ""}</b></div>
                 <RetroButton text={"X"} onClickHandler={() => {
                     activeConnection.peerConnection.close();
                 }} showTriangle={false} disabled={false}></RetroButton>
@@ -57,24 +57,62 @@ export function LinkCableMenu({playerConfigs, setCenterScreenMenu, menuConfig, a
 }
 
 function linkSetupClicked(setCenterScreenMenu, addToMenuStack, menuConfig) {
-    addToMenuStack({ menuType: "LinkCableMenu", menuConfig });
     setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
-        menuTitle: "Link Setup", 
-        menuText: "Create or Recieve Link?", 
+        menuTitle: "Link Type", 
+        menuText: "Create Peer Link or Mirror?\n\n<b>Peer Link.</b> Link to a different character. Displays basic information about linked characters such as HP and conditions, and allows for active effects to be shared.\n\n<b>Mirror.</b> Allows for a single character to stay synced across multiple devices.", 
         buttons: [
         {
-            text: "Create",
+            text: "Peer Link",
             onClick: () => {
-                setCenterScreenMenu({ show: true, menuType: "LinkCreateMenu", data: {} });
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                    menuTitle: "Peer Link Setup", 
+                    menuText: "Create or Recieve Link?", 
+                    buttons: [
+                    {
+                        text: "Create",
+                        onClick: () => {
+                            addToMenuStack({ menuType: "LinkCableMenu", menuConfig });
+                            setCenterScreenMenu({ show: true, menuType: "LinkCreateMenu", data: {} });
+                        }
+                    },
+                    {
+                        text: "Recieve",
+                        onClick: () => {
+                            addToMenuStack({ menuType: "LinkCableMenu", menuConfig });
+                            setCenterScreenMenu({ show: true, menuType: "LinkRecieveMenu", data: {} });
+                        }
+                    }
+                ] } });
             }
         },
         {
-            text: "Recieve",
+            text: "Mirror",
             onClick: () => {
-                setCenterScreenMenu({ show: true, menuType: "LinkRecieveMenu", data: {} });
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                    menuTitle: "Mirror Setup", 
+                    menuText: "Host or Recieve Mirrored Character?", 
+                    buttons: [
+                    {
+                        text: "Host",
+                        onClick: () => {
+                            addToMenuStack({ menuType: "LinkCableMenu", menuConfig });
+                            setCenterScreenMenu({ show: true, menuType: "LinkRecieveMenu", data: { mirror: true } });
+                        }
+                    },
+                    {
+                        text: "Recieve",
+                        onClick: () => {
+                            addToMenuStack({ menuType: "LinkCableMenu", menuConfig });
+                            setCenterScreenMenu({ show: true, menuType: "LinkCreateMenu", data: { mirror: true } });
+                        }
+                    }
+                ] } });
             }
         }
     ] } });
+    
 }
 
 function linkedCharsClicked(setCenterScreenMenu, addToMenuStack, menuConfig) {

@@ -8,7 +8,7 @@ import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 import { getCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
-import { tryAddActiveEffect } from "../../SharedFunctions/ActiveEffectsFunctions";
+import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 
 export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -160,7 +160,7 @@ export function SpellMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuS
 }
 
 function castSpellClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
-    tryAddActiveEffect(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+    tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
         inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });

@@ -1556,26 +1556,19 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         }
 
         if (playerConfigs?.currentStatus?.activeEffects) {
-            const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-            const playerSpells = getAllSpells(spellCastingFeatures);
-            const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
-
-            const actionFeatures = getAllActionFeatures(playerConfigs);
-
-            const actions = getCollection("actions");
-            const actionName2Action = convertArrayToDictionary(actions, "name");
-
+            const collections = {};
             for (let activeEffect of playerConfigs?.currentStatus?.activeEffects) {
                 if (activeEffect.onSelf) {
+                    const collection = getOrAddCachedActiveEffectCollection(playerConfigs, collections, activeEffect.fromRemoteCharacter);
                     switch (activeEffect.type) {
                         case "spell":
-                            const spell = spellName2Spell[activeEffect.name];
+                            const spell = collection.spellName2Spell[activeEffect.name];
                             if (spell && spell.aspects && spell.aspects[aspectName]) {
                                 onAspectFound(spell.aspects[aspectName], "spell", activeEffect);
                             }
                             break;
                         case "featureaction":
-                            const actionFeature = actionFeatures.find(feature => feature.feature.actions.some(action => action.name === activeEffect.name));
+                            const actionFeature = collection.actionFeatures.find(feature => feature.feature.actions.some(action => action.name === activeEffect.name));
                             if (actionFeature) {
                                 const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
                                 if (featureAction && featureAction.aspects && featureAction.aspects[aspectName]) {
@@ -1584,7 +1577,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                             }
                             break;
                         case "action":
-                            const action = actionName2Action[activeEffect.name];
+                            const action = collection.actionName2Action[activeEffect.name];
                             if (action && action.aspects && action.aspects[aspectName]) {
                                 onAspectFound(action.aspects[aspectName], "action", activeEffect);
                             }
@@ -1593,6 +1586,42 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                 }
             }
         }
+    }
+}
+
+function getOrAddCachedActiveEffectCollection(playerConfigs, collections, fromRemoteCharacter) {
+    const characterName = fromRemoteCharacter ?? playerConfigs.name;
+
+    if (collections[characterName]) {
+        return collections[characterName];
+    }
+
+    let playerConfigsToSearchFor = undefined;
+    if (characterName === playerConfigs.name) {
+        playerConfigsToSearchFor = playerConfigs;
+    } else {
+        const remoteCharactersString = localStorage.getItem("REMOTE_CHARACTERS");
+        const remoteCharacters = remoteCharactersString ? JSON.parse(remoteCharactersString) : {};
+        playerConfigsToSearchFor = remoteCharacters[characterName];
+    }
+
+    if (playerConfigsToSearchFor) {
+        const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigsToSearchFor);
+        const playerSpells = getAllSpells(spellCastingFeatures);
+        const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
+
+        const actionFeatures = getAllActionFeatures(playerConfigsToSearchFor);
+
+        const actions = getCollection("actions");
+        const actionName2Action = convertArrayToDictionary(actions, "name");
+
+        const collection = { spellName2Spell, actionFeatures, actionName2Action };
+        collections[characterName] = collection;
+        return collection;
+    } else {
+        const collection = { spellName2Spell: {}, actionFeatures: [], actionName2Action: {} };
+        collections[characterName] = collection;
+        return collection;
     }
 }
 

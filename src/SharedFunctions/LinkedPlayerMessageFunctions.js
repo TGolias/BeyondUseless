@@ -1,8 +1,9 @@
-export function establishIdentityPlayerMessage(sessionId, playerConfigs) {
+export function establishIdentityPlayerMessage(sessionId, playerConfigs, isMirror) {
     const message = {
         type: "establish",
         sessionId: sessionId,
-        playerConfigs: playerConfigs
+        playerConfigs: playerConfigs,
+        isMirror: isMirror
     }
     return message;
 }
@@ -16,20 +17,22 @@ export function updatedPlayerConfigsMessage(sessionId, playerConfigs) {
     return message;
 }
 
-export function newConnectionMessage(newConnectionSessionId) {
+export function newConnectionMessage(newConnectionSessionId, isMirror) {
     const message = {
         type: "newConnection",
-        newConnectionSessionId: newConnectionSessionId
+        newConnectionSessionId: newConnectionSessionId,
+        isMirror: isMirror
     }
     return message;
 }
 
-export function peerRequestMessage(requestorSessionId, peerSessionId, offer) {
+export function peerRequestMessage(requestorSessionId, peerSessionId, offer, isMirror) {
     const message = {
         type: "peerRequest",
         requestorSessionId: requestorSessionId,
         peerSessionId: peerSessionId,
-        offer: offer
+        offer: offer,
+        isMirror: isMirror
     }
     return message;
 }

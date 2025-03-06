@@ -5,7 +5,7 @@ import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageC
 import { performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
-import { tryAddActiveEffect } from "../../SharedFunctions/ActiveEffectsFunctions";
+import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 
 export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -61,7 +61,7 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
 }
 
 function useActionClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
-    tryAddActiveEffect(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+    tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
         inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });

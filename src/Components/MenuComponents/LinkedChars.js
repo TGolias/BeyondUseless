@@ -7,7 +7,7 @@ export function LinkedChars({setCenterScreenMenu}) {
     const [, forceUpdate] = useReducer(x => !x, false);
 
     const remoteCharactersString = localStorage.getItem("REMOTE_CHARACTERS");
-    const remoteCharacters = JSON.parse(remoteCharactersString);
+    const remoteCharacters = remoteCharactersString ? JSON.parse(remoteCharactersString) : {};
     const remoteCharactersKeys = Object.keys(remoteCharacters);
 
     const removeCharactersRows = []
@@ -18,7 +18,9 @@ export function LinkedChars({setCenterScreenMenu}) {
     for (let remoteCharacterKey of remoteCharactersKeys) {
         removeCharactersRows.push(<>
             <div className="linkedCharsMenuChar">
-                <RetroButton text={remoteCharacterKey} onClickHandler={() => {}} showTriangle={false} disabled={false}></RetroButton>
+                <RetroButton text={remoteCharacterKey} onClickHandler={() => {
+                    setCenterScreenMenu({ show: true, menuType: "LinkedChar", data: { characterName: remoteCharacterKey } });
+                }} showTriangle={false} disabled={false}></RetroButton>
                 <RetroButton text="X" onClickHandler={() => {
                     delete remoteCharacters[remoteCharacterKey];
                     localStorage.setItem("REMOTE_CHARACTERS", JSON.stringify(remoteCharacters));
