@@ -69,6 +69,7 @@ export function ItemPageComponent({item, data, copyLinkToItem, setCenterScreenMe
             break;
         case "Armor":
             typeString = item.type + " (" + item.armorType + ")";
+            break;
         default:
             typeString = item.type;
             break;

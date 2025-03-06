@@ -28,11 +28,24 @@ export function getDataChannelFromConnection(peerConnection) {
 
 export async function createConnectionOffer(peerConnection) {
     var allIceCandidatesFound = new Promise(resolve => {
+        let timeout = undefined;
         const iceListener = peerConnection.addEventListener("icecandidate", (event) => {
             if (event.candidate === null) {
                 // Once we get a null candidate, that means all candidates were found.
                 peerConnection.removeEventListener("icecandidate", iceListener);
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
                 resolve();
+            } else {
+                // After we get at least one cantidate, give it 5 seconds for another candidate to trickle in before we give up.
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
+                timeout = setTimeout(() => {
+                    peerConnection.removeEventListener("icecandidate", iceListener);
+                    resolve();
+                }, 5000);
             }
         });
     });

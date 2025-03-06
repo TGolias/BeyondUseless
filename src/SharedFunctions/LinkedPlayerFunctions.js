@@ -164,14 +164,31 @@ export function AddOnConnectionChangedHandler(connectionChangedHandler) {
 }
 
 export function SendMessageToAllActiveConnections(message, sessionIdToExclude = undefined) {
-    for (let sessionId of Object.keys(allActiveConnections)) {
+    const allSessionIds = Object.keys(allActiveConnections);
+    for (let sessionId of allSessionIds) {
+        const singleActiveConnection = allActiveConnections[sessionId]
+        if (singleActiveConnection.peerConnection.connectionState !== "connected") {
+            singleActiveConnection.peerConnection.close();
+            delete allActiveConnections[sessionId];
+            continue;
+        }
+
         if (sessionId !== sessionIdToExclude) {
-            const singleActiveConnection = allActiveConnections[sessionId];
             singleActiveConnection.channel.send(JSON.stringify(message));
         }
     }
 }
 
 export function GetAllActiveConnections() {
+    const allSessionIds = Object.keys(allActiveConnections);
+    for (let sessionId of allSessionIds) {
+        const singleActiveConnection = allActiveConnections[sessionId]
+        if (singleActiveConnection.peerConnection.connectionState !== "connected") {
+            singleActiveConnection.peerConnection.close();
+            delete allActiveConnections[sessionId];
+            continue;
+        }
+    }
+
     return allActiveConnections;
 }
