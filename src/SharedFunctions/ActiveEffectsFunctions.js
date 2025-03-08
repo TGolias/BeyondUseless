@@ -1,13 +1,14 @@
 import { getCollection } from "../Collections";
+import { GetAllActiveConnections } from "./LinkedPlayerFunctions";
+import { newActiveEffectMessage } from "./LinkedPlayerMessageFunctions";
 import { getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
+import { convertArrayOfStringsToHashMap } from "./Utils";
 
 const effectTypes = {
     SpellMenu: {
         getActionObject: (menuConfig) => {
             return menuConfig.spell;
         },
-        menuTitle: "Casting on Self",
-        menuText: "Are you casting this on yourself?",
         createActiveEffect: (menuConfig, useOnSelf) => {
             return {
                 type: "spell",
@@ -23,8 +24,6 @@ const effectTypes = {
         getActionObject: (menuConfig) => {
             return menuConfig.featureAction;
         },
-        menuTitle: "Using on Self",
-        menuText: "Are you targeting yourself?",
         createActiveEffect: (menuConfig, useOnSelf) => {
             return {
                 type: "featureaction",
@@ -39,8 +38,6 @@ const effectTypes = {
         getActionObject: (menuConfig) => {
             return menuConfig.action;
         },
-        menuTitle: "Using on Self",
-        menuText: "Are you targeting yourself?",
         createActiveEffect: (menuConfig, useOnSelf) => {
             return {
                 type: "action",
@@ -53,7 +50,7 @@ const effectTypes = {
     }
 }
 
-export function tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setCenterScreenMenu, callback) {
+export function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, callback) {
     const effectType = effectTypes[menuConfig.type];
     const actionObject = effectType.getActionObject(menuConfig);
     if (actionObject.duration !== "Instantaneous") {
@@ -61,25 +58,28 @@ export function tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setC
             castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, true);
             callback();
         } else if (actionObject.aspects) {
-            setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
-                menuTitle: effectType.menuTitle, 
-                menuText: effectType.menuText, 
-                buttons: [
-                    {
-                        text: "Yes",
-                        onClick: () => {
-                            castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, true);
-                            callback();
-                        }
-                    },
-                    {
-                        text: "No",
-                        onClick: () => {
-                            castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, false);
-                            callback();
+            setCenterScreenMenu({ show: true, menuType: "TargetMenu", data: {
+                onClose: (targetNames) => {
+                    const targetNamesMap = convertArrayOfStringsToHashMap(targetNames);
+                    if (targetNamesMap[playerConfigsClone.name]) {
+                        castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, true);
+                    } else {
+                        castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, false);
+                    }
+                    
+                    const allActiveConnections = GetAllActiveConnections();
+                    for (let key of Object.keys(allActiveConnections)) {
+                        const singleActiveConnection = allActiveConnections[key];
+                        if (targetNamesMap[singleActiveConnection.remotePlayerConfigs.name]) {
+                            // We need to let this other remote linked character know that we fucked with their shit. (added to their shit)
+                            const newActiveEffect = effectType.createActiveEffect(menuConfig, true);
+                            newActiveEffect.fromRemoteCharacter = playerConfigsClone.name;
+                            const message = newActiveEffectMessage(sessionId, newActiveEffect);
+                            singleActiveConnection.channel.send(JSON.stringify(message));
                         }
                     }
-                ] 
+                    callback();
+                },
             } });
         } else {
             castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, false);

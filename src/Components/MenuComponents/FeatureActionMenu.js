@@ -7,7 +7,7 @@ import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 
-export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
+export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
     playerConfigsClone.currentStatus = {...playerConfigsClone.currentStatus};
 
@@ -54,14 +54,14 @@ export function FeatureActionMenu({playerConfigs, setCenterScreenMenu, menuConfi
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="featureActionMenuHorizontal">
-            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
 
-function useActionClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
-    tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+function useActionClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+    tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
         inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });

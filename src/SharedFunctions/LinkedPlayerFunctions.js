@@ -4,7 +4,7 @@ import { convertArrayToDictionary } from "./Utils";
 
 const allActiveConnections = {};
 
-// TODO: God, this is lazy and this patern is terrible... I need to clean this up. A lot of the weird logic here can probably just be abstracted out to events I think.
+// TODO: God, this is lazy and this patern is terrible... I need to clean this up. A lot of the weird logic here can probably just be abstracted out to events I think. -it pains me every time I see this...
 let mySessionId = undefined;
 let myPlayerConfigs = undefined;
 let loadCharacter = undefined;
@@ -55,6 +55,9 @@ export function AddLinkedPlayer(sessionId, remotePlayerConfigs, peerConnection, 
                     } else {
                         AddOrUpdateRemoteCharacter(sessionId, peerMessage.playerConfigs);
                     }
+                    break;
+                case "newActiveEffect":
+                    AddNewActiveEffect(sessionId, peerMessage);
                     break;
                 case "newConnection":
                     OnNewConnectionMessage(sessionId, peerMessage);
@@ -137,6 +140,15 @@ function AddOrUpdateRemoteCharacter(messageRecievedFromSessionId, remotePlayerCo
 
     if (onRemoteCharacterChangedHandler) {
         onRemoteCharacterChangedHandler(remotePlayerConfigs.name);
+    }
+}
+
+function AddNewActiveEffect(messageRecievedFromSessionId, message) {
+    const newActiveEffects = myPlayerConfigs.currentStatus?.activeEffects ? [...myPlayerConfigs.currentStatus?.activeEffects] : [];
+    if (!newActiveEffects.some(effect => effect.fromRemoteCharacter === message.newActiveEffect.fromRemoteCharacter && effect.name === message.newActiveEffect.name)) {
+        // There's not already an effect on us from this remote character with this same name. Apply it!
+        newActiveEffects.push(message.newActiveEffect);
+        stateChangeHandler(myPlayerConfigs, "currentStatus.activeEffects", newActiveEffects);
     }
 }
 

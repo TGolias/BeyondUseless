@@ -17,6 +17,15 @@ export function updatedPlayerConfigsMessage(sessionId, playerConfigs) {
     return message;
 }
 
+export function newActiveEffectMessage(sessionId, newActiveEffect) {
+    const message = {
+        type: "newActiveEffect",
+        sessionId: sessionId,
+        newActiveEffect: newActiveEffect
+    }
+    return message;
+}
+
 export function newConnectionMessage(newConnectionSessionId, isMirror) {
     const message = {
         type: "newConnection",

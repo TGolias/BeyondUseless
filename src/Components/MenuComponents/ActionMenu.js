@@ -5,7 +5,7 @@ import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 
-export function ActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
+export function ActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
     playerConfigsClone.currentStatus = {...playerConfigsClone.currentStatus};
 
@@ -35,15 +35,15 @@ export function ActionMenu({playerConfigs, setCenterScreenMenu, menuConfig, menu
         {userInputRows}
         <div className="centerMenuSeperator"></div>
         <div className="actionMenuHorizontal">
-            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!userInputsAllHaveValues}></RetroButton>
+            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!userInputsAllHaveValues}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
 
-function useActionClicked(playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+function useActionClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
     if (menuConfig.action.duration !== "Instantaneous") {
-        tryAddOwnActiveEffectOnSelf(playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+        tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
             inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
             setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
         });
