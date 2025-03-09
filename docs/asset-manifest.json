@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "./static/css/main.fedd2cab.css",
-    "main.js": "./static/js/main.d16bb9fc.js",
+    "main.js": "./static/js/main.4720f20a.js",
     "static/media/OptimusPrinceps.ttf": "./static/media/OptimusPrinceps.20e6750830b534d901f0.ttf",
     "static/media/font-of-the-mans.ttf": "./static/media/font-of-the-mans.c5cea637f871320c45f5.ttf",
     "index.html": "./index.html",
     "main.fedd2cab.css.map": "./static/css/main.fedd2cab.css.map",
-    "main.d16bb9fc.js.map": "./static/js/main.d16bb9fc.js.map"
+    "main.4720f20a.js.map": "./static/js/main.4720f20a.js.map"
   },
   "entrypoints": [
     "static/css/main.fedd2cab.css",
-    "static/js/main.d16bb9fc.js"
+    "static/js/main.4720f20a.js"
   ]
 }

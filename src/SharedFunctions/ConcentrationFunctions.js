@@ -1,6 +1,7 @@
+import { getCollection } from "../Collections";
 import { calculateCurrentHp } from "./HPFunctions";
 import { calculateAddendumAspect, calculateAspectCollection } from "./TabletopMathFunctions";
-import { addLeadingPlusIfNumericAndPositive } from "./Utils";
+import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary } from "./Utils";
 
 export function isPlayerCurrentlyConcentrating(playerConfigs) {
     const playerActiveEffects = playerConfigs.currentStatus.activeEffects;
@@ -19,8 +20,10 @@ export function showConcentrationMenuIfConcentrating(oldPlayerConfigs, newPlayer
     if (currentEffectWithConcentration) {
         const oldHp = calculateCurrentHp(oldPlayerConfigs);
         const newHp = calculateCurrentHp(newPlayerConfigs);
-        if (newHp < oldHp) {
-            if (newHp === 0) {
+
+        const hasConditionThatRemovesConcentration = playerHasConditionThatRemovesConcentration(newPlayerConfigs);
+        if (hasConditionThatRemovesConcentration || newHp < oldHp) {
+            if (hasConditionThatRemovesConcentration || newHp === 0) {
                 // You drop to zero, you lose concentration.
                 newPlayerConfigs.currentStatus.activeEffects = [...newPlayerConfigs.currentStatus.activeEffects];
                 removeConcentrationFromPlayerConfigs(newPlayerConfigs);
@@ -98,4 +101,18 @@ export function removeConcentrationFromPlayerConfigs(playerConfigsClone) {
             index--; 
         }
     }
+}
+
+export function playerHasConditionThatRemovesConcentration(playerConfigs) {
+    if (playerConfigs.currentStatus.conditions) {
+        const dndConditions = getCollection("conditions");
+        const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
+        for (let condition of playerConfigs.currentStatus.conditions) {
+            const dndCondition = dndConditionsMap[condition.name];
+            if (dndCondition && (dndCondition.name === "Incapacitated" || dndCondition.additionalConditions.includes("Incapacitated"))) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
