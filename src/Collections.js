@@ -70,6 +70,10 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/spellslots.json"
     },
     {
+        name: "statblocks",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/statblocks.json"
+    },
+    {
         name: "subclasses",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/subclasses.json"
     },

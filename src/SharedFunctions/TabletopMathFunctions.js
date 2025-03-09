@@ -1269,6 +1269,8 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateModifierForBaseStat(calculateBaseStat(playerConfigs, aspectName.substring(0, aspectName.length - 8)));
         case "maxHp":
             return calculateHPMax(playerConfigs);
+        case "level":
+            return playerConfigs.level;
         case "tier":
             return calculateTierForPlayerLevel(playerConfigs);
         case "proficiencyBonus":
@@ -1920,6 +1922,14 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
             singleValue = multiplier * singleValue;
         }
 
+        if (singleCalculation.filter) {
+            singleValue = singleValue.filter(value => performBooleanCalculation(playerConfigs, singleCalculation.filter, { ...parameters, value }));
+        }
+
+        if (singleCalculation.map) {
+            singleValue = singleValue.map(value => performMathCalculation(playerConfigs, singleCalculation.map, { ...parameters, value }));
+        }
+
         return singleValue;
     };
     const performAddition = (currentTotal, valueToAdd) => {
@@ -2013,6 +2023,8 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
             }
             // If there are no playerconfigs, we can't get any aspects. Don't even try. Just return the default.
             break;
+        case "collection":
+            return getCollection(singleCalculation.value);
         case "parameter":
             const parameterValue = getValueFromObjectAndPath(parameters, singleCalculation.propertyPath);
             return parameterValue;
