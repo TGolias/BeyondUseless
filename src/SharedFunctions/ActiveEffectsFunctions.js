@@ -11,7 +11,7 @@ const effectTypes = {
             return menuConfig.spell;
         },
         createActiveEffect: (menuConfig, useOnSelf) => {
-            return {
+            const activeEffect = {
                 type: "spell",
                 onSelf: useOnSelf,
                 name: menuConfig.spell.name,
@@ -19,6 +19,15 @@ const effectTypes = {
                 castAtLevel: menuConfig.useSpellSlotLevel,
                 userInput: menuConfig.userInput
             }
+
+            if (menuConfig.spell.resources) {
+                activeEffect.remainingResources = {};
+                for (let resource of menuConfig.spell.resources) {
+                    activeEffect.remainingResources[resource.name] = resource.uses;
+                }
+            }
+            
+            return activeEffect;
         }
     },
     FeatureActionMenu: {

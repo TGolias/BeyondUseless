@@ -3,7 +3,7 @@ import './HealthMenu.css';
 import { TextInput } from "../SimpleComponents/TextInput";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { calculateAspectCollection, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAspectCollection, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { getCollection } from "../../Collections";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary } from "../../SharedFunctions/Utils";
@@ -11,9 +11,21 @@ import { CheckIfPlayerDead, SetPlayerDead, SetPlayerRevived } from "../../Shared
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerLongRested, SetPlayerShortRested } from "../../SharedFunctions/RestFunctions";
 import { removeConcentrationFromPlayerConfigs, showConcentrationMenuIfConcentrating } from "../../SharedFunctions/ConcentrationFunctions";
+import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
 export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler, showDeathScreen}) {
+    let healthMenuAddendums = "";
     const resistancesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "resistances"));
+    if (resistancesString) {
+        healthMenuAddendums += "Resistances: " + resistancesString;
+    }
+    const addendumsFromAspects = calculateAddendumAspect(playerConfigs, "healthMenuAddendum");
+    if (addendumsFromAspects) {
+        if (healthMenuAddendums.length > 0) {
+            healthMenuAddendums += "\n\n";
+        }
+        healthMenuAddendums += addendumsFromAspects;
+    }
 
     const playerConfigsClone = {...playerConfigs};
     playerConfigsClone.currentStatus = {...playerConfigsClone.currentStatus};
@@ -88,133 +100,131 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
     }
 
     return (<>
-        <div className="healthMenuWrapperDiv">
-            <div className="healthMenuHorizontal healthMenuRestAndHitDice">
-                <RetroButton text="Rest" onClickHandler={() => {
-                    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
-                        menuTitle: "Type of Rest", menuText: "Would you like to Long Rest or Short Rest?", 
-                        buttons: [
-                            {
-                                text: "Long",
-                                onClick: () => {
-                                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                                    setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
-                                        menuTitle: "Long Rest", 
-                                        menuText: "Are you sure you would like to Long Rest?", 
-                                        buttons: [
-                                        {
-                                            text: "Confirm",
-                                            sound: "longrestaudio",
-                                            onClick: () => {
-                                                // Clear out most of current status. There will be a couple things the stick around after a long rest, but most are cleared.
-                                                SetPlayerLongRested(playerConfigsClone);
-                                                inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-                                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                                            }
-                                        },
-                                        {
-                                            text: "Cancel",
-                                            onClick: () => {
-                                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                                            }
+        <div className="healthMenuHorizontal healthMenuRestAndHitDice">
+            <RetroButton text="Rest" onClickHandler={() => {
+                setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                    menuTitle: "Type of Rest", menuText: "Would you like to Long Rest or Short Rest?", 
+                    buttons: [
+                        {
+                            text: "Long",
+                            onClick: () => {
+                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+                                    menuTitle: "Long Rest", 
+                                    menuText: "Are you sure you would like to Long Rest?", 
+                                    buttons: [
+                                    {
+                                        text: "Confirm",
+                                        sound: "longrestaudio",
+                                        onClick: () => {
+                                            // Clear out most of current status. There will be a couple things the stick around after a long rest, but most are cleared.
+                                            SetPlayerLongRested(playerConfigsClone);
+                                            inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+                                            setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                                         }
-                                    ] } });
-                                }
-                            },
-                            {
-                                text: "Short",
-                                onClick: () => {
-                                    setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
-                                        menuTitle: "Short Rest", 
-                                        menuText: "Select any hit dice you'd like expend as part of your Short Rest.",
-                                        soundOnHitDiceExpend: "shortrestaudio",
-                                        soundOnNoHitDiceExpend: "shortrestaudio",
-                                        onBeforeConfirm: (newPlayerConfigs) => {
-                                            SetPlayerShortRested(newPlayerConfigs);
+                                    },
+                                    {
+                                        text: "Cancel",
+                                        onClick: () => {
+                                            setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                                         }
-                                    } });
-                                }
+                                    }
+                                ] } });
                             }
-                        ] 
-                    } 
-                });
-                }} showTriangle={false} disabled={wasDead}></RetroButton>
-                <RetroButton text="Hit Dice" onClickHandler={() => {
-                    setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
-                        menuTitle: "Expend Hit Dice", 
-                        menuText: "Expend hit dice outside of a Short Rest.",
-                        soundOnHitDiceExpend: "healaudio",
-                        soundOnNoHitDiceExpend: "selectionaudio",
-                        onBeforeConfirm: (newPlayerConfigs) => {}
-                    } });
-                }} showTriangle={false} disabled={wasDead}></RetroButton>
-            </div>
-            <div className="centerMenuSeperator"></div>
-            <div className="healthMenuVertical healthMenuMainSection">
-                <div className="healthMenuHorizontal">
-                    <div className="healthMenuVertical">
-                        <div className="healthMenuLabel">Temp HP</div>
-                        <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newTempHp"} inputHandler={menuStateChangeHandler} minimum={0}/>
-                    </div>
-                    <div className="healthMenuVertical">
-                        <div className="healthMenuLabel">Max HP +/-</div>
-                        <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newMaxHpModifier"} inputHandler={menuStateChangeHandler}/>
-                    </div>
-                </div>
-                <div style={{display: (resistancesString ? "block" : "none")}}>
-                    <div>Resistances: {resistancesString}</div>
-                </div>
-                <div className="healthMenuGrid">
-                    <div></div>
-                    <div className="healthMenuLabel">Change HP</div>
-                    <div></div>
-                    <RetroButton text="Heal" onClickHandler={() => calculateHeal(menuConfig, maxHp, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp >= maxHp} buttonSound={"healaudio"}></RetroButton>
-                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"changeHpAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
-                    <RetroButton text="Damage" onClickHandler={() => calculateDamage(menuConfig, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp <= 0} buttonSound={"damageaudio"}></RetroButton>
-                </div>
-                <div className="healthMenuVertical">
-                    <div className="healthMenuLabel">Preview</div>
-                    <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
-                </div>
-                <div className="healthMenuVertical">
-                    <ConditionsDisplay conditions={playerConfigsClone.currentStatus.conditions} setCenterScreenMenu={(centerScreenObj) => {
-                        addToMenuStack({ menuType: "HealthMenu", menuConfig });
-                        setCenterScreenMenu(centerScreenObj);
-                    }} addConditionClicked={notYetSelectedConditionNames.length === 0 ? undefined : () => {
-                        addToMenuStack({ menuType: "HealthMenu", menuConfig });
-                        setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Condition", menuText: "Select the condition to add:", options: notYetSelectedConditionNames, 
-                            onOkClicked: (result) => {
-                                const dndCondition = allConditionsMap[result];
-                                addToMenuStack({ menuType: "HealthMenu", menuConfig });
-                                setCenterScreenMenu({ show: true, menuType: "ConditionMenu", data: { menuTitle: dndCondition.name, condition: dndCondition,
-                                    onOkClicked: (newCondition, didConfigChange) => {
-                                        // Next time: Gonna need to add the player's conditions to this menuconfig. Add them here, then make sure they get set to the playerclone before we hit the confirm button.
-                                        const newConditions = [...menuConfig.newConditions, newCondition];
-                                        menuStateChangeHandler(menuConfig, "newConditions", newConditions);
+                        },
+                        {
+                            text: "Short",
+                            onClick: () => {
+                                setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
+                                    menuTitle: "Short Rest", 
+                                    menuText: "Select any hit dice you'd like expend as part of your Short Rest.",
+                                    soundOnHitDiceExpend: "shortrestaudio",
+                                    soundOnNoHitDiceExpend: "shortrestaudio",
+                                    onBeforeConfirm: (newPlayerConfigs) => {
+                                        SetPlayerShortRested(newPlayerConfigs);
                                     }
                                 } });
-                            } } 
-                        });
-                    } } onAddOrUpdate={(newCondition) => {
-                        const newConditions = AddOrUpdateCondition(menuConfig.newConditions, newCondition);
-                        menuStateChangeHandler(menuConfig, "newConditions", newConditions);
-                    }} onRemove={(conditionNameToRemove) => {
-                        const newConditions = RemoveConditionByName(menuConfig.newConditions, conditionNameToRemove);
-                        if (newConditions) {
-                            menuStateChangeHandler(menuConfig, "newConditions", newConditions);
+                            }
                         }
-                    }}></ConditionsDisplay>
+                    ] 
+                } 
+            });
+            }} showTriangle={false} disabled={wasDead}></RetroButton>
+            <RetroButton text="Hit Dice" onClickHandler={() => {
+                setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
+                    menuTitle: "Expend Hit Dice", 
+                    menuText: "Expend hit dice outside of a Short Rest.",
+                    soundOnHitDiceExpend: "healaudio",
+                    soundOnNoHitDiceExpend: "selectionaudio",
+                    onBeforeConfirm: (newPlayerConfigs) => {}
+                } });
+            }} showTriangle={false} disabled={wasDead}></RetroButton>
+        </div>
+        <div className="centerMenuSeperator"></div>
+        <div className="healthMenuVertical healthMenuMainSection">
+            <div className="healthMenuHorizontal">
+                <div className="healthMenuVertical">
+                    <div className="healthMenuLabel">Temp HP</div>
+                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newTempHp"} inputHandler={menuStateChangeHandler} minimum={0}/>
+                </div>
+                <div className="healthMenuVertical">
+                    <div className="healthMenuLabel">Max HP +/-</div>
+                    <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"newMaxHpModifier"} inputHandler={menuStateChangeHandler}/>
                 </div>
             </div>
-            <div className="centerMenuSeperator"></div>
-            <div className="healthMenuHorizontal">
-                <RetroButton text="Confirm" onClickHandler={() => 
-                    onConfirmClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu, showDeathScreen, willDie)
-                } showTriangle={false} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
-                <RetroButton text="Cancel" onClickHandler={() => {
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={false} disabled={false}></RetroButton>
+            <div style={{display: (healthMenuAddendums ? "block" : "none")}}>
+                <div>{parseStringForBoldMarkup(healthMenuAddendums)}</div>
             </div>
+            <div className="healthMenuGrid">
+                <div></div>
+                <div className="healthMenuLabel">Change HP</div>
+                <div></div>
+                <RetroButton text="Heal" onClickHandler={() => calculateHeal(menuConfig, maxHp, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp >= maxHp} buttonSound={"healaudio"}></RetroButton>
+                <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"changeHpAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
+                <RetroButton text="Damage" onClickHandler={() => calculateDamage(menuConfig, menuStateChangeHandler)} showTriangle={true} disabled={menuConfig.changeHpAmount === 0 || playerConfigsClone.currentStatus.remainingHp <= 0} buttonSound={"damageaudio"}></RetroButton>
+            </div>
+            <div className="healthMenuVertical">
+                <div className="healthMenuLabel">Preview</div>
+                <HPandLVLDisplay playerConfigs={playerConfigsClone} playLowHpAudio={false}></HPandLVLDisplay>
+            </div>
+            <div className="healthMenuVertical">
+                <ConditionsDisplay conditions={playerConfigsClone.currentStatus.conditions} setCenterScreenMenu={(centerScreenObj) => {
+                    addToMenuStack({ menuType: "HealthMenu", menuConfig });
+                    setCenterScreenMenu(centerScreenObj);
+                }} addConditionClicked={notYetSelectedConditionNames.length === 0 ? undefined : () => {
+                    addToMenuStack({ menuType: "HealthMenu", menuConfig });
+                    setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Condition", menuText: "Select the condition to add:", options: notYetSelectedConditionNames, 
+                        onOkClicked: (result) => {
+                            const dndCondition = allConditionsMap[result];
+                            addToMenuStack({ menuType: "HealthMenu", menuConfig });
+                            setCenterScreenMenu({ show: true, menuType: "ConditionMenu", data: { menuTitle: dndCondition.name, condition: dndCondition,
+                                onOkClicked: (newCondition, didConfigChange) => {
+                                    // Next time: Gonna need to add the player's conditions to this menuconfig. Add them here, then make sure they get set to the playerclone before we hit the confirm button.
+                                    const newConditions = [...menuConfig.newConditions, newCondition];
+                                    menuStateChangeHandler(menuConfig, "newConditions", newConditions);
+                                }
+                            } });
+                        } } 
+                    });
+                } } onAddOrUpdate={(newCondition) => {
+                    const newConditions = AddOrUpdateCondition(menuConfig.newConditions, newCondition);
+                    menuStateChangeHandler(menuConfig, "newConditions", newConditions);
+                }} onRemove={(conditionNameToRemove) => {
+                    const newConditions = RemoveConditionByName(menuConfig.newConditions, conditionNameToRemove);
+                    if (newConditions) {
+                        menuStateChangeHandler(menuConfig, "newConditions", newConditions);
+                    }
+                }}></ConditionsDisplay>
+            </div>
+        </div>
+        <div className="centerMenuSeperator"></div>
+        <div className="healthMenuHorizontal">
+            <RetroButton text="Confirm" onClickHandler={() => 
+                onConfirmClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu, showDeathScreen, willDie)
+            } showTriangle={false} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text="Cancel" onClickHandler={() => {
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+            }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>)
 }

@@ -407,7 +407,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ViewMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig}></ViewMenu></>);
+            return (<><ViewMenu playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ViewMenu></>);
         }
     },
     LinkCableMenu: {

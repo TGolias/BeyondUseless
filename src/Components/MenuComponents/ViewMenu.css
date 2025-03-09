@@ -7,6 +7,25 @@
     overscroll-behavior: contain;
 }
 
+.viewMenuResources {
+    margin: -0.5em;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+}
+
+.viewMenuSingleResource {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.25em;
+}
+
+.viewMenuResourceUses {
+    font-size: 2em;
+}
+
 .viewMenuHorizontal {
     display: flex;
     flex-direction: row;

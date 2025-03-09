@@ -2,13 +2,6 @@
     font-weight: bold;
 }
 
-.healthMenuWrapperDiv {
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    text-align: center;
-}
-
 .healthMenuVertical {
     display: flex;
     flex-direction: column;
@@ -17,7 +10,11 @@
 }
 
 .healthMenuMainSection {
+    margin: -0.5em;
+    padding: 1em;
     gap: 1em;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .healthMenuHorizontal {
@@ -50,6 +47,5 @@
 
     .healthMenuMainSection {
         flex-grow: 1;
-        justify-content: center !important;
     }
 }

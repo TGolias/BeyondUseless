@@ -13,7 +13,7 @@ export function ActiveEffectsDisplay({playerConfigs, activeEffects, setCenterScr
             const activeEffect = activeEffects[i];
             activeEffectRows.push(<>
                 <div className="singleActiveEffect pixel-corners">
-                    <div className="singleActiveEffectTextWrapper" onClick={() => openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScreenMenu)}>
+                    <div className="singleActiveEffectTextWrapper" onClick={() => openViewMenuForActiveEffect(playerConfigs, activeEffect, i, setCenterScreenMenu)}>
                         <div className="singleActiveEffectText"><b>{(activeEffect.fromRemoteCharacter ? activeEffect.fromRemoteCharacter.split(' ')[0] : (activeEffect.concentration ? "Concentration" : ""))}</b>{(activeEffect.concentration ? " - " : "")}{activeEffect.name}</div>
                     </div>
                     <RetroButton text={generateButtonText(i)} onClickHandler={() => {
@@ -32,7 +32,7 @@ export function ActiveEffectsDisplay({playerConfigs, activeEffects, setCenterScr
     </>
 }
 
-function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScreenMenu) {
+function openViewMenuForActiveEffect(playerConfigs, activeEffect, activeEffectIndex, setCenterScreenMenu) {
     // TODO: We can probably make common code between this and getActionObjectForActiveEffect, it's just this needs extra info for setCenterScreenMenu.
     let playerConfigsToSet = undefined;
     if (activeEffect.fromRemoteCharacter) {
@@ -51,7 +51,7 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScree
                 const playerSpell = playerSpells.find(spell => spell.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", spell: playerSpell, playerConfigs: playerConfigsToSet, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, feature: playerSpell.feature } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", activeEffectIndex: activeEffectIndex, spell: playerSpell, playerConfigs: playerConfigsToSet, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, feature: playerSpell.feature } } });
                 break;
             case "featureaction":
                 const actionFeatures = getAllActionFeatures(playerConfigsToSet);
@@ -59,14 +59,14 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, setCenterScree
                 const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", activeEffectIndex: activeEffectIndex, featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput } } });
                 break;
             case "action":
                 const actions = getCollection("actions")
                 const action = actions.find(act => act.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", action: action, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", activeEffectIndex: activeEffectIndex, action: action, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput } } });
                 break;
         }
     }
