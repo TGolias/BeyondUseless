@@ -1,3 +1,5 @@
+import { getCollection } from "../Collections";
+import { removeConcentrationFromPlayerConfigs } from "./ConcentrationFunctions";
 import { AddOrUpdateCondition, RemoveConditionByName } from "./ConditionFunctions";
 
 export function CheckIfPlayerDead(playerConfigs) {
@@ -15,22 +17,22 @@ export function CheckIfPlayerDead(playerConfigs) {
 }
 
 export function SetPlayerDead(playerConfigs) {
-    if (!playerConfigs.currentStatus) {
-        playerConfigs.currentStatus = {}
-    } else {
-        playerConfigs.currentStatus = {...playerConfigs.currentStatus}
-    }
+    playerConfigs.currentStatus = playerConfigs.currentStatus ? {...playerConfigs.currentStatus} : {};
+    playerConfigs.currentStatus.conditions = playerConfigs.currentStatus.conditions ? [...playerConfigs.currentStatus.conditions] : [];
 
     playerConfigs.currentStatus.remainingHp = 0;
     playerConfigs.currentStatus.deathSavingThrowFailures = 3;
+
+    if (playerConfigs.currentStatus.activeEffects) {
+        playerConfigs.currentStatus.activeEffects = [...playerConfigs.currentStatus.activeEffects];
+        removeConcentrationFromPlayerConfigs(playerConfigs);
+    }
+
+    playerConfigs.currentStatus.conditions = RemoveConditionByName(playerConfigs.currentStatus.conditions, "Unconscious");
 }
 
 export function SetPlayerRevived(playerConfigs) {
-    if (!playerConfigs.currentStatus) {
-        playerConfigs.currentStatus = {}
-    } else {
-        playerConfigs.currentStatus = {...playerConfigs.currentStatus}
-    }
+    playerConfigs.currentStatus = playerConfigs.currentStatus ? {...playerConfigs.currentStatus} : {};
 
     playerConfigs.currentStatus.deathSavingThrowFailures = 0;
     if (playerConfigs.currentStatus?.remainingHp === 0) {

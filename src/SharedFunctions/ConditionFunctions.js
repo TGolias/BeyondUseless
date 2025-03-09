@@ -18,6 +18,8 @@ export function RemoveConditionByName(conditions, conditionNameToRemove) {
             const indexToRemove = conditions.indexOf(existingCondition);
             newConditions = [...conditions];
             newConditions.splice(indexToRemove, 1);
+        } else {
+            newConditions = conditions;
         }
     }
     return newConditions;

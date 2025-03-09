@@ -1,6 +1,7 @@
 import React from "react";
 import './DeathSavingThrowsDisplay.css';
 import { playAudio } from "../../SharedFunctions/Utils";
+import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
 
 export function DeathSavingThrowsDisplay({playerConfigs, inputChangeHandler, showDeathScreen}) {
     const failures = playerConfigs.currentStatus?.deathSavingThrowFailures ?? 0;
@@ -15,12 +16,15 @@ export function DeathSavingThrowsDisplay({playerConfigs, inputChangeHandler, sho
                 <div className="deathSavingThrowClickableDiv" onClick={() => {
                     if (failures < 3) {
                         const newAmountOfFailures = failures + 1;
-                        inputChangeHandler(playerConfigs, "currentStatus.deathSavingThrowFailures", newAmountOfFailures);
-                        playAudio("selectionaudio");
-                        
                         if (newAmountOfFailures > 2) {
                             // Oh shit we died!
+                            SetPlayerDead(playerConfigs);
+                            inputChangeHandler(playerConfigs, "currentStatus", playerConfigs.currentStatus);
+
                             showDeathScreen();
+                        } else {
+                            inputChangeHandler(playerConfigs, "currentStatus.deathSavingThrowFailures", newAmountOfFailures);
+                            playAudio("selectionaudio");
                         }
                     }
                 }}>

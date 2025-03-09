@@ -3,11 +3,12 @@ import './HPandLVLDisplay.css';
 import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { CheckIfPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
+import { calculateCurrentHp } from "../../SharedFunctions/HPFunctions";
 
 export function HPandLVLDisplay({playerConfigs, inputChangeHandler = undefined, setCenterScreenMenu = undefined, playLowHpAudio}) {
     const level = playerConfigs.level;
     const hpMax = calculateHPMax(playerConfigs);
-    const currentHp = (!!playerConfigs.currentStatus.remainingHp || playerConfigs.currentStatus.remainingHp === 0) ? playerConfigs.currentStatus.remainingHp : hpMax;
+    const currentHp = calculateCurrentHp(playerConfigs, hpMax);
     const tempHp = playerConfigs.currentStatus.tempHp ?? 0;
 
     const percentHpRemaining = currentHp > hpMax ? 100 : (currentHp / hpMax) * 100;

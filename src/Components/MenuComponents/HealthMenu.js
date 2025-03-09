@@ -10,6 +10,7 @@ import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary } from
 import { CheckIfPlayerDead, SetPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerLongRested, SetPlayerShortRested } from "../../SharedFunctions/RestFunctions";
+import { removeConcentrationFromPlayerConfigs, showConcentrationMenuIfConcentrating } from "../../SharedFunctions/ConcentrationFunctions";
 
 export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler, showDeathScreen}) {
     const resistancesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "resistances"));
@@ -57,6 +58,33 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
     }
     if (willDie) {
         SetPlayerDead(playerConfigsClone);
+    }
+
+    const wasDying = playerConfigs.currentStatus.remainingHp === 0;
+    const isDying = playerConfigsClone.currentStatus.remainingHp === 0;
+
+    if (!willDie && isDying) {
+        const hasUnconciousCondition = playerConfigsClone.currentStatus?.conditions ? playerConfigsClone.currentStatus.conditions.some(condition => condition.name === "Unconscious") : false;
+        if (!hasUnconciousCondition) {
+            const dndConditions = getCollection("conditions");
+            const unconciousCondition = dndConditions.find(condition => condition.name === "Unconscious");
+            
+            const newNewConditions = AddOrUpdateCondition(menuConfig.newConditions, unconciousCondition);
+            menuStateChangeHandler(menuConfig, "newConditions", newNewConditions);
+        }
+
+        // Also remove concentration.
+        removeConcentrationFromPlayerConfigs(playerConfigsClone);
+    }
+    if (!isDying) {
+        const hadUnconciousCondition = playerConfigs.currentStatus?.conditions ? playerConfigs.currentStatus.conditions.some(condition => condition.name === "Unconscious") : false;
+        if (!hadUnconciousCondition || wasDying) {
+            const hasUnconciousCondition = playerConfigsClone.currentStatus?.conditions ? playerConfigsClone.currentStatus.conditions.some(condition => condition.name === "Unconscious") : false;
+            if (hasUnconciousCondition) {
+                const newNewConditions = RemoveConditionByName(menuConfig.newConditions, "Unconscious");
+                menuStateChangeHandler(menuConfig, "newConditions", newNewConditions);
+            }
+        }
     }
 
     return (<>
@@ -180,19 +208,29 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
             </div>
             <div className="centerMenuSeperator"></div>
             <div className="healthMenuHorizontal">
-                <RetroButton text="Confirm" onClickHandler={() => {
-                    inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                    if (willDie) {
-                        showDeathScreen();
-                    }
-                }} showTriangle={false} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
+                <RetroButton text="Confirm" onClickHandler={() => 
+                    onConfirmClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu, showDeathScreen, willDie)
+                } showTriangle={false} disabled={false} buttonSound={willBeRevived ? "reviveaudio" : "selectionaudio"}></RetroButton>
                 <RetroButton text="Cancel" onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }} showTriangle={false} disabled={false}></RetroButton>
             </div>
         </div>
     </>)
+}
+
+function onConfirmClicked(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu, showDeathScreen, willDie) {
+    showConcentrationMenuIfConcentrating(playerConfigs, playerConfigsClone, setCenterScreenMenu, () => {
+        setStatusAndClose(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu, showDeathScreen, willDie);
+    });
+}
+
+function setStatusAndClose(playerConfigs, playerConfigsClone, inputChangeHandler, setCenterScreenMenu, showDeathScreen, willDie) {
+    inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+    if (willDie) {
+        showDeathScreen();
+    }
 }
 
 function calculateHeal(menuConfig, maxHp, menuStateChangeHandler) {
