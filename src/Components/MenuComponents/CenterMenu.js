@@ -602,6 +602,11 @@ export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterS
             showDeathScreen,
             loadCharacter
         ));
+    } else {
+        if (menuConfig.type) {
+            // Erm... This menu config type is incorrect acktually!
+            setMenuConfig(defaultMenuConfig);
+        }
     }
 
     return (<>

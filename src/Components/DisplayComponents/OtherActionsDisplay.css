@@ -10,6 +10,10 @@
     font-weight: bold;
 }
 
+.otherActionsDisplayConcentratingOn {
+    color: rgb(200,162,18);
+}
+
 .otherActionsDisplayItem {
     display: flex;
     align-items: center;

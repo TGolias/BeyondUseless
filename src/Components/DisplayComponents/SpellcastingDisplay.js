@@ -3,6 +3,7 @@ import './SpellcastingDisplay.css';
 import { getAllSpells } from '../../SharedFunctions/TabletopMathFunctions';
 import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
 import { playAudio } from '../../SharedFunctions/Utils';
+import { isPlayerCurrentlyConcentrating } from '../../SharedFunctions/ConcentrationFunctions';
 
 const spellRows = [
     {
@@ -10,13 +11,23 @@ const spellRows = [
         calculateValue: (playerConfigs, spell) => {
             return spell.level ? spell.level : "C";
         },
-        addClass: "firstCol"
+        addClass: (playerConfigs, spell) => {
+            return "firstCol";
+        }
     },
     {
         name: "Spell Name",
         calculateValue: (playerConfigs, spell) => {
             return spell.name;
         },
+        addClass: (playerConfigs, spell) => {
+            if (playerConfigs && spell) {
+                if (isPlayerCurrentlyConcentrating(playerConfigs) && spell.concentration) {
+                    return "spellcastingDisplayConcentratingOn";
+                }
+            }
+            return "";
+        }
     },
     {
         name: "Cast Time",
@@ -35,6 +46,9 @@ const spellRows = [
             }
             return castingTime;
         },
+        addClass: (playerConfigs, spell) => {
+            return undefined;
+        }
     },
     {
         name: "C,R,M",
@@ -61,6 +75,9 @@ const spellRows = [
 
             return specialString;
         },
+        addClass: (playerConfigs, spell) => {
+            return undefined;
+        }
     },
     {
         name: "Free Uses",
@@ -86,7 +103,9 @@ const spellRows = [
 
             return freeUses;
         },
-        addClass: "lastCol spellcastingDisplayFreeUses"
+        addClass: (playerConfigs, spell) => {
+            return "lastCol spellcastingDisplayFreeUses";
+        }
     }
 ];
 
@@ -96,12 +115,12 @@ export function SpellcastingDisplay({playerConfigs, spellcastingFeatures, setCen
     // First get our top column.
     const spellcastingDisplayRows = [];
     for (let row of spellRows) {
-        spellcastingDisplayRows.push(<div className={row.addClass}>{row.name}</div>)
+        spellcastingDisplayRows.push(<div className={row.addClass()}>{row.name}</div>)
     }
 
     for (let spell of allPlayerSpells) {
         for (let row of spellRows) {
-            spellcastingDisplayRows.push(<div onClick={() => openMenuForSpell(spell, setCenterScreenMenu)} className={row.addClass ? "spellcastingDisplayRow " + row.addClass : "spellcastingDisplayRow"}>{row.calculateValue(playerConfigs, spell)}</div>)
+            spellcastingDisplayRows.push(<div onClick={() => openMenuForSpell(playerConfigs, spell, setCenterScreenMenu)} className={row.addClass(playerConfigs, spell) ? "spellcastingDisplayRow " + row.addClass(playerConfigs, spell) : "spellcastingDisplayRow"}>{row.calculateValue(playerConfigs, spell)}</div>)
         }
     }
 
@@ -115,7 +134,33 @@ export function SpellcastingDisplay({playerConfigs, spellcastingFeatures, setCen
     )
 }
 
-function openMenuForSpell(spell, setCenterScreenMenu) {
+function openMenuForSpell(playerConfigs, spell, setCenterScreenMenu) {
     playAudio("menuaudio");
+    const currentEffectWithConcentration = isPlayerCurrentlyConcentrating(playerConfigs);
+    if (currentEffectWithConcentration && spell.concentration) {
+        setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+            menuTitle: "Concentration", 
+            menuText: "Casting <b>" + spell.name + "</b> with concentration will end concentration on <b>" + currentEffectWithConcentration.name + "</b>.", 
+            buttons: [
+            {
+                text: "Continue",
+                onClick: () => {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                    openSpellMenu(spell, setCenterScreenMenu);
+                }
+            },
+            {
+                text: "Cancel",
+                onClick: () => {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            }
+        ] } });
+    } else {
+        openSpellMenu(spell, setCenterScreenMenu);
+    }
+}
+
+function openSpellMenu(spell, setCenterScreenMenu) {
     setCenterScreenMenu({ show: true, menuType: "SpellMenu", data: { menuTitle: spell.name, spell: spell } });
 }

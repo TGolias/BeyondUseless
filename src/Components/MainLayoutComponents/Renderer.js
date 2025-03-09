@@ -98,7 +98,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <SpellcastingDisplay playerConfigs={playerConfigs} spellcastingFeatures={spellcastingFeatures} setCenterScreenMenu={setCenterScreenMenu}></SpellcastingDisplay>
                 </div>
                 <div>
-                    <OtherActionsDisplay setCenterScreenMenu={setCenterScreenMenu}></OtherActionsDisplay>
+                    <OtherActionsDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></OtherActionsDisplay>
                 </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>

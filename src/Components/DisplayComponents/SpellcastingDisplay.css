@@ -38,6 +38,10 @@
     padding-right: 1em;
 }
 
+.spellcastingDisplayConcentratingOn {
+    color: rgb(200,162,18);
+}
+
 .spellcastingDisplayRow {
     min-height: 3.5em;
     font-weight: normal;

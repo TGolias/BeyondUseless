@@ -159,8 +159,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div style={{display: (spellCastingConditionAddendum ? "block" : "none")}}>{spellCastingConditionAddendum}</div>
             <div><span className="spellPageBold">Range:</span> {range}</div>
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
-            <div><span className="spellPageBold">Duration:</span> {spell.duration}</div>
+            <div><span className="spellPageBold">Duration:</span> <b>{spell.concentration ? "Concentration" : ""}</b>{spell.concentration ? ", " : ""}{spell.duration}</div>
             <div className="spellPageDescription">{description}</div>
+            <div className="spellPageDescription"><span className="spellPageBold">Spell List:</span> {concatStringArrayToAndStringWithCommas(spell.spellLists)}</div>
             <br style={{display: (data ? "block" : "none")}}></br>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Spell Summary</b></div>

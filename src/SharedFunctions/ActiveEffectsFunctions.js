@@ -93,6 +93,19 @@ export function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuC
 function castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, useOnSelf) {
     playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
     const newActiveEffect = effectType.createActiveEffect(menuConfig, useOnSelf);
+    if (newActiveEffect.concentration) {
+        // If this is a concentration effect, we can only concentrate on one spell at a time. Remove anything else we are concentrating on.
+        for (let index = 0; index < playerConfigsClone.currentStatus.activeEffects.length; index++) {
+            const activeEffect = playerConfigsClone.currentStatus.activeEffects[index];
+            if (!activeEffect.fromRemoteCharacter && activeEffect.concentration) {
+                // There is an effect with concentration and it isn't from another character. Remove it!
+                playerConfigsClone.currentStatus.activeEffects.splice(index, 1);
+
+                // We just removed an index from an array we are in the middle of looping through. Check this index again, there will be a new value there (unless we've reached the end).
+                index--; 
+            }
+        }
+    }
     playerConfigsClone.currentStatus.activeEffects.push(newActiveEffect);
 }
 
