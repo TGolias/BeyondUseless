@@ -1,0 +1,36 @@
+.textInputMenuWrapperDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    text-align: center;
+}
+
+.textInputMenuText {
+    padding-top: 0.5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    row-gap: 0.5em;
+}
+
+.textInputMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.textInputMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .textInputMenuWrapperDiv {
+        height: 100%;
+    }
+
+    .textInputMenuText {
+        flex-grow: 1;
+    }
+}

@@ -73,7 +73,7 @@ export default function App() {
   const [isSoundMuted, setSoundMuted] = useState(startingValueForMuteSound);
 
   const [showStartMenu, setShowStartMenu] = useState(false);
-  const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined, data: undefined });
+  const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined, data: undefined, overrides: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
   
   useEffect(() => {
@@ -206,7 +206,7 @@ export default function App() {
             </div>
             <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
               <div className="centerMenu pixel-corners">
-                <CenterMenu sessionId={sessionId} playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
+                <CenterMenu sessionId={sessionId} playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter} overrides={centerScreenMenu.overrides}></CenterMenu>
               </div>
             </div>
           </>);
@@ -362,6 +362,10 @@ export default function App() {
             case "species":
               const allSpecies = getCollection("species");
               originValue = allSpecies.find(dndSpecies => dndSpecies.name.toLowerCase() === originNameLower);
+              break;
+            case "statblock":
+              const allStatBlocks = getCollection("statblocks");
+              originValue = allStatBlocks.find(singleDndStatblock => singleDndStatblock.name.toLowerCase() === originNameLower);
               break;
             default:
               return <div>origintype '{originTypeLower}' not supported :(</div>
@@ -671,7 +675,7 @@ export default function App() {
       text: "NEW",
       clickHandler: () => {
         setShowStartMenu(false);
-        setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
+        setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", overrides: undefined, data: { 
           menuTitle: "New Character", 
           menuText: "Are you sure you would like to create a new character?", 
           buttons: [
@@ -689,13 +693,13 @@ export default function App() {
                   setCurrentHistoryIndex(0);
           
                   localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newPlayerConfigs));
-                  setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                  setCenterScreenMenu({ show: false, menuType: undefined, overrides: undefined, data: undefined });
                 }
               },
               {
                 text: "Cancel",
                 onClick: () => {
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                    setCenterScreenMenu({ show: false, menuType: undefined, overrides: undefined, data: undefined });
                 }
               }
           ] 
@@ -707,21 +711,21 @@ export default function App() {
       buttonSound: "menuaudio",
       clickHandler: () => {
         setShowStartMenu(false);
-        setCenterScreenMenu({ show: true, menuType: "SaveMenu", data: {} });
+        setCenterScreenMenu({ show: true, menuType: "SaveMenu", overrides: undefined, data: {} });
       }
     },
     {
       text: "LOAD",
       clickHandler: () => {
         setShowStartMenu(false);
-        setCenterScreenMenu({ show: true, menuType: "LoadMenu", data: {} });
+        setCenterScreenMenu({ show: true, menuType: "LoadMenu", overrides: undefined, data: {} });
       }
     },
     {
       text: "LINK CABLE",
       clickHandler: () => {
         setShowStartMenu(false);
-        setCenterScreenMenu({ show: true, menuType: "LinkCableMenu", data: {} });
+        setCenterScreenMenu({ show: true, menuType: "LinkCableMenu", overrides: undefined, data: {} });
       }
     },
     {
@@ -777,7 +781,7 @@ export default function App() {
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
         <div className="centerMenu pixel-corners">
-          <CenterMenu sessionId={sessionId} playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter}></CenterMenu>
+          <CenterMenu sessionId={sessionId} playerConfigs={playerConfigs} menuType={centerScreenMenu.menuType} data={centerScreenMenu.data} setCenterScreenMenu={setCenterScreenMenu} inputChangeHandler={stateChangeHandler} showDeathScreen={showDeathScreen} loadCharacter={loadCharacter} overrides={centerScreenMenu.overrides}></CenterMenu>
         </div>
       </div>
       <div id="deathScreenWrapper" className="deathScreenWapper">

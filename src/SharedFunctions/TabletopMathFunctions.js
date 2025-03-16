@@ -4,7 +4,7 @@ import { GetHeldItems } from "./EquipmentFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
-    return 2 + Math.floor((playerConfigs.level - 1) / 4);
+    return 2 + Math.floor((Math.ceil(playerConfigs.level) - 1) / 4);
 }
 
 export function calculateArmorClass(playerConfigs) {
@@ -255,6 +255,18 @@ export function calculateHPMax(playerConfigs) {
     if (playerConfigs.currentStatus.maxHpModifier) {
         maxHpSoFar += playerConfigs.currentStatus.maxHpModifier;
     }
+
+    findAllConfiguredAspects(playerConfigs, "maxHpOverride", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let maxHpOverride;
+        if (aspectValue.calculation) {
+            maxHpOverride = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            maxHpOverride = aspectValue;
+        }
+
+        // The hp is being overridden to this value.
+        maxHpSoFar = maxHpOverride;
+    });
 
     return maxHpSoFar;
 }
@@ -1106,6 +1118,15 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
     return amount;
 }
 
+export function calculateAttackRollForAttackRollType(playerConfigs, actionObject, castAtLevel, attackRollType) {
+    switch (attackRollType) {
+        case "spellAttack":
+            return calculateSpellAttack(playerConfigs, actionObject, castAtLevel);
+        case "unarmedAttack":
+            return calculateUnarmedAttackBonus(playerConfigs);
+    }
+}
+
 export function calculateRange(playerConfigs, range) {
     if (range) {
         if (isObject(range)) {
@@ -1353,7 +1374,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     const feats = getCollection('feats');
     const subclasses = getCollection('subclasses');
 
-    // Check the base player for the spect.
+    // Check the base player for the aspect.
     const baseAspectValue = getValueFromObjectAndPath(playerConfigs, aspectName)
     if (baseAspectValue) {
         onAspectFound(baseAspectValue, "player", playerConfigs);
@@ -1589,6 +1610,17 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             }
         }
     }
+
+    if (playerConfigs?.statBlocks && playerConfigs.statBlocks.length > 0) {
+        const allStatBlocks = getCollection("statblocks");
+        const statBlockMap = convertArrayToDictionary(allStatBlocks, "name");
+        for (let statBlock of playerConfigs.statBlocks) {
+            const dndStatBlock = statBlockMap[statBlock];
+            if (dndStatBlock && dndStatBlock.aspects && dndStatBlock.aspects[aspectName]) {
+                onAspectFound(dndStatBlock.aspects[aspectName], "statblock", dndStatBlock);
+            }
+        }
+    }
 }
 
 function getOrAddCachedActiveEffectCollection(playerConfigs, collections, fromRemoteCharacter) {
@@ -1744,7 +1776,7 @@ export function computeAverageDiceRoll(diceObjectWithType) {
     let total = 0;
     for (let diceType of Object.keys(diceObjectWithType)) {
         const diceObject = diceObjectWithType[diceType];
-        for (let diceObjectKey of diceObject) {
+        for (let diceObjectKey of Object.keys(diceObject)) {
             if (diceObjectKey === "static") {
                 total += diceObject[diceObjectKey];
             }

@@ -9,6 +9,10 @@ export function GetFeaturePropertyNameFromFeature(playerConfigs, feature) {
 
 export function GetAllPossibleFeaturesFromObject(object) {
     let allFeatures = []
+    if (object.aspects) {
+        const featuresFromAspects = GetAllPossibleFeaturesFromObject(object.aspects);
+        allFeatures = [...allFeatures, ...featuresFromAspects];
+    }
     if (object.features) {
         allFeatures = [...allFeatures, ...object.features];
     }

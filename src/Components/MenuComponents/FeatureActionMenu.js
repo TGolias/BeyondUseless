@@ -22,27 +22,49 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
 
     const resourceDisplay = [];
 
-    let cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calculation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
-    if (!cost) {
-        cost = 0;
+    let cost = 0;
+    let atWillUse = true;
+    if (menuConfig.featureAction.cost) {
+        atWillUse = false;
+        cost = performMathCalculation(playerConfigs, menuConfig.featureAction.cost.calculation, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+        if (!cost) {
+            cost = 0;
+        }
     }
-    const oldRemainingUses = menuConfig.resource.remainingUses;
-    const newRemainingUses = menuConfig.resource.remainingUses - cost;
-    let canUseAction = newRemainingUses >= 0 && cost !== 0;
+    
+    let canUseAction
+    if (atWillUse) {
+        canUseAction = true;
 
-    playerConfigsClone.currentStatus.remainingResources[menuConfig.resource.name] = newRemainingUses;
-
-    resourceDisplay.push(<>
-        <div className="featureActionResourceDisplay">
-            <div className="featureActionConfiguringHorizontal">
-                <div className="featureActionConfiguringVertical">
-                    <div>{menuConfig.resource.displayName}: {oldRemainingUses} / {menuConfig.resource.maxUses}</div>
-                    <div>Cost: {cost}</div>
-                    <div>Will Be Remaining: {newRemainingUses}</div>
+        resourceDisplay.push(<>
+            <div className="featureActionResourceDisplay">
+                <div className="featureActionConfiguringHorizontal">
+                    <div className="featureActionConfiguringVertical">
+                        <div>Can use at will.</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </>);
+        </>);
+    } else {
+        const oldRemainingUses = menuConfig.resource.remainingUses;
+        const newRemainingUses = menuConfig.resource.remainingUses - cost;
+        canUseAction = newRemainingUses >= 0 && cost !== 0;
+
+        playerConfigsClone.currentStatus.remainingResources[menuConfig.resource.name] = newRemainingUses;
+
+        resourceDisplay.push(<>
+            <div className="featureActionResourceDisplay">
+                <div className="featureActionConfiguringHorizontal">
+                    <div className="featureActionConfiguringVertical">
+                        <div>{menuConfig.resource.displayName}: {oldRemainingUses} / {menuConfig.resource.maxUses}</div>
+                        <div>Cost: {cost}</div>
+                        <div>Will Be Remaining: {newRemainingUses}</div>
+                    </div>
+                </div>
+            </div>
+        </>);
+    }
+    
 
     return (<>
         <div className="featureActionMenuWrapperDiv">

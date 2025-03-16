@@ -1,14 +1,22 @@
 import { getCollection } from "../Collections";
+import { createNewAlliedCreatureFromStatBlock, createStatBlockMap } from "./AlliedCreatureFunctions";
 import { removeConcentrationFromPlayerConfigs } from "./ConcentrationFunctions";
 import { GetAllActiveConnections } from "./LinkedPlayerFunctions";
 import { newActiveEffectMessage } from "./LinkedPlayerMessageFunctions";
-import { getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
+import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
 const effectTypes = {
     SpellMenu: {
         getActionObject: (menuConfig) => {
             return menuConfig.spell;
+        },
+        getCreatures: (playerConfigsClone, menuConfig) => {
+            let creatures = undefined;
+            if (menuConfig.spell.type.includes("creatures")) {
+                creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.spell, "creatures", undefined, { userInput: menuConfig.userInput });
+            }
+            return creatures;
         },
         createActiveEffect: (menuConfig, useOnSelf) => {
             const activeEffect = {
@@ -34,6 +42,13 @@ const effectTypes = {
         getActionObject: (menuConfig) => {
             return menuConfig.featureAction;
         },
+        getCreatures: (playerConfigsClone, menuConfig) => {
+            let creatures = undefined;
+            if (menuConfig.featureAction.type.includes("creatures")) {
+                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, { userInput: menuConfig.userInput });
+            }
+            return creatures;
+        },
         createActiveEffect: (menuConfig, useOnSelf) => {
             return {
                 type: "featureaction",
@@ -48,6 +63,13 @@ const effectTypes = {
         getActionObject: (menuConfig) => {
             return menuConfig.action;
         },
+        getCreatures: (playerConfigsClone, menuConfig) => {
+            let creatures = undefined;
+            if (menuConfig.action.type.includes("creatures")) {
+                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.action, "creatures", undefined, { userInput: menuConfig.userInput });
+            }
+            return creatures;
+        },
         createActiveEffect: (menuConfig, useOnSelf) => {
             return {
                 type: "action",
@@ -60,21 +82,25 @@ const effectTypes = {
     }
 }
 
-export function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, callback) {
+export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, callback) {
     const effectType = effectTypes[menuConfig.type];
     const actionObject = effectType.getActionObject(menuConfig);
-    if (actionObject.duration !== "Instantaneous") {
+
+    const creatures = effectType.getCreatures(playerConfigsClone, menuConfig);
+
+    // We want to track the spell if it is not Instantaneous or has a creatures.
+    if (actionObject.duration !== "Instantaneous" || creatures) {
         if (actionObject.range === "Self") {
-            castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, true);
+            await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, true);
             callback();
         } else if (actionObject.aspects) {
             setCenterScreenMenu({ show: true, menuType: "TargetMenu", data: {
-                onClose: (targetNames) => {
+                onClose: async (targetNames) => {
                     const targetNamesMap = convertArrayOfStringsToHashMap(targetNames);
                     if (targetNamesMap[playerConfigsClone.name]) {
-                        castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, true);
+                        await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, true);
                     } else {
-                        castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, false);
+                        await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, false);
                     }
                     
                     const allActiveConnections = GetAllActiveConnections();
@@ -92,7 +118,7 @@ export function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuC
                 },
             } });
         } else {
-            castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, false);
+            await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, false);
             callback();
         }
     } else {
@@ -100,13 +126,49 @@ export function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuC
     }
 }
 
-function castSpellWithAddingToEffects(playerConfigsClone, effectType, menuConfig, useOnSelf) {
+async function castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, useOnSelf) {
     playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
     const newActiveEffect = effectType.createActiveEffect(menuConfig, useOnSelf);
+
+    // See if we have any creatures.
+    if (creatures) {
+        const statBlockMap = createStatBlockMap();
+        const allies = [];
+
+        if (Array.isArray(creatures)) {
+            for (let creature of creatures) {
+                allies.push(await createAlliedCreature(playerConfigsClone, statBlockMap, creature, newActiveEffect, setCenterScreenMenu));
+            }
+        } else {
+            allies.push(await createAlliedCreature(playerConfigsClone, statBlockMap, creatures, newActiveEffect, setCenterScreenMenu));
+        }
+
+        newActiveEffect.allies = allies;
+    }
+
+    // See if we already have an active effect with concentration and end it.
     if (newActiveEffect.concentration) {
         removeConcentrationFromPlayerConfigs(playerConfigsClone);
     }
     playerConfigsClone.currentStatus.activeEffects.push(newActiveEffect);
+}
+
+async function createAlliedCreature(playerConfigsClone, statBlockMap, creature, activeEffect, setCenterScreenMenu) {
+    const statBlockForCreature = statBlockMap[creature];
+    const name = await promptName(statBlockForCreature, setCenterScreenMenu);
+    const ally = createNewAlliedCreatureFromStatBlock(playerConfigsClone, statBlockForCreature, name, activeEffect);
+    return ally;
+}
+
+function promptName(statBlockForCreature, setCenterScreenMenu) {
+    return new Promise(resolve => {
+        setCenterScreenMenu({ show: true, menuType: "TextInputMenu", data: { menuTitle: "Enter Ally Name", menuText: "Enter Name for <b>" + statBlockForCreature.name + "</b>:", 
+            onOkClicked: (result) => {
+                // TODO: We need to reject this promise or somehow break out when the user clicks out of the menu using the "X", otherwise the promise sticks around forever I believe.
+                resolve(result);
+            }
+        }});
+    });
 }
 
 export function getActionObjectForActiveEffect(playerConfigs, activeEffect) {

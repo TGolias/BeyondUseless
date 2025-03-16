@@ -2,7 +2,7 @@ import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection } from '../../Collections';
 import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
-import { calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
 import { GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
 
@@ -40,7 +40,7 @@ const rows = [
                 const spellSave = calculateSpellSaveDC(playerConfigs, dndCantrip, 0);
                 return "DC" + spellSave.dc;
             } else {
-                const attack = calculateSpellAttack(playerConfigs, dndCantrip, 0);
+                const attack = calculateAttackRollForAttackRollType(playerConfigs, dndCantrip, 0, dndCantrip.attackRollType);
                 return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         }

@@ -41,15 +41,23 @@ export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterS
     for (let actionFeature of actionFeatures) {
         for (let action of actionFeature.feature.actions) {
             const featureOrigin = getFeatureOrigin(actionFeature);
-            if (action.cost.resourceType) {
-                if (!resourceName2Actions[action.cost.resourceType]) {
-                    resourceName2Resource[action.cost.resourceType] = getResourceForResourceType(playerConfigs, actionFeature, action.cost.resourceType);
-                    resourceName2Actions[action.cost.resourceType] = [];
+            if (action.cost) {
+                if (action.cost.resourceType) {
+                    if (!resourceName2Actions[action.cost.resourceType]) {
+                        resourceName2Resource[action.cost.resourceType] = getResourceForResourceType(playerConfigs, actionFeature, action.cost.resourceType);
+                        resourceName2Actions[action.cost.resourceType] = [];
+                    }
+                    resourceName2Actions[action.cost.resourceType].push({ action, feature: actionFeature.feature, origin: featureOrigin })
+                } else if (action.cost.uses) {
+                    resourceName2Resource[action.name] = getResourceForUses(playerConfigs, action);
+                    resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
                 }
-                resourceName2Actions[action.cost.resourceType].push({ action, feature: actionFeature.feature, origin: featureOrigin })
-            } else if (action.cost.uses) {
-                resourceName2Resource[action.name] = getResourceForUses(playerConfigs, action);
-                resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
+            } else {
+                if (!resourceName2Resource.freeActions) {
+                    resourceName2Resource.freeActions = getResourceForFreeActions();
+                    resourceName2Actions.freeActions = [];
+                }
+                resourceName2Actions.freeActions.push({ action, feature: actionFeature.feature, origin: featureOrigin });
             }
         }
     }
@@ -167,7 +175,7 @@ function getResourceForUses(playerConfigs, action) {
     const resource = {};
     resource.name = action.name;
     resource.displayName = action.name;
-    resource.maxUses = performMathCalculation(playerConfigs, action.cost.uses.calculation);;
+    resource.maxUses = performMathCalculation(playerConfigs, action.cost.uses.calculation);
     let remainingUses;
     if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
         remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
@@ -175,6 +183,13 @@ function getResourceForUses(playerConfigs, action) {
         remainingUses = resource.maxUses;
     }
     resource.remainingUses = remainingUses;
+    return resource;
+}
+
+function getResourceForFreeActions() {
+    const resource = {};
+    resource.name = "freeActions";
+    resource.displayName = "Free Actions";
     return resource;
 }
 
@@ -192,6 +207,10 @@ function getFeatureOrigin(actionFeature) {
             const allSpecies = getCollection("species");
             const dndSpecies = allSpecies.find(singleDndSpecies => singleDndSpecies.name === actionFeature.playerConfigForObject.name);
             return { type: "species", value: dndSpecies };
+        case "statblock":
+            const allStatBlocks = getCollection("statblocks");
+            const dndStatblock = allStatBlocks.find(singleDndStatblock => singleDndStatblock.name === actionFeature.playerConfigForObject.name);
+            return { type: "statblock", value: dndStatblock };
     }
 
     if (actionFeature.typeFoundOn.startsWith("species[")) {

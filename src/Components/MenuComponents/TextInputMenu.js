@@ -1,22 +1,22 @@
 import React from "react";
-import './SelectListMenu.css';
+import './TextInputMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { SelectList } from "../SimpleComponents/SelectList";
+import { TextInput } from "../SimpleComponents/TextInput";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 
-export function SelectListMenu({menuConfig, setCenterScreenMenu, menuStateChangeHandler}) {
+export function TextInputMenu({menuConfig, setCenterScreenMenu, menuStateChangeHandler}) {
     return (<>
-        <div className="selectListMenuWrapperDiv">
-            <div className="selectListMenuText">
+        <div className="textInputMenuWrapperDiv">
+            <div className="textInputMenuText">
                 <div>{parseStringForBoldMarkup(menuConfig.menuText)}</div>
-                <SelectList options={menuConfig.options} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"valueSelected"} inputHandler={menuStateChangeHandler}></SelectList>
+                <TextInput isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"valueTyped"} inputHandler={menuStateChangeHandler}></TextInput>
             </div>
             <div className="centerMenuSeperator"></div>
-            <div className="selectListMenuHorizontal">
+            <div className="textInputMenuHorizontal">
                 <RetroButton text={"OK"} onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                    menuConfig.onOkClicked(menuConfig.valueSelected);
-                }} showTriangle={false} disabled={!menuConfig.valueSelected}></RetroButton>
+                    menuConfig.onOkClicked(menuConfig.valueTyped);
+                }} showTriangle={false} disabled={!menuConfig.valueTyped}></RetroButton>
                 <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
             </div>
         </div>

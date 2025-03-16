@@ -27,6 +27,8 @@ import { LinkCreateMenu } from "./LinkCreateMenu";
 import { LinkedChars } from "./LinkedChars";
 import { LinkedChar } from "./LinkedChar";
 import { TargetMenu } from "./TargetMenu";
+import { ViewCharacterMenu } from "./ViewCharacterMenu";
+import { TextInputMenu } from "./TextInputMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -312,6 +314,23 @@ const menuCollection = {
             return (<><SelectListMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></SelectListMenu></>);
         }
     },
+    TextInputMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{data.menuTitle}</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.menuText = data.menuText;
+            newItemMenu.onOkClicked = data.onOkClicked;
+            newItemMenu.valueTyped = undefined;
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><TextInputMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></TextInputMenu></>);
+        }
+    },
     SaveMenu: {
         createMenuTitle: (playerConfigs, data, menuConfig) => {
             return (<>
@@ -393,7 +412,7 @@ const menuCollection = {
         createMenuTitle: (playerConfigs, data, menuConfig) => {
             return (<>
                 <div className="menuTitleBarTitle">
-                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                    <RetroButton text={menuConfig.menuTitle} onClickHandler={() => {
                         if (menuConfig.copyLinkToView && menuConfig.copyLinkToView.onExecute) {
                             menuConfig.copyLinkToView.onExecute();
                         }
@@ -403,11 +422,12 @@ const menuCollection = {
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {...data};
+            newItemMenu.menuTitle = data.menuTitle;
             newItemMenu.copyLinkToView = {};
             return newItemMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ViewMenu playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></ViewMenu></>);
+            return (<><ViewMenu playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} addToMenuStack={addToMenuStack}></ViewMenu></>);
         }
     },
     LinkCableMenu: {
@@ -514,6 +534,23 @@ const menuCollection = {
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><TargetMenu playerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></TargetMenu></>);
         }
+    },
+    ViewCharacterMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{menuConfig.playerConfigs.name}</div>
+            </>);
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.playerConfigs = data.playerConfigs;
+            newItemMenu.onOkClicked = data.onOkClicked;
+            newItemMenu.isPlayerConfigsSet = false;
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><ViewCharacterMenu menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack}></ViewCharacterMenu></>);
+        }
     }
 }
 
@@ -524,8 +561,12 @@ const defaultMenuConfig = {
 
 let menuStack = [];
 
-export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterScreenMenu, inputChangeHandler, showDeathScreen, loadCharacter}) {
+export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterScreenMenu, inputChangeHandler, showDeathScreen, loadCharacter, overrides}) {
     const [menuConfig, setMenuConfig] = useState(defaultMenuConfig);
+
+    const menuPlayerConfigs = overrides?.playerConfigs ?? playerConfigs;
+    const menuSetCenterScreenMenu = overrides?.setCenterScreenMenu ?? setCenterScreenMenu;
+    const menuInputChangeHandler = overrides?.inputChangeHandler ?? inputChangeHandler;
 
     const menu = menuCollection[menuType];
     let title = [];
@@ -534,22 +575,22 @@ export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterS
     if (menu) {
         let newMenuConfig = menuConfig;
         if (!newMenuConfig.opened || newMenuConfig.type !== menuType) {
-            newMenuConfig = menu.createDefaultMenuConfig(playerConfigs, data);
+            newMenuConfig = menu.createDefaultMenuConfig(menuPlayerConfigs, data);
             newMenuConfig.type = menuType;
             newMenuConfig.opened = true;
             setMenuConfig(newMenuConfig);
         }
 
-        title = menu.createMenuTitle(playerConfigs, data, newMenuConfig);
+        title = menu.createMenuTitle(menuPlayerConfigs, data, newMenuConfig);
 
-        menuLayout.push(menu.createMenuLayout(sessionId, playerConfigs, 
+        menuLayout.push(menu.createMenuLayout(sessionId, menuPlayerConfigs, 
             (centerScreenConfigs) => {
                 if (!centerScreenConfigs.show) {
                     if (menuStack.length > 0) {
                         // Hold on... There was a previous menu that we want to show instead.
                         const previousMenu = menuStack.pop();
                         setMenuConfig(previousMenu.menuConfig);
-                        setCenterScreenMenu({ show: true, menuType: previousMenu.menuType, data: { menuTitle: previousMenu.menuTitle } })
+                        setCenterScreenMenu({ show: true, menuType: previousMenu.menuType, overrides: previousMenu.overrides, data: { menuTitle: previousMenu.menuTitle } });
                     } else {
                         // They're closing out of the menu. Reset menu configs as well for next time.
                         const resetMenuConfig = {...defaultMenuConfig};
@@ -557,14 +598,15 @@ export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterS
                         setCenterScreenMenu(centerScreenConfigs);
                     }
                 } else {
-                    setCenterScreenMenu(centerScreenConfigs);
+                    menuSetCenterScreenMenu(centerScreenConfigs);
                 }
                 
             },
             (previousMenu) => {
+                previousMenu.overrides = overrides;
                 menuStack.push(previousMenu);
             },
-            inputChangeHandler, 
+            menuInputChangeHandler, 
             newMenuConfig, 
             (baseStateObject, pathToProperty, newValue) => {
                 const totalPath = getTotalPath(pathToProperty);

@@ -40,7 +40,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     return (
         <>
             <div className="outerDiv">
-                <div className="playerName">{playerConfigs.name}</div>
+                <div className="playerName">{playerConfigs.title ? playerConfigs.title : playerConfigs.name}</div>
                 <div className="healthBarAndDefense">
                     <HPandLVLDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} playLowHpAudio={true}></HPandLVLDisplay>
                     <ArmorClassDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></ArmorClassDisplay>

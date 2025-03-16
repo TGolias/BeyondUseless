@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
@@ -40,6 +40,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let buffDescription = undefined;
     let debuffAmount = undefined;
     let debuffDescription = undefined;
+    let creatures = undefined;
     if (data && playerConfigs) {
         const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", { featureAction });
         if (featureActionDescriptionAddendumString) {
@@ -51,7 +52,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         featureAction.feature = allPossibleFeatures.find(feature => feature.spellcasting);
 
         if (featureAction.challengeType === "attackRoll") {
-            const attack = calculateSpellAttack(playerConfigs, featureAction, undefined)
+            const attack = calculateAttackRollForAttackRollType(playerConfigs, featureAction, undefined, featureAction.attackRollType);
             attackRoll = attack.amount;
             if (attack.addendum) {
                 attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -107,6 +108,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         if (featureAction.type.includes("restore")) {
             restore = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "restore", "restoreBonus", { userInput: data.userInput });
         }
+
+        if (featureAction.type.includes("creatures")) {
+            creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, { userInput: data.userInput });
+        }
     }
 
     return <>
@@ -114,7 +119,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             <div><b>Action Time:</b> {actionTime}</div>
             <div><b>Range:</b> {range}</div>
             <div><b>Duration:</b> {featureAction.duration}</div>
-            <div className="featureActionPageDescription">{description}</div>
+            <div className="featureActionPageDescription" style={{display: (description.length ? "block" : "none")}}>{description}</div>
             <div className="featureActionPageDescription" style={{display: (featureActionDescriptionAddendum ? "block" : "none")}}>{featureActionDescriptionAddendum}</div>
             <br></br>
             <div className="featureActionPageDescription">
@@ -146,6 +151,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="featureActionPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
                 <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
+                <div><b>Allied Creatures:</b> {creatures}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (feature ? "block" : "none")}}>
                 <div><b>Learned from:</b> {origin.value.name} - {feature.name}</div>

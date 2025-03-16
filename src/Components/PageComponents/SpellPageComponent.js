@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateOtherSpellAspect, calculateRange, calculateSpellAttack, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
@@ -67,6 +67,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let buffDescription = undefined;
     let debuffAmount = undefined;
     let debuffDescription = undefined;
+    let creatures = undefined;
     if (data) {
         if (data.freeUses !== undefined) {
             freeUses = data.freeUses;
@@ -91,7 +92,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.challengeType === "attackRoll") {
-                    const attack = calculateSpellAttack(playerConfigs, spell, castAtLevel)
+                    const attack = calculateAttackRollForAttackRollType(playerConfigs, spell, castAtLevel, spell.attackRollType);
                     attackRoll = attack.amount;
                     if (attack.addendum) {
                         attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -147,6 +148,10 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 if (spell.type.includes("restore")) {
                     restore = calculateOtherSpellAspect(playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
                 }
+
+                if (spell.type.includes("creatures")) {
+                    creatures = calculateOtherSpellAspect(playerConfigs, spell, "creatures", undefined, { userInput: data.userInput });
+                }
             }
         }
     }
@@ -195,6 +200,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             </div>
             <div className="spellPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
                 <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
+                <div><b>Allied Creatures:</b> {creatures}</div>
             </div>
             <div className="spellPageDescription" style={{display: (featureName ? "block" : "none")}}>
                 <div><b>Learned from:</b> {featureName}</div>

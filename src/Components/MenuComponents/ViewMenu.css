@@ -22,6 +22,15 @@
     row-gap: 0.25em;
 }
 
+.viewMenuSingleAlly {
+    width: 100%;
+    font-size: 1.25em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.25em;
+}
+
 .viewMenuResourceUses {
     font-size: 2em;
 }
