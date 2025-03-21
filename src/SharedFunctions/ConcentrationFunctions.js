@@ -25,7 +25,7 @@ export function showConcentrationMenuIfConcentrating(oldPlayerConfigs, newPlayer
         if (hasConditionThatRemovesConcentration || newHp < oldHp) {
             if (hasConditionThatRemovesConcentration || newHp === 0) {
                 // You drop to zero, you lose concentration.
-                newPlayerConfigs.currentStatus.activeEffects = [...newPlayerConfigs.currentStatus.activeEffects];
+                newPlayerConfigs.currentStatus.activeEffects = newPlayerConfigs.currentStatus.activeEffects ? [...newPlayerConfigs.currentStatus.activeEffects] : [];
                 removeConcentrationFromPlayerConfigs(newPlayerConfigs);
                 callback();
             } else {
@@ -72,7 +72,7 @@ export function showConcentrationMenuIfConcentrating(oldPlayerConfigs, newPlayer
                     {
                         text: "No",
                         onClick: () => {
-                            newPlayerConfigs.currentStatus.activeEffects = [...newPlayerConfigs.currentStatus.activeEffects];
+                            newPlayerConfigs.currentStatus.activeEffects = newPlayerConfigs.currentStatus.activeEffects ? [...newPlayerConfigs.currentStatus.activeEffects] : [];
                             removeConcentrationFromPlayerConfigs(newPlayerConfigs);
                             callback();
                         }

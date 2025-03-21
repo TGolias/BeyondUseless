@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useReducer } from "react";
 import './ViewCharacterMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { Renderer } from "../MainLayoutComponents/Renderer";
@@ -6,8 +6,10 @@ import { getTotalPath } from "../../SharedFunctions/ComponentFunctions";
 
 var playerConfigs = undefined;
 
-export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler}) {
+export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, showDeathScreen}) {
 
+    const [, forceUpdate] = useReducer(x => !x, false);
+    
     if (!menuConfig.isPlayerConfigsSet) {
         playerConfigs = menuConfig.playerConfigs;
         menuConfig.isPlayerConfigsSet = true;
@@ -45,6 +47,9 @@ export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConf
             newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
         }
         playerConfigs = newBaseStateObject;
+
+        forceUpdate();
+
         return newBaseStateObject;
     };
 
@@ -60,9 +65,12 @@ export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConf
     return (<>
         <div className="viewCharacterMenuWrapperDiv">
             <Renderer playerConfigs={playerConfigs} inputChangeHandler={characterInputChangeHandler} setCenterScreenMenu={(centerScreenMenu) => { 
-                addToMenuStack({ menuType: "ViewCharacterMenu", menuConfig });
+                if (centerScreenMenu.show) {
+                    addToMenuStack({ menuType: "ViewCharacterMenu", menuConfig });
+                }
+                
                 characterSetCenterScreenMenu(centerScreenMenu);
-            }} showDeathScreen={undefined}></Renderer>
+            }} showDeathScreen={showDeathScreen}></Renderer>
         </div>
         <div className="centerMenuSeperator"></div>
         <div className="viewCharacterMenuHorizontal">

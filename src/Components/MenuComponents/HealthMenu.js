@@ -86,6 +86,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
         }
 
         // Also remove concentration.
+        playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
         removeConcentrationFromPlayerConfigs(playerConfigsClone);
     }
     if (!isDying) {
@@ -239,7 +240,7 @@ function setStatusAndClose(playerConfigs, playerConfigsClone, inputChangeHandler
     inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     if (willDie) {
-        showDeathScreen();
+        showDeathScreen(playerConfigsClone);
     }
 }
 

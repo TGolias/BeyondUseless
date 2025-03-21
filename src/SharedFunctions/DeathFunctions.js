@@ -23,7 +23,7 @@ export function SetPlayerDead(playerConfigs) {
     playerConfigs.currentStatus.deathSavingThrowFailures = 3;
 
     if (playerConfigs.currentStatus.activeEffects) {
-        playerConfigs.currentStatus.activeEffects = [...playerConfigs.currentStatus.activeEffects];
+        playerConfigs.currentStatus.activeEffects = playerConfigs.currentStatus.activeEffects ? [...playerConfigs.currentStatus.activeEffects] : [];
         removeConcentrationFromPlayerConfigs(playerConfigs);
     }
 

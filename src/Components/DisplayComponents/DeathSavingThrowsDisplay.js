@@ -21,7 +21,7 @@ export function DeathSavingThrowsDisplay({playerConfigs, inputChangeHandler, sho
                             SetPlayerDead(playerConfigs);
                             inputChangeHandler(playerConfigs, "currentStatus", playerConfigs.currentStatus);
 
-                            showDeathScreen();
+                            showDeathScreen(playerConfigs);
                         } else {
                             inputChangeHandler(playerConfigs, "currentStatus.deathSavingThrowFailures", newAmountOfFailures);
                             playAudio("selectionaudio");

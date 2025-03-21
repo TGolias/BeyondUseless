@@ -496,12 +496,15 @@ export default function App() {
     setPlayerConfigs(nextState);
   }
 
-  function showDeathScreen() {
+  function showDeathScreen(dyingPlayerConfigs) {
     playAudio("youdiedaudio");
 
     var deathScreenWrapper = document.getElementById("deathScreenWrapper");
     var deathScreenContainer = document.getElementById("deathScreenContainer");
     var deathScreenText = document.getElementById("deathScreenText");
+
+    let name = dyingPlayerConfigs.name === playerConfigs.name ? "YOU" : dyingPlayerConfigs.name.split(' ')[0].toUpperCase();
+    deathScreenText.innerText = name + " DIED"
 
     deathScreenWrapper.classList.add("show");
     deathScreenContainer.classList.add("zoom");

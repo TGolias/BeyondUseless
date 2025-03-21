@@ -549,7 +549,7 @@ const menuCollection = {
             return newItemMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><ViewCharacterMenu menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack}></ViewCharacterMenu></>);
+            return (<><ViewCharacterMenu menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} showDeathScreen={showDeathScreen}></ViewCharacterMenu></>);
         }
     }
 }

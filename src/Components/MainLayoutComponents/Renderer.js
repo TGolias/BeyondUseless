@@ -119,7 +119,7 @@ function onAddCondition(playerConfigs, inputChangeHandler, newCondition, showDea
 
         SetPlayerDead(newPlayerConfigs);
         inputChangeHandler(playerConfigs, "currentStatus", newPlayerConfigs.currentStatus);
-        showDeathScreen();
+        showDeathScreen(newPlayerConfigs);
     } else {
         inputChangeHandler(playerConfigs, "currentStatus.conditions", newConditions);
     }
