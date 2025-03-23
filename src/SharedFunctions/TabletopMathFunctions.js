@@ -256,6 +256,17 @@ export function calculateHPMax(playerConfigs) {
         maxHpSoFar += playerConfigs.currentStatus.maxHpModifier;
     }
 
+    findAllConfiguredAspects(playerConfigs, "maxHpBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        let maxHpBonus;
+        if (aspectValue.calculation) {
+            maxHpBonus = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            maxHpBonus = aspectValue;
+        }
+
+        maxHpSoFar += maxHpBonus;
+    });
+
     findAllConfiguredAspects(playerConfigs, "maxHpOverride", (aspectValue, typeFoundOn, playerConfigForObject) => {
         let maxHpOverride;
         if (aspectValue.calculation) {
