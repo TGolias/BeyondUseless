@@ -1630,6 +1630,17 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             if (dndStatBlock && dndStatBlock.aspects && dndStatBlock.aspects[aspectName]) {
                 onAspectFound(dndStatBlock.aspects[aspectName], "statblock", dndStatBlock);
             }
+
+            const allStatBlockFeatures = dndStatBlock?.aspects?.features ? [...dndStatBlock.aspects.features] : [];
+            
+            if (allStatBlockFeatures) {
+                for (let i = 0; i < allStatBlockFeatures.length; i++) {
+                    const statBlockFeature = allStatBlockFeatures[i];
+                    if (statBlockFeature && statBlockFeature.aspects && statBlockFeature.aspects[aspectName]) {
+                        onAspectFound(statBlockFeature.aspects[aspectName], "feature", statBlockFeature);
+                    }
+                }
+            }
         }
     }
 }

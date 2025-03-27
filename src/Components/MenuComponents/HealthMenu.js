@@ -17,8 +17,25 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
     let healthMenuAddendums = "";
     const resistancesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "resistances"));
     if (resistancesString) {
-        healthMenuAddendums += "Resistances: " + resistancesString;
+        healthMenuAddendums += "<b>Resistances:</b> " + resistancesString;
     }
+
+    const damagetypeImmunitiesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "damagetypeImmunities"));
+    if (damagetypeImmunitiesString) {
+        if (healthMenuAddendums.length > 0) {
+            healthMenuAddendums += "\n\n";
+        }
+        healthMenuAddendums += "<b>Damage Type Immunities:</b> " + damagetypeImmunitiesString;
+    }
+
+    const conditionImmunitiesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "conditionImmunities"));
+    if (conditionImmunitiesString) {
+        if (healthMenuAddendums.length > 0) {
+            healthMenuAddendums += "\n\n";
+        }
+        healthMenuAddendums += "<b>Condition Immunities:</b> " + conditionImmunitiesString;
+    }
+
     const addendumsFromAspects = calculateAddendumAspect(playerConfigs, "healthMenuAddendum");
     if (addendumsFromAspects) {
         if (healthMenuAddendums.length > 0) {
@@ -174,7 +191,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                 </div>
             </div>
             <div style={{display: (healthMenuAddendums ? "block" : "none")}}>
-                <div>{parseStringForBoldMarkup(healthMenuAddendums)}</div>
+                <div className="healthMenuAddendums">{parseStringForBoldMarkup(healthMenuAddendums)}</div>
             </div>
             <div className="healthMenuGrid">
                 <div></div>
