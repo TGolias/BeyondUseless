@@ -544,6 +544,7 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
             newItemMenu.playerConfigs = data.playerConfigs;
+            newItemMenu.parentPlayerConfigs = data.parentPlayerConfigs;
             newItemMenu.onOkClicked = data.onOkClicked;
             newItemMenu.isPlayerConfigsSet = false;
             return newItemMenu;

@@ -12,6 +12,7 @@ export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConf
     
     if (!menuConfig.isPlayerConfigsSet) {
         playerConfigs = menuConfig.playerConfigs;
+        playerConfigs.parent = menuConfig.parentPlayerConfigs;
         menuConfig.isPlayerConfigsSet = true;
         menuStateChangeHandler(menuConfig, "isPlayerConfigsSet", menuConfig.isPlayerConfigsSet);
     }
@@ -77,6 +78,8 @@ export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConf
             <RetroButton text={"OK"} onClickHandler={() => {
                 setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 if (menuConfig.onOkClicked) {
+                    // We used the parent configs for viewing purposes only, remove it before returning the changes.
+                    delete playerConfigs.parent;
                     menuConfig.onOkClicked(playerConfigs);
                 }
             }} showTriangle={false} disabled={false}></RetroButton>

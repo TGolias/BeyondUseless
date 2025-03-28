@@ -1,5 +1,5 @@
 import { getCollection } from "../Collections";
-import { computeAverageDiceRoll, performDiceRollCalculation, performMathCalculation } from "./TabletopMathFunctions";
+import { calculateSpellAttack, computeAverageDiceRoll, performDiceRollCalculation, performMathCalculation } from "./TabletopMathFunctions";
 import { convertArrayToDictionary } from "./Utils";
 
 export function createStatBlockMap() {
@@ -8,15 +8,17 @@ export function createStatBlockMap() {
     return statBlockMap;
 }
 
-export function createNewAlliedCreatureFromStatBlock(playerConfigs, statBlock, creatureName, activeEffect) {
-    const hpDice = performDiceRollCalculation(playerConfigs, statBlock.hp.calculation, { activeEffect })
+export function createNewAlliedCreatureFromStatBlock(playerConfigs, statBlock, creatureName, creatureCalculationParams) {
+    const hpDice = performDiceRollCalculation(playerConfigs, statBlock.hp.calculation, creatureCalculationParams)
     const averageHp = computeAverageDiceRoll(hpDice);
+    const creatureType = getCalculationOrValue(playerConfigs, statBlock.creatureType, creatureCalculationParams);
 
     const alliedCreature = {
-        name: creatureName,
-        title: statBlock.name + " - " + statBlock.creatureType + ", " + statBlock.alignment,
-        level: statBlock.cr,
-        size: statBlock.size,
+        name: getCalculationOrValue(playerConfigs, creatureName, creatureCalculationParams),
+        creatureType: creatureType,
+        title: getCalculationOrValue(playerConfigs, statBlock.name, creatureCalculationParams) + " - " + creatureType + ", " + getCalculationOrValue(playerConfigs, statBlock.alignment, creatureCalculationParams),
+        level: getCalculationOrValue(playerConfigs, statBlock.cr, creatureCalculationParams),
+        size: getCalculationOrValue(playerConfigs, statBlock.size, creatureCalculationParams),
         maxHpOverride: averageHp,
         abilityScores: {...statBlock.abilityScores},
         background: {},
@@ -30,9 +32,18 @@ export function createNewAlliedCreatureFromStatBlock(playerConfigs, statBlock, c
 
     if (statBlock.precomputedAspects) {
         for (let aspectName of Object.keys(statBlock.precomputedAspects)) {
-            alliedCreature[aspectName] = performMathCalculation(playerConfigs, statBlock.aspects[aspectName], { activeEffect });
+            const precomputedAspect = statBlock.precomputedAspects[aspectName];
+            alliedCreature[aspectName] = performMathCalculation(playerConfigs, precomputedAspect.calculation, creatureCalculationParams);
         }
     }
 
     return alliedCreature;
+}
+
+function getCalculationOrValue(playerConfigs, value, creatureCalculationParams) {
+    if (value && value.calculation) {
+        return performMathCalculation(playerConfigs, value.calculation, creatureCalculationParams);
+    } else {
+        return value;
+    }
 }

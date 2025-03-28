@@ -127,7 +127,7 @@ function createAllyRow(allyIndex, currentActiveEffect, effectObject, menuConfig,
         <div className="viewMenuSingleAlly" onClick={() => {
             playAudio("selectionaudio");
             addToMenuStack({ menuType: "ViewMenu", menuConfig });
-            setCenterScreenMenu({ show: true, menuType: "ViewCharacterMenu", data: { playerConfigs: ally, onOkClicked: (newPlayerConfigs) => {
+            setCenterScreenMenu({ show: true, menuType: "ViewCharacterMenu", data: { playerConfigs: ally, parentPlayerConfigs: menuConfig.playerConfigs, onOkClicked: (newPlayerConfigs) => {
                 const newNewAllies = menuConfig.newAllies ? [...menuConfig.newAllies] : [...currentActiveEffect.allies];
                 newNewAllies[allyIndex] = newPlayerConfigs;
                 menuStateChangeHandler(menuConfig, "newAllies", newNewAllies);

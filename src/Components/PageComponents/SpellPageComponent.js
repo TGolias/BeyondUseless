@@ -146,11 +146,11 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.type.includes("restore")) {
-                    restore = calculateOtherSpellAspect(playerConfigs, spell, "restore", "restoreBonus", { userInput: data.userInput });
+                    restore = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "restore", "restoreBonus", { userInput: data.userInput });
                 }
 
                 if (spell.type.includes("creatures")) {
-                    creatures = calculateOtherSpellAspect(playerConfigs, spell, "creatures", undefined, { userInput: data.userInput });
+                    creatures = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "creatures", undefined, { userInput: data.userInput });
                 }
             }
         }

@@ -46,7 +46,7 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
         }
 
         if (doesSpellOrFeatureActionTypeInclude(menuConfig, "restore")) {
-            const restore = calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.featureAction, "restore", "restoreBonus", { userInput: menuConfig.userInput });
+            const restore = calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, "restore", "restoreBonus");
             if (restore) {
                 const allConditionsRestored = restore.split(/, | and | or /g);;
                 if (allConditionsRestored) {

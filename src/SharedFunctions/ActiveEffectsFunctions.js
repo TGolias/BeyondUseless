@@ -3,7 +3,7 @@ import { createNewAlliedCreatureFromStatBlock, createStatBlockMap } from "./Alli
 import { removeConcentrationFromPlayerConfigs } from "./ConcentrationFunctions";
 import { GetAllActiveConnections } from "./LinkedPlayerFunctions";
 import { newActiveEffectMessage } from "./LinkedPlayerMessageFunctions";
-import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
+import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
 const effectTypes = {
@@ -14,7 +14,7 @@ const effectTypes = {
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
             if (menuConfig.spell.type.includes("creatures")) {
-                creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.spell, "creatures", undefined, { userInput: menuConfig.userInput });
+                creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.spell, menuConfig.useSpellSlotLevel, "creatures", undefined, { userInput: menuConfig.userInput });
             }
             return creatures;
         },
@@ -129,18 +129,23 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
 async function castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, useOnSelf) {
     playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
     const newActiveEffect = effectType.createActiveEffect(menuConfig, useOnSelf);
-
+    
     // See if we have any creatures.
     if (creatures) {
+        const actionObject = effectType.getActionObject(menuConfig);
+
+        // Sometimes creatures use aspects from the player character, set it to the values of when the player character cast them... The rules don't specify but that seems to be what makes the most sense to me.
+        const creatureCalculationParams = createCreatureCalculationParams(newActiveEffect, actionObject);
+
         const statBlockMap = createStatBlockMap();
         const allies = [];
 
         if (Array.isArray(creatures)) {
             for (let creature of creatures) {
-                allies.push(await createAlliedCreature(playerConfigsClone, statBlockMap, creature, newActiveEffect, setCenterScreenMenu));
+                allies.push(await createAlliedCreature(playerConfigsClone, statBlockMap, creature, creatureCalculationParams, setCenterScreenMenu));
             }
         } else {
-            allies.push(await createAlliedCreature(playerConfigsClone, statBlockMap, creatures, newActiveEffect, setCenterScreenMenu));
+            allies.push(await createAlliedCreature(playerConfigsClone, statBlockMap, creatures, creatureCalculationParams, setCenterScreenMenu));
         }
 
         newActiveEffect.allies = allies;
@@ -153,10 +158,17 @@ async function castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenM
     playerConfigsClone.currentStatus.activeEffects.push(newActiveEffect);
 }
 
-async function createAlliedCreature(playerConfigsClone, statBlockMap, creature, activeEffect, setCenterScreenMenu) {
+function createCreatureCalculationParams(activeEffect, actionObject) {
+    return {
+        activeEffect,
+        actionObject
+    }
+}
+
+async function createAlliedCreature(playerConfigsClone, statBlockMap, creature, creatureCalculationParams, setCenterScreenMenu) {
     const statBlockForCreature = statBlockMap[creature];
     const name = await promptName(statBlockForCreature, setCenterScreenMenu);
-    const ally = createNewAlliedCreatureFromStatBlock(playerConfigsClone, statBlockForCreature, name, activeEffect);
+    const ally = createNewAlliedCreatureFromStatBlock(playerConfigsClone, statBlockForCreature, name, creatureCalculationParams);
     return ally;
 }
 

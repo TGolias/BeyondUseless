@@ -4,6 +4,20 @@ import { GetHeldItems } from "./EquipmentFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
 export function calculateProficiencyBonus(playerConfigs) {
+    let proficiencyBonusOverride = undefined
+    findAllConfiguredAspects(playerConfigs, "proficiencyBonusOverride", (aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.calculation) {
+            proficiencyBonusOverride = performMathCalculation(playerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            proficiencyBonusOverride = aspectValue;
+        }
+    });
+
+    if (proficiencyBonusOverride) {
+        // The proficiency bonus is being forced to this value.
+        return proficiencyBonusOverride;
+    }
+    
     return 2 + Math.floor((Math.ceil(playerConfigs.level) - 1) / 4);
 }
 
@@ -699,7 +713,7 @@ export function calculateUnarmedAttackDC(playerConfigs) {
     if (!dc) {
         dc = "0";
     }
-    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    const addendum = calculateAddendumAspect(playerConfigs, "unarmedDCAddendum", { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     return { dc, addendum };
 }
@@ -946,19 +960,31 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
 export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     let attackBonus = createDiceObjectWithType({});
 
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
-    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
+    let playerConfigsToUse = playerConfigs;
+    let spellToUse = spell;
+    if (spell.feature.spellcasting.fromParentFeature) {
+        const parentFeatureName = performMathCalculation(playerConfigs, spell.feature.spellcasting.fromParentFeature.calculation);
+        const parentPlayerConfigs = playerConfigs.parent;
+        const allParentSpellcastingFeatures = getAllSpellcastingFeatures(parentPlayerConfigs);
+        const parentSpellcastingFeature = allParentSpellcastingFeatures.find(feature => parentFeatureName.includes(feature.feature.name));
+
+        playerConfigsToUse = playerConfigs.parent;
+        spellToUse = { ...spell, feature: parentSpellcastingFeature.feature };
+    }
+
+    const spellcastingAbility = performMathCalculation(playerConfigsToUse, spellToUse.feature.spellcasting.ability.calculation);
+    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigsToUse, spellcastingAbility + "Modifier");
 
     // Always add spellcasting ability modifier.
     attackBonus = addDiceObjectsWithTypeTogether(attackBonus, spellcastingAbilityModifier);
 
     // Always add proficieny bonus for spellcasting.
-    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
+    attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigsToUse));
     
-    // See if there are additoinal bonuses to apply to our attack.
-    findAllConfiguredAspects(playerConfigs, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+    // See if there are additional bonuses to apply to our attack.
+    findAllConfiguredAspects(playerConfigsToUse, "spellAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(playerConfigsToUse, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -967,16 +993,16 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 
         let spellAttackBonus;
         if (aspectValue.calculation) {
-            spellAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            spellAttackBonus = performDiceRollCalculation(playerConfigsToUse, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
         } else {
             spellAttackBonus = aspectValue;
         }
         attackBonus = addDiceObjectsWithTypeTogether(attackBonus, spellAttackBonus);
     });
 
-    findAllConfiguredAspects(playerConfigs, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigsToUse, "allAttackBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const conditionsAreMet = performBooleanCalculation(playerConfigsToUse, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -985,7 +1011,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 
         let allAttackBonus;
         if (aspectValue.calculation) {
-            allAttackBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            allAttackBonus = performDiceRollCalculation(playerConfigsToUse, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
         } else {
             allAttackBonus = aspectValue;
         }
@@ -996,15 +1022,16 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     if (!amount) {
         amount = "0";
     }
-    let addendum = calculateAddendumAspects(playerConfigs, ["spellAttackAddendum", "allAttackAddendum"], { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    let addendum = calculateAddendumAspects(playerConfigsToUse, ["spellAttackAddendum", "allAttackAddendum"], { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
-    if (spell.challengeType === "attackRoll") {
-        const spellRange = calculateRange(playerConfigs, spell.range);
-        if (isNumeric(spellRange)) {
+    if (spellToUse.challengeType === "attackRoll") {
+        const spellRange = calculateRange(playerConfigsToUse, spell.range);
+        // TODO: Need to differentiate between melee and ranged spell attacks.
+        if (isNumeric(spellRange) && spellRange > 5) {
             const allMisc = getCollection("misc");
             const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
     
-            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const rangedString = performMathCalculation(playerConfigsToUse, rangedMisc.weaponAttackAddendum.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
             if (rangedString) {
                 if (addendum.length > 0) {
@@ -1022,8 +1049,20 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     let spellSaveDC = createDiceObjectWithType({});
 
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
-    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
+    let playerConfigsToUse = playerConfigs;
+    let spellToUse = spell;
+    if (spell.feature.spellcasting.fromParentFeature) {
+        const parentFeatureName = performMathCalculation(playerConfigs, spell.feature.spellcasting.fromParentFeature.calculation);
+        const parentPlayerConfigs = playerConfigs.parent;
+        const allParentSpellcastingFeatures = getAllSpellcastingFeatures(parentPlayerConfigs);
+        const parentSpellcastingFeature = allParentSpellcastingFeatures.find(feature => parentFeatureName.includes(feature.feature.name));
+
+        playerConfigsToUse = playerConfigs.parent;
+        spellToUse = { ...spell, feature: parentSpellcastingFeature.feature };
+    }
+
+    const spellcastingAbility = performMathCalculation(playerConfigsToUse, spellToUse.feature.spellcasting.ability.calculation);
+    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigsToUse, spellcastingAbility + "Modifier");
 
     // Start with 8. Because that's what the rules say.
     spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, 8);
@@ -1032,12 +1071,12 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, spellcastingAbilityModifier);
 
     // Always add proficieny bonus for spellcasting.
-    spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, calculateProficiencyBonus(playerConfigs));
+    spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, calculateProficiencyBonus(playerConfigsToUse));
     
-    // See if there are additoinal bonuses to apply to our attack.
-    findAllConfiguredAspects(playerConfigs, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
+    // See if there are additional bonuses to apply to our attack.
+    findAllConfiguredAspects(playerConfigsToUse, "spellSaveDCBonus", (aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(playerConfigsToUse, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -1046,7 +1085,7 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
 
         let spellSaveDCBonus;
         if (aspectValue.calculation) {
-            spellSaveDCBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            spellSaveDCBonus = performDiceRollCalculation(playerConfigsToUse, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
         } else {
             spellSaveDCBonus = aspectValue;
         }
@@ -1057,23 +1096,35 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     if (!dc) {
         dc = "0";
     }
-    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const addendum = calculateAddendumAspect(playerConfigsToUse, "spellSaveDCAddendum", { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     return { dc, addendum };
 }
 
 export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalParams = undefined) {
-    const spellcastingAbility = performMathCalculation(playerConfigs, spell.feature.spellcasting.ability.calculation);
-    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigs, spellcastingAbility + "Modifier");
+    let playerConfigsToUse = playerConfigs;
+    let spellToUse = spell;
+    if (spell.feature.spellcasting.fromParentFeature) {
+        const parentFeatureName = performMathCalculation(playerConfigs, spell.feature.spellcasting.fromParentFeature.calculation);
+        const parentPlayerConfigs = playerConfigs.parent;
+        const allParentSpellcastingFeatures = getAllSpellcastingFeatures(parentPlayerConfigs);
+        const parentSpellcastingFeature = allParentSpellcastingFeatures.find(feature => parentFeatureName.includes(feature.feature.name));
+
+        playerConfigsToUse = playerConfigs.parent;
+        spellToUse = { ...spell, feature: parentSpellcastingFeature.feature };
+    }
+
+    const spellcastingAbility = performMathCalculation(playerConfigsToUse, spellToUse.feature.spellcasting.ability.calculation);
+    const spellcastingAbilityModifier = calculateAspectCollection(playerConfigsToUse, spellcastingAbility + "Modifier");
 
     // Start with the spell's calculation
-    let spellAspect = performDiceRollCalculation(playerConfigs, spell[aspectName].calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
+    let spellAspect = performDiceRollCalculation(playerConfigsToUse, spell[aspectName].calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
-        findAllConfiguredAspects(playerConfigs, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
+        findAllConfiguredAspects(playerConfigsToUse, aspectBonusName, (aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(playerConfigs, aspectValue.conditions, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
+                const conditionsAreMet = performBooleanCalculation(playerConfigsToUse, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -1082,7 +1133,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
 
             let aspectBonus
             if (aspectValue.calculation) {
-                aspectBonus = performDiceRollCalculation(playerConfigs, aspectValue.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
+                aspectBonus = performDiceRollCalculation(playerConfigsToUse, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
             } else {
                 aspectBonus = aspectValue;
             }
@@ -1131,6 +1182,7 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
 
 export function calculateAttackRollForAttackRollType(playerConfigs, actionObject, castAtLevel, attackRollType) {
     switch (attackRollType) {
+        // TODO: Need to differentiate between melee and ranged spell attacks.
         case "spellAttack":
             return calculateSpellAttack(playerConfigs, actionObject, castAtLevel);
         case "unarmedAttack":
@@ -1227,6 +1279,14 @@ export function calculateFeatures(playerConfigs) {
     const allFeatures = []
 
     findAllValidFeatures(playerConfigs, (feature, typeFoundOn, playerConfigForObject) => {
+        if (feature.conditions) {
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, feature.conditions, { ...playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for feature to apply.
+                return;
+            }
+        }
+
         allFeatures.push({ feature, typeFoundOn, playerConfigForObject });
     });
 
@@ -2058,7 +2118,7 @@ function performCalculation(playerConfigs, calculation, doSingleCalculationForSp
     let total = getDefaultValue();
     for (let i = 0; i < calculation.length; i++) {
         const singleCalculation = calculation[i];
-        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerCalc) => performCalculation(playerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, getDefaultValue, parameters));
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerPlayerConfigs, innerCalc) => performCalculation(innerPlayerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, getDefaultValue, parameters));
 
         singleValue = performSpecialTransformations(playerConfigs, singleCalculation, singleValue);
 
@@ -2085,6 +2145,9 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "config":
             const configValue = getValueFromObjectAndPath(playerConfigs, singleCalculation.propertyPath);
             return configValue;
+        case "parentCalculation":
+            const parentPlayerConfigs = playerConfigs.parent;
+            return performOriginalCalculationType(parentPlayerConfigs, singleCalculation.calculation);
         case "math":
             return performMathCalculation(playerConfigs, singleCalculation.values, parameters);
         case "highestOf":
@@ -2116,9 +2179,9 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
         case "if-then":
             const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.if, parameters);
             if (singleValue) {
-                return performOriginalCalculationType(singleCalculation.then);
+                return performOriginalCalculationType(playerConfigs, singleCalculation.then);
             } else if (singleCalculation.else) {
-                return performOriginalCalculationType(singleCalculation.else);
+                return performOriginalCalculationType(playerConfigs, singleCalculation.else);
             }
             // If not true and there is no else, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
             break;
