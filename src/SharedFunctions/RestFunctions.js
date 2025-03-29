@@ -37,13 +37,21 @@ export function SetPlayerLongRested(playerConfigs) {
     newCurrentStatus.heroicInspiration = playerConfigs.currentStatus?.heroicInspiration;
 
     // Check if we had the exhaustion condition.
-    const exhaustionCondition = playerConfigs.currentStatus?.conditions?.find(condition => condition.name === "Exhaustion")
+    const exhaustionCondition = playerConfigs.currentStatus?.conditions?.find(condition => condition.name === "Exhaustion");
     if (exhaustionCondition) {
         // Remove an Exhaustion level
         if (exhaustionCondition.level > 1) {
             const newExhaustionCondition = {...exhaustionCondition};
             newExhaustionCondition.level--;
             newCurrentStatus.conditions = [newExhaustionCondition] 
+        }
+    }
+
+    // Creature active effects.
+    if (playerConfigs.currentStatus.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
+        const creatureActiveEffects = playerConfigs.currentStatus.activeEffects.filter(effect => effect.allies && effect.allies.length > 0);
+        if (creatureActiveEffects && creatureActiveEffects.length > 0) {
+            newCurrentStatus.activeEffects = [...creatureActiveEffects];
         }
     }
 
