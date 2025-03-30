@@ -126,7 +126,6 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                         {
                             text: "Long",
                             onClick: () => {
-                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                                 setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
                                     menuTitle: "Long Rest", 
                                     menuText: "Are you sure you would like to Long Rest?", 

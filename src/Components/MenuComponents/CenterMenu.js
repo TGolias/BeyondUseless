@@ -560,6 +560,7 @@ const defaultMenuConfig = {
     opened: false
 }
 
+let previousData = undefined;
 let menuStack = [];
 
 export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterScreenMenu, inputChangeHandler, showDeathScreen, loadCharacter, overrides}) {
@@ -575,7 +576,7 @@ export function CenterMenu({sessionId, playerConfigs, menuType, data, setCenterS
 
     if (menu) {
         let newMenuConfig = menuConfig;
-        if (!newMenuConfig.opened || newMenuConfig.type !== menuType) {
+        if (!newMenuConfig.opened || newMenuConfig.type !== menuType || (data?.menuText && newMenuConfig?.menuText && newMenuConfig.menuText !== data.menuText)) {
             newMenuConfig = menu.createDefaultMenuConfig(menuPlayerConfigs, data);
             newMenuConfig.type = menuType;
             newMenuConfig.opened = true;

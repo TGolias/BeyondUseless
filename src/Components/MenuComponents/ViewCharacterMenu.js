@@ -11,8 +11,8 @@ export function ViewCharacterMenu({setCenterScreenMenu, addToMenuStack, menuConf
     const [, forceUpdate] = useReducer(x => !x, false);
     
     if (!menuConfig.isPlayerConfigsSet) {
-        playerConfigs = menuConfig.playerConfigs;
-        playerConfigs.parent = menuConfig.parentPlayerConfigs;
+        playerConfigs = {...menuConfig.playerConfigs};
+        playerConfigs.parent = {...menuConfig.parentPlayerConfigs};
         menuConfig.isPlayerConfigsSet = true;
         menuStateChangeHandler(menuConfig, "isPlayerConfigsSet", menuConfig.isPlayerConfigsSet);
     }

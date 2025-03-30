@@ -64,7 +64,6 @@ function linkSetupClicked(setCenterScreenMenu, addToMenuStack, menuConfig) {
         {
             text: "Peer Link",
             onClick: () => {
-                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
                     menuTitle: "Peer Link Setup", 
                     menuText: "Create or Recieve Link?", 
@@ -89,7 +88,6 @@ function linkSetupClicked(setCenterScreenMenu, addToMenuStack, menuConfig) {
         {
             text: "Mirror",
             onClick: () => {
-                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 setCenterScreenMenu({ show: true, menuType: "ConfirmationMenu", data: { 
                     menuTitle: "Mirror Setup", 
                     menuText: "Host or Recieve Mirrored Character?", 
