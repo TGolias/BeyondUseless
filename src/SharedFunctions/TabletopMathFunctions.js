@@ -1022,7 +1022,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     if (!amount) {
         amount = "0";
     }
-    let addendum = calculateAddendumAspects(playerConfigsToUse, ["spellAttackAddendum", "allAttackAddendum"], { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    let addendum = calculateAddendumAspects(playerConfigs, ["spellAttackAddendum", "allAttackAddendum"], { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     if (spellToUse.challengeType === "attackRoll") {
         const spellRange = calculateRange(playerConfigsToUse, spell.range);
@@ -1031,7 +1031,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
             const allMisc = getCollection("misc");
             const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
     
-            const rangedString = performMathCalculation(playerConfigsToUse, rangedMisc.weaponAttackAddendum.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
             if (rangedString) {
                 if (addendum.length > 0) {
@@ -1096,7 +1096,7 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     if (!dc) {
         dc = "0";
     }
-    const addendum = calculateAddendumAspect(playerConfigsToUse, "spellSaveDCAddendum", { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     return { dc, addendum };
 }
