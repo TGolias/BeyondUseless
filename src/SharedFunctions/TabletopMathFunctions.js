@@ -105,6 +105,68 @@ export function calculateSize(playerConfigs) {
     return size;
 }
 
+const carryDragLifePushMultiplierForSizes = {
+    Tiny: {
+        carryMultiplier: 7.5,
+        dragLiftPushMultiplier: 15
+    },
+    Small: {
+        carryMultiplier: 15,
+        dragLiftPushMultiplier: 30
+    },
+    Medium: {
+        carryMultiplier: 15,
+        dragLiftPushMultiplier: 30
+    },
+    Large: {
+        carryMultiplier: 30,
+        dragLiftPushMultiplier: 60
+    }, 
+    Huge: {
+        carryMultiplier: 60,
+        dragLiftPushMultiplier: 120
+    },
+    Gargantuan: {
+        carryMultiplier: 120,
+        dragLiftPushMultiplier: 240
+    }
+}
+
+export function calculateCarry(playerConfigs) {
+    const strengthScore = calculateBaseStat(playerConfigs, "strength");
+    const size = calculateSize(playerConfigs);
+    const multiplier = carryDragLifePushMultiplierForSizes[size].carryMultiplier;
+    const carryAmount = strengthScore * multiplier;
+    return carryAmount;
+}
+
+export function calculateDragLiftPush(playerConfigs) {
+    const strengthScore = calculateBaseStat(playerConfigs, "strength");
+    const size = calculateSize(playerConfigs);
+    const multiplier = carryDragLifePushMultiplierForSizes[size].dragLiftPushMultiplier;
+    const carryAmount = strengthScore * multiplier;
+    return carryAmount;
+}
+
+export function currentWeightCarried(playerConfigs) {
+    let weightCarried = 0;
+    if (playerConfigs.items) {
+        // Check equipped items for the aspect.
+        const items = getCollection("items");
+        // Convert to a dictionary for quick searches because the list could be LONG.
+        const itemsDictionary = convertArrayToDictionary(items, "name");
+        for (let item of playerConfigs.items) {
+            if (item.equipped) {
+                const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
+                if (dndItem && dndItem.weight) {
+                    weightCarried += dndItem.weight;
+                }
+            }
+        }
+    }
+    return weightCarried;
+}
+
 export function calculateSpeed(playerConfigs) {
     // Start with 0, lol. All races have a base speed set, and if we end up seeing 0 in the UI, we'll know something is wrong for sure.
     let startingSpeed = 0;

@@ -1,0 +1,57 @@
+.outerInventoryDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.outerInventoryTitle {
+    width: 100%;
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+.outerInventoryCarryDragLiftPushTable {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
+    row-gap: 0.25em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-top: 4px solid black;
+}
+
+.outerInventoryItems {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr auto auto;
+    text-align: center;
+}
+
+.outerInventoryItems > .firstCol {
+    border-left: 0;
+    padding-left: 1em;
+}
+
+.outerInventoryItems > * {
+    font-size: 0.8em;
+    padding: 0.5em;
+    text-align: center;
+    border-top: 4px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    align-content: center;
+}
+
+.outerInventoryItems > .lastCol {
+    border-right: 0;
+    padding-right: 1em;
+}
+
+.outerInventoryItem {
+    min-height: 3.5em;
+}

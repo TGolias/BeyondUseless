@@ -19,6 +19,7 @@ import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCom
 import { ActiveEffectsDisplay } from "../DisplayComponents/ActiveEffectsDisplay";
 import { getCollection } from "../../Collections";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
+import { InventoryDisplay } from "../DisplayComponents/InventoryDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "languages"));
@@ -110,13 +111,15 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 <div>
                     <OtherActionsDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></OtherActionsDisplay>
                 </div>
+                <div>
+                    <InventoryDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></InventoryDisplay>
+                </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>
                 </div>
                 <div className="textEntry" style={{display: (mountedCombatDescription ? "block" : "none")}}>
                     <div className="textWithLinesWrapper">{mountedCombatDescription}</div>
                 </div>
-                <br/>
             </div>
         </>
     );
