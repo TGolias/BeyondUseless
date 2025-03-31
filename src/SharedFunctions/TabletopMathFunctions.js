@@ -1639,19 +1639,19 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     }
 
     if (aspectName !== "features") {
-        if (playerConfigs?.currentStatus?.conditions) {
+        if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
             const dndConditions = getCollection("conditions");
             const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
             // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
             const dndConditionsChecked = {};
-            for (let playerCondition of playerConfigs?.currentStatus?.conditions) {
+            for (let playerCondition of playerConfigs.currentStatus.conditions) {
                 findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(aspectValue, "condition", playerCondition));
             }
         }
 
-        if (playerConfigs?.currentStatus?.activeEffects) {
+        if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
             const collections = {};
-            for (let activeEffect of playerConfigs?.currentStatus?.activeEffects) {
+            for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
                 if (activeEffect.onSelf) {
                     const collection = getOrAddCachedActiveEffectCollection(playerConfigs, collections, activeEffect.fromRemoteCharacter);
                     switch (activeEffect.type) {
@@ -1678,6 +1678,19 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                             break;
                     }
                 }
+
+                if (activeEffect.allies) {
+                    for (let ally of activeEffect.allies) {
+                        findAllConfiguredAspects(ally, "parentAspects", (parentAspect, typeFoundOn, playerConfigForObject) => {
+                            for (let parentAspectName of Object.keys(parentAspect)) {
+                                if (parentAspectName === aspectName) {
+                                    const aspectValue = parentAspect[parentAspectName];
+                                    onAspectFound(aspectValue, "ally", ally);
+                                }
+                            }
+                        });
+                    }
+                }
             }
         }
     }
@@ -1696,8 +1709,8 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             if (allStatBlockFeatures) {
                 for (let i = 0; i < allStatBlockFeatures.length; i++) {
                     const statBlockFeature = allStatBlockFeatures[i];
-                    if (statBlockFeature && statBlockFeature.aspects && statBlockFeature.aspects[aspectName]) {
-                        onAspectFound(statBlockFeature.aspects[aspectName], "feature", statBlockFeature);
+                    if (statBlockFeature && statBlockFeature[aspectName]) {
+                        onAspectFound(statBlockFeature[aspectName], "feature", statBlockFeature);
                     }
                 }
             }

@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
@@ -62,6 +62,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let savingThrowDcAddendum = undefined;
     let damage = undefined;
     let healing = undefined;
+    let healingAddendum = undefined;
     let restore = undefined;
     let buffAmount = undefined;
     let buffDescription = undefined;
@@ -143,6 +144,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
 
                 if (spell.type.includes("healing")) {
                     healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
+                    if (healing) {
+                        healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], { userInput: data.userInput });
+                    }
                 }
 
                 if (spell.type.includes("restore")) {
@@ -191,6 +195,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             </div>
             <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (healingAddendum ? "block" : "none")}}>
+                <div>{parseStringForBoldMarkup(healingAddendum)}</div>
             </div>
             <div className="spellPageDescription" style={{display: (restore ? "block" : "none")}}>
                 <div><b>Conditions Removed:</b> {restore}</div>
