@@ -64,3 +64,14 @@ export function IsItemHoldable(item) {
 export function IsWearableArmor(item) {
     return item.type === "Armor" && item.armorType !== "Shield";
 }
+
+export function CanAttuneItem(playerItems, item) {
+    let attunementCount = 0;
+    for (let playerItem of playerItems) {
+        if (playerItem.attuned) {
+            attunementCount++;
+        }
+    }
+    // Later on with artificer we are going to have to get the updated attuement count, but for now we're good to just hardcode 3.
+    return attunementCount < 3;
+}

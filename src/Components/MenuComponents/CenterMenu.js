@@ -29,6 +29,7 @@ import { LinkedChar } from "./LinkedChar";
 import { TargetMenu } from "./TargetMenu";
 import { ViewCharacterMenu } from "./ViewCharacterMenu";
 import { TextInputMenu } from "./TextInputMenu";
+import { QuantityMenu } from "./QuantityMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -329,6 +330,23 @@ const menuCollection = {
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><TextInputMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></TextInputMenu></>);
+        }
+    },
+    QuantityMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{data.menuTitle}</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.menuText = data.menuText;
+            newItemMenu.onOkClicked = data.onOkClicked;
+            newItemMenu.quantity = data.quantity;
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><QuantityMenu setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></QuantityMenu></>);
         }
     },
     SaveMenu: {

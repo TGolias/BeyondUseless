@@ -19,16 +19,22 @@
     width: 100%;
     grid-template-columns: 1fr 1fr;
     text-align: center;
-    row-gap: 0.25em;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     border-top: 4px solid black;
 }
 
+.outerInventoryCarryDragLiftPushTable > * {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+}
+
 .outerInventoryItems {
     display: grid;
     width: 100%;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: auto 1fr auto auto auto;
     text-align: center;
 }
 
@@ -42,8 +48,6 @@
     padding: 0.5em;
     text-align: center;
     border-top: 4px solid black;
-    border-left: 2px solid black;
-    border-right: 2px solid black;
     align-content: center;
 }
 
@@ -53,5 +57,17 @@
 }
 
 .outerInventoryItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25em;
     min-height: 3.5em;
+}
+
+.outerInventoryItem.lastCol {
+    font-size: 1em;
+}
+
+.outerInventoryItem.lastCol:hover {
+    text-decoration: underline;
 }

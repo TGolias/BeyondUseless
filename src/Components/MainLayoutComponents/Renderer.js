@@ -112,7 +112,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <OtherActionsDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></OtherActionsDisplay>
                 </div>
                 <div>
-                    <InventoryDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></InventoryDisplay>
+                    <InventoryDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></InventoryDisplay>
                 </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                     <div>Languages: {languagesString}</div>
