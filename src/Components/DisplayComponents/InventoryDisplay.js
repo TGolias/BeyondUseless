@@ -5,17 +5,18 @@ import { getCollection } from '../../Collections';
 import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
 import { CheckboxInput } from '../SimpleComponents/CheckboxInput';
 import { CanAttuneItem, CanEquipItem } from '../../SharedFunctions/EquipmentFunctions';
+import { RetroButton } from '../SimpleComponents/RetroButton';
 
 const rows = [
     {
         name: "Equip",
         onClick: (playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) => {
-            if (!dndItem.equippable) {
-                onItemClicked(dndItem, setCenterScreenMenu);
+            if (item.custom || !dndItem.equippable) {
+                onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
             }
         },
         calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
-            if (dndItem.equippable) {
+            if (dndItem?.equippable) {
                 const canItemBeEquipped = CanEquipItem(playerConfigs.items, dndItem);
                 return <>
                     <CheckboxInput baseStateObject={playerConfigs} pathToProperty={"items[" + i + "].equipped"} inputHandler={inputChangeHandler} disabled={!item.equipped && !canItemBeEquipped}></CheckboxInput>
@@ -28,7 +29,7 @@ const rows = [
     {
         name: "Name",
         onClick: (playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) => {
-            onItemClicked(dndItem, setCenterScreenMenu);
+            onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
         },
         calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
             return item.name;
@@ -37,21 +38,21 @@ const rows = [
     {
         name: "lbs",
         onClick: (playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) => {
-            onItemClicked(dndItem, setCenterScreenMenu);
+            onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
         },
         calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
-            return (item.weight ?? dndItem.weight) + "lb";
+            return (item.weight ?? dndItem?.weight) + "lb";
         },
     },
     {
         name: "Attune",
         onClick: (playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) => {
-            if (!dndItem.attunement) {
-                onItemClicked(dndItem, setCenterScreenMenu);
+            if (item.custom || !dndItem.attunement) {
+                onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
             }
         },
         calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
-            if (dndItem.attunement) {
+            if (dndItem?.attunement) {
                 const canItemBeAttuned = CanAttuneItem(playerConfigs.items, dndItem);
                 return <>
                     <CheckboxInput baseStateObject={playerConfigs} pathToProperty={"items[" + i + "].attuned"} inputHandler={inputChangeHandler} disabled={!item.attuned && !canItemBeAttuned}></CheckboxInput>
@@ -63,14 +64,14 @@ const rows = [
     {
         name: "",
         onClick: (playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) => {
-            if (dndItem.stackable) {
+            if (item.custom || dndItem.stackable) {
                 openQuantityMenu(playerConfigs, inputChangeHandler, item, i, setCenterScreenMenu);
             } else {
                 removeItem(playerConfigs, inputChangeHandler, i);
             }
         },
         calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
-            if (dndItem.stackable) {
+            if (!dndItem || dndItem.stackable) {
                 // Quanity increase and decrease buttons
                 let quantityString;
                 if (item.amount) {
@@ -93,7 +94,7 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
 
     if (playerConfigs.items && playerConfigs.items.length > 0) {
         for (let row of rows) {
-            itemRows.push(<div className={row.addClass ? "outerInventoryTitle " + row.addClass : "outerInventoryTitle"}>{row.name}</div>);
+            itemRows.push(<div className={row.addClass ? "inventoryDisplayTitle " + row.addClass : "inventoryDisplayTitle"}>{row.name}</div>);
         }
 
         // Check equipped items for the aspect.
@@ -104,7 +105,7 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
             const item = playerConfigs.items[i];
             const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
             for (let row of rows) {
-                itemRows.push(<div className={row.addClass ? "outerInventoryItem " + row.addClass : "outerInventoryItem"} onClick={() => { row.onClick(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu); }}>{row.calculateValue(playerConfigs, inputChangeHandler, item, dndItem, i)}</div>);
+                itemRows.push(<div className={row.addClass ? "inventoryDisplayItem " + row.addClass : "inventoryDisplayItem"} onClick={() => { row.onClick(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu); }}>{row.calculateValue(playerConfigs, inputChangeHandler, item, dndItem, i)}</div>);
             }
         }
     }
@@ -112,24 +113,37 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
     return (
         <>
             <div className='outerInventoryDisplay pixel-corners'>
-                <div className='outerInventoryTitle'>Inventory</div>
-                <div className='outerInventoryCarryDragLiftPushTable'>
+                <div className='inventoryDisplayTitle'>Inventory</div>
+                <div className='inventoryDisplayCarryDragLiftPushTable'>
                     <div>Carry Capacity</div>
                     <div>Drag, Lift, Push</div>
                     <div>{currentWeightCarried(playerConfigs)}/{calculateCarry(playerConfigs)}</div>
                     <div>{calculateDragLiftPush(playerConfigs)}</div>
                 </div>
-                <div className='outerInventoryItems'>
+                <div className='inventoryDisplayItems'>
                     {itemRows}
+                </div>
+                <div className='inventoryDisplayButtons'>
+                    <RetroButton text={"Add"} onClickHandler={() => { addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu); }} showTriangle={false} disabled={false}></RetroButton>
+                    <RetroButton text={"Move"} onClickHandler={() => {}} showTriangle={false} disabled={false}></RetroButton>
                 </div>
             </div>
         </>
     )
 }
 
-function onItemClicked(dndItem, setCenterScreenMenu) {
+function onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+
+    if (!item.custom) {
+        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+    } else {
+        setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: item, 
+            onOkClicked: (newCustomItem) => {
+                inputChangeHandler(playerConfigs, "items[" + i + "]", newCustomItem);
+            }
+        } });
+    }
 }
 
 function removeItem(playerConfigs, inputChangeHandler, i) {
@@ -153,4 +167,42 @@ function openQuantityMenu(playerConfigs, inputChangeHandler, item, i, setCenterS
             }
         } } 
     });
+}
+
+function addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu) {
+    const allItems = getCollection("items");
+    const allItemNames = allItems.map(item => item.name);
+    const itemSelections = ["Custom Item", ...allItemNames];
+
+    setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Item", menuText: "Select the item to add:", options: itemSelections, 
+        onOkClicked: (result) => {
+            if (result === "Custom Item") {
+                setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: { custom: true }, 
+                    onOkClicked: (newCustomItem) => {
+                        addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, newCustomItem);
+                    }
+                } });
+            } else {
+                addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, { name: result });
+            }
+        } } 
+    });
+}
+
+function addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, itemToAdd) {
+    const dndItem = allItems.find(x => x.name === itemToAdd.name);
+    if (itemToAdd.custom || dndItem?.stackable) {
+        for (let i = 0; i < playerConfigs.items.length; i++) {
+            if (playerConfigs.items[i].name === itemToAdd.name) {
+                const oldAmount = playerConfigs.items[i].amount || 1;
+                const newAmount = oldAmount + 1;
+                inputChangeHandler(playerConfigs, "items[" + i + "].amount", newAmount);
+                return;
+            }
+        }
+    }
+
+    const newItems =  [...playerConfigs.items];
+    newItems.push(itemToAdd);
+    inputChangeHandler(playerConfigs, "items", newItems);
 }

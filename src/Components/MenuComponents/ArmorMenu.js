@@ -58,12 +58,14 @@ export function ArmorMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, m
         for (let i = 0; i < menuConfig.items.length; i++) {
             const itemConfig = menuConfig.items[i];
             let dndItem = itemName2Item[itemConfig.name];
-            dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
-            if (dndItem.type === "Armor") {
-                for (let row of rows) {
-                    itemRows.push(<>
-                        <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "armorMenuRow " + row.addClass : "armorMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
-                    </>);
+            if (dndItem) {
+                dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
+                if (dndItem.type === "Armor") {
+                    for (let row of rows) {
+                        itemRows.push(<>
+                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "armorMenuRow " + row.addClass : "armorMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                        </>);
+                    }
                 }
             }
         }

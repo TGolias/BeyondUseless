@@ -30,6 +30,7 @@ import { TargetMenu } from "./TargetMenu";
 import { ViewCharacterMenu } from "./ViewCharacterMenu";
 import { TextInputMenu } from "./TextInputMenu";
 import { QuantityMenu } from "./QuantityMenu";
+import { CustomItemMenu } from "./CustomItemMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -569,6 +570,22 @@ const menuCollection = {
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><ViewCharacterMenu menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={addToMenuStack} showDeathScreen={showDeathScreen}></ViewCharacterMenu></>);
+        }
+    },
+    CustomItemMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">{menuConfig.customItem.name ?? "Custom Item"}</div>
+            </>);
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.customItem = {...data.customItem};
+            newItemMenu.onOkClicked = data.onOkClicked;
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><CustomItemMenu menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></CustomItemMenu></>);
         }
     }
 }

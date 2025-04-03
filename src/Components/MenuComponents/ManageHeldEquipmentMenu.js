@@ -73,12 +73,14 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
         for (let i = 0; i < menuConfig.items.length; i++) {
             const itemConfig = menuConfig.items[i];
             let dndItem = itemName2Item[itemConfig.name];
-            dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
-            if (IsItemHoldable(dndItem)) {
-                for (let row of rows) {
-                    itemRows.push(<>
-                        <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
-                    </>);
+            if (dndItem) {
+                dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
+                if (IsItemHoldable(dndItem)) {
+                    for (let row of rows) {
+                        itemRows.push(<>
+                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                        </>);
+                    }
                 }
             }
         }

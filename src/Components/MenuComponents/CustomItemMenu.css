@@ -1,0 +1,38 @@
+.customItemMenuWrapperDiv {
+    margin: -0.5em;
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    row-gap: 0.5em;
+}
+
+.customItemMenuDescription {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 10em;
+}
+
+.customItemMenuDescription > *:last-child {
+    flex: 1;
+}
+
+.customItemMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.customItemMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .customItemMenuWrapperDiv {
+        flex-grow: 1;
+    }
+}

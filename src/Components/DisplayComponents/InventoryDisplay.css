@@ -5,7 +5,7 @@
     width: 100%;
 }
 
-.outerInventoryTitle {
+.inventoryDisplayTitle {
     width: 100%;
     text-align: center;
     font-size: 1em;
@@ -14,7 +14,7 @@
     padding-bottom: 0.5em;
 }
 
-.outerInventoryCarryDragLiftPushTable {
+.inventoryDisplayCarryDragLiftPushTable {
     display: grid;
     width: 100%;
     grid-template-columns: 1fr 1fr;
@@ -24,26 +24,26 @@
     border-top: 4px solid black;
 }
 
-.outerInventoryCarryDragLiftPushTable > * {
+.inventoryDisplayCarryDragLiftPushTable > * {
     padding-left: 0.5em;
     padding-right: 0.5em;
     padding-top: 0.25em;
     padding-bottom: 0.25em;
 }
 
-.outerInventoryItems {
+.inventoryDisplayItems {
     display: grid;
     width: 100%;
     grid-template-columns: auto 1fr auto auto auto;
     text-align: center;
 }
 
-.outerInventoryItems > .firstCol {
+.inventoryDisplayItems > .firstCol {
     border-left: 0;
     padding-left: 1em;
 }
 
-.outerInventoryItems > * {
+.inventoryDisplayItems > * {
     font-size: 0.8em;
     padding: 0.5em;
     text-align: center;
@@ -51,12 +51,12 @@
     align-content: center;
 }
 
-.outerInventoryItems > .lastCol {
+.inventoryDisplayItems > .lastCol {
     border-right: 0;
     padding-right: 1em;
 }
 
-.outerInventoryItem {
+.inventoryDisplayItem {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,10 +64,23 @@
     min-height: 3.5em;
 }
 
-.outerInventoryItem.lastCol {
+.inventoryDisplayItem.lastCol {
     font-size: 1em;
 }
 
-.outerInventoryItem.lastCol:hover {
+.inventoryDisplayItem.lastCol:hover {
     text-decoration: underline;
+}
+
+.inventoryDisplayButtons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-top: 4px solid black;
+}
+
+.inventoryDisplayButtons > * {
+    padding: 1em;
 }

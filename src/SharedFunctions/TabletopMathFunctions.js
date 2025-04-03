@@ -156,9 +156,14 @@ export function currentWeightCarried(playerConfigs) {
         // Convert to a dictionary for quick searches because the list could be LONG.
         const itemsDictionary = convertArrayToDictionary(items, "name");
         for (let item of playerConfigs.items) {
-            const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
-            if (dndItem && dndItem.weight) {
-                weightCarried += dndItem.weight;
+            let quantity = item.amount || 1;
+            if (item.custom) {
+                weightCarried += (item.weight * quantity);
+            } else {
+                const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
+                if (dndItem && dndItem.weight) {
+                    weightCarried += (dndItem.weight * quantity);
+                }
             }
         }
     }
@@ -2376,16 +2381,19 @@ export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefin
     }
 
     let dndItem = originalDndItem;
-    while (dndItem.type === "Template") {
-        const itemName = dndItem.templateOf;
-        let newItem = {...itemName2Item[itemName]};
-        for (let itemProperty of Object.keys(dndItem)) {
-            if (itemProperty !== "type" && itemProperty !== "templateOf") {
-                // Override using the properties of the template.
-                newItem[itemProperty] = originalDndItem[itemProperty];
+    if (dndItem) {
+        while (dndItem.type === "Template") {
+            const itemName = dndItem.templateOf;
+            let newItem = {...itemName2Item[itemName]};
+            for (let itemProperty of Object.keys(dndItem)) {
+                if (itemProperty !== "type" && itemProperty !== "templateOf") {
+                    // Override using the properties of the template.
+                    newItem[itemProperty] = originalDndItem[itemProperty];
+                }
             }
+            dndItem = newItem;
         }
-        dndItem = newItem;
+        return dndItem;
     }
-    return dndItem;
+    return undefined;
 }

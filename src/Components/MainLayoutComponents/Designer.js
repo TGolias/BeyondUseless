@@ -78,26 +78,6 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         </>);
     }
 
-    const itemSelectionConfig = [
-        {
-            displayName: "Items",
-            pathToProperty: "name",
-            componentType: "SelectList",
-            options: (baseStateObject, i) => {
-                const items = getCollection("items");
-                const itemNames = items.map(x => x.name);
-                return itemNames;
-            },
-            isNumber: false
-        },
-        {
-            displayName: "Equip",
-            pathToProperty: "equipped",
-            componentType: "Checkbox",
-            columnWidth: "5em"
-        }
-    ];
-
     // NEXT TIME: Make point buy work with + and - buttons
     return (
         <>
@@ -137,10 +117,6 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText={playerConfigs.classes.length > 0 ? "Add Multiclass" : "Add Class"} generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
                 {classDesigns}
-                <div>
-                    <ArrayInput baseStateObject={playerConfigs} pathToProperty={"items"} config={itemSelectionConfig} inputHandler={inputChangeHandler} allowAdd={true} addText="Add Item" generateAddedItem={() => GetValidItemDefault()} allowRemove={true} />
-                </div>
-                <br/>
             </div>
         </>
     );
