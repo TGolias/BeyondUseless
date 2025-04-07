@@ -135,6 +135,7 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
             newItemMenu.item = data.item;
+            newItemMenu.pathToProperty = data.pathToProperty || "";
             newItemMenu.copyLinkToItem = {};
             return newItemMenu;
         },
@@ -583,6 +584,7 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
             newItemMenu.customItem = {...data.customItem};
+            newItemMenu.readonly = data.readonly;
             newItemMenu.onOkClicked = data.onOkClicked;
             return newItemMenu;
         },

@@ -1,12 +1,12 @@
 import React from "react";
 import './ItemPageComponent.css';
 import { calculateAddendumAspect, calculateAspectCollection, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, convertDiceRollWithTypeToValue, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
-import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { getHomePageUrl } from "../../SharedFunctions/Utils";
+import { getValueFromObjectAndPath, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
+import { getHomePageUrl, playAudio } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection } from "../../Collections";
 
-export function ItemPageComponent({item, playerConfigs, copyLinkToItem, setCenterScreenMenu, addToMenuStack = undefined}) {
+export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, addToMenuStack = undefined}) {
     let typeString;
     let baseDamage = undefined;
     let twoHandedDamage = undefined;
@@ -79,7 +79,7 @@ export function ItemPageComponent({item, playerConfigs, copyLinkToItem, setCente
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
-            copyToClipboard(item, playerConfigs);
+            copyToClipboard(item, playerConfigs, pathToProperty);
         };
     }
 
@@ -95,6 +95,9 @@ export function ItemPageComponent({item, playerConfigs, copyLinkToItem, setCente
     let weaponAttackThrownAddendum = undefined;
     let weaponDamageThrown = undefined;
     let lightWeaponDamageThrown = undefined;
+
+    let quantity = undefined;
+    let childItems = [];
 
     if (playerConfigs) {
         const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "itemDescriptionAddendum", { item });
@@ -145,6 +148,53 @@ export function ItemPageComponent({item, playerConfigs, copyLinkToItem, setCente
                 }
                 break;
         }
+
+        let itemsProperty;
+        if (pathToProperty === "") {
+            itemsProperty = playerConfigs;
+        } else {
+            itemsProperty = getValueFromObjectAndPath(playerConfigs, pathToProperty);
+        }
+         
+        if (itemsProperty) {
+            const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === item.name);
+            if (itemConfigIndex > -1) {
+                const itemConfig = itemsProperty.items[itemConfigIndex];
+                if (itemConfig) {
+                    if (itemConfig.amount) {
+                        quantity = itemConfig.amount;
+                    }
+
+                    if (itemConfig.items) {
+                        for (let childItem of itemConfig.items) {
+                            childItems.push(<>
+                                <div className="itemPageChildItem" onClick={() => {
+                                    playAudio("selectionaudio");
+                                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                    if (addToMenuStack) {
+                                        addToMenuStack();
+                                    }
+
+                                    if (childItem.custom) {
+                                        setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: childItem, readonly: true } });
+                                    } else {
+                                        const dndItems = getCollection("items");
+                                        const dndItem = dndItems.find(x => x.name === childItem.name);
+
+                                        let newPathToProperty = "";
+                                        if (pathToProperty) {
+                                            newPathToProperty = pathToProperty + ".";
+                                        }
+                                        newPathToProperty += "items[" + itemConfigIndex + "]";
+                                        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, pathToProperty: newPathToProperty } });
+                                    }
+                                }}>{childItem.name + (childItem.amount ? " x" + childItem.amount : "")}</div>
+                            </>);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return <>
@@ -191,10 +241,17 @@ export function ItemPageComponent({item, playerConfigs, copyLinkToItem, setCente
             <div className="itemPageDescription" style={{display: (lightWeaponDamageThrown ? "block" : "none")}}>
                 <div><b>Light Thrown Damage:</b> {lightWeaponDamageThrown}</div>
             </div>
+            <div className="itemPageDescription" style={{display: (quantity ? "block" : "none")}}>
+                <div><b>Quantity:</b> x{quantity}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (childItems.length > 0 ? "block" : "none")}}>
+                <div><b>Items:</b></div>
+                {childItems}
+            </div>
         </div>
     </>
 }
 
-function copyToClipboard(item, playerConfigs) {
-    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : ""));
+function copyToClipboard(item, playerConfigs, pathToProperty) {
+    navigator.clipboard.writeText(item.name + "\n" + getHomePageUrl() + "?view=item&name=" + encodeURI(item.name) + (playerConfigs ? "&playerName=" + encodeURIComponent(playerConfigs.name) : "") + (pathToProperty ? "&pathToProperty=" + encodeURIComponent(pathToProperty) : ""));
 }

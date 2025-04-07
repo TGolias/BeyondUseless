@@ -4,8 +4,25 @@ import { RetroButton } from "../SimpleComponents/RetroButton";
 import { TextInput } from "../SimpleComponents/TextInput";
 
 export function CustomItemMenu({menuConfig, menuStateChangeHandler, setCenterScreenMenu}) {
-    return (<>
-        <div className="customItemMenuWrapperDiv">
+
+    const textDivs = [];
+    if (menuConfig.readonly) {
+        textDivs.push(<>
+            <div>
+                <div><b>Name</b></div>
+                <div>{menuConfig.customItem.name}</div>
+            </div>
+            <div>
+                <div><b>Weight</b></div>
+                <div>{menuConfig.customItem.weight}</div>
+            </div>
+            <div className="customItemMenuDescription">
+                <div><b>Description</b></div>
+                <div>{menuConfig.customItem.description}</div>
+            </div>
+        </>);
+    } else {
+        textDivs.push(<>
             <div>
                 <div>Name</div>
                 <TextInput isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"customItem.name"} inputHandler={menuStateChangeHandler}></TextInput>
@@ -18,12 +35,21 @@ export function CustomItemMenu({menuConfig, menuStateChangeHandler, setCenterScr
                 <div>Description</div>
                 <TextInput isNumberValue={false} isMultiline={true} baseStateObject={menuConfig} pathToProperty={"customItem.description"} inputHandler={menuStateChangeHandler}></TextInput>
             </div>
+        </>);
+    }
+
+
+    return (<>
+        <div className="customItemMenuWrapperDiv">
+            {textDivs}
         </div>
         <div className="centerMenuSeperator"></div>
         <div className="customItemMenuHorizontal">
             <RetroButton text={"OK"} onClickHandler={() => {
                 setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                menuConfig.onOkClicked(menuConfig.customItem);
+                if (menuConfig.onOkClicked) {
+                    menuConfig.onOkClicked(menuConfig.customItem);
+                }
             }} showTriangle={false} disabled={!menuConfig.customItem.name}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>

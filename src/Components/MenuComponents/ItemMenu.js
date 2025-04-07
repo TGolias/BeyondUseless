@@ -6,7 +6,7 @@ import { ItemPageComponent } from "../PageComponents/ItemPageComponent";
 export function ItemMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig}) {
     return (<>
         <div className="itemMenuWrapperDiv">
-            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
+            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
         <div className="itemMenuHorizontal">

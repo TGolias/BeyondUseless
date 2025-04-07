@@ -192,7 +192,7 @@ function addItemsToNewItems(newItems, itemsToAdd) {
 
     for (let itemToAdd of itemsToAdd) {
         const existingItemIndex = newItems.findIndex(item => item.name === itemToAdd.name);
-        if (existingItemIndex) {
+        if (existingItemIndex > 0) {
             const dndItem = getItemFromItemTemplate(itemsDictionary[itemToAdd.name], itemsDictionary);
             if (itemToAdd.custom || (dndItem && dndItem.stackable)) {
                 const existingItemClone = {...newItems[existingItemIndex]};
