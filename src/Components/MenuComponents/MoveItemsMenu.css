@@ -1,0 +1,48 @@
+.moveItemsMenuWrapperDiv {
+    margin: -0.5em;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    justify-items: center;
+    align-items: center;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.moveItemsMenuWrapperDiv > * {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1em;
+    height: 100%;
+    width: 100%;
+    border-top: 4px solid black;
+}
+
+.moveItemsMenuWrapperDiv .circleButtonText {
+    font-size: 0.90em;
+}
+
+.moveItemsMenuWrapperDiv > *:nth-child(1),
+.moveItemsMenuWrapperDiv > *:nth-child(2),
+.moveItemsMenuWrapperDiv > *:nth-child(3) {
+    border-top: none;
+}
+
+.moveItemsMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.moveItemsMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .moveItemsMenuWrapperDiv {
+        flex-grow: 1;
+    }
+}

@@ -148,14 +148,14 @@ export function calculateDragLiftPush(playerConfigs) {
     return carryAmount;
 }
 
-export function currentWeightCarried(playerConfigs) {
+export function currentWeightCarried(items) {
     let weightCarried = 0;
-    if (playerConfigs.items) {
+    if (items) {
         // Check equipped items for the aspect.
-        const items = getCollection("items");
+        const dndItems = getCollection("items");
         // Convert to a dictionary for quick searches because the list could be LONG.
-        const itemsDictionary = convertArrayToDictionary(items, "name");
-        for (let item of playerConfigs.items) {
+        const itemsDictionary = convertArrayToDictionary(dndItems, "name");
+        for (let item of items) {
             let quantity = item.amount || 1;
             if (item.custom) {
                 weightCarried += (item.weight * quantity);
@@ -2006,7 +2006,7 @@ export function addDiceObjectsWithTypeTogether(diceObjectWithType1, diceObjectWi
             }
             diceObjectWithType1[diceType] = addDiceObjectsTogether(diceObjectWithType1[diceType], diceObject2);
         }
-    } else {
+    } else if (diceObjectWithType2) {
         // This ain't a dice.
         const diceType = Object.keys(diceObjectWithType1)[0];
         diceObjectWithType1[diceType] = addDiceObjectsTogether(diceObjectWithType1[diceType], diceObjectWithType2);

@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllSpellcastingFeatures, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllSpellcastingFeatures, getItemFromItemTemplate, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -15,7 +15,7 @@ import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDispla
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
-import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, playAudio } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
 import { ActiveEffectsDisplay } from "../DisplayComponents/ActiveEffectsDisplay";
 import { getCollection } from "../../Collections";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
@@ -149,7 +149,62 @@ function onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRem
 }
 
 function removeActiveEffect(playerConfigs, activeEffects, i, inputChangeHandler) {
-    const newActiveEffects = [...activeEffects];
-    newActiveEffects.splice(i, 1);
-    inputChangeHandler(playerConfigs, "currentStatus.activeEffects", newActiveEffects);
+    const activeEffectToRemove = activeEffects[i];
+    let itemsToMoveToPlayer = [];
+    if (activeEffectToRemove.allies) {
+        for (let ally of activeEffectToRemove.allies) {
+            if (ally.items) {
+                for (let allyItem of ally.items) {
+                    const itemToAdd = {...allyItem};
+                    delete itemToAdd.equipped;
+                    delete itemToAdd.attuned;
+                    itemsToMoveToPlayer.push(itemToAdd);
+                }
+            }
+        }
+    }
+
+    if (itemsToMoveToPlayer.length > 0) {
+        const newPlayerConfigs = {...playerConfigs}
+        const newCurrentStatus = {...newPlayerConfigs.currentStatus};
+        newPlayerConfigs.currentStatus = newCurrentStatus;
+        const newActiveEffects = [...newCurrentStatus.activeEffects];
+        newActiveEffects.splice(i, 1);
+        newCurrentStatus.activeEffects = newActiveEffects;
+
+        const newPlayerItems = [...newPlayerConfigs.items];
+        addItemsToNewItems(newPlayerItems, itemsToMoveToPlayer);
+        newPlayerConfigs.items = newPlayerItems;
+
+        inputChangeHandler(playerConfigs, "", newPlayerConfigs);
+    } else {
+        const newActiveEffects = [...activeEffects];
+        newActiveEffects.splice(i, 1);
+        inputChangeHandler(playerConfigs, "currentStatus.activeEffects", newActiveEffects);
+    }
+}
+
+function addItemsToNewItems(newItems, itemsToAdd) {
+    // Check equipped items for the aspect.
+    const dndItems = getCollection("items");
+    // Convert to a dictionary for quick searches because the list could be LONG.
+    const itemsDictionary = convertArrayToDictionary(dndItems, "name");
+
+    for (let itemToAdd of itemsToAdd) {
+        const existingItemIndex = newItems.findIndex(item => item.name === itemToAdd.name);
+        if (existingItemIndex) {
+            const dndItem = getItemFromItemTemplate(itemsDictionary[itemToAdd.name], itemsDictionary);
+            if (itemToAdd.custom || (dndItem && dndItem.stackable)) {
+                const existingItemClone = {...newItems[existingItemIndex]};
+                const oldCollectionAmount = itemToAdd.amount || 1;
+                const newCollectionAmount = existingItemClone.amount || 1;
+                existingItemClone.amount = oldCollectionAmount + newCollectionAmount;
+                newItems[existingItemIndex] = existingItemClone;
+            } else {
+                newItems.push(itemToAdd);
+            }
+        } else {
+            newItems.push(itemToAdd);
+        }
+    }
 }

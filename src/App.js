@@ -603,14 +603,24 @@ export default function App() {
     }
 
     // Check if the value is going to change when we set it. Important for later.
-    const valueChanged = newPropertyObject[totalPath[totalPath.length - 1]] !== newValue;
+    let valueChanged;
+    if (pathToProperty === "") {
+      valueChanged = newPropertyObject !== newValue;
+    } else {
+      valueChanged = newPropertyObject[totalPath[totalPath.length - 1]] !== newValue;
+    }
 
     // For certain properties, we may want to apply some effects to the state before we do the final calculations. For example, if the level is pulled below what the classes have, we want to fix that up. We do this before the value is set so that comparisons can be done.
     applyEffectsBeforeValueChange(newBaseStateObject, pathToProperty, newValue);
 
     // Now we have the property object right at the end of the path and have done our shallow clones all the way to it.
-    newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
-
+    if (pathToProperty === "") {
+      newPropertyObject = newValue;
+      newBaseStateObject = newPropertyObject;
+    } else {
+      newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
+    }
+    
     // We also may have some other values we adjust now that the value has changed.
     applyEffectsAfterValueChange(newBaseStateObject);
 

@@ -24,7 +24,7 @@
     text-decoration: underline;
 }
 
-.disabled {
+.retroButtonDisabled {
     pointer-events: none;
     text-decoration: line-through;
     color: black;

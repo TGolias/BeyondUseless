@@ -6,10 +6,9 @@ const rightTriangleUnicode = '\u25B6';
 
 export function RetroButton({text, onClickHandler, showTriangle, disabled, buttonSound = undefined}) {
 
-
     return (
         <>
-            <div className={"retroButtonWrapper" + (disabled ? " disabled" : "")} onClick={() => {
+            <div className={"retroButtonWrapper" + (disabled ? " retroButtonDisabled" : "")} onClick={() => {
                 playAudio(buttonSound ? buttonSound : "selectionaudio");
                 onClickHandler();
             }}>

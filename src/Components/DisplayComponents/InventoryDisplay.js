@@ -109,6 +109,20 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
             }
         }
     }
+
+    const inventoryDisplayButtons = [];
+    inventoryDisplayButtons.push(<>
+        <RetroButton text={"Add"} onClickHandler={() => { addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu); }} showTriangle={false} disabled={false}></RetroButton>
+    </>);
+    if (playerConfigs.parent === undefined) {
+        // Only show the transfer button for the main character.
+        inventoryDisplayButtons.push(<>
+            <RetroButton text={"Transfer"} onClickHandler={() => { setCenterScreenMenu({ show: true, menuType: "TransferItemsMenu", data: undefined }); } } showTriangle={false} disabled={false}></RetroButton>
+        </>);
+    }
+    inventoryDisplayButtons.push(<>
+        <RetroButton text={"Reorder"} onClickHandler={() => { moveItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu); }} showTriangle={false} disabled={false}></RetroButton>
+    </>);
      
     return (
         <>
@@ -117,15 +131,14 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
                 <div className='inventoryDisplayCarryDragLiftPushTable'>
                     <div>Carry Capacity</div>
                     <div>Drag, Lift, Push</div>
-                    <div>{currentWeightCarried(playerConfigs)}/{calculateCarry(playerConfigs)}</div>
+                    <div>{currentWeightCarried(playerConfigs.items)}/{calculateCarry(playerConfigs)}</div>
                     <div>{calculateDragLiftPush(playerConfigs)}</div>
                 </div>
                 <div className='inventoryDisplayItems'>
                     {itemRows}
                 </div>
                 <div className='inventoryDisplayButtons'>
-                    <RetroButton text={"Add"} onClickHandler={() => { addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu); }} showTriangle={false} disabled={false}></RetroButton>
-                    <RetroButton text={"Move"} onClickHandler={() => {}} showTriangle={false} disabled={false}></RetroButton>
+                    {inventoryDisplayButtons}
                 </div>
             </div>
         </>
@@ -189,6 +202,12 @@ function addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu) {
     });
 }
 
+function moveItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu) {
+    setCenterScreenMenu({ show: true, menuType: "MoveItemsMenu", data: { items: playerConfigs.items, onOkClicked: (newItemsOrder) => {
+        inputChangeHandler(playerConfigs, "items", newItemsOrder);
+    } } });
+}
+
 function addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, itemToAdd) {
     const dndItem = allItems.find(x => x.name === itemToAdd.name);
     if (itemToAdd.custom || dndItem?.stackable) {
@@ -202,6 +221,9 @@ function addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItem
         }
     }
 
+    if (dndItem && dndItem.container) {
+        itemToAdd.items = [];
+    }
     const newItems =  [...playerConfigs.items];
     newItems.push(itemToAdd);
     inputChangeHandler(playerConfigs, "items", newItems);

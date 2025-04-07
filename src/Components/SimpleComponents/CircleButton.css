@@ -20,12 +20,16 @@
     padding-bottom: 5px;
 }
 
-.circleButtonWrapper.disabled .circleButtonText {
+.circleButtonDisabled {
+    pointer-events: none;
+}
+
+.circleButtonWrapper.circleButtonDisabled .circleButtonText {
     color: white;
     font-weight: bold;
 }
 
-.circleButtonWrapper.disabled .circleAroundButton {
+.circleButtonWrapper.circleButtonDisabled .circleAroundButton {
     background-color: grey;
 }
 
@@ -35,4 +39,8 @@
 
 .circleButtonWrapper:hover .circleAroundButton {
     background-color: lightgrey;
+}
+
+.circleButtonUpsideDown {
+    transform: rotate(180deg);
 }
