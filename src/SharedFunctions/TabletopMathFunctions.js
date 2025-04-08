@@ -1695,7 +1695,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
             for (let item of playerConfigs.items) {
                 if (item.equipped) {
                     const dndItem = itemsDictionary[item.name];
-                    if (dndItem && (!dndItem.attunement || item.attuned) && dndItem.aspects && dndItem.aspects[aspectName]) {
+                    if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
                         onAspectFound(dndItem.aspects[aspectName], "item", item);
                     }
                 }

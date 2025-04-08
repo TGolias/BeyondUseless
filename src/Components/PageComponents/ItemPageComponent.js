@@ -96,6 +96,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     let weaponDamageThrown = undefined;
     let lightWeaponDamageThrown = undefined;
 
+    let attunedTo = undefined;
     let quantity = undefined;
     let childItems = [];
 
@@ -161,6 +162,10 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             if (itemConfigIndex > -1) {
                 const itemConfig = itemsProperty.items[itemConfigIndex];
                 if (itemConfig) {
+                    if (itemConfig.attuned) {
+                        attunedTo = itemConfig.attuned;
+                    }
+
                     if (itemConfig.amount) {
                         quantity = itemConfig.amount;
                     }
@@ -240,6 +245,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             </div>
             <div className="itemPageDescription" style={{display: (lightWeaponDamageThrown ? "block" : "none")}}>
                 <div><b>Light Thrown Damage:</b> {lightWeaponDamageThrown}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (attunedTo ? "block" : "none")}}>
+                <div><b>Attuned To:</b> {attunedTo}</div>
             </div>
             <div className="itemPageDescription" style={{display: (quantity ? "block" : "none")}}>
                 <div><b>Quantity:</b> x{quantity}</div>

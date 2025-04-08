@@ -3,12 +3,27 @@ import './CheckboxInput.css'
 import { getValueFromObjectAndPath, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 import { playAudio } from "../../SharedFunctions/Utils";
 
-export function CheckboxInput({baseStateObject, pathToProperty, inputHandler, disabled = false, buttonSound = undefined}) {
-    const startingValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
+export function CheckboxInput({baseStateObject, pathToProperty, inputHandler, setValueOnTrue = undefined, disabled = false, buttonSound = undefined}) {
+    const propertyValue = getValueFromObjectAndPath(baseStateObject, pathToProperty);
 
-    return <input className={"checkboxcontrol pixel-corners" + (disabled ? " disabledCheckboxInput" : "")} type="checkbox" checked={startingValue} onInput={(event) => {
+    let currentCheckBoxValue;
+    let propertyValueToSetOnClick;
+    if (setValueOnTrue) {
+        if (propertyValue === setValueOnTrue) {
+            currentCheckBoxValue = true;
+            propertyValueToSetOnClick = undefined;
+        } else {
+            currentCheckBoxValue = false;
+            propertyValueToSetOnClick = setValueOnTrue;
+        }
+    } else {
+        currentCheckBoxValue = propertyValue;
+        propertyValueToSetOnClick = !currentCheckBoxValue;
+    }
+
+    return <input className={"checkboxcontrol pixel-corners" + (disabled ? " disabledCheckboxInput" : "")} type="checkbox" checked={currentCheckBoxValue} onInput={(event) => {
         if (!disabled) {
-            const value = !startingValue;
+            const value = propertyValueToSetOnClick;
             playAudio(buttonSound ? buttonSound : "selectionaudio");
             return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);
         }

@@ -222,7 +222,6 @@ function moveItemsFromOneCollectionToAnother(menuConfig, menuStateChangeHandler,
         const transferToItemCopy = {...movedItem};
         delete transferToItemCopy.amount;
         delete transferToItemCopy.equipped;
-        delete transferToItemCopy.attuned;
         transferToItems.push(transferToItemCopy);
         updatedMenuConfig = menuStateChangeHandler(updatedMenuConfig, "playerConfigs." + transferToPathToProperty + "items", transferToItems);
     } else {
@@ -232,7 +231,6 @@ function moveItemsFromOneCollectionToAnother(menuConfig, menuStateChangeHandler,
         const oldAmount = transferToItemCopy.amount || 1;
         transferToItemCopy.amount = oldAmount + 1;
         delete transferToItemCopy.equipped;
-        delete transferToItemCopy.attuned;
         updatedMenuConfig = menuStateChangeHandler(updatedMenuConfig, "playerConfigs." + transferToPathToProperty + "items[" + indexToInsert  + "]", transferToItemCopy);
     }
 

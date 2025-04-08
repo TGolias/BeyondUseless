@@ -157,7 +157,6 @@ function removeActiveEffect(playerConfigs, activeEffects, i, inputChangeHandler)
                 for (let allyItem of ally.items) {
                     const itemToAdd = {...allyItem};
                     delete itemToAdd.equipped;
-                    delete itemToAdd.attuned;
                     itemsToMoveToPlayer.push(itemToAdd);
                 }
             }
