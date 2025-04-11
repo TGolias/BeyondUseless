@@ -79,6 +79,56 @@ const effectTypes = {
                 userInput: menuConfig.userInput
             }
         }
+    },
+    ItemMenu: {
+        getActionObject: (menuConfig) => {
+            if (menuConfig.item.consumeEffect) {
+                return menuConfig.item.consumeEffect;
+            } else { // if (menuConfig.item.spell) {
+                return menuConfig.item.spell
+            }
+        },
+        getCreatures: (playerConfigsClone, menuConfig) => {
+            let creatures = undefined;
+            if (menuConfig.item.consumeEffect) {
+                if (menuConfig.item.consumeEffect.type.includes("creatures")) {
+                    creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.item.consumeEffect, "creatures", undefined, { userInput: menuConfig.userInput });
+                }
+            } else { // if (menuConfig.item.spell) {
+                if (menuConfig.item.spell.type.includes("creatures")) {
+                    creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.item.spell, menuConfig.item.spell.level, "creatures", undefined, { userInput: menuConfig.userInput });
+                }
+            }
+            return creatures;
+        },
+        createActiveEffect: (menuConfig, useOnSelf) => {
+            if (menuConfig.item.consumeEffect) {
+                return {
+                    type: "item",
+                    onSelf: useOnSelf,
+                    name: menuConfig.item.name,
+                    userInput: menuConfig.userInput
+                }
+            } else { // if (menuConfig.item.spell) {
+                const activeEffect = {
+                    type: "spell",
+                    onSelf: useOnSelf,
+                    name: menuConfig.item.spell.name,
+                    concentration: menuConfig.item.spell.concentration,
+                    castAtLevel: menuConfig.item.spell.level,
+                    userInput: menuConfig.userInput
+                }
+    
+                if (menuConfig.spell.resources) {
+                    activeEffect.remainingResources = {};
+                    for (let resource of menuConfig.spell.resources) {
+                        activeEffect.remainingResources[resource.name] = resource.uses;
+                    }
+                }
+                
+                return activeEffect;
+            }
+        }
     }
 }
 

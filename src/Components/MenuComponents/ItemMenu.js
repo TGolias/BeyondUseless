@@ -4,9 +4,9 @@ import { RetroButton } from "../SimpleComponents/RetroButton";
 import { ItemPageComponent } from "../PageComponents/ItemPageComponent";
 import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
-import { playAudio } from "../../SharedFunctions/Utils";
+import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 
-export function ItemMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler}) {
+export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler}) {
 
     const isConsumable = menuConfig.item.consumable;
     if (isConsumable && !menuConfig.newPlayerConfigs) {
@@ -55,17 +55,28 @@ export function ItemMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
     }
 
     const userInteraction = [];
-    userInteraction.push(<>
-        <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
-    </>)
+
+    if (menuConfig.item.consumeEffect && menuConfig.item.consumeEffect.type && (menuConfig.item.consumeEffect.type.includes("healing") || menuConfig.item.consumeEffect.type.includes("restore"))) {
+        userInteraction.push(<>
+            <div className="centerMenuSeperator"></div>
+        </>);
+    
+        userInteraction.push(<>
+            <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
+        </>);
+    }
 
     const buttons = []
     buttons.push(<>
         <RetroButton text={isConsumable ? "Use" : "OK"} buttonSound={playerConfigsClone ? "healaudio" : "selectionaudio"} onClickHandler={() => {
             if (playerConfigsClone) {
-                inputChangeHandler(playerConfigs, "", playerConfigsClone);
+                tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+                    inputChangeHandler(playerConfigs, "", playerConfigsClone);
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                });
+            } else {
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
             }
-            setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
         }} showTriangle={false} disabled={false}></RetroButton>
     </>);
 
@@ -75,13 +86,10 @@ export function ItemMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
         </>);
     }
 
-    
-
     return (<>
         <div className="itemMenuWrapperDiv">
             <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
         </div>
-        <div className="centerMenuSeperator"></div>
             {userInteraction}
         <div className="centerMenuSeperator"></div>
         <div className="itemMenuHorizontal">

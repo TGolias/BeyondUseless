@@ -1741,6 +1741,12 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                                 onAspectFound(action.aspects[aspectName], "action", activeEffect);
                             }
                             break;
+                        case "item":
+                            const item = collection.itemName2Item[activeEffect.name];
+                            if (item && item.consumeEffect && item.consumeEffect.aspects && item.consumeEffect.aspects[aspectName]) {
+                                onAspectFound(item.consumeEffect.aspects[aspectName], "action", activeEffect);
+                            }
+                            break;
                     }
                 }
 
@@ -1809,7 +1815,10 @@ function getOrAddCachedActiveEffectCollection(playerConfigs, collections, fromRe
         const actions = getCollection("actions");
         const actionName2Action = convertArrayToDictionary(actions, "name");
 
-        const collection = { spellName2Spell, actionFeatures, actionName2Action };
+        const items = getCollection("items");
+        const itemName2Item = convertArrayToDictionary(items, "name");
+
+        const collection = { spellName2Spell, actionFeatures, actionName2Action, itemName2Item };
         collections[characterName] = collection;
         return collection;
     } else {
