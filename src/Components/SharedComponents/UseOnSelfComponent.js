@@ -78,17 +78,33 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
 function doesSpellOrFeatureActionTypeInclude(menuConfig, typeToCheck) {
     if (menuConfig.spell) {
         return menuConfig.spell.type && menuConfig.spell.type.includes(typeToCheck);
-    } else {
+    } else if (menuConfig.featureAction) {
         return menuConfig.featureAction.type && menuConfig.featureAction.type.includes(typeToCheck);
+    } else if (menuConfig.item) {
+        if (menuConfig.item.consumeEffect) {
+            return menuConfig.item.consumeEffect.type && menuConfig.item.consumeEffect.type.includes(typeToCheck);
+        }
+        if (menuConfig.item.spell) {
+            return menuConfig.item.spell.type && menuConfig.item.spell.type.includes(typeToCheck);
+        }
     }
+    return false;
 }
 
 function calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, aspectName, aspectBonusName) {
     if (menuConfig.spell) {
         // This is a spell.
         return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, aspectName, aspectBonusName, { userInput: menuConfig.userInput });
-    } else {
+    } else if (menuConfig.featureAction) {
         // This is a feature action.
         return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.featureAction, aspectName, aspectBonusName, { userInput: menuConfig.userInput });
+    } else { // if (menuConfig.item) {
+        if (menuConfig.item.consumeEffect) {
+            // This is an item consumeEffect.
+            return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.item.consumeEffect, aspectName, aspectBonusName, { userInput: menuConfig.userInput });
+        } else  {// if (menuConfig.item.spell) {
+            // This is an item spell.
+            return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.item.spell, menuConfig.item.spell.level, aspectName, aspectBonusName, { userInput: menuConfig.userInput });
+        }
     }
 }

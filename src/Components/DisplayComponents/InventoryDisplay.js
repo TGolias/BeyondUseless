@@ -6,6 +6,7 @@ import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils
 import { CheckboxInput } from '../SimpleComponents/CheckboxInput';
 import { CanAttuneItem, CanEquipItem } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
+import { addItemsToNewItems } from '../../SharedFunctions/ItemFunction';
 
 const rows = [
     {
@@ -161,8 +162,14 @@ function onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setC
 
 function removeItem(playerConfigs, inputChangeHandler, i) {
     playAudio("selectionaudio");
+    const itemBeingRemoved = playerConfigs.items[i];
     const newItems =  [...playerConfigs.items];
     newItems.splice(i, 1);
+
+    if (itemBeingRemoved.items && itemBeingRemoved.items.length > 0) {
+        addItemsToNewItems(newItems, itemBeingRemoved.items);
+    }
+
     inputChangeHandler(playerConfigs, "items", newItems);
 }
 
