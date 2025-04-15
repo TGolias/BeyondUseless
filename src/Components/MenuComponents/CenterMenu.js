@@ -33,6 +33,7 @@ import { QuantityMenu } from "./QuantityMenu";
 import { CustomItemMenu } from "./CustomItemMenu";
 import { MoveItemsMenu } from "./MoveItemsMenu";
 import { TransferItemsMenu } from "./TransferItemsMenu";
+import { ResourcesMenu } from "./ResourcesMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -623,6 +624,23 @@ const menuCollection = {
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><TransferItemsMenu playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></TransferItemsMenu></>);
+        }
+    },
+    ResourcesMenu: {
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            return (<>
+                <div className="menuTitleBarTitle">Resource Manager</div>
+            </>);
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            newItemMenu.remainingFreeSpellUses = playerConfigs?.currentStatus?.remainingFreeSpellUses ? {...playerConfigs?.currentStatus?.remainingFreeSpellUses} : undefined;
+            newItemMenu.remainingResources = playerConfigs?.currentStatus?.remainingResources ? {...playerConfigs?.currentStatus?.remainingResources} : undefined;
+            newItemMenu.remainingSpellSlots = playerConfigs?.currentStatus?.remainingSpellSlots ? {...playerConfigs?.currentStatus?.remainingSpellSlots} : undefined;
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><ResourcesMenu playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></ResourcesMenu></>);
         }
     }
 }

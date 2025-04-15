@@ -687,6 +687,14 @@ export default function App() {
       clickHandler: redoPlayerConfigs
     },
     {
+      text: "RESOURCES",
+      buttonSound: "menuaudio",
+      clickHandler: () => {
+        setShowStartMenu(false);
+        setCenterScreenMenu({ show: true, menuType: "ResourcesMenu", overrides: undefined, data: {} });
+      }
+    },
+    {
       text: "NEW",
       clickHandler: () => {
         setShowStartMenu(false);

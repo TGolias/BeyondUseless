@@ -1,7 +1,6 @@
 import React from "react";
 import './QuantityMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { SelectList } from "../SimpleComponents/SelectList";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { CircleButton } from "../SimpleComponents/CircleButton";
 

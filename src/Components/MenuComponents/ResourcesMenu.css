@@ -1,0 +1,44 @@
+.resourcesMenuWrapperDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    text-align: center;
+}
+
+.resourcesMenuText {
+    padding-top: 0.5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    row-gap: 0.5em;
+}
+
+.resourcesMenuButtons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: center;
+    align-items: end;
+}
+
+.resourcesMenuHorizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.resourcesMenuHorizontal .retroButtonWrapper {
+    padding: 1em;
+}
+
+@media only screen and (max-width: 600px) {
+    .resourcesMenuWrapperDiv {
+        height: 100%;
+    }
+
+    .resourcesMenuText {
+        flex-grow: 1;
+    }
+}
