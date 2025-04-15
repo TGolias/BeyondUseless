@@ -1600,8 +1600,8 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
         }
 
         if (allDndClassFeatures) {
-            for (let j = 0; j < dndClass.features.length; j++) {
-                const classFeature = dndClass.features[j];
+            for (let j = 0; j < allDndClassFeatures.length; j++) {
+                const classFeature = allDndClassFeatures[j];
                 if (!classFeature.classLevel || classFeature.classLevel <= playerConfigs.classes[i].levels) {
                     const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
                     const classFeaturePlayerConfig = playerConfigs.classes[i].features ? playerConfigs.classes[i].features[featurePropertyName] : undefined;
@@ -1782,6 +1782,42 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
                     const statBlockFeature = allStatBlockFeatures[i];
                     if (statBlockFeature && statBlockFeature[aspectName]) {
                         onAspectFound(statBlockFeature[aspectName], "feature", statBlockFeature);
+                    }
+                }
+            }
+        }
+    }
+
+    if (playerConfigs?.homebrew && playerConfigs.homebrew.length > 0) {
+        const allDndHomebrew = getCollection("homebrew");
+        const dndHomebrewMap = convertArrayToDictionary(allDndHomebrew, "name");
+        for (let i = 0; i < playerConfigs.homebrew.length; i++) {
+            const homebrew = playerConfigs.homebrew[i];
+            const dndHomebrew = dndHomebrewMap[homebrew.name];
+            if (dndHomebrew) {
+                const classAspectValue = dndHomebrew[aspectName];
+                if (classAspectValue) {
+                    onAspectFound(classAspectValue, "homebrew", homebrew);
+                }
+    
+                const allDndHomebrewFeatures = dndHomebrew.features ? [...dndHomebrew.features] : [];
+    
+                if (dndHomebrew.choices) {
+                    findAspectsFromChoice(playerConfigs, dndHomebrew, "homebrew[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(aspectValue, "homebrew", homebrew));
+    
+                    findAspectsFromChoice(playerConfigs, dndHomebrew, "homebrew[" + i + "].choices.", "features", (aspectValue) => {
+                        for (let classFeature of aspectValue) {
+                            allDndHomebrewFeatures.push(classFeature);
+                        }
+                    });
+                }
+    
+                if (allDndHomebrewFeatures) {
+                    for (let j = 0; j < allDndHomebrewFeatures.length; j++) {
+                        const homebrewFeature = allDndHomebrewFeatures[j];
+                        if (homebrewFeature && homebrewFeature[aspectName]) {
+                            onAspectFound(homebrewFeature[aspectName], "feature", homebrew);
+                        }
                     }
                 }
             }
@@ -2155,6 +2191,12 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
         if (singleCalculation.equals) {
             const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.equals, parameters)
             const valueToReturn = (singleValue == valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.notEquals) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.notEquals, parameters)
+            const valueToReturn = (singleValue != valueToEqual);
             return valueToReturn;
         }
 

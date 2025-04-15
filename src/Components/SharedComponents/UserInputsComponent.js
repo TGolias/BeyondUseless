@@ -68,12 +68,11 @@ const userInputTypes = {
     }
 }
 
-export function UserInputsComponent({playerConfigs, menuConfig, menuStateChangeHandler}) {
+export function UserInputsComponent({playerConfigs, menuConfig, userInputConfig, menuStateChangeHandler}) {
 
     let userInput = [];
-    const spellOrFeatureActionUserInput = getUserInputForSpellOrFeatureAction(menuConfig);
-    if (spellOrFeatureActionUserInput) {
-        for (let singleUserInput of spellOrFeatureActionUserInput) {
+    if (userInputConfig) {
+        for (let singleUserInput of userInputConfig) {
             userInput.push(userInputTypes[singleUserInput.type].generateControl(playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler));
         }
     }
@@ -81,17 +80,4 @@ export function UserInputsComponent({playerConfigs, menuConfig, menuStateChangeH
     return (<>
         <div style={{display: (userInput.length ? "flex" : "none")}} className="userInputsWrapperDiv">{userInput}</div>
     </>);
-}
-
-function getUserInputForSpellOrFeatureAction(menuConfig) {
-    if (menuConfig.spell) {
-        // This is a spell.
-        return menuConfig.spell.userInput;
-    } else if (menuConfig.featureAction) {
-        // This is a feature action.
-        return menuConfig.featureAction.userInput;
-    } else {
-        // This is an action.
-        return menuConfig.action.userInput;
-    }
 }

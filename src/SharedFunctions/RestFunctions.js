@@ -1,5 +1,7 @@
+import { getCollection } from "../Collections";
 import { GetUsesForResource } from "./ResourcesFunctions";
 import { getAllPlayerDNDClasses } from "./TabletopMathFunctions";
+import { convertArrayToDictionary } from "./Utils";
 
 export function SetPlayerShortRested(playerConfigs) {
     const allPlayerClasses = getAllPlayerDNDClasses(playerConfigs);
@@ -15,7 +17,7 @@ export function SetPlayerShortRested(playerConfigs) {
                         const remainingResources = playerConfigs?.currentStatus?.remainingResources ? playerConfigs?.currentStatus?.remainingResources[resource.name] : undefined;
                         if (remainingResources || remainingResources === 0) {
                             const resourcesForThisLevel = dndClass.resourcesPerLevel[classConfig.levels - 1];
-                            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resource, resourcesForThisLevel);
+                            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resource, resourcesForThisLevel, classConfig);
                             let newResourceAmount = remainingResources + shortRestRecharge;
                             if (newResourceAmount > maxResourcesForThisLevel) {
                                 newResourceAmount = maxResourcesForThisLevel;
@@ -52,6 +54,34 @@ export function SetPlayerLongRested(playerConfigs) {
         const creatureActiveEffects = playerConfigs.currentStatus.activeEffects.filter(effect => effect.allies && effect.allies.length > 0);
         if (creatureActiveEffects && creatureActiveEffects.length > 0) {
             newCurrentStatus.activeEffects = [...creatureActiveEffects];
+        }
+    }
+
+    if (playerConfigs.homebrew && playerConfigs.homebrew.length > 0) {
+        const allHomebrew = getCollection("homebrew");
+        const homebrewMap = convertArrayToDictionary(allHomebrew, "name");
+        for (let homebrew of playerConfigs.homebrew) {
+            const dndHomebrew = homebrewMap[homebrew.name];
+            if (dndHomebrew && dndHomebrew.resources && dndHomebrew.resources.length > 0) {
+                for (let resource of dndHomebrew.resources) {
+                    const longRestRecharge = resource.longRestRecharge;
+                    if (longRestRecharge || longRestRecharge === 0) {
+                        const remainingResources = playerConfigs?.currentStatus?.remainingResources ? playerConfigs?.currentStatus?.remainingResources[resource.name] : undefined;
+                        if (remainingResources || remainingResources === 0) {
+                            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resource, undefined, homebrew);
+                            let newResourceAmount = remainingResources + longRestRecharge;
+                            if (newResourceAmount > maxResourcesForThisLevel) {
+                                newResourceAmount = maxResourcesForThisLevel;
+                            }
+
+                            if (!newCurrentStatus.remainingResources) {
+                                newCurrentStatus.remainingResources = {};
+                            }
+                            newCurrentStatus.remainingResources[resource.name] = newResourceAmount;
+                        }
+                    }
+                }
+            }
         }
     }
 

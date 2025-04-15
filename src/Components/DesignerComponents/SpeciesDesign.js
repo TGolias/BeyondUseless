@@ -52,7 +52,7 @@ export function SpeciesDesign({baseStateObject, inputHandler}) {
                 </div>
             </div>
             <div style={{display: (dndspecies.choices ? "block" : "none")}}>
-                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndspecies} pathToPlayerChoices={"species.choices."} inputHandler={inputHandler}></ChoiceDesign>
+                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndspecies} pathToPlayerConfigObjectForChoices={"species"} inputHandler={inputHandler}></ChoiceDesign>
             </div>
         </div>
     </>)

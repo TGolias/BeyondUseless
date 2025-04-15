@@ -127,7 +127,7 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
             <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
         <div style={{display: (menuConfig.spell.level ? "flex" : "none")}} className="spellMenuCastingHorizontal">
             <div style={{display: (spellcastingLevel > 0 ? "flex" : "none")}} className="spellMenuCastingVertical">
                 <div>Cast LVL</div>

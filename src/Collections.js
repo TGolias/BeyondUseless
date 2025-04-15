@@ -30,6 +30,10 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/feats.json"
     },
     {
+        name: "homebrew",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/homebrew.json"
+    },
+    {
         name: "items",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/items.json"
     },

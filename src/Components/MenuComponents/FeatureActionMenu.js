@@ -71,7 +71,7 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
             <FeatureActionPageComponent featureAction={menuConfig.featureAction} feature={menuConfig.feature} origin={menuConfig.origin} data={data} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem}></FeatureActionPageComponent>
         </div>
         <div className="centerMenuSeperator"></div>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.featureAction.userInput}></UserInputsComponent>
         {resourceDisplay}
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>

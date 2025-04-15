@@ -136,7 +136,7 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
                 const allClasses = getCollection("classes");
                 dndClass = allClasses.find(dndClass => dndClass.name === originName);
             }
-            
+            break;
         case "subclass":
             if (originName) {
                 const allSubclasses = getCollection("subclasses");
@@ -146,6 +146,26 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
                     dndClass = allClasses.find(dndClass => dndClass.name === dndSubclass.class);
                 }
             }
+            break;
+        case "homebrew":
+            if (originName) {
+                const allHomebrew = getCollection("homebrew");
+                const homebrew = allHomebrew.find(x => x.name === originName);
+                const homwbrewResource = homebrew.resources.find(resource => resource.name === resourceName);
+                const resource = {...homwbrewResource};
+
+                resource.maxUses = GetUsesForResource(playerConfigs, homwbrewResource, undefined, actionFeature.playerConfigForObject);
+
+                let remainingUses;
+                if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
+                    remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
+                } else {
+                    remainingUses = resource.maxUses;
+                }
+                resource.remainingUses = remainingUses;
+                return resource;
+            }
+            break;
     }
 
     if (dndClass) {
@@ -211,6 +231,10 @@ function getFeatureOrigin(actionFeature) {
             const allStatBlocks = getCollection("statblocks");
             const dndStatblock = allStatBlocks.find(singleDndStatblock => singleDndStatblock.name === actionFeature.playerConfigForObject.name);
             return { type: "statblock", value: dndStatblock };
+        case "homebrew":
+            const allHomebrew = getCollection("homebrew");
+            const dndHomebrew = allHomebrew.find(singleHomebrew => singleHomebrew.name === actionFeature.playerConfigForObject.name);
+            return { type: "homebrew", value: dndHomebrew };
     }
 
     if (actionFeature.typeFoundOn.startsWith("species[")) {

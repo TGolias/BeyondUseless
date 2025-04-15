@@ -41,10 +41,13 @@ const customOptionDisplays = [
     }
 ]
 
-export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices, inputHandler}) {
+export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerConfigObjectForChoices, inputHandler}) {
     if (!choiceObject) {
         return (<><div></div></>);
-    } 
+    }
+
+    const playerConfigObjectForChoices = getValueFromObjectAndPath(baseStateObject, pathToPlayerConfigObjectForChoices);
+    const pathToPlayerChoices = pathToPlayerConfigObjectForChoices + ".choices.";
 
     const choices = [];
     if (choiceObject.choices) {
@@ -80,17 +83,17 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                 if (isNumeric(choice.multipleSelections)) {
                     numberOfSelections = choice.multipleSelections;
                 } else {
-                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calculation);
+                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calculation, playerConfigObjectForChoices);
                 }
 
                 const selectLists = [];
-                for (let i = 0; i < choice.multipleSelections; i++) {
+                for (let i = 0; i < numberOfSelections; i++) {
                     const valueForSelection = currentChoiceValue ? currentChoiceValue[i] : undefined;
-                    selectLists.push(createSelectList(baseStateObject, pathToProperty + "[" + i + "]", inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, valueForSelection));
+                    selectLists.push(createSelectList(baseStateObject, pathToProperty + "[" + i + "]", inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, valueForSelection, currentChoiceValue, playerConfigObjectForChoices));
                 }
                 singleChoice.push(<div className="multipleSelectLists">{selectLists}</div>)
             } else {
-                singleChoice.push(createSelectList(baseStateObject, pathToProperty, inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue));
+                singleChoice.push(createSelectList(baseStateObject, pathToProperty, inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue, [currentChoiceValue], playerConfigObjectForChoices));
             }
             
 
@@ -157,7 +160,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
                     if (chosenOption.choices) {
                         choices.push(<>
                             <div className="singleChoiceWrapper">
-                                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerChoices={pathToPlayerChoices} inputHandler={inputHandler}></ChoiceDesign>
+                                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={chosenOption} pathToPlayerConfigObjectForChoices={pathToPlayerConfigObjectForChoices} inputHandler={inputHandler}></ChoiceDesign>
                             </div>
                         </>);
                     }
@@ -189,7 +192,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerChoices
     return <div className="choiceDisplayer">{choices}</div>;
 }
 
-function createSelectList(baseStateObject, pathToProperty, inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue) {
+function createSelectList(baseStateObject, pathToProperty, inputHandler, choice, pathToPlayerChoices, optionDisplayStrings, alreadySelectedValueDisplayStringsHashMap, currentChoiceValue, alreadySelectedValues, playerConfigObjectForChoices) {
     const optionDisplayStringsThatHaventBeenSelected = [];
     for (const optionDisplayString of optionDisplayStrings) {
         if (!alreadySelectedValueDisplayStringsHashMap[optionDisplayString] || optionDisplayString === currentChoiceValue) {
@@ -199,12 +202,21 @@ function createSelectList(baseStateObject, pathToProperty, inputHandler, choice,
     optionDisplayStrings = optionDisplayStringsThatHaventBeenSelected;
 
     if (choice.options) {
-        let constrainedOptionDisplayStrings = choice.options.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
+        const filteredChoiceOptions = choice.options.filter(choiceOption => {
+            if (choiceOption.conditions) {
+                return performBooleanCalculation(baseStateObject, choiceOption.conditions, { playerConfigObjectForChoices, currentChoiceValue });
+            } else {
+                return true;
+            }
+        });
+
+        let constrainedOptionDisplayStrings = filteredChoiceOptions.map(x => getValueFromObjectAndPath(x, choice.optionDisplayProperty));
+        let filteredConstrainedOptionDisplayStrings = constrainedOptionDisplayStrings.filter(x => x === currentChoiceValue || !alreadySelectedValues || !alreadySelectedValues.includes(x));
         if (choice.optionsSource === "CUSTOM") {
-            optionDisplayStrings = constrainedOptionDisplayStrings;
+            optionDisplayStrings = filteredConstrainedOptionDisplayStrings;
         } else {
             // We also want to filter our source options based on what is in the constrained options.
-            const constrainedOptionDisplayStringsHashMap = convertArrayOfStringsToHashMap(constrainedOptionDisplayStrings);
+            const constrainedOptionDisplayStringsHashMap = convertArrayOfStringsToHashMap(filteredConstrainedOptionDisplayStrings);
             const filteredOptionDisplayStrings = []
             for (let j = 0; j < optionDisplayStrings.length; j++) {
                 const optionDisplayString = optionDisplayStrings[j];

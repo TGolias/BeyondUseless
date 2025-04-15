@@ -14,7 +14,7 @@ export function ActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuC
     if (menuConfig.action.userInput && menuConfig.action.userInput.length) {
         userInputRows.push(<>
             <div className="centerMenuSeperator"></div>
-            <UserInputsComponent playerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UserInputsComponent>
+            <UserInputsComponent playerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.action.userInput}></UserInputsComponent>
         </>);
 
         for (const userInput of menuConfig.action.userInput) {

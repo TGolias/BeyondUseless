@@ -76,7 +76,7 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
                 </div>
             </div>
             <div style={{display: (dndclass.choices ? "block" : "none")}}>
-                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndclass} pathToPlayerChoices={"classes[" + classIndex + "].choices."} inputHandler={inputHandler}></ChoiceDesign>
+                <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndclass} pathToPlayerConfigObjectForChoices={"classes[" + classIndex + "]"} inputHandler={inputHandler}></ChoiceDesign>
             </div>
             <div style={{display: (classFeatureRows.length ? "block" : "none")}}>{classFeatureRows}</div>
         </div>

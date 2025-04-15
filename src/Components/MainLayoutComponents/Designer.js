@@ -11,8 +11,10 @@ import { SpeciesDesign } from '../DesignerComponents/SpeciesDesign';
 import { calculateAspectCollection, getAllAspectOptions } from '../../SharedFunctions/TabletopMathFunctions';
 import { convertArrayOfStringsToHashMap } from '../../SharedFunctions/Utils';
 import { ClassDesign } from '../DesignerComponents/ClassDesign';
+import { RetroButton } from '../SimpleComponents/RetroButton';
+import { HomebrewDesign } from '../DesignerComponents/HomebrewDesign';
 
-export function Designer({playerConfigs, inputChangeHandler}) {
+export function Designer({playerConfigs, inputChangeHandler, setCenterScreenMenu}) {
 
     const species = getCollection("species");
     const backgrounds = getCollection("backgrounds");
@@ -78,6 +80,23 @@ export function Designer({playerConfigs, inputChangeHandler}) {
         </>);
     }
 
+    var homebrewDesigns = []
+    if (playerConfigs.homebrew) {
+        for (let i = 0; i < playerConfigs.homebrew.length; i++) {
+            homebrewDesigns.push(<>
+                <div className='designerSingleHomebrewSection'>
+                    <div className="label">{playerConfigs.homebrew[i].name}</div>
+                    <HomebrewDesign baseStateObject={playerConfigs} inputHandler={inputChangeHandler} homebrewIndex={i}></HomebrewDesign>
+                    <RetroButton text={"Remove " + playerConfigs.homebrew[i].name + " Homebrew"} onClickHandler={() => {
+                        const newPlayerHomeBrew = [...playerConfigs.homebrew];
+                        newPlayerHomeBrew.splice(i, 1);
+                        inputChangeHandler(playerConfigs, "homebrew", newPlayerHomeBrew);    
+                    }} showTriangle={true} disabled={false}></RetroButton>
+                </div>
+            </>);
+        }
+    }
+
     // NEXT TIME: Make point buy work with + and - buttons
     return (
         <>
@@ -117,12 +136,23 @@ export function Designer({playerConfigs, inputChangeHandler}) {
                     <ArrayInput baseStateObject={playerConfigs} pathToProperty={"classes"} config={classSelectionConfig} inputHandler={inputChangeHandler} allowAdd={CanMulticlass(playerConfigs)} addText={playerConfigs.classes.length > 0 ? "Add Multiclass" : "Add Class"} generateAddedItem={() => GetValidMulticlassDefault(playerConfigs)} allowRemove={playerConfigs.classes.length > 1} />
                 </div>
                 {classDesigns}
+                <div>
+                    <div className="label">Homebrew</div>
+                    <RetroButton text={"Add Homebrew"} onClickHandler={() => {
+                        const homebrew = getCollection("homebrew");
+                        const filteredHomebrew = homebrew.filter(x => !playerConfigs.homebrew || !playerConfigs.homebrew.some(y => y.name === x.name));
+                        const homebrewNames = filteredHomebrew.map(x => x.name);
+                        setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Condition", menuText: "Select the condition to add:", options: homebrewNames, 
+                            onOkClicked: (result) => {
+                                const newPlayerHomeBrew = playerConfigs.homebrew ? [...playerConfigs.homebrew] : [];
+                                newPlayerHomeBrew.push({ name: result });
+                                inputChangeHandler(playerConfigs, "homebrew", newPlayerHomeBrew);
+                            }
+                        }});
+                    }} showTriangle={true} disabled={false}></RetroButton>
+                </div>
+                {homebrewDesigns}
             </div>
         </>
     );
-}
-
-function GetValidItemDefault() {
-    const firstItem = getCollection("items")[0];
-    return { name: firstItem.name, equipped: false };
 }
