@@ -142,7 +142,7 @@ export function Designer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                         const homebrew = getCollection("homebrew");
                         const filteredHomebrew = homebrew.filter(x => !playerConfigs.homebrew || !playerConfigs.homebrew.some(y => y.name === x.name));
                         const homebrewNames = filteredHomebrew.map(x => x.name);
-                        setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Condition", menuText: "Select the condition to add:", options: homebrewNames, 
+                        setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Homebrew", menuText: "Select the homebrew to add:", options: homebrewNames, 
                             onOkClicked: (result) => {
                                 const newPlayerHomeBrew = playerConfigs.homebrew ? [...playerConfigs.homebrew] : [];
                                 newPlayerHomeBrew.push({ name: result });
