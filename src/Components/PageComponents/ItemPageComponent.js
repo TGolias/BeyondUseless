@@ -2,11 +2,11 @@ import React from "react";
 import './ItemPageComponent.css';
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAspectCollection, calculateOtherFeatureActionAspect, calculateRange, calculateWeaponAttackBonus, calculateWeaponDamage, convertDiceRollWithTypeToValue, performDiceRollCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getValueFromObjectAndPath, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { getHomePageUrl, playAudio } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl, playAudio } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection } from "../../Collections";
 
-export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, addToMenuStack = undefined}) {
+export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, data, addToMenuStack = undefined}) {
     let typeString;
     let baseDamage = undefined;
     let twoHandedDamage = undefined;
@@ -102,6 +102,8 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     let buffAmount = undefined;
     let buffDescription = undefined;
 
+    let targetNames = undefined;
+
     let attunedTo = undefined;
     let quantity = undefined;
     let childItems = [];
@@ -156,25 +158,30 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                 break;
         }
 
-        if (item.consumeEffect) {
+        if (item.consumeEffect && data) {
             const consumeEffect = item.consumeEffect;
 
             if (consumeEffect.type.includes("buff")) {
                 if (consumeEffect.buff.calculation) {
-                    buffAmount = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "buff", "buffBonus", {});
+                    buffAmount = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "buff", "buffBonus", { userInput: data.userInput });
                 }
                 buffDescription = consumeEffect.buff.description;
             }
     
             if (consumeEffect.type.includes("healing")) {
-                healing = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "healing", "healingBonus", {});
+                healing = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "healing", "healingBonus", { userInput: data.userInput });
                 if (healing) {
-                    healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], {});
+                    healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], { userInput: data.userInput });
                 }
             }
     
             if (consumeEffect.type.includes("restore")) {
-                restore = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "restore", "restoreBonus", {});
+                restore = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "restore", "restoreBonus", { userInput: data.userInput });
+            }
+
+            if (data.targetNamesMap) {
+                const targetNameStrings = convertHashMapToArrayOfStrings(data.targetNamesMap);
+                targetNames = concatStringArrayToAndStringWithCommas(targetNameStrings);
             }
         }
 
@@ -295,6 +302,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             <div className="itemPageDescription" style={{display: (childItems.length > 0 ? "block" : "none")}}>
                 <div><b>Items:</b></div>
                 {childItems}
+            </div>
+            <div className="itemPageDescription" style={{display: (targetNames ? "block" : "none")}}>
+                <div><b>Targets:</b> {targetNames}</div>
             </div>
         </div>
     </>

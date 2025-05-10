@@ -18,10 +18,10 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, useOnSelf) => {
+        createActiveEffect: (menuConfig, targetNamesMap) => {
             const activeEffect = {
                 type: "spell",
-                onSelf: useOnSelf,
+                targetNamesMap: targetNamesMap,
                 name: menuConfig.spell.name,
                 concentration: menuConfig.spell.concentration,
                 castAtLevel: menuConfig.useSpellSlotLevel,
@@ -49,10 +49,10 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, useOnSelf) => {
+        createActiveEffect: (menuConfig, targetNamesMap) => {
             return {
                 type: "featureaction",
-                onSelf: useOnSelf,
+                targetNamesMap: targetNamesMap,
                 name: menuConfig.featureAction.name,
                 origin: menuConfig.origin,
                 userInput: menuConfig.userInput
@@ -70,10 +70,10 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, useOnSelf) => {
+        createActiveEffect: (menuConfig, targetNamesMap) => {
             return {
                 type: "action",
-                onSelf: useOnSelf,
+                targetNamesMap: targetNamesMap,
                 name: menuConfig.action.name,
                 concentration: menuConfig.action.concentration,
                 userInput: menuConfig.userInput
@@ -101,18 +101,18 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, useOnSelf) => {
+        createActiveEffect: (menuConfig, targetNamesMap) => {
             if (menuConfig.item.consumeEffect) {
                 return {
                     type: "item",
-                    onSelf: useOnSelf,
+                    targetNamesMap: targetNamesMap,
                     name: menuConfig.item.name,
                     userInput: menuConfig.userInput
                 }
             } else { // if (menuConfig.item.spell) {
                 const activeEffect = {
                     type: "spell",
-                    onSelf: useOnSelf,
+                    targetNamesMap: targetNamesMap,
                     name: menuConfig.item.spell.name,
                     concentration: menuConfig.item.spell.concentration,
                     castAtLevel: menuConfig.item.spell.level,
@@ -141,24 +141,23 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
     // We want to track the spell if it is not Instantaneous or has a creatures.
     if (actionObject.duration !== "Instantaneous" || creatures) {
         if (actionObject.range === "Self") {
-            await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, true);
+            const targetNamesMap = {};
+            targetNamesMap[playerConfigsClone.name] = true;
+            await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, targetNamesMap);
             callback();
         } else if (actionObject.aspects) {
             setCenterScreenMenu({ show: true, menuType: "TargetMenu", data: {
                 onClose: async (targetNames) => {
                     const targetNamesMap = convertArrayOfStringsToHashMap(targetNames);
-                    if (targetNamesMap[playerConfigsClone.name]) {
-                        await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, true);
-                    } else {
-                        await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, false);
-                    }
-                    
+                    await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, targetNamesMap);
+
                     const allActiveConnections = GetAllActiveConnections();
+
                     for (let key of Object.keys(allActiveConnections)) {
                         const singleActiveConnection = allActiveConnections[key];
                         if (targetNamesMap[singleActiveConnection.remotePlayerConfigs.name]) {
                             // We need to let this other remote linked character know that we fucked with their shit. (added to their shit)
-                            const newActiveEffect = effectType.createActiveEffect(menuConfig, true);
+                            const newActiveEffect = effectType.createActiveEffect(menuConfig, targetNamesMap);
                             newActiveEffect.fromRemoteCharacter = playerConfigsClone.name;
                             const message = newActiveEffectMessage(sessionId, newActiveEffect);
                             singleActiveConnection.channel.send(JSON.stringify(message));
@@ -168,7 +167,7 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
                 },
             } });
         } else {
-            await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, false);
+            await castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, {});
             callback();
         }
     } else {
@@ -176,9 +175,9 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
     }
 }
 
-async function castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, useOnSelf) {
+async function castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, targetNamesMap) {
     playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
-    const newActiveEffect = effectType.createActiveEffect(menuConfig, useOnSelf);
+    const newActiveEffect = effectType.createActiveEffect(menuConfig, targetNamesMap);
     
     // See if we have any creatures.
     if (creatures) {
@@ -249,6 +248,10 @@ export function getActionObjectForActiveEffect(playerConfigs, activeEffect) {
             const actions = getCollection("actions")
             const action = actions.find(act => act.name === activeEffect.name);
             return action;
+        case "item":
+            const items = getCollection("items");
+            const item = items.find(x => x.name === activeEffect.name);
+            return item;
     }
 }
 

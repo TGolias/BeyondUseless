@@ -51,7 +51,7 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, activeEffectIn
                 const playerSpell = playerSpells.find(spell => spell.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", activeEffectIndex: activeEffectIndex, spell: playerSpell, playerConfigs: playerConfigsToSet, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, feature: playerSpell.feature } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", activeEffectIndex: activeEffectIndex, spell: playerSpell, playerConfigs: playerConfigsToSet, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap, feature: playerSpell.feature } } });
                 break;
             case "featureaction":
                 const actionFeatures = getAllActionFeatures(playerConfigsToSet);
@@ -59,15 +59,21 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, activeEffectIn
                 const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", activeEffectIndex: activeEffectIndex, featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", activeEffectIndex: activeEffectIndex, featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap } } });
                 break;
             case "action":
-                const actions = getCollection("actions")
+                const actions = getCollection("actions");
                 const action = actions.find(act => act.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", activeEffectIndex: activeEffectIndex, action: action, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", activeEffectIndex: activeEffectIndex, action: action, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap } } });
                 break;
+            case "item":
+                const items = getCollection("items");
+                const item = items.find(x => x.name === activeEffect.name);
+
+                playAudio("menuaudio");
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "item", activeEffectIndex: activeEffectIndex, item: item, pathToProperty: "", playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap } } });
         }
     }
 }

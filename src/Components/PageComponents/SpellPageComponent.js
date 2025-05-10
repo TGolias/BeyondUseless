@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
@@ -69,12 +69,18 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let debuffAmount = undefined;
     let debuffDescription = undefined;
     let creatures = undefined;
+    let targetNames = undefined;
     if (data) {
         if (data.freeUses !== undefined) {
             freeUses = data.freeUses;
         }
         if (data.castAtLevel) {
             castAtLevel = data.castAtLevel;
+        }
+
+        if (data.targetNamesMap) {
+            const targetNameStrings = convertHashMapToArrayOfStrings(data.targetNamesMap);
+            targetNames = concatStringArrayToAndStringWithCommas(targetNameStrings);
         }
         
         if (playerConfigs) {
@@ -210,6 +216,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             </div>
             <div className="spellPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
                 <div><b>Allied Creatures:</b> {creatures}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (targetNames ? "block" : "none")}}>
+                <div><b>Targets:</b> {targetNames}</div>
             </div>
             <div className="spellPageDescription" style={{display: (featureName ? "block" : "none")}}>
                 <div><b>Learned from:</b> {featureName}</div>

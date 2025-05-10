@@ -5,6 +5,7 @@ import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
 import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageComponent";
 import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 import { playAudio } from "../../SharedFunctions/Utils";
+import { ItemPageComponent } from "../PageComponents/ItemPageComponent";
 
 export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu, menuConfig, menuStateChangeHandler, addToMenuStack}) {
 
@@ -23,6 +24,11 @@ export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
         case "action":
             pageComponentRow.push(<>
                 <ActionPageComponent action={menuConfig.action} copyLinkToItem={menuConfig.copyLinkToView} data={menuConfig.data} playerConfigs={menuConfig.playerConfigs}></ActionPageComponent>
+            </>);
+            break;
+        case "item":
+            pageComponentRow.push(<>
+                <ItemPageComponent item={menuConfig.item} copyLinkToItem={menuConfig.copyLinkToView} data={menuConfig.data} playerConfigs={menuConfig.playerConfigs} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu}></ItemPageComponent>
             </>);
             break;
     }

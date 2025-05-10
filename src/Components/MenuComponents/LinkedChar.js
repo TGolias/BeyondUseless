@@ -74,7 +74,6 @@ export function LinkedChar({playerConfigs, setCenterScreenMenu, addToMenuStack, 
             }} onButtonClick={(i) => {
                 if (!activeEffectsToAddFromRemoteCharMap[remoteCharActiveEffects[i].name] && canAddOtherCharacterActiveEffectOnSelf(characterConfigs, remoteCharActiveEffects[i])) {
                     const newEffectForSelf = {...remoteCharActiveEffects[i]}
-                    newEffectForSelf.onSelf = true;
                     newEffectForSelf.fromRemoteCharacter = menuConfig.characterName;
                     const effectsToAdd = [...menuConfig.newActiveEffects, newEffectForSelf];
                     menuStateChangeHandler(menuConfig, "newActiveEffects", effectsToAdd);

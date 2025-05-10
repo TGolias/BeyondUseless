@@ -10,6 +10,8 @@ export function TargetMenu({playerConfigs, menuConfig, menuStateChangeHandler, s
     const allPossibleTargetsMap = {};
     allPossibleTargetsMap[playerConfigs.name] = true;
 
+    addAllAlliesFromCharacter(playerConfigs, allPossibleTargetsMap);
+
     const allActiveConnections = GetAllActiveConnections()
     for (let sessionId of Object.keys(allActiveConnections)) {
         const singleActiveConnection = allActiveConnections[sessionId];
@@ -32,4 +34,18 @@ export function TargetMenu({playerConfigs, menuConfig, menuStateChangeHandler, s
             }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
+}
+
+function addAllAlliesFromCharacter(characterConfigs, allPossibleTargetsMap) {
+    if (characterConfigs?.currentStatus?.activeEffects && characterConfigs.currentStatus.activeEffects.length > 0) {
+        for (let activeEffect of characterConfigs.currentStatus.activeEffects) {
+            if (activeEffect.allies && activeEffect.allies.length > 0) {
+                for (let ally of activeEffect.allies) {
+                    allPossibleTargetsMap[ally.name] = true;
+
+                    addAllAlliesFromCharacter(ally, allPossibleTargetsMap);
+                }
+            }
+        }
+    }
 }

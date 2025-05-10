@@ -1,7 +1,7 @@
 import React from "react";
 import './ActionPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateOtherFeatureActionAspect, calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
@@ -35,7 +35,11 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
     let showActionSummary = false;
     let buffAmount = undefined;
     let buffDescription = undefined;
+
+    let targetNames = undefined;
+
     let skillsDescription = "";
+
     if (data && playerConfigs) {
         if (action.showSkills) {
             for (let skillName of action.showSkills) {
@@ -54,6 +58,11 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
             buffDescription = action.buff.description;
             showActionSummary = true;
         }
+
+        if (data.targetNamesMap) {
+            const targetNameStrings = convertHashMapToArrayOfStrings(data.targetNamesMap);
+            targetNames = concatStringArrayToAndStringWithCommas(targetNameStrings);
+        }
     }
 
     const skillDescriptionRows = parseStringForBoldMarkup(skillsDescription);
@@ -64,11 +73,14 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
             <div className="actionPageDescription" style={{display: (skillDescriptionRows.length ? "block" : "none")}}>{skillDescriptionRows}</div>
             <div className="actionPageDescription" style={{display: (conditionsRows.length ? "block" : "none")}}>{conditionsRows}</div>
             <br style={{display: (showActionSummary ? "block" : "none")}}></br>
-            <div className="spellPageDescription" style={{display: (showActionSummary ? "block" : "none")}}>
+            <div className="actionPageDescription" style={{display: (showActionSummary ? "block" : "none")}}>
                 <div><b>Action Summary</b></div>
             </div>
-            <div className="spellPageDescription" style={{display: (buffAmount || buffDescription ? "block" : "none")}}>
+            <div className="actionPageDescription" style={{display: (buffAmount || buffDescription ? "block" : "none")}}>
                 <div><b>Buff:</b> {parseStringForBoldMarkup(buffAmount)}{(buffAmount ? " " : "")}{parseStringForBoldMarkup(buffDescription)}</div>
+            </div>
+            <div className="actionPageDescription" style={{display: (targetNames ? "block" : "none")}}>
+                <div><b>Targets:</b> {targetNames}</div>
             </div>
         </div>
     </>

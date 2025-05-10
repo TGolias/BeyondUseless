@@ -1,7 +1,7 @@
 import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
@@ -42,6 +42,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let debuffAmount = undefined;
     let debuffDescription = undefined;
     let creatures = undefined;
+    let targetNames = undefined;
     if (data && playerConfigs) {
         const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", { featureAction });
         if (featureActionDescriptionAddendumString) {
@@ -116,6 +117,11 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         if (featureAction.type.includes("creatures")) {
             creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, { userInput: data.userInput });
         }
+
+        if (data.targetNamesMap) {
+            const targetNameStrings = convertHashMapToArrayOfStrings(data.targetNamesMap);
+            targetNames = concatStringArrayToAndStringWithCommas(targetNameStrings);
+        }
     }
 
     return <>
@@ -161,6 +167,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="featureActionPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
                 <div><b>Allied Creatures:</b> {creatures}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: (targetNames ? "block" : "none")}}>
+                <div><b>Targets:</b> {targetNames}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (feature ? "block" : "none")}}>
                 <div><b>Learned from:</b> {origin.value.name} - {feature.name}</div>
