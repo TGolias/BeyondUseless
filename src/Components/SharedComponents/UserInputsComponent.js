@@ -1,9 +1,11 @@
 import React from "react";
 import './UserInputsComponent.css'
-import { performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { CheckListInput } from "../SimpleComponents/CheckListInput";
 import { SelectList } from "../SimpleComponents/SelectList";
+import { UseSpellSlotComponent } from "./UseSpellSlotComponent";
+import { getCollection } from "../../Collections";
 
 const userInputTypes = {
     textField: {
@@ -62,6 +64,41 @@ const userInputTypes = {
                 <div className="userInputsSingleInput">
                     <div>{singleUserInput.displayName}</div>
                     <SelectList options={allSelectListValues} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></SelectList>
+                </div>
+            </>);
+        }
+    },
+    consumeSpellSlot: {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+            const minLevel = singleUserInput.minLevel ? performMathCalculation(playerConfigs, singleUserInput.minLevel, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 1;
+            if (!menuConfig.useSpellSlotLevel) {
+                menuConfig.useSpellSlotLevel = minLevel;
+            }
+
+            let spellcastingLevel = 0
+            let spellSlotsRemainingForSlotLevel = 0
+            let slotLevelPropertyPath = undefined;
+            let haveSpellSlotsForNextLevel = false;
+            if (minLevel) {
+                spellcastingLevel = getSpellcastingLevel(playerConfigs);
+                if (spellcastingLevel > 0) {
+                    const spellSlotsForEachLevel = getCollection("spellslots");
+                    const spellcastingIndex = spellcastingLevel - 1;
+                    const allSpellSlotsForThisLevel = spellSlotsForEachLevel[spellcastingIndex];
+                    slotLevelPropertyPath = "slotLevel" + menuConfig.useSpellSlotLevel;
+                    haveSpellSlotsForNextLevel = allSpellSlotsForThisLevel["slotLevel" + (menuConfig.useSpellSlotLevel + 1)];
+                    if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingSpellSlots && playerConfigs.currentStatus.remainingSpellSlots[slotLevelPropertyPath] !== undefined) {
+                        spellSlotsRemainingForSlotLevel = playerConfigs.currentStatus.remainingSpellSlots[slotLevelPropertyPath];
+                    } else {
+                        // We have all the slots remaining.
+                        spellSlotsRemainingForSlotLevel = allSpellSlotsForThisLevel[slotLevelPropertyPath];
+                    }
+                }
+            }
+
+            return (<>
+                <div className="userInputsSingleInput userInputsMaxWidthChild">
+                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
                 </div>
             </>);
         }

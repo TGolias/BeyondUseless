@@ -3,12 +3,11 @@ import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
 import { getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { CircleButton } from "../SimpleComponents/CircleButton";
-import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 import { getCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
+import { UseSpellSlotComponent } from "../SharedComponents/UseSpellSlotComponent";
 
 export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -128,28 +127,7 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
-        <div style={{display: (menuConfig.spell.level ? "flex" : "none")}} className="spellMenuCastingHorizontal">
-            <div style={{display: (spellcastingLevel > 0 ? "flex" : "none")}} className="spellMenuCastingVertical">
-                <div>Cast LVL</div>
-                <div className="spellMenuHorizontal">
-                    <CircleButton text={"-"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "useSpellSlotLevel", menuConfig.useSpellSlotLevel - 1)}} disabled={menuConfig.useFreeUse || menuConfig.useRitual || menuConfig.useSpellSlotLevel <= menuConfig.spell.level}></CircleButton>
-                    <div>{(menuConfig.useFreeUse ? "F" : (menuConfig.useRitual ? "R" : menuConfig.useSpellSlotLevel))}</div>
-                    <CircleButton text={"+"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "useSpellSlotLevel", menuConfig.useSpellSlotLevel + 1)}} disabled={menuConfig.useFreeUse || menuConfig.useRitual || !haveSpellSlotsForNextLevel}></CircleButton>
-                </div>
-            </div>
-            <div style={{display: (spellcastingLevel > 0 ? "flex" : "none")}} className="spellMenuCastingVertical">
-                <div>Slots Left</div>
-                <div className="slotsLeft">{spellSlotsRemainingForSlotLevel}</div>
-            </div>
-            <div style={{display: (menuConfig.spell.freeUses ? "flex" : "none")}} className="spellMenuCastingVertical">
-                <div>Free Use</div>
-                <CheckboxInput baseStateObject={menuConfig} pathToProperty={"useFreeUse"} inputHandler={menuStateChangeHandler} disabled={menuConfig.useRitual || !remainingFreeUses}></CheckboxInput>
-            </div>
-            <div style={{display: (isRitual ? "flex" : "none")}} className="spellMenuCastingVertical">
-                <div>Ritual</div>
-                <CheckboxInput baseStateObject={menuConfig} pathToProperty={"useRitual"} inputHandler={menuStateChangeHandler} disabled={menuConfig.useFreeUse}></CheckboxInput>
-            </div>
-        </div>
+        <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">

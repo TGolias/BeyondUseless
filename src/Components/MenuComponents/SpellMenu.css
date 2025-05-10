@@ -7,30 +7,6 @@
     overscroll-behavior: contain;
 }
 
-.spellMenuCastingHorizontal {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    gap: 1em;
-    text-align: center;
-}
-
-.spellMenuCastingVertical {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5em;
-    justify-content: space-between;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-}
-
-.slotsLeft {
-    padding-bottom: 0.4em;
-}
-
 .spellMenuHorizontal {
     display: flex;
     flex-direction: row;
