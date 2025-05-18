@@ -88,12 +88,12 @@ const allCollections = [
 ]
 
 export async function fetchAllCollections() {
-    const allPromises = [];
     for (const collection of allCollections) {
         const promise = setCollection(collection.name, collection.url);
-        allPromises.push(promise);
+        
+        // We COULD do a Promise.all on all of these to make them concurrent, but github actually will rate limit and return a 429 in some cases, so we actually want to slow down how quick we request JSON from it.
+        await promise;
     }
-    return Promise.all(allPromises);
 }
 
 export function getCollection(collectionName) {
