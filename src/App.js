@@ -204,7 +204,7 @@ export default function App() {
                   forceUpdate();
                 }} showTriangle={false} disabled={false}></RetroButton>
               </span>
-              <ItemPageComponent item={itemFound} playerConfigs={linkedPlayer} pathToProperty={pathToProperty} copyLinkToItem={copyLinkToItem} setCenterScreenMenu={setCenterScreenMenu}></ItemPageComponent>
+              <ItemPageComponent item={itemFound} playerConfigs={linkedPlayer} pathToProperty={pathToProperty} copyLinkToItem={copyLinkToItem} setCenterScreenMenu={setCenterScreenMenu} data={data}></ItemPageComponent>
             </div>
             <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
               <div className="centerMenu pixel-corners">

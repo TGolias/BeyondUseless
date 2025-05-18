@@ -87,7 +87,7 @@ const allCollections = [
     }
 ]
 
-export function fetchAllCollections() {
+export async function fetchAllCollections() {
     const allPromises = [];
     for (const collection of allCollections) {
         const promise = setCollection(collection.name, collection.url);
