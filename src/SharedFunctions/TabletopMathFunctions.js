@@ -2014,8 +2014,11 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
     const performAddition = (currentTotal, valueToAdd) => {
         return addDiceObjectsWithTypeTogether(currentTotal, valueToAdd);
     };
+    const shouldBreak = (total) => {
+        return false;
+    }
 
-    const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return {}; }, parameters);
+    const diceObject = performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, shouldBreak, () => { return {}; }, parameters);
     return diceObject;
 }
 
@@ -2222,7 +2225,11 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
         return currentTotal + valueToAdd;
     };
 
-    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return 0; }, parameters);
+    const shouldBreak = (total) => {
+        return false;
+    }
+
+    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, shouldBreak, () => { return 0; }, parameters);
 }
 
 export function performBooleanCalculation(playerConfigs, calculation, parameters = {}) {
@@ -2282,18 +2289,26 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
         return currentTotal && valueToAdd;
     };
 
-    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, () => { return true; }, parameters);
+    const shouldBreak = (total) => {
+        return !total;
+    }
+
+    return performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, shouldBreak, () => { return true; }, parameters);
 }
 
-function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, getDefaultValue, parameters) {
+function performCalculation(playerConfigs, calculation, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, shouldBreak, getDefaultValue, parameters) {
     let total = getDefaultValue();
     for (let i = 0; i < calculation.length; i++) {
         const singleCalculation = calculation[i];
-        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerPlayerConfigs, innerCalc) => performCalculation(innerPlayerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, getDefaultValue, parameters));
+        let singleValue = doSingleCalculation(playerConfigs, singleCalculation, doSingleCalculationForSpecialTypes, parameters, (innerPlayerConfigs, innerCalc) => performCalculation(innerPlayerConfigs, innerCalc, doSingleCalculationForSpecialTypes, performSpecialTransformations, performAddition, shouldBreak, getDefaultValue, parameters));
 
         singleValue = performSpecialTransformations(playerConfigs, singleCalculation, singleValue);
 
         total = performAddition(total, singleValue);
+
+        if (shouldBreak(total)) {
+            break;
+        }
     }
     return total;
 }
