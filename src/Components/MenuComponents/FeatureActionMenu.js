@@ -32,7 +32,7 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
     let slotLevelPropertyPath = undefined;
     let hasEnoughSpellSlots = true;
 
-    const spellSlotConsumtionInput = menuConfig.featureAction.userInput.find(userInput => userInput.type === "consumeSpellSlot");
+    const spellSlotConsumtionInput = menuConfig.featureAction.userInput?.find(userInput => userInput.type === "consumeSpellSlot");
     if (spellSlotConsumtionInput) {
         if (!menuConfig.useSpellSlotLevel) {
             menuConfig.useSpellSlotLevel = spellSlotConsumtionInput.minLevel ? performMathCalculation(playerConfigs, spellSlotConsumtionInput.minLevel, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 1;
