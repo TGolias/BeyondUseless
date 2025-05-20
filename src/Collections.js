@@ -90,24 +90,27 @@ const allCollections = [
 ]
 
 export async function fetchAllCollections() {
-    const allPromises = []
     for (const collection of allCollections) {
+        // We request the JSON serially to try to avoid rate limits (as recommended by github): https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api?apiVersion=2022-11-28#avoid-concurrent-requests
         const promise = setCollection(collection.name, collection.url);
-        allPromises.push(promise);
+        await promise;
+
+        // We wait one second between each request to try to avoid rate limits (as recommended by github): https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api?apiVersion=2022-11-28#pause-between-mutative-requests
+        await delay(1000);
     }
-    await Promise.all(allPromises);
 }
 
 export function getCollection(collectionName) {
     return collectionsMap[collectionName];
 }
 
-async function setCollection(collectionName, collectionUrl) {
+async function setCollection(collectionName, collectionUrl, retries = 0) {
     const response = await fetch(collectionUrl);
-    if (response.status === 429) {
-        // Try again in 1 minute lol
-        await delay(60000);
-        return setCollection(collectionName, collectionUrl);
+    if (response.status === 429 && retries <= 11) {
+        const newRetries = retries + 1;
+        // Try again in 1 minute... then two minutes, then three, all the way up to eleven. It ends up being 66 minutes of waiting total, so that an hour potentially can pass for the rate limite to reset (as recommended by github): https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api?apiVersion=2022-11-28#handle-rate-limit-errors-appropriately
+        await delay(60000 * newRetries);
+        return setCollection(collectionName, collectionUrl, retries + 1);
 
         // TODO: https://github.blog/changelog/2025-05-08-updated-rate-limits-for-unauthenticated-requests/
         // It actually looks like this was a recent change on github's part. I either need to:
@@ -118,8 +121,11 @@ async function setCollection(collectionName, collectionUrl) {
         // 5. Just have the JSON as part of this repo...
         // 5a. Move the JSON into this repo... I don't love that idea, because I just want this to be the code to make the config run, none of the actual dnd stuff. This then ties the repo to dnd and I don't want that.
         // 5b. Maybe just pull the JSON from the other repo in during the build step and have them as part of the build for now? (Then allow for customization / overriding later).
+        // 6. Maybe we just pull down the JSON collections once initially, then hold onto it in the browser storage? (This could work, but ONLY if the rate limit is per-ip... if it's just overall total, this isn't going to work.)
         // More on this: https://github.com/orgs/community/discussions/159123
         // More info: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28
+        // Hey! It looks like they actually have a guide to stay under the rate limits: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28#staying-under-the-rate-limit
+        // 7. Look into using conditional requests... We may be able to pull the JSON for all collections, and hold onto the etag along with the JSON in local storage, so we are only requesting what we actually need: https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api?apiVersion=2022-11-28#use-conditional-requests-if-appropriate
     } else {
         const collectionJson = await response.json();
         collectionsMap[collectionName] = collectionJson;
