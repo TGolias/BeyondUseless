@@ -134,3 +134,9 @@ function concatStringArrayToSomeStringWithCommas(arrayOfStrings, stringBeforeLas
     }
     return result
 }
+
+export function delay(time) {
+    return new Promise(res => {
+        setTimeout(res,time)
+    });
+}

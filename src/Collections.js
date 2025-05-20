@@ -1,3 +1,5 @@
+import { delay } from "./SharedFunctions/Utils";
+
 const collectionsMap = {};
 
 const allCollections = [
@@ -88,12 +90,12 @@ const allCollections = [
 ]
 
 export async function fetchAllCollections() {
+    const allPromises = []
     for (const collection of allCollections) {
         const promise = setCollection(collection.name, collection.url);
-        
-        // We COULD do a Promise.all on all of these to make them concurrent, but github actually will rate limit and return a 429 in some cases, so we actually want to slow down how quick we request JSON from it.
-        await promise;
+        allPromises.push(promise);
     }
+    await Promise.all(allPromises);
 }
 
 export function getCollection(collectionName) {
@@ -102,6 +104,24 @@ export function getCollection(collectionName) {
 
 async function setCollection(collectionName, collectionUrl) {
     const response = await fetch(collectionUrl);
-    const collectionJson = await response.json();
-    collectionsMap[collectionName] = collectionJson;
+    if (response.status === 429) {
+        // Try again in 1 minute lol
+        await delay(60000);
+        return setCollection(collectionName, collectionUrl);
+
+        // TODO: https://github.blog/changelog/2025-05-08-updated-rate-limits-for-unauthenticated-requests/
+        // It actually looks like this was a recent change on github's part. I either need to:
+        // 1. Authenticate to retrieve the JSON (which doesn't seem super feasible or make sense because there really is no USER right now).
+        // 2. Put all the JSON collections into one mega-collection (which still doesn't defeat the original problem)
+        // 3. Pay for hosting... Not great considering this app is still in development and definetly not free...
+        // 4. Allow for the JSON collections to be populated manually... I want to get to the eventually so everyone can customize their own experience but I don't think I'm there yet...
+        // 5. Just have the JSON as part of this repo...
+        // 5a. Move the JSON into this repo... I don't love that idea, because I just want this to be the code to make the config run, none of the actual dnd stuff. This then ties the repo to dnd and I don't want that.
+        // 5b. Maybe just pull the JSON from the other repo in during the build step and have them as part of the build for now? (Then allow for customization / overriding later).
+        // More on this: https://github.com/orgs/community/discussions/159123
+        // More info: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28
+    } else {
+        const collectionJson = await response.json();
+        collectionsMap[collectionName] = collectionJson;
+    }
 }
