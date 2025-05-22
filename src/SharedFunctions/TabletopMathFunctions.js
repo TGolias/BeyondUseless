@@ -2430,12 +2430,15 @@ export function getAllSpells(spellcastingFeatures) {
         if (spellcasting.spellsKnown) {
             if (spellcasting.spellsKnown.predeterminedSelections && spellcasting.spellsKnown.predeterminedSelections.length > 0) {
                 for (let predeterminedSelection of spellcasting.spellsKnown.predeterminedSelections) {
-                    const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
-                    spellToAdd.feature = spellcastingFeature.feature;
-                    if (predeterminedSelection.freeUses && predeterminedSelection.freeUses > 0) {
-                        spellToAdd.freeUses = predeterminedSelection.freeUses;
+                    // Check that the spell exists before adding it.
+                    if (spellName2Spell[predeterminedSelection.spellName]) {
+                        const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
+                        spellToAdd.feature = spellcastingFeature.feature;
+                        if (predeterminedSelection.freeUses && predeterminedSelection.freeUses > 0) {
+                            spellToAdd.freeUses = predeterminedSelection.freeUses;
+                        }
+                        addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
                     }
-                    addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
                 }
             }
 
