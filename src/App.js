@@ -4,7 +4,7 @@ import './App.css';
 import { Designer } from "./Components/MainLayoutComponents/Designer";
 import { StartMenu } from "./Components/MainLayoutComponents/StartMenu";
 import { applyEffectsAfterValueChange, applyEffectsBeforeValueChange } from "./SharedFunctions/Effects";
-import { fetchAllCollections, getCollection } from "./Collections";
+import { clearAllCollections, fetchAllCollections, getCollection, getCollectionFetchProgress } from "./Collections";
 import { getTotalPath } from "./SharedFunctions/ComponentFunctions";
 import { CenterMenu } from "./Components/MenuComponents/CenterMenu";
 import { concatStringArrayToAndStringWithCommas, getHomePageUrl, guidGenerator, isNumeric, playAudio } from "./SharedFunctions/Utils";
@@ -752,6 +752,15 @@ export default function App() {
       }
     },
     {
+      text: "CACHE RESET",
+      buttonSound: "menuaudio",
+      clickHandler: async () => {
+        setShowStartMenu(false);
+        await clearAllCollections();
+        window.location.reload();
+      }
+    },
+    {
       text: (isSoundMuted ? "SOUND ON" : "SOUND OFF"),
       clickHandler: () => {
         const newMuteValue = !isSoundMuted;
@@ -826,7 +835,7 @@ function startLoadingAnimation(timeout = 0) {
   setTimeout(function () {
     const loadingIndicator = document.getElementById("loadingIndicator");
     if (loadingIndicator) {
-      loadingIndicator.innerText = "Loading\n\n" + getLoadingCurrentString();
+      loadingIndicator.innerText = "Loading\n\n" + getLoadingCurrentString() + "\n\n" + getCollectionFetchProgress();
       startLoadingAnimation(200);
     } else {
       document.documentElement.removeAttribute("data-is-loading");
