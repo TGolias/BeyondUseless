@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllSpellcastingFeatures, getItemFromItemTemplate, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllConsumableActionItems, getAllSpellcastingFeatures, getItemFromItemTemplate, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -21,6 +21,7 @@ import { getCollection } from "../../Collections";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { InventoryDisplay } from "../DisplayComponents/InventoryDisplay";
 import { addItemsToNewItems } from "../../SharedFunctions/ItemFunction";
+import { ItemActionsDisplay } from "../DisplayComponents/ItemActionsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "languages"));
@@ -37,6 +38,8 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
 
     const actionFeatures = getAllActionFeatures(playerConfigs);
+
+    const consumeActionItems = getAllConsumableActionItems(playerConfigs);
 
     const spellcastingLevel = getSpellcastingLevel(playerConfigs);
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
@@ -102,6 +105,9 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 </div>
                 <div style={{display: (actionFeatures.length > 0 ? "block" : "none")}}>
                     <FeatureActionsDisplay playerConfigs={playerConfigs} actionFeatures={actionFeatures} setCenterScreenMenu={setCenterScreenMenu}></FeatureActionsDisplay>
+                </div>
+                <div style={{display: (consumeActionItems.length > 0 ? "block" : "none")}}>
+                    <ItemActionsDisplay playerConfigs={playerConfigs} items={consumeActionItems} getItemAction={(dndItem) => dndItem.consumeEffect} setCenterScreenMenu={setCenterScreenMenu}></ItemActionsDisplay>
                 </div>
                 <div style={{display: (spellcastingLevel > 0 ? "block" : "none")}}>
                     <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel}></SpellSlotsDisplay>

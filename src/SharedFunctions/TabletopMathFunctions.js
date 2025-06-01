@@ -2395,6 +2395,28 @@ export function getAllActionFeatures(playerConfigs) {
     return actionFeatures;
 }
 
+export function getAllConsumableActionItems(playerConfigs) {
+    const consumableActionItems = [];
+    if (playerConfigs.items && playerConfigs.items.length) {
+        const dndItems = getCollection("items");
+        const itemName2Item = convertArrayToDictionary(dndItems, "name");
+
+        for (let item of playerConfigs.items) {
+            let dndItem = itemName2Item[item.name];
+            dndItem = getItemFromItemTemplate(dndItem);
+            if (doesItemHaveConsumeAction(dndItem)) {
+                consumableActionItems.push(item);
+            }
+        }
+    }
+    return consumableActionItems;
+    
+}
+
+export function doesItemHaveConsumeAction(dndItem) {
+    return dndItem.consumable && dndItem.consumeEffect;
+}
+
 export function getAllSpells(spellcastingFeatures) {
     // Get all spells and cantrips built into dictionaries for instant lookup.
     let allCantrips = getCollection("cantrips");

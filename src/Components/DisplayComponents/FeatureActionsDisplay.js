@@ -20,13 +20,10 @@ const featureActionRows = [
             let actionTime = "";
             if (Array.isArray(action.actionTime)) {
                 for (let singleActionTime of action.actionTime) {
-                    // We skip Ritual in this view, because it's already on the next column.
-                    if (singleActionTime !== "Ritual") {
-                        if (actionTime.length > 0) {
-                            actionTime += " or ";
-                        }
-                        actionTime += getCastingTimeShorthand(singleActionTime);
+                    if (actionTime.length > 0) {
+                        actionTime += " or ";
                     }
+                    actionTime += getCastingTimeShorthand(singleActionTime);
                 }
             }
             return actionTime;

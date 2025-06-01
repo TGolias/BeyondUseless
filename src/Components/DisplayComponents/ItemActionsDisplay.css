@@ -1,0 +1,66 @@
+.itemActionsDisplayOutermostDiv {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1em;
+}
+
+.itemActionsSingleGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.itemActionsDisplayTitle {
+    padding: 0.5em;
+    font-weight: bold;
+}
+
+.itemActionsDisplayResourceUsesText {
+    padding-bottom: 0.5em;
+    display: flex;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: bold;
+    width: 100%;
+}
+
+.itemActionsDisplayResourceUsesIcons {
+    padding-bottom: 0.25em;
+    display: flex;
+    justify-content: center;
+    font-size: 1.8em;
+    width: 100%;
+}
+
+.itemActionsDisplayGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+}
+
+.itemActionsDisplayGrid > .firstCol {
+    border-left: 0;
+    padding-left: 1em;
+}
+
+.itemActionsDisplayGrid > * {
+    font-weight: bold;
+    font-size: 0.8em;
+    padding: 0.5em;
+    text-align: center;
+    border-top: 4px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+    align-content: center;
+    white-space: pre-line;
+}
+
+.itemActionsDisplayGrid > .lastCol {
+    border-right: 0;
+    padding-right: 1em;
+}
+
+.itemActionsDisplayRow {
+    min-height: 3.5em;
+    font-weight: normal;
+}
