@@ -57,7 +57,7 @@ export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
                             resourcesRow.push(createResourceRow(resource, currentActiveEffect, menuConfig, menuStateChangeHandler));
                         }
                     }
-                    if (menuConfig.featureAction.type.includes("creatures") && currentActiveEffect.allies) {
+                    if (menuConfig.featureAction.type && menuConfig.featureAction.type.includes("creatures") && currentActiveEffect.allies) {
                         for (let allyIndex = 0; allyIndex < currentActiveEffect.allies.length; allyIndex++) {
                             resourcesRow.push(createAllyRow(allyIndex, currentActiveEffect, menuConfig.featureAction, menuConfig, menuStateChangeHandler, setCenterScreenMenu, addToMenuStack));
                         }

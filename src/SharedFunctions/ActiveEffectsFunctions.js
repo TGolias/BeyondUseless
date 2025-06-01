@@ -44,7 +44,7 @@ const effectTypes = {
         },
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
-            if (menuConfig.featureAction.type.includes("creatures")) {
+            if (menuConfig.featureAction.type && menuConfig.featureAction.type.includes("creatures")) {
                 creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, { userInput: menuConfig.userInput });
             }
             return creatures;

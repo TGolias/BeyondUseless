@@ -23,8 +23,15 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
 
     const controlsDisplay = [];
 
+    let featureActionUserInput = menuConfig.featureAction.userInput;
+    if (menuConfig.featureAction.templateType && menuConfig.featureAction.templateOf && !menuConfig.featureAction.userInput) {
+        const templateCollection = getCollection(menuConfig.featureAction.templateType);
+        const newFeatureAction = {...templateCollection.find(x => x.name === menuConfig.featureAction.templateOf)};
+        featureActionUserInput = newFeatureAction.userInput;
+    }
+
     controlsDisplay.push(<>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.featureAction.userInput}></UserInputsComponent>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={featureActionUserInput}></UserInputsComponent>
     </>);
 
     // See if there is a spell slot input.

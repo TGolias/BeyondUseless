@@ -1,6 +1,6 @@
 import { getCollection } from "../Collections";
 import { GetUsesForResource } from "./ResourcesFunctions";
-import { getAllPlayerDNDClasses } from "./TabletopMathFunctions";
+import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses } from "./TabletopMathFunctions";
 import { convertArrayToDictionary } from "./Utils";
 
 export function SetPlayerShortRested(playerConfigs) {
@@ -36,7 +36,7 @@ export function SetPlayerLongRested(playerConfigs) {
     const newCurrentStatus = {};
 
     // Heroic inspiration sticks around.
-    newCurrentStatus.heroicInspiration = playerConfigs.currentStatus?.heroicInspiration;
+    newCurrentStatus.heroicInspiration = playerConfigs.currentStatus?.heroicInspiration || calculateHeroicInspirationLongRestRecharge(playerConfigs);
 
     // Check if we had the exhaustion condition.
     const exhaustionCondition = playerConfigs.currentStatus?.conditions?.find(condition => condition.name === "Exhaustion");

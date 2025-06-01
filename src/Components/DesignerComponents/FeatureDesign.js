@@ -42,7 +42,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
         featureContent.push(<>
             <div className="featureSelectList">
-                <SelectList options={validFeatNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "name"} inputHandler={inputHandler}></SelectList>
+                <SelectList options={validFeatNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".name"} inputHandler={inputHandler}></SelectList>
             </div>
         </>);
         
@@ -95,7 +95,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                     }
                     const filteredCantripNames = validCantripNames.filter(cantripName => (alreadySelectedCantripName === cantripName) || !spellName2AlreadyKnownSpell[cantripName]);
                     featureContent.push(<>
-                        <SelectList options={filteredCantripNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "cantrips[" + i + "]"} inputHandler={inputHandler}></SelectList>
+                        <SelectList options={filteredCantripNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".cantrips[" + i + "]"} inputHandler={inputHandler}></SelectList>
                     </>);
                 }
             }
@@ -129,7 +129,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                     }
                     const filteredSpellNames = validSpellNames.filter(spellName => (alreadySelectedSpellName === spellName) || !spellName2AlreadyKnownSpell[spellName]);
                     featureContent.push(<>
-                        <SelectList options={filteredSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "spells[" + i + "]"} inputHandler={inputHandler}></SelectList>
+                        <SelectList options={filteredSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".spells[" + i + "]"} inputHandler={inputHandler}></SelectList>
                     </>);
                 }
             }
@@ -156,7 +156,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
         featureContent.push(<>
             <div className="featureSelectList">
-                <SelectList options={subclassesForClassNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + "name"} inputHandler={inputHandler}></SelectList>
+                <SelectList options={subclassesForClassNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".name"} inputHandler={inputHandler}></SelectList>
             </div>
         </>);
     }

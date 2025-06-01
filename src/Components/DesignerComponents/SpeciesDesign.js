@@ -2,6 +2,8 @@ import React from "react";
 import './SpeciesDesign.css'
 import { ChoiceDesign } from "./ChoiceDesign";
 import { getCollection } from "../../Collections";
+import { GetFeaturePropertyNameFromFeature } from "../../SharedFunctions/FeatureFunctions";
+import { FeatureDesign } from "./FeatureDesign";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -30,6 +32,27 @@ export function SpeciesDesign({baseStateObject, inputHandler}) {
         }
     }
 
+    const speciesFeatureRows = [];
+    if (dndspecies.features) {
+        const speciesFeatures = dndspecies.features;
+
+        for (let i = 0; i < speciesFeatures.length; i++) {
+            const speciesFeature = speciesFeatures[i];
+            if (speciesFeature.level && baseStateObject.level >= speciesFeature.level) {
+                const featurePropertyName = GetFeaturePropertyNameFromFeature(baseStateObject, speciesFeature);
+                const pathToSpeciesFeatureProperty = "species.features." + featurePropertyName;
+                const playerClassFeatureObject = baseStateObject.species?.features ? baseStateObject.species.features[featurePropertyName] : undefined;
+
+                speciesFeatureRows.push(<>
+                    <div className="classFeatureHolder">
+                        <div className="classAttributeLabel">Level {speciesFeature.level} - {speciesFeature.name}</div>
+                        <FeatureDesign baseStateObject={baseStateObject} inputHandler={inputHandler} feature={speciesFeature} playerFeatureObject={playerClassFeatureObject} pathToFeatureProperty={pathToSpeciesFeatureProperty}></FeatureDesign>
+                    </div>
+                </>);
+            }
+        } 
+    }
+
     return (<>
         <div className="speciesDisplayer">
             <div className="speciesAttributeLabel">Base Speed: {dndspecies.speed}</div>
@@ -51,6 +74,7 @@ export function SpeciesDesign({baseStateObject, inputHandler}) {
                     <div>{skillProficienciesRows}</div>
                 </div>
             </div>
+            <div style={{display: (speciesFeatureRows.length ? "block" : "none")}}>{speciesFeatureRows}</div>
             <div style={{display: (dndspecies.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndspecies} pathToPlayerConfigObjectForChoices={"species"} inputHandler={inputHandler}></ChoiceDesign>
             </div>

@@ -136,8 +136,20 @@ const carryDragLifePushMultiplierForSizes = {
 
 export function calculateCarry(playerConfigs) {
     const strengthScore = calculateBaseStat(playerConfigs, "strength");
-    const size = calculateSize(playerConfigs);
-    const multiplier = carryDragLifePushMultiplierForSizes[size].carryMultiplier;
+    let carrySize = calculateSize(playerConfigs);
+
+    findAllConfiguredAspects(playerConfigs, "carryBonus", (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        let carryBonus;
+        if (aspectValue.calculation) {
+            carryBonus = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            carryBonus = aspectValue;
+        }
+        const newSizeNumber = convertSizeToNumber(carrySize) + carryBonus;
+        carrySize = convertNumberToSize(newSizeNumber);
+    });
+
+    const multiplier = carryDragLifePushMultiplierForSizes[carrySize].carryMultiplier;
     const carryAmount = strengthScore * multiplier;
     return carryAmount;
 }
@@ -361,6 +373,22 @@ export function calculateHPMax(playerConfigs) {
     });
 
     return maxHpSoFar;
+}
+
+export function calculateHeroicInspirationLongRestRecharge(playerConfigs) {
+    let shouldRecharge = false;
+    findAllConfiguredAspects(playerConfigs, "heroicInspirationLongRestRecharge", (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        let heroicInspirationLongRestRecharge;
+        if (aspectValue.calculation) {
+            heroicInspirationLongRestRecharge = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            heroicInspirationLongRestRecharge = aspectValue;
+        }
+
+        shouldRecharge = shouldRecharge || heroicInspirationLongRestRecharge;
+    });
+
+    return shouldRecharge;
 }
 
 export function calculateHitDiceMap(playerConfigs) {
@@ -2414,7 +2442,7 @@ export function getAllConsumableActionItems(playerConfigs) {
 }
 
 export function doesItemHaveConsumeAction(dndItem) {
-    return dndItem.consumable && dndItem.consumeEffect;
+    return dndItem && dndItem.consumable && dndItem.consumeEffect;
 }
 
 export function getAllSpells(spellcastingFeatures) {
@@ -2508,7 +2536,7 @@ function addSpellToSortedCollection(sortedSpellsCollection, spellToAdd) {
 }
 
 export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefined) {
-    if (!itemName2Item && originalDndItem.type === "Template") {
+    if (!itemName2Item && originalDndItem && originalDndItem.type === "Template") {
         const items = getCollection("items");
         itemName2Item = convertArrayToDictionary(items, "name");
     }

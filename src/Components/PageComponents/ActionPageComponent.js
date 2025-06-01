@@ -2,10 +2,27 @@ import React from "react";
 import './ActionPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateOtherFeatureActionAspect, calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
 export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs}) {
+    let actionTime = "";
+    if (Array.isArray(action.actionTime)) {
+        for (let singleActionTime of action.actionTime) {
+            if (actionTime.length > 0) {
+                actionTime += " or "
+            }
+            actionTime += singleActionTime;
+        }
+    } else {
+        actionTime = action.actionTime;
+    }
+
+    let actionCondition = undefined;
+    if (action.actionCondition) {
+        actionCondition = action.actionCondition;
+    }
+
     let description = parseStringForBoldMarkup(action.description);
 
     let conditionsDescription = "";
@@ -32,6 +49,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
         };
     }
 
+    let actionConditionAddendum = undefined;
     let showActionSummary = false;
     let buffAmount = undefined;
     let buffDescription = undefined;
@@ -41,6 +59,11 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
     let skillsDescription = "";
 
     if (data && playerConfigs) {
+        const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", { action });
+        if (actionConditionAddendumString) {
+            actionConditionAddendum = parseStringForBoldMarkup(actionConditionAddendumString);
+        }
+                        
         if (action.showSkills) {
             for (let skillName of action.showSkills) {
                 if (skillsDescription.length > 0) {
@@ -69,6 +92,9 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
 
     return <>
         <div className="actionPageContainer">
+            <div><b>Action Time:</b> {actionTime}</div>
+            <div style={{display: (actionCondition ? "block" : "none")}}>{actionCondition}</div>
+            <div style={{display: (actionConditionAddendum ? "block" : "none")}}>{actionConditionAddendum}</div>
             <div className="actionPageDescription">{description}</div>
             <div className="actionPageDescription" style={{display: (skillDescriptionRows.length ? "block" : "none")}}>{skillDescriptionRows}</div>
             <div className="actionPageDescription" style={{display: (conditionsRows.length ? "block" : "none")}}>{conditionsRows}</div>

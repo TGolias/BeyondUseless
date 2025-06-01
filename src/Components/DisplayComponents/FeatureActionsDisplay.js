@@ -50,11 +50,11 @@ export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterS
                     resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
                 }
             } else {
-                if (!resourceName2Resource.freeActions) {
-                    resourceName2Resource.freeActions = getResourceForFreeActions();
-                    resourceName2Actions.freeActions = [];
+                if (!resourceName2Resource.atWill) {
+                    resourceName2Resource.atWill = getResourceForAtWill();
+                    resourceName2Actions.atWill = [];
                 }
-                resourceName2Actions.freeActions.push({ action, feature: actionFeature.feature, origin: featureOrigin });
+                resourceName2Actions.atWill.push({ action, feature: actionFeature.feature, origin: featureOrigin });
             }
         }
     }
@@ -203,10 +203,10 @@ function getResourceForUses(playerConfigs, action) {
     return resource;
 }
 
-function getResourceForFreeActions() {
+function getResourceForAtWill() {
     const resource = {};
-    resource.name = "freeActions";
-    resource.displayName = "Free Actions";
+    resource.name = "atWill";
+    resource.displayName = "At Will";
     return resource;
 }
 

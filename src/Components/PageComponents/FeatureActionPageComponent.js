@@ -7,6 +7,18 @@ import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, playerConfigs, copyLinkToItem}) {
+
+    if (featureAction.templateType && featureAction.templateOf) {
+        const templateCollection = getCollection(featureAction.templateType);
+        const newFeatureAction = {...templateCollection.find(x => x.name === featureAction.templateOf)};
+
+        for (let propertyToCopy of Object.keys(featureAction)) {
+            newFeatureAction[propertyToCopy] = featureAction[propertyToCopy];
+        }
+
+        featureAction = newFeatureAction;
+    }
+
     let actionTime = "";
     if (Array.isArray(featureAction.actionTime)) {
         for (let singleActionTime of featureAction.actionTime) {
@@ -16,8 +28,14 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             actionTime += singleActionTime;
         }
     } else {
-        actionTime = featureAction.castingTime;
+        actionTime = featureAction.actionTime;
     }
+
+    let actionCondition = undefined;
+    if (featureAction.actionCondition) {
+        actionCondition = featureAction.actionCondition;
+    }
+
     const range = calculateRange(playerConfigs, featureAction.range);
     let description = parseStringForBoldMarkup(featureAction.description);
 
@@ -28,6 +46,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     }
 
     let featureActionDescriptionAddendum = undefined;
+    let actionConditionAddendum = undefined;
     let attackRoll = undefined;
     let attackRollAddendum = undefined
     let savingThrowType = undefined;
@@ -47,6 +66,11 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", { featureAction });
         if (featureActionDescriptionAddendumString) {
             featureActionDescriptionAddendum = parseStringForBoldMarkup(featureActionDescriptionAddendumString);
+        }
+
+        const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", { featureAction });
+        if (actionConditionAddendumString) {
+            actionConditionAddendum = parseStringForBoldMarkup(actionConditionAddendumString);
         }
 
         // This works for now... We probably will need something better to get the associated spellcasting ability eventually.
@@ -127,6 +151,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     return <>
         <div className="featureActionPageContainer">
             <div><b>Action Time:</b> {actionTime}</div>
+            <div style={{display: (actionCondition ? "block" : "none")}}>{actionCondition}</div>
+            <div style={{display: (actionConditionAddendum ? "block" : "none")}}>{actionConditionAddendum}</div>
             <div><b>Range:</b> {range}</div>
             <div><b>Duration:</b> {featureAction.duration}</div>
             <div className="featureActionPageDescription" style={{display: (description.length ? "block" : "none")}}>{description}</div>

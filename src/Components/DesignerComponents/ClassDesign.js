@@ -51,7 +51,7 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
             const classFeature = allFeaturesSorted[i];
             if (classLevel >= classFeature.classLevel) {
                 const featurePropertyName = GetFeaturePropertyNameFromFeature(baseStateObject, classFeature);
-                const pathToClassFeatureProperty = "classes[" + classIndex + "].features." + featurePropertyName + ".";
+                const pathToClassFeatureProperty = "classes[" + classIndex + "].features." + featurePropertyName;
                 const playerClassFeatureObject = playerClassObject.features ? playerClassObject.features[featurePropertyName] : undefined;
 
                 const resourcesForThisLevel = dndclass.resourcesPerLevel ? dndclass.resourcesPerLevel[classLevel - 1] : {};
