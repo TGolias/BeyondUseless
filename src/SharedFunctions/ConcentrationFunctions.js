@@ -109,7 +109,7 @@ export function playerHasConditionThatRemovesConcentration(playerConfigs) {
         const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
         for (let condition of playerConfigs.currentStatus.conditions) {
             const dndCondition = dndConditionsMap[condition.name];
-            if (dndCondition && (dndCondition.name === "Incapacitated" || dndCondition.additionalConditions.includes("Incapacitated"))) {
+            if (dndCondition && (dndCondition.name === "Incapacitated" || (dndCondition.additionalConditions && dndCondition.additionalConditions.includes("Incapacitated")))) {
                 return true;
             }
         }

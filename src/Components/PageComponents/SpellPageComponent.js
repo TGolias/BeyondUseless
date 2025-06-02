@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
@@ -55,12 +55,15 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let castAtLevel = spell.level;
     let freeUses = undefined;
     let spellCastingConditionAddendum = undefined;
+    let duration = spell.duration;
+    let durationAddendum = undefined;
     let attackRoll = undefined;
     let attackRollAddendum = undefined
     let savingThrowType = undefined;
     let savingThrowDc = undefined;
     let savingThrowDcAddendum = undefined;
     let damage = undefined;
+    let damageAddendum = undefined;
     let healing = undefined;
     let healingAddendum = undefined;
     let restore = undefined;
@@ -93,6 +96,12 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 spell.feature = spellForPlayer.feature;
                 featureName = spellForPlayer.feature.name;
 
+                duration = calculateDuration(playerConfigs, spell.duration);
+                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", { spell: spell });
+                if (durationAddendumString) {
+                    durationAddendum = parseStringForBoldMarkup(durationAddendumString);
+                }
+
                 const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: spell });
                 if (spellCastingConditionAddendumString) {
                     spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
@@ -118,6 +127,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
 
                 if (spell.type.includes("damage")) {
                     damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
+                    if (damage) {
+                        damageAddendum = calculateAddendumAspects(playerConfigs, ["damageAddendum"], { userInput: data.userInput });
+                    }
                 }
 
                 if (spell.type.includes("buff")) {
@@ -174,7 +186,8 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div style={{display: (spellCastingConditionAddendum ? "block" : "none")}}>{spellCastingConditionAddendum}</div>
             <div><span className="spellPageBold">Range:</span> {range}</div>
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
-            <div><span className="spellPageBold">Duration:</span> <b>{spell.concentration ? "Concentration" : ""}</b>{spell.concentration ? ", " : ""}{spell.duration}</div>
+            <div><span className="spellPageBold">Duration:</span> <b>{spell.concentration ? "Concentration" : ""}</b>{spell.concentration ? ", " : ""}{duration}</div>
+            <div style={{display: (durationAddendum ? "block" : "none")}}>{durationAddendum}</div>
             <div className="spellPageDescription">{description}</div>
             <div className="spellPageDescription"><span className="spellPageBold">Spell List:</span> {concatStringArrayToAndStringWithCommas(spell.spellLists)}</div>
             <br style={{display: (data ? "block" : "none")}}></br>
@@ -198,6 +211,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             </div>
             <div className="spellPageDescription" style={{display: (damage ? "block" : "none")}}>
                 <div><b>Damage:</b> {damage}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (damageAddendum ? "block" : "none")}}>
+                <div>{parseStringForBoldMarkup(damageAddendum)}</div>
             </div>
             <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>

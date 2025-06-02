@@ -1287,29 +1287,128 @@ export function calculateAttackRollForAttackRollType(playerConfigs, actionObject
 
 export function calculateRange(playerConfigs, range) {
     if (range) {
-        if (isObject(range)) {
+        if (isObject(range) && (range.normal || range.long)) {
             let rangeString = "";
             if (range.normal) {
-                if (isObject(range.normal)) {
-                    rangeString += performMathCalculation(playerConfigs, range.normal.calculation);
-                } else {
-                    rangeString += range.normal;
-                }
+                rangeString += calculateSingleRange(playerConfigs, range.normal);
             }
             if (range.long) {
                 rangeString += "/";
-                if (isObject(range.long)) {
-                    rangeString += performMathCalculation(playerConfigs, range.normal.calculation);
-                } else {
-                    rangeString += range.long;
-                }
+                rangeString += calculateSingleRange(playerConfigs, range.long);
             }
             return rangeString;
         } else {
-            return range;
+            return calculateSingleRange(playerConfigs, range);
         }
     }
     return undefined;
+}
+
+function calculateSingleRange(playerConfigs, singleRange) {
+    let range;
+    if (isObject(singleRange) && singleRange.calculation) {
+        range = performMathCalculation(playerConfigs, singleRange.calculation);
+    } else {
+        range = singleRange;
+    }
+
+    if (isNumeric(range)) {
+        findAllConfiguredAspects(playerConfigs, "rangeBonus", (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+            if (aspectValue.conditions) {
+                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range });
+                if (!conditionsAreMet) {
+                    // We did not meet the conditions for this bonus to apply.
+                    return;
+                }
+            }
+
+            let rangeBonus;
+            if (aspectValue.calculation) {
+                rangeBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range });
+            } else {
+                rangeBonus = aspectValue;
+            }
+            range += rangeBonus;
+        });
+
+        findAllConfiguredAspects(playerConfigs, "rangeMultiplier", (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+            if (aspectValue.conditions) {
+                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range });
+                if (!conditionsAreMet) {
+                    // We did not meet the conditions for this bonus to apply.
+                    return;
+                }
+            }
+
+            let rangeMultiplier;
+            if (aspectValue.calculation) {
+                rangeMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range });
+            } else {
+                rangeMultiplier = aspectValue;
+            }
+            range *= rangeMultiplier;
+        });
+    }
+
+    findAllConfiguredAspects(playerConfigs, "rangeOverride", (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let rangeOverride;
+        if (aspectValue.calculation) {
+            rangeOverride = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range });
+        } else {
+            rangeOverride = aspectValue;
+        }
+
+        // The speed is being forced to this value.
+        range = rangeOverride;
+    });
+
+    return range;
+}
+
+export function calculateDuration(playerConfigs, initialDuration) {
+    let duration = initialDuration;
+
+    findAllConfiguredAspects(playerConfigs, "durationMultiplier", (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, duration });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let durationMultiplier;
+        if (aspectValue.calculation) {
+            durationMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, duration });
+        } else {
+            durationMultiplier = aspectValue;
+        }
+
+        const numberMatches = duration.match(/\d+/g);
+        if (numberMatches && numberMatches.length > 0 && durationMultiplier !== 1) {
+            for (let match of numberMatches) {
+                const matchAsNumber = parseInt(match);
+                duration = duration.replace(match, (matchAsNumber * durationMultiplier));
+            }
+
+            // Pluralize
+            duration = duration.replace(/turn(?!s)/g, "turns");
+            duration = duration.replace(/round(?!s)/g, "rounds");
+            duration = duration.replace(/minute(?!s)/g, "minutes");
+            duration = duration.replace(/hour(?!s)/g, "hours");
+            duration = duration.replace(/day(?!s)/g, "days");
+        }
+    });
+
+    return duration
 }
 
 export function calculateSavingThrowTypes(savingThrowType) {
