@@ -6,6 +6,27 @@ import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings,
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection } from "../../Collections";
 
+const rarityToSuggestedCost = {
+    "Common": 100,
+    "Uncommon": 400,
+    "Rare": 4000,
+    "Very Rare": 40000,
+    "Legendary": 200000
+}
+
+const spellScrollScribeDetails = [
+    { spellLevel: 0, daysToScribe: 1, costToScribe: 15 },
+    { spellLevel: 1, daysToScribe: 1, costToScribe: 25 },
+    { spellLevel: 2, daysToScribe: 3, costToScribe: 100 },
+    { spellLevel: 3, daysToScribe: 5, costToScribe: 150 },
+    { spellLevel: 4, daysToScribe: 10, costToScribe: 1000 },
+    { spellLevel: 5, daysToScribe: 25, costToScribe: 1500 },
+    { spellLevel: 6, daysToScribe: 40, costToScribe: 10000 },
+    { spellLevel: 7, daysToScribe: 50, costToScribe: 12500 },
+    { spellLevel: 8, daysToScribe: 60, costToScribe: 15000 },
+    { spellLevel: 9, daysToScribe: 120, costToScribe: 50000 }
+]
+
 export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, data, addToMenuStack = undefined}) {
     let typeString;
     let baseDamage = undefined;
@@ -76,6 +97,32 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     }
 
     let description = parseStringForBoldMarkup(item.description);
+
+    let costString = undefined;
+    if (item.cost) {
+        if (item.cost.gold) {
+            costString = item.cost.gold + "GP"
+        } else if (item.cost.silver) {
+            costString = item.cost.silver + "SP"
+        } else if (item.cost.copper) {
+            costString = item.cost.copper + "CP"
+        }
+    } else {
+        if (item.type === "Spell Scroll") {
+            if (item.spellScrollLevel || item.spellScrollLevel === 0) {
+                const scrollDetails = spellScrollScribeDetails[item.spellScrollLevel];
+                costString = (scrollDetails.costToScribe * 2) + "GP (DMG Suggested)";
+            }
+        } else {
+            if (item.rarity && rarityToSuggestedCost[item.rarity]) {
+                let suggestedCost = rarityToSuggestedCost[item.rarity];
+                if (item.consumable) {
+                    suggestedCost /= 2;
+                }
+                costString = rarityToSuggestedCost[item.rarity] + "GP (DMG Suggested)"
+            }
+        }
+    }
 
     if (copyLinkToItem) {
         copyLinkToItem.onExecute = () => {
@@ -247,6 +294,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             <div style={{display: (masteries.length > 0 ? "block" : "none")}}><b>Mastery:</b> {masteries}</div>
             <div><b>Item Rarity:</b> {item.rarity}</div>
             <div><b>Weight:</b> {item.weight}</div>
+            <div style={{display: (costString ? "block" : "none")}}>
+                <div><b>Cost:</b> {costString}</div>
+            </div>
             <div className="itemPageDescription">{description}</div>
             <div style={{display: (itemDescriptionAddendum ? "block" : "none")}} className="itemPageDescription">{itemDescriptionAddendum}</div>
             <br style={{display: (showItemSummary ? "block" : "none")}}></br>

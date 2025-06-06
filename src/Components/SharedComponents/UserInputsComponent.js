@@ -25,7 +25,7 @@ const userInputTypes = {
     numberField: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
             if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = 0;
+                menuConfig.userInput[singleUserInput.name] = singleUserInput.startingValue ? performMathCalculation(playerConfigs, singleUserInput.startingValue, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 0;
             }
 
             const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
@@ -70,6 +70,10 @@ const userInputTypes = {
     },
     consumeSpellSlot: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+            if (!menuConfig.userInput[singleUserInput.name]) {
+                menuConfig.userInput[singleUserInput.name] = singleUserInput.startingValue ? performMathCalculation(playerConfigs, singleUserInput.startingValue, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
+            }
+
             const minLevel = singleUserInput.minLevel ? performMathCalculation(playerConfigs, singleUserInput.minLevel, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 1;
             if (!menuConfig.useSpellSlotLevel) {
                 menuConfig.useSpellSlotLevel = minLevel;

@@ -2,8 +2,10 @@ export function GetFeaturePropertyNameFromFeature(playerConfigs, feature) {
     const featureNameWithoutSpaces = feature.name.replace(/\s/g, "");
     if (feature.classLevel) {
         return featureNameWithoutSpaces + feature.classLevel;
+    } else if (feature.level) {
+        return featureNameWithoutSpaces + feature.level;
     } else {
-        return featureNameWithoutSpaces + playerConfigs.level;
+        return featureNameWithoutSpaces;
     }
 }
 

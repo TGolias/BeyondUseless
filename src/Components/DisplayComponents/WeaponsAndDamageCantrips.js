@@ -140,7 +140,7 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
 }
 
 function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, dndcantrip, setCenterScreenMenu) {
-    if (dndcantrip.type.includes("damage")) {
+    if (dndcantrip.type && dndcantrip.type.includes("damage")) {
         for (let row of rows) {
             weaponOrDamageCantripRows.push(<div onClick={() => openMenuForSpell(dndcantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateCantripValue(playerConfigs, dndcantrip)}</div>)
         }

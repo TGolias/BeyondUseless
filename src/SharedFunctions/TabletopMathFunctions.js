@@ -2342,11 +2342,15 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
         return singleValue;
     };
     const performAddition = (currentTotal, valueToAdd) => {
-        if (!currentTotal && !isNumeric(valueToAdd)) {
-            return valueToAdd;
+        if (!currentTotal) {
+            if (isNumeric(valueToAdd)) {
+                return parseInt(valueToAdd);
+            } else {
+                return valueToAdd;
+            }
         } else if (isNumeric(valueToAdd)) {
             return currentTotal + parseInt(valueToAdd);
-        } else if (Array.isArray(currentTotal), Array.isArray(valueToAdd)) {
+        } else if (Array.isArray(currentTotal) && Array.isArray(valueToAdd)) {
             return [...currentTotal, ...valueToAdd];
         }
         return currentTotal + valueToAdd;
@@ -2490,13 +2494,24 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
             }
             return lowestOf;
         case "if-then":
-            const singleValue = performBooleanCalculation(playerConfigs, singleCalculation.if, parameters);
-            if (singleValue) {
+            const ifValue = performBooleanCalculation(playerConfigs, singleCalculation.if, parameters);
+            if (ifValue) {
                 return performOriginalCalculationType(playerConfigs, singleCalculation.then);
             } else if (singleCalculation.else) {
                 return performOriginalCalculationType(playerConfigs, singleCalculation.else);
             }
             // If not true and there is no else, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
+            break;
+        case "multiple-if":
+            if (singleCalculation.cases) {
+                for (let singleCaseObject of singleCalculation.cases) {
+                    if (!singleCaseObject.if || performBooleanCalculation(playerConfigs, singleCaseObject.if, parameters)) {
+                        // If there was no if (aka default), or if the if statement evalutated to true, use the then caluclation. Otherwise, loop to the next case.
+                        return performOriginalCalculationType(playerConfigs, singleCaseObject.then);
+                    }
+                }
+            }
+            // If there are no cases or it falls all the way through without a default, we do not return: the performCalculationForSpecialTypes() will end up getting hit and should return the default value.
             break;
         case "or":
             for (let i = 0; i < singleCalculation.values.length; i++) {
