@@ -1,7 +1,10 @@
 import { getCollection } from "../Collections";
+import { performBooleanCalculation } from "./TabletopMathFunctions";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary } from "./Utils";
 
 export function CanMulticlass(playerConfigs) {
     const classes = getCollection("classes");
+    const possibleClassesDictionary = convertArrayToDictionary(classes, "name");
     if (playerConfigs.classes.length >= classes.length) {
         // If the player has already selected all the classes, they obviously can't multiclass anymore.
         return false;
@@ -9,18 +12,42 @@ export function CanMulticlass(playerConfigs) {
 
     let classLevels = 0;
     for (let i = 0; i < playerConfigs.classes.length; i++) {
+        const dndClass = possibleClassesDictionary[playerConfigs.classes[i].name];
+        if (dndClass.multiClassConditions && !performBooleanCalculation(playerConfigs, dndClass.multiClassConditions)) {
+            // This character failed a multiclassing condition of one of their existing classes, so they cannot multiclass.
+            return false;
+        }
+
+        // remove it from our list of possible classes.
+        delete possibleClassesDictionary[playerConfigs.classes[i].name];
+
         classLevels += playerConfigs.classes[i].levels;
     }
-    return playerConfigs.level > classLevels;
+
+    if (playerConfigs.level <= classLevels) {
+        // They don't have any new levels to allocate so they can't multiclass
+        return false;
+    }
+
+    for (let dndClass of Object.values(possibleClassesDictionary)) {
+        if (!dndClass.multiClassConditions || performBooleanCalculation(playerConfigs, dndClass.multiClassConditions)) {
+            // There is at least one class that we meet the conditions for (or it doesn't have any multiclass conditions).
+            return true;
+        }
+    }
+
+    // We couldn't find any clases, therefore we can't multiclass.
+    return false;
 }
 
 export function GetValidClassesArray(playerConfigs, className) {
     const classes = getCollection("classes");
 
     // We want to include the class from className even if the player has it, because we want it to show in the select list where it is currently selected.
-    let allClassNames = classes.map(x => x.name);
-    let invalidClassNames = playerConfigs.classes.map(x => x.name).filter(x => x !== className);
-    let validClassNames = allClassNames.filter(x => !invalidClassNames.includes(x));
+    let alreadyChosenClassNames = playerConfigs.classes.map(x => x.name).filter(x => x !== className);
+    let alreadyChosenClassNamesMap = convertArrayOfStringsToHashMap(alreadyChosenClassNames);
+    let validClasses = classes.filter(x => x.name === className || (!alreadyChosenClassNamesMap[x.name] && (!x.multiClassConditions || performBooleanCalculation(playerConfigs, x.multiClassConditions))));
+    let validClassNames = validClasses.map(x => x.name);
     return validClassNames;
 }
 

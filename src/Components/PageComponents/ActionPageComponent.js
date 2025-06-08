@@ -59,7 +59,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
     let skillsDescription = "";
 
     if (data && playerConfigs) {
-        const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", { action });
+        const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", [], { action });
         if (actionConditionAddendumString) {
             actionConditionAddendum = parseStringForBoldMarkup(actionConditionAddendumString);
         }
@@ -76,7 +76,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
 
         if (action.type.includes("buff")) {
             if (action.buff.calculation) {
-                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, action, "buff", "buffBonus", { userInput: data.userInput });
+                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, action, "buff", "buffBonus", [], { userInput: data.userInput });
             }
             buffDescription = action.buff.description;
             showActionSummary = true;

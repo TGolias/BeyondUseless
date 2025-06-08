@@ -136,6 +136,7 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
             newItemMenu.item = data.item;
+            newItemMenu.additionalEffects = data.additionalEffects;
             newItemMenu.pathToProperty = data.pathToProperty || "";
             newItemMenu.copyLinkToItem = {};
             return newItemMenu;

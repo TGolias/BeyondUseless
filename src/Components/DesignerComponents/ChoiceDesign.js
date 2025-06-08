@@ -179,7 +179,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerConfigO
                                 choices.push(<>
                                     <div className="singleChoiceWrapper">
                                         <div className="choiceLabel">{"Level " + chosenOptionFeature.level + " - " + chosenOptionFeature.name}</div>
-                                        <FeatureDesign baseStateObject={baseStateObject} inputHandler={inputHandler} feature={chosenOptionFeature} playerFeatureObject={playerFeatureObject} pathToFeatureProperty={pathToChoiceFeatures + "." + featurePropertyName + "."}></FeatureDesign>
+                                        <FeatureDesign baseStateObject={baseStateObject} inputHandler={inputHandler} feature={chosenOptionFeature} playerFeatureObject={playerFeatureObject} pathToFeatureProperty={pathToChoiceFeatures + "." + featurePropertyName}></FeatureDesign>
                                     </div>
                                 </>);
                             }

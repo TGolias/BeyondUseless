@@ -96,16 +96,22 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
 
         const resourceToRestore = menuConfig.origin.value.resources.find(resource => resource.name === resourcePropertyName);
         if (amountRestored && resourceToRestore && amountRestored > 0) {
+            const dndClass = menuConfig.origin.value;
+            const classConfig = playerConfigsClone.classes.find(x => x.name === dndClass.name);
+
+            const resourcesForThisLevel = dndClass.resourcesPerLevel[classConfig.levels - 1];
+            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resourceToRestore, resourcesForThisLevel, classConfig);
+
             let currentResources = playerConfigsClone.currentStatus.remainingResources[resourcePropertyName];
             if (currentResources === undefined) {
-                const dndClass = menuConfig.origin.value;
-                const classConfig = playerConfigsClone.classes.find(x => x.name === dndClass.name);
-
-                const resourcesForThisLevel = dndClass.resourcesPerLevel[classConfig.levels - 1];
-                const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resourceToRestore, resourcesForThisLevel, classConfig);
                 currentResources = maxResourcesForThisLevel;
             }
-            playerConfigsClone.currentStatus.remainingResources[resourcePropertyName] = currentResources + amountRestored;
+
+            let newAmount = currentResources + amountRestored;
+            if (newAmount > maxResourcesForThisLevel) {
+                newAmount = maxResourcesForThisLevel;
+            }
+            playerConfigsClone.currentStatus.remainingResources[resourcePropertyName] = newAmount;
         }
     }
 

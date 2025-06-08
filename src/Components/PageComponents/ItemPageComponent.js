@@ -28,6 +28,8 @@ const spellScrollScribeDetails = [
 ]
 
 export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, data, addToMenuStack = undefined}) {
+    const additionalEffects = data?.additionalEffects ? data.additionalEffects : [];
+
     let typeString;
     let baseDamage = undefined;
     let twoHandedDamage = undefined;
@@ -156,7 +158,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     let childItems = [];
 
     if (playerConfigs) {
-        const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "itemDescriptionAddendum", { item });
+        const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "itemDescriptionAddendum", additionalEffects, { item });
         if (itemDescriptionAddendumString) {
             itemDescriptionAddendum = parseStringForBoldMarkup(itemDescriptionAddendumString);
         }
@@ -165,23 +167,23 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             case "Weapon":
                 // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
                 if (!(item.weaponRange == "Ranged" && item.properties.includes("Thrown"))) {
-                    const attack = calculateWeaponAttackBonus(playerConfigs, item, false);
+                    const attack = calculateWeaponAttackBonus(playerConfigs, item, false, additionalEffects);
                     weaponAttack = attack.amount;
                     if (attack.addendum) {
                         weaponAttackAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
 
-                    weaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, false);
+                    weaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, false, additionalEffects);
 
                     if (item.properties.includes("Light")) {
-                        lightWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, true, false);
+                        lightWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, true, false, additionalEffects);
                     }
 
                     if (item.mastery === "Cleave") {
                         const weaponMasteries = calculateAspectCollection(playerConfigs, "weaponmasteries");
                         const hasWeaponMastery = item.tags.some(tag => weaponMasteries.includes(tag));
                         if (hasWeaponMastery) {
-                            cleaveWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, true);
+                            cleaveWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, true, additionalEffects);
                         }
                     }
                     showItemSummary = true;
@@ -189,16 +191,16 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
 
                 // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
                 if (item.properties.includes("Thrown")) {
-                    const attack = calculateWeaponAttackBonus(playerConfigs, item, true);
+                    const attack = calculateWeaponAttackBonus(playerConfigs, item, true, additionalEffects);
                     weaponAttackThrown = attack.amount;
                     if (attack.addendum) {
                         weaponAttackThrownAddendum = parseStringForBoldMarkup(attack.addendum);
                     }
 
-                    weaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, false, false);
+                    weaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, false, false, additionalEffects);
 
                     if (item.properties.includes("Light")) {
-                        lightWeaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, true, false);
+                        lightWeaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, true, false, additionalEffects);
                     }
                     showItemSummary = true;
                 }
@@ -210,20 +212,20 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
 
             if (consumeEffect.type.includes("buff")) {
                 if (consumeEffect.buff.calculation) {
-                    buffAmount = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "buff", "buffBonus", { userInput: data.userInput });
+                    buffAmount = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "buff", "buffBonus", additionalEffects, { userInput: data.userInput });
                 }
                 buffDescription = consumeEffect.buff.description;
             }
     
             if (consumeEffect.type.includes("healing")) {
-                healing = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "healing", "healingBonus", { userInput: data.userInput });
+                healing = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "healing", "healingBonus", additionalEffects, { userInput: data.userInput });
                 if (healing) {
-                    healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], { userInput: data.userInput });
+                    healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], additionalEffects, { userInput: data.userInput });
                 }
             }
     
             if (consumeEffect.type.includes("restore")) {
-                restore = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "restore", "restoreBonus", { userInput: data.userInput });
+                restore = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "restore", "restoreBonus", additionalEffects, { userInput: data.userInput });
             }
 
             if (data.targetNamesMap) {

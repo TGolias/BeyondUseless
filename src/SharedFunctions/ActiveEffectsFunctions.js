@@ -45,7 +45,7 @@ const effectTypes = {
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
             if (menuConfig.featureAction.type && menuConfig.featureAction.type.includes("creatures")) {
-                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, { userInput: menuConfig.userInput });
+                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, [], { userInput: menuConfig.userInput });
             }
             return creatures;
         },
@@ -66,7 +66,7 @@ const effectTypes = {
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
             if (menuConfig.action.type.includes("creatures")) {
-                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.action, "creatures", undefined, { userInput: menuConfig.userInput });
+                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.action, "creatures", undefined, [], { userInput: menuConfig.userInput });
             }
             return creatures;
         },
@@ -92,7 +92,7 @@ const effectTypes = {
             let creatures = undefined;
             if (menuConfig.item.consumeEffect) {
                 if (menuConfig.item.consumeEffect.type.includes("creatures")) {
-                    creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.item.consumeEffect, "creatures", undefined, { userInput: menuConfig.userInput });
+                    creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.item.consumeEffect, "creatures", [], undefined, { userInput: menuConfig.userInput });
                 }
             } else { // if (menuConfig.item.spell) {
                 if (menuConfig.item.spell.type.includes("creatures")) {

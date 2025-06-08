@@ -36,7 +36,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
         healthMenuAddendums += "<b>Condition Immunities:</b> " + conditionImmunitiesString;
     }
 
-    const addendumsFromAspects = calculateAddendumAspect(playerConfigs, "healthMenuAddendum");
+    const addendumsFromAspects = calculateAddendumAspect(playerConfigs, "healthMenuAddendum", []);
     if (addendumsFromAspects) {
         if (healthMenuAddendums.length > 0) {
             healthMenuAddendums += "\n\n";

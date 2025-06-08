@@ -52,7 +52,7 @@ export function showConcentrationMenuIfConcentrating(oldPlayerConfigs, newPlayer
                 let savingThrowBonusString = addLeadingPlusIfNumericAndPositive(constitutionSavingThrowBonus) + " to Constitution saving throws."
 
                 for (let addendumToShow of addendumsToShowForConstitutionSavingThrows) {
-                    const addendumString = calculateAddendumAspect(newPlayerConfigs, addendumToShow);
+                    const addendumString = calculateAddendumAspect(newPlayerConfigs, addendumToShow, []);
                     if (addendumString) {
                         savingThrowBonusString += "\n\n" + addendumString;
                     }

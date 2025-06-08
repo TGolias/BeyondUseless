@@ -37,7 +37,7 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
     let debuffDescription = undefined;
 
     if (playerConfigs) {
-        const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "unarmedAttackDescriptionAddendum", { unarmedStrike });
+        const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "unarmedAttackDescriptionAddendum", [], { unarmedStrike });
         if (itemDescriptionAddendumString) {
             itemDescriptionAddendum = parseStringForBoldMarkup(itemDescriptionAddendumString);
         }

@@ -1,6 +1,6 @@
 import React from "react";
 import './UserInputsComponent.css'
-import { getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { getSpellcastingLevel, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { CheckListInput } from "../SimpleComponents/CheckListInput";
 import { SelectList } from "../SimpleComponents/SelectList";
@@ -59,7 +59,13 @@ const userInputTypes = {
                 menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, undefined);
             }
             
-            const allSelectListValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+            let allSelectListValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+            if (singleUserInput.optionFilter) {
+                allSelectListValues = allSelectListValues.filter(option => performBooleanCalculation(playerConfigs, singleUserInput.optionFilter, { option }));
+            }
+            if (singleUserInput.optionDisplayProperty) {
+                allSelectListValues = allSelectListValues.map(option => option[singleUserInput.optionDisplayProperty]);
+            }
             return (<>
                 <div className="userInputsSingleInput">
                     <div>{singleUserInput.displayName}</div>

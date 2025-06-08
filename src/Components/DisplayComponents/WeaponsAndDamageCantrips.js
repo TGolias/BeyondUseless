@@ -12,8 +12,8 @@ const rows = [
         calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
             return unarmedStrike.name;
         },
-        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            return weapon.name + (isThrown ? " (Thrown)" : "");
+        calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
+            return (weaponAttackCantrip ? weaponAttackCantrip.name + " - " : "") + weapon.name + (isThrown ? " (Thrown)" : "");
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             return dndCantrip.name;
@@ -31,8 +31,8 @@ const rows = [
                 return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         },
-        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown);
+        calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
+            const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, weaponAttackCantrip ? [{ type: "spell", object: weaponAttackCantrip, effects: weaponAttackCantrip.weaponAttack.additionalEffects }] : []);
             return addLeadingPlusIfNumericAndPositive(attack.amount);
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
@@ -54,8 +54,8 @@ const rows = [
             }
             return "";
         },
-        calculateWeaponValue: (playerConfigs, weapon, isThrown) => {
-            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false);
+        calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
+            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false, weaponAttackCantrip ? [{ type: "spell", object: weaponAttackCantrip, effects: weaponAttackCantrip.weaponAttack.additionalEffects}] : []);
             return amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
@@ -70,45 +70,21 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     const items = getCollection("items");
     const itemName2Item = convertArrayToDictionary(items, "name");
 
-    let hasWeapons = false;
-    let hasDamageCantrips = false;
-
     const weaponOrDamageCantripRows = [];
     for (let row of rows) {
         weaponOrDamageCantripRows.push(<div className={row.addClass}>{row.name}</div>)
     }
 
     // Check weapons
-    for (let item of playerConfigs.items) {
-        if (item.equipped) {
-            let dndItem = itemName2Item[item.name];
-            dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
-            if (dndItem.type === "Weapon") {
-                hasWeapons = true;
-
-                // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
-                if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
-                    for (let row of rows) {
-                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false)}</div>)
-                    }
-                }
-
-                // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
-                if (dndItem.properties.includes("Thrown")) {
-                    for (let row of rows) {
-                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true)}</div>)
-                    }
-                }
-            }
-        }
-    }
+    let hasWeapons = processAllWeapons(playerConfigs, itemName2Item, undefined, weaponOrDamageCantripRows, setCenterScreenMenu);
 
     // Check Cantrips
+    let hasDamageCantrips = false;
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
     const allPlayerSpells = getAllSpells(spellcastingFeatures);
     for (let spell of allPlayerSpells) {
         if (!spell.level) {
-            hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, spell, setCenterScreenMenu) || hasDamageCantrips;
+            hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, itemName2Item, spell, setCenterScreenMenu) || hasDamageCantrips;
         }
     }
 
@@ -139,14 +115,47 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     )
 }
 
-function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, dndcantrip, setCenterScreenMenu) {
-    if (dndcantrip.type && dndcantrip.type.includes("damage")) {
-        for (let row of rows) {
-            weaponOrDamageCantripRows.push(<div onClick={() => openMenuForSpell(dndcantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateCantripValue(playerConfigs, dndcantrip)}</div>)
+function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, itemName2Item, dndcantrip, setCenterScreenMenu) {
+    if (dndcantrip.type && (dndcantrip.type.includes("damage") || dndcantrip.type.includes("weaponAttack"))) {
+        if (dndcantrip.type.includes("weaponAttack")) {
+            processAllWeapons(playerConfigs, itemName2Item, dndcantrip, weaponOrDamageCantripRows, setCenterScreenMenu);
+        } else {
+            for (let row of rows) {
+                weaponOrDamageCantripRows.push(<div onClick={() => openMenuForSpell(dndcantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateCantripValue(playerConfigs, dndcantrip)}</div>)
+            }
+            return true;
         }
-        return true;
     }
     return false;
+}
+
+function processAllWeapons(playerConfigs, itemName2Item, weaponAttackCantrip, weaponOrDamageCantripRows, setCenterScreenMenu) {
+    // Check weapons
+    let hasWeapons = false;
+    for (let item of playerConfigs.items) {
+        if (item.equipped) {
+            let dndItem = itemName2Item[item.name];
+            dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
+            if (dndItem.type === "Weapon") {
+                hasWeapons = true;
+
+                // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
+                if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
+                    for (let row of rows) {
+                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false, weaponAttackCantrip)}</div>)
+                    }
+                }
+
+                // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
+                if (dndItem.properties.includes("Thrown")) {
+                    for (let row of rows) {
+                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true, weaponAttackCantrip)}</div>)
+                    }
+                }
+            }
+        }
+    }
+    return hasWeapons;
 }
 
 function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
@@ -154,9 +163,9 @@ function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
     setCenterScreenMenu({ show: true, menuType: "SpellMenu", data: { menuTitle: dndcantrip.name, spell: dndcantrip } });
 }
 
-function openMenuForItem(dndItem, setCenterScreenMenu) {
+function openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, additionalEffects: (weaponAttackCantrip ? [{ type: "spell", object: weaponAttackCantrip, effects: weaponAttackCantrip.weaponAttack.additionalEffects }] : []) } });
 }
 
 function openMenuForUnarmedStrike(dndUnarmedStrike, setCenterScreenMenu) {

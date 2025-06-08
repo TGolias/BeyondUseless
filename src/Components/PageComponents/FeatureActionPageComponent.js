@@ -65,12 +65,12 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let restoreResource = undefined;
     let targetNames = undefined;
     if (data && playerConfigs) {
-        const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", { featureAction });
+        const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", [], { featureAction });
         if (featureActionDescriptionAddendumString) {
             featureActionDescriptionAddendum = parseStringForBoldMarkup(featureActionDescriptionAddendumString);
         }
 
-        const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", { featureAction });
+        const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", [], { featureAction });
         if (actionConditionAddendumString) {
             actionConditionAddendum = parseStringForBoldMarkup(actionConditionAddendumString);
         }
@@ -98,19 +98,19 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("damage")) {
-            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", { userInput: data.userInput });
+            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", [], { userInput: data.userInput });
         }
 
         if (featureAction.type.includes("buff")) {
             if (featureAction.buff.calculation) {
-                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "buff", "buffBonus", { userInput: data.userInput });
+                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "buff", "buffBonus", [], { userInput: data.userInput });
             }
             buffDescription = featureAction.buff.description;
         }
 
         if (featureAction.type.includes("debuff")) {
             if (featureAction.debuff.calculation) {
-                debuffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "debuff", "debuffBonus", { userInput: data.userInput });
+                debuffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "debuff", "debuffBonus", [], { userInput: data.userInput });
             }
             debuffDescription = featureAction.debuff.description;
             if (featureAction.debuff.conditions) {
@@ -130,18 +130,18 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("healing")) {
-            healing = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "healing", "healingBonus", { userInput: data.userInput });
+            healing = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "healing", "healingBonus", [], { userInput: data.userInput });
             if (healing) {
-                healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], { userInput: data.userInput });
+                healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], [], { userInput: data.userInput });
             }
         }
 
         if (featureAction.type.includes("restore")) {
-            restore = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "restore", "restoreBonus", { userInput: data.userInput });
+            restore = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "restore", "restoreBonus", [], { userInput: data.userInput });
         }
 
         if (featureAction.type.includes("creatures")) {
-            creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, { userInput: data.userInput });
+            creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, [], { userInput: data.userInput });
         }
 
         if (featureAction.type.includes("restoreSpellSlot")) {

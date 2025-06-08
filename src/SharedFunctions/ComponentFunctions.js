@@ -37,7 +37,8 @@ const castTimeShortHand = {
     "Free": "F",
     "Magic Action" : "MA",
     "Reaction" : "R",
-    "Utilize" : "UA"
+    "Utilize" : "UA",
+    "1 minute" : "1 min"
 }
 
 export function getCastingTimeShorthand(castingTime) {

@@ -97,12 +97,12 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 featureName = spellForPlayer.feature.name;
 
                 duration = calculateDuration(playerConfigs, spell.duration);
-                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", { spell: spell });
+                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", [], { spell: spell });
                 if (durationAddendumString) {
                     durationAddendum = parseStringForBoldMarkup(durationAddendumString);
                 }
 
-                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", { spell: spell });
+                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", [], { spell: spell });
                 if (spellCastingConditionAddendumString) {
                     spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
                 }
@@ -128,7 +128,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 if (spell.type.includes("damage")) {
                     damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
                     if (damage) {
-                        damageAddendum = calculateAddendumAspects(playerConfigs, ["damageAddendum"], { userInput: data.userInput });
+                        damageAddendum = calculateAddendumAspects(playerConfigs, ["damageAddendum"], [], { userInput: data.userInput });
                     }
                 }
 
@@ -163,7 +163,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 if (spell.type.includes("healing")) {
                     healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
                     if (healing) {
-                        healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], { userInput: data.userInput });
+                        healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], [], { userInput: data.userInput });
                     }
                 }
 
@@ -194,7 +194,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
                 <div><b>Spell Summary</b></div>
             </div>
-            <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
+            <div className="spellPageDescription" style={{display: (castAtLevel ? "block" : "none")}}>
                 <div><b>Cast at LVL{castAtLevel}</b></div>
             </div>
             <div className="spellPageDescription" style={{display: (attackRoll ? "block" : "none")}}>

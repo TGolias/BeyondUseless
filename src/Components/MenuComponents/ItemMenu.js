@@ -88,7 +88,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
 
     return (<>
         <div className="itemMenuWrapperDiv">
-            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
+            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} data={{ additionalEffects: menuConfig.additionalEffects }} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
         </div>
             {userInteraction}
         <div className="centerMenuSeperator"></div>
