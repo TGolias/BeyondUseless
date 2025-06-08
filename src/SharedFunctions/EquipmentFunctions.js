@@ -32,7 +32,7 @@ export function CanEquipItem(playerItems, item) {
 
 export function GetOpenHands(playerItems) {
     const heldItems = GetHeldItems(playerItems);
-    const hasTwoHandedWeapon = heldItems.includes(item => item.type === "Weapon" && item.properties && item.properties.includes("Two-Handed"));
+    const hasTwoHandedWeapon = heldItems.some(item => item.type === "Weapon" && item.properties && item.properties.includes("Two-Handed"));
     if (!hasTwoHandedWeapon && heldItems.length < 2) {
         return 2 - heldItems.length;
     }
