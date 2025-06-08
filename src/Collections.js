@@ -30,6 +30,10 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/damagetypes.json"
     },
     {
+        name: "eldrichinvocations",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/eldrichinvocations.json"
+    },
+    {
         name: "feats",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/feats.json"
     },

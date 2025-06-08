@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
-import { getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
@@ -33,9 +33,21 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
 
     let spellcastingLevel = 0
     let spellSlotsRemainingForSlotLevel = 0
+    let pactSlotsRemaining = 0;
     let slotLevelPropertyPath = undefined;
     let haveSpellSlotsForNextLevel = false;
     if (menuConfig.spell.level) {
+        const pactSlotLevel = getPactSlotLevel(playerConfigs);
+        if (pactSlotLevel > 0) {
+            if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots) {
+                pactSlotsRemaining = playerConfigs.currentStatus.remainingPactSlots;
+            } else {
+                const pactSlotsForEachLevel = getCollection("pactslots");
+                const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
+                pactSlotsRemaining = pactSlotsForThisLevel.pactSlots;
+            }
+        }
+
         spellcastingLevel = getSpellcastingLevel(playerConfigs);
         if (spellcastingLevel > 0) {
             const spellSlotsForEachLevel = getCollection("spellslots");
@@ -127,7 +139,7 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
-        <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
+        <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">

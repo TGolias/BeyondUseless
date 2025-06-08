@@ -1,6 +1,6 @@
 import React from "react";
 import './UserInputsComponent.css'
-import { getSpellcastingLevel, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { getPactSlotLevel, getSpellcastingLevel, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { CheckListInput } from "../SimpleComponents/CheckListInput";
 import { SelectList } from "../SimpleComponents/SelectList";
@@ -87,9 +87,24 @@ const userInputTypes = {
 
             let spellcastingLevel = 0
             let spellSlotsRemainingForSlotLevel = 0
+            let pactSlotsRemaining = 0;
+            let pactSlotCastLevel = 0;
             let slotLevelPropertyPath = undefined;
             let haveSpellSlotsForNextLevel = false;
             if (minLevel) {
+                const pactSlotLevel = getPactSlotLevel(playerConfigs);
+                if (pactSlotLevel > 0) {
+                    const pactSlotsForEachLevel = getCollection("pactslots");
+                    const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
+                    if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots) {
+                        pactSlotsRemaining = playerConfigs.currentStatus.remainingPactSlots;
+                        pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
+                    } else {
+                        pactSlotsRemaining = pactSlotsForThisLevel.pactSlots;
+                        pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
+                    }
+                }
+
                 spellcastingLevel = getSpellcastingLevel(playerConfigs);
                 if (spellcastingLevel > 0) {
                     const spellSlotsForEachLevel = getCollection("spellslots");
@@ -108,9 +123,15 @@ const userInputTypes = {
 
             return (<>
                 <div className="userInputsSingleInput userInputsMaxWidthChild">
-                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={(baseStateObject, pathToProperty, newValue) => {
-                        menuConfig.useSpellSlotLevel = newValue;
-                        menuConfig.userInput[singleUserInput.name] = menuConfig.useSpellSlotLevel;
+                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={(baseStateObject, pathToProperty, newValue) => {
+                        if (pathToProperty === "usePactSlot") {
+                            menuConfig.usePactSlot = newValue;
+                            menuConfig.userInput[singleUserInput.name] = menuConfig.useSpellSlotLevel;
+                        } else {
+                            menuConfig.useSpellSlotLevel = newValue;
+                            menuConfig.userInput[singleUserInput.name] = menuConfig.useSpellSlotLevel;
+                        }
+                        
                         menuStateChangeHandler(menuConfig, "", menuConfig);
                     }}></UseSpellSlotComponent>
                 </div>

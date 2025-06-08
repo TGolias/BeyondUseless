@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllConsumableActionItems, getAllSpellcastingFeatures, getItemFromItemTemplate, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllConsumableActionItems, getAllSpellcastingFeatures, getItemFromItemTemplate, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -46,6 +46,8 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
 
     const spellcastingLevel = getSpellcastingLevel(playerConfigs);
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+
+    const pactSlotLevel = getPactSlotLevel(playerConfigs);
 
     let mountedCombatDescription = undefined;
     if (playerConfigs.parent) {
@@ -112,8 +114,8 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 <div style={{display: (consumeActionItems.length > 0 ? "block" : "none")}}>
                     <ItemActionsDisplay playerConfigs={playerConfigs} items={consumeActionItems} getItemAction={(dndItem) => dndItem.consumeEffect} setCenterScreenMenu={setCenterScreenMenu}></ItemActionsDisplay>
                 </div>
-                <div style={{display: (spellcastingLevel > 0 ? "block" : "none")}}>
-                    <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel}></SpellSlotsDisplay>
+                <div style={{display: (spellcastingLevel > 0 || pactSlotLevel > 0 ? "block" : "none")}}>
+                    <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel} pactSlotLevel={pactSlotLevel}></SpellSlotsDisplay>
                 </div>
                 <div style={{display: (spellcastingFeatures.length > 0 ? "block" : "none")}}>
                     <SpellcastingDisplay playerConfigs={playerConfigs} spellcastingFeatures={spellcastingFeatures} setCenterScreenMenu={setCenterScreenMenu}></SpellcastingDisplay>

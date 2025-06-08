@@ -2,11 +2,43 @@ import React from 'react';
 import './SpellSlotsDisplay.css';
 import { getCollection } from '../../Collections';
 
-export function SpellSlotsDisplay({playerConfigs, casterLevel}) {
-    const spellSlotsForEachLevel = getCollection("spellslots");
-
+export function SpellSlotsDisplay({playerConfigs, casterLevel, pactSlotLevel}) {
     const spellSlotRows = [];
+    
+    // Pact slots first.
+    if (pactSlotLevel > 0) {
+        const pactSlotsForEachLevel = getCollection("pactslots");
+        const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
+
+        let pactSlotsUsed = 0;
+        if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots) {
+            const remainingUses = playerConfigs.currentStatus.remainingPactSlots;
+            pactSlotsUsed = pactSlotsForThisLevel.pactSlots - remainingUses;
+        } 
+
+        let slotUsesString = "";
+        for (let j = 0; j < pactSlotsForThisLevel.pactSlots; j++) {
+            if (j > 0) {
+                slotUsesString += " "
+            }
+
+            if (j < pactSlotsUsed) {
+                slotUsesString += "X"
+            } else {
+                slotUsesString += "O"
+            }
+            
+        }
+
+        spellSlotRows.push(<>
+            <div className='spellslotsDisplayRow firstCol'>Pact - Lvl {pactSlotsForThisLevel.slotLevel}</div>
+            <div className='spellslotsDisplayRow lastCol'>{slotUsesString}</div>
+        </>);
+    }
+
+    // Now just normal spell slots.
     if (casterLevel > 0) {
+        const spellSlotsForEachLevel = getCollection("spellslots");
         const spellSlotsForThisLevel = spellSlotsForEachLevel[casterLevel - 1];
         for (let i = 0; i < 10; i++) {
             const slotLevel = i + 1;
