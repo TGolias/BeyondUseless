@@ -10,8 +10,8 @@ import { getCollection } from "../../Collections";
 const userInputTypes = {
     textField: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = "";
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, "");
             }
 
             return (<>
@@ -24,8 +24,8 @@ const userInputTypes = {
     },
     numberField: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = singleUserInput.startingValue ? performMathCalculation(playerConfigs, singleUserInput.startingValue, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 0;
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, 0);
             }
 
             const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
@@ -40,8 +40,8 @@ const userInputTypes = {
     },
     checkboxList: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = [];
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, []);
             }
 
             const allCheckboxValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
@@ -55,10 +55,10 @@ const userInputTypes = {
     },
     selectList: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = undefined;
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, undefined);
             }
-
+            
             const allSelectListValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
             return (<>
                 <div className="userInputsSingleInput">
@@ -70,13 +70,13 @@ const userInputTypes = {
     },
     consumeSpellSlot: {
         generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            if (!menuConfig.userInput[singleUserInput.name]) {
-                menuConfig.userInput[singleUserInput.name] = singleUserInput.startingValue ? performMathCalculation(playerConfigs, singleUserInput.startingValue, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
-            }
-
             const minLevel = singleUserInput.minLevel ? performMathCalculation(playerConfigs, singleUserInput.minLevel, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 1;
             if (!menuConfig.useSpellSlotLevel) {
-                menuConfig.useSpellSlotLevel = minLevel;
+                menuStateChangeHandler(menuConfig, "useSpellSlotLevel", minLevel);
+            }
+
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, minLevel);
             }
 
             let spellcastingLevel = 0
@@ -102,7 +102,11 @@ const userInputTypes = {
 
             return (<>
                 <div className="userInputsSingleInput userInputsMaxWidthChild">
-                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
+                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={(baseStateObject, pathToProperty, newValue) => {
+                        menuConfig.useSpellSlotLevel = newValue;
+                        menuConfig.userInput[singleUserInput.name] = menuConfig.useSpellSlotLevel;
+                        menuStateChangeHandler(menuConfig, "", menuConfig);
+                    }}></UseSpellSlotComponent>
                 </div>
             </>);
         }

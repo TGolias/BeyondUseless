@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
@@ -61,6 +61,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let debuffAmount = undefined;
     let debuffDescription = undefined;
     let creatures = undefined;
+    let restoreSpellSlot = undefined;
+    let restoreResource = undefined;
     let targetNames = undefined;
     if (data && playerConfigs) {
         const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", { featureAction });
@@ -142,6 +144,23 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, { userInput: data.userInput });
         }
 
+        if (featureAction.type.includes("restoreSpellSlot")) {
+            const slotLevel = performMathCalculation(playerConfigs, featureAction.restoreSpellSlot.slotLevel.calculation, { userInput: data.userInput });
+            if (slotLevel && slotLevel > 0) {
+                restoreSpellSlot = "\nLVL " + slotLevel + " Spell Slots: +1";
+            }
+        }
+
+        if (featureAction.type.includes("restoreResource")) {
+            const resourcePropertyName = performMathCalculation(playerConfigs, featureAction.restoreResource.resourceName.calculation);
+            const amountRestored = performMathCalculation(playerConfigs, featureAction.restoreResource.amountRestored.calculation, { userInput: data.userInput });
+
+            const resourceToRestore = origin.value.resources.find(resource => resource.name === resourcePropertyName);
+            if (amountRestored && resourceToRestore && amountRestored > 0) {
+                restoreResource = "\n" + resourceToRestore.displayName + ": +" + amountRestored;
+            }
+        }
+
         if (data.targetNamesMap) {
             const targetNameStrings = convertHashMapToArrayOfStrings(data.targetNamesMap);
             targetNames = concatStringArrayToAndStringWithCommas(targetNameStrings);
@@ -193,6 +212,12 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="featureActionPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
                 <div><b>Allied Creatures:</b> {creatures}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: ((restoreSpellSlot) ? "block" : "none")}}>
+                <div><b>Spell Slots Gained</b> {restoreSpellSlot}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: ((restoreResource) ? "block" : "none")}}>
+                <div><b>Resources Gained</b> {restoreResource}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (targetNames ? "block" : "none")}}>
                 <div><b>Targets:</b> {targetNames}</div>

@@ -41,6 +41,18 @@ export function TextInput({isNumberValue, baseStateObject, pathToProperty, input
                     } else {
                         value = 0;
                     }
+
+                    if (minimum) {
+                        if (value < 0 && value < minimum) {
+                            value = minimum;
+                        }
+                    }
+
+                    if (maxiumum) {
+                        if (value > maxiumum) {
+                            value = maxiumum;
+                        }
+                    }
                 }
                 playAudio(buttonSound ? buttonSound : "selectionaudio");
                 return onInputChangeHandler(baseStateObject, pathToProperty, value, inputHandler);

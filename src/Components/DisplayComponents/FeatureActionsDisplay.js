@@ -38,13 +38,20 @@ export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterS
     for (let actionFeature of actionFeatures) {
         for (let action of actionFeature.feature.actions) {
             const featureOrigin = getFeatureOrigin(actionFeature);
-            if (action.cost) {
-                if (action.cost.resourceType) {
-                    if (!resourceName2Actions[action.cost.resourceType]) {
-                        resourceName2Resource[action.cost.resourceType] = getResourceForResourceType(playerConfigs, actionFeature, action.cost.resourceType);
-                        resourceName2Actions[action.cost.resourceType] = [];
+            if (action.cost || action.restoreResource) {
+                let resourceType;
+                if (action.restoreResource) {
+                    resourceType = performMathCalculation(playerConfigs, action.restoreResource.resourceName.calculation);
+                } else {
+                    resourceType = action.cost.resourceType;
+                }
+
+                if (resourceType) {
+                    if (!resourceName2Actions[resourceType]) {
+                        resourceName2Resource[resourceType] = getResourceForResourceType(playerConfigs, actionFeature, resourceType);
+                        resourceName2Actions[resourceType] = [];
                     }
-                    resourceName2Actions[action.cost.resourceType].push({ action, feature: actionFeature.feature, origin: featureOrigin })
+                    resourceName2Actions[resourceType].push({ action, feature: actionFeature.feature, origin: featureOrigin })
                 } else if (action.cost.uses) {
                     resourceName2Resource[action.name] = getResourceForUses(playerConfigs, action);
                     resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
