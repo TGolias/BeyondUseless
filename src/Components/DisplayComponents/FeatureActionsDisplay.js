@@ -52,7 +52,7 @@ export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterS
                         resourceName2Actions[resourceType] = [];
                     }
                     resourceName2Actions[resourceType].push({ action, feature: actionFeature.feature, origin: featureOrigin })
-                } else if (action.cost.uses) {
+                } else if (action.cost && action.cost.uses) {
                     resourceName2Resource[action.name] = getResourceForUses(playerConfigs, action);
                     resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
                 }
