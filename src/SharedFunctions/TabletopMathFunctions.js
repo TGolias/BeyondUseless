@@ -1,4 +1,5 @@
 import { getCollection } from "../Collections";
+import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
 import { GetHeldItems } from "./EquipmentFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
@@ -1713,7 +1714,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, onAspectFound) {
     
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
     for (let i = 0; i < dndClasses.length; i++) {
-        const dndClass = dndClasses[i];
+        const dndClass = TransformDndClassBasedOnMainOrMulticlass(playerConfigs, dndClasses[i]);
         // Check each of the classes for the aspect.
         const classAspectValue = dndClass[aspectName];
         if (classAspectValue) {

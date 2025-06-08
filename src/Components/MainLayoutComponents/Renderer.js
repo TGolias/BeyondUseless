@@ -25,6 +25,9 @@ import { ItemActionsDisplay } from "../DisplayComponents/ItemActionsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {
     const languagesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "languages"));
+    const armorTrainingString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "armorTraining"));
+    const weaponProficienciesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "weaponProficiencies"));
+    const toolProficienciesString = concatStringArrayToAndStringWithCommas(calculateAspectCollection(playerConfigs, "toolProficiencies"));
     
     const proficiencyBonus = calculateProficiencyBonus(playerConfigs);
     const initiativeBonus = calculateInitiativeBonus(playerConfigs);
@@ -122,7 +125,16 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     <InventoryDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></InventoryDisplay>
                 </div>
                 <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
-                    <div>Languages: {languagesString}</div>
+                    <div><b>Languages:</b> {languagesString}</div>
+                </div>
+                <div className="textEntry" style={{display: (armorTrainingString ? "block" : "none")}}>
+                    <div><b>Armor Training:</b> {armorTrainingString}</div>
+                </div>
+                <div className="textEntry" style={{display: (weaponProficienciesString ? "block" : "none")}}>
+                    <div><b>Weapon Proficenies:</b> {weaponProficienciesString}</div>
+                </div>
+                <div className="textEntry" style={{display: (toolProficienciesString ? "block" : "none")}}>
+                    <div><b>Tool Proficenies:</b> {toolProficienciesString}</div>
                 </div>
                 <div className="textEntry" style={{display: (mountedCombatDescription ? "block" : "none")}}>
                     <div className="textWithLinesWrapper">{mountedCombatDescription}</div>

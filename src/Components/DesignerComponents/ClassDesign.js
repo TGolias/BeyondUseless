@@ -5,13 +5,14 @@ import { getCollection } from "../../Collections";
 import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 import { FeatureDesign } from "./FeatureDesign";
 import { GetFeaturePropertyNameFromFeature } from "../../SharedFunctions/FeatureFunctions";
+import { TransformDndClassBasedOnMainOrMulticlass } from "../../SharedFunctions/ClassFunctions";
 
 const rightTriangleUnicode = '\u25B6';
 
 export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
     const classes = getCollection("classes");
     const playerClassObject = baseStateObject.classes[classIndex];
-    const dndclass = classes.find(x => x.name === playerClassObject.name);
+    const dndclass = TransformDndClassBasedOnMainOrMulticlass(baseStateObject, classes.find(x => x.name === playerClassObject.name));
     const classLevel = playerClassObject.levels;
 
     const savingThrowProficienciesRows = [];
@@ -20,7 +21,34 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
             const abilityScoreName = getCapitalizedAbilityScoreName(dndclass.savingThrowProficiencies[i]);
             savingThrowProficienciesRows.push(<>
                 <div>{rightTriangleUnicode + abilityScoreName}</div>
-            </>)
+            </>);
+        }
+    }
+
+    const weaponProficienciesRows = [];
+    if (dndclass.weaponProficiencies) {
+        for (let i = 0; i < dndclass.weaponProficiencies.length; i++) {
+            weaponProficienciesRows.push(<>
+                <div>{rightTriangleUnicode + dndclass.weaponProficiencies[i]}</div>
+            </>);
+        }
+    }
+
+    const armorTrainingRows = [];
+    if (dndclass.armorTraining) {
+        for (let i = 0; i < dndclass.armorTraining.length; i++) {
+            armorTrainingRows.push(<>
+                <div>{rightTriangleUnicode + dndclass.armorTraining[i]}</div>
+            </>);
+        }
+    }
+
+    const toolProficienciesRows = [];
+    if (dndclass.toolProficiencies) {
+        for (let i = 0; i < dndclass.toolProficiencies.length; i++) {
+            toolProficienciesRows.push(<>
+                <div>{rightTriangleUnicode + dndclass.toolProficiencies[i]}</div>
+            </>);
         }
     }
 
@@ -63,16 +91,33 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
                     </div>
                 </>);
             }
-        } 
+        }
     }
-
 
     return (<>
         <div className="classDisplayer">
-            <div>
+            <div style={{display: (savingThrowProficienciesRows.length ? "block" : "none")}}>
                 <div className="classAttributeLabel">Saving Throw Proficiencies:</div>
                 <div className="classCollectionWrapper">
                     <div>{savingThrowProficienciesRows}</div>
+                </div>
+            </div>
+            <div style={{display: (weaponProficienciesRows.length ? "block" : "none")}}>
+                <div className="classAttributeLabel">Weapon Proficiencies:</div>
+                <div className="classCollectionWrapper">
+                    <div>{weaponProficienciesRows}</div>
+                </div>
+            </div>
+            <div style={{display: (armorTrainingRows.length ? "block" : "none")}}>
+                <div className="classAttributeLabel">Armor Training:</div>
+                <div className="classCollectionWrapper">
+                    <div>{armorTrainingRows}</div>
+                </div>
+            </div>
+            <div style={{display: (toolProficienciesRows.length ? "block" : "none")}}>
+                <div className="classAttributeLabel">Tool Proficiencies:</div>
+                <div className="classCollectionWrapper">
+                    <div>{toolProficienciesRows}</div>
                 </div>
             </div>
             <div style={{display: (dndclass.choices ? "block" : "none")}}>
