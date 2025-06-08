@@ -54,6 +54,10 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/misc.json"
     },
     {
+        name: "pactslots",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/pactslots.json"
+    },
+    {
         name: "properties",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/properties.json"
     },
