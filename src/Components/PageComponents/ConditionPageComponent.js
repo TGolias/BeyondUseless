@@ -48,10 +48,10 @@ export function ConditionPageComponent({condition, copyLinkToItem, playerConfigs
     const skillDescriptionRows = parseStringForBoldMarkup(skillsDescription);
 
     return <>
-        <div className="conditonPageContainer">
-            <div className="conditonPageDescription">{description}</div>
-            <div className="conditonPageDescription" style={{display: (additionalConditionsRows ? "block" : "none")}}>{additionalConditionsRows}</div>
-            <div className="conditonPageDescription" style={{display: (skillDescriptionRows ? "block" : "none")}}>{skillDescriptionRows}</div>
+        <div className="conditionPageContainer">
+            <div className="conditionPageDescription">{description}</div>
+            <div className="conditionPageDescription" style={{display: (additionalConditionsRows ? "block" : "none")}}>{additionalConditionsRows}</div>
+            <div className="conditionPageDescription" style={{display: (skillDescriptionRows ? "block" : "none")}}>{skillDescriptionRows}</div>
         </div>
     </>
 }

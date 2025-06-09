@@ -1,4 +1,4 @@
-.conditonPageContainer {
+.conditionPageContainer {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -7,10 +7,10 @@
     line-height: 1.25em;
 }
 
-.conditonPageDescription {
+.conditionPageDescription {
     padding-top: 0.75em;
 }
 
-.conditonPageDescription:first-child {
+.conditionPageDescription:first-child {
     padding-top: 0;
 }
