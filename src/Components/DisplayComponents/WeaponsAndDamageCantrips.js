@@ -81,7 +81,7 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
     // Check Cantrips
     let hasDamageCantrips = false;
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-    const allPlayerSpells = getAllSpells(spellcastingFeatures);
+    const allPlayerSpells = getAllSpells(playerConfigs, spellcastingFeatures);
     for (let spell of allPlayerSpells) {
         if (!spell.level) {
             hasDamageCantrips = pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, itemName2Item, spell, setCenterScreenMenu) || hasDamageCantrips;

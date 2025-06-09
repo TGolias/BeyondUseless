@@ -3,6 +3,11 @@ import { performBooleanCalculation } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap, convertArrayToDictionary } from "./Utils";
 
 export function CanMulticlass(playerConfigs) {
+    if (playerConfigs.classes.length === 0) {
+        // If they don't have any classes, they can pick anything with no restrictions.
+        return true;
+    }
+
     const classes = getCollection("classes");
     const possibleClassesDictionary = convertArrayToDictionary(classes, "name");
     if (playerConfigs.classes.length >= classes.length) {
@@ -43,10 +48,12 @@ export function CanMulticlass(playerConfigs) {
 export function GetValidClassesArray(playerConfigs, className) {
     const classes = getCollection("classes");
 
+    const playerHasNoClasses = playerConfigs.classes.length <= 1;
+
     // We want to include the class from className even if the player has it, because we want it to show in the select list where it is currently selected.
     let alreadyChosenClassNames = playerConfigs.classes.map(x => x.name).filter(x => x !== className);
     let alreadyChosenClassNamesMap = convertArrayOfStringsToHashMap(alreadyChosenClassNames);
-    let validClasses = classes.filter(x => x.name === className || (!alreadyChosenClassNamesMap[x.name] && (!x.multiClassConditions || performBooleanCalculation(playerConfigs, x.multiClassConditions))));
+    let validClasses = classes.filter(x => x.name === className || (!alreadyChosenClassNamesMap[x.name] && (playerHasNoClasses || !x.multiClassConditions || performBooleanCalculation(playerConfigs, x.multiClassConditions))));
     let validClassNames = validClasses.map(x => x.name);
     return validClassNames;
 }
@@ -67,8 +74,10 @@ export function GetValidClassLevelsArray(playerConfigs, className) {
 export function GetValidMulticlassDefault(playerConfigs) {
     const classes = getCollection("classes");
 
+    const playerHasNoClasses = playerConfigs.classes.length <= 1;
+
     let takenClassNames = playerConfigs.classes.map(x => x.name);
-    let nextClass = classes.find(x => !takenClassNames.includes(x.name));
+    let nextClass = classes.find(x => !takenClassNames.includes(x.name) && (playerHasNoClasses || !x.multiClassConditions || performBooleanCalculation(playerConfigs, x.multiClassConditions)));
     return {
         name: nextClass.name,
         levels: 1 // Just give them one level if they select it.

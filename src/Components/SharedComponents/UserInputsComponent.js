@@ -96,12 +96,11 @@ const userInputTypes = {
                 if (pactSlotLevel > 0) {
                     const pactSlotsForEachLevel = getCollection("pactslots");
                     const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
-                    if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots) {
+                    pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
+                    if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots || playerConfigs.currentStatus.remainingPactSlots === 0) {
                         pactSlotsRemaining = playerConfigs.currentStatus.remainingPactSlots;
-                        pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
                     } else {
                         pactSlotsRemaining = pactSlotsForThisLevel.pactSlots;
-                        pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
                     }
                 }
 
@@ -123,11 +122,11 @@ const userInputTypes = {
 
             return (<>
                 <div className="userInputsSingleInput userInputsMaxWidthChild">
-                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={(baseStateObject, pathToProperty, newValue) => {
+                    <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={minLevel} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} pactSlotCastLevel={pactSlotCastLevel} hasFreeUses={false} remainingFreeUses={0} isRitual={false} menuConfig={menuConfig} menuStateChangeHandler={(baseStateObject, pathToProperty, newValue) => {
                         if (pathToProperty === "usePactSlot") {
                             menuConfig.usePactSlot = newValue;
-                            menuConfig.userInput[singleUserInput.name] = menuConfig.useSpellSlotLevel;
-                        } else {
+                            menuConfig.userInput[singleUserInput.name] = pactSlotCastLevel;
+                        } else if (pathToProperty === "useSpellSlotLevel") {
                             menuConfig.useSpellSlotLevel = newValue;
                             menuConfig.userInput[singleUserInput.name] = menuConfig.useSpellSlotLevel;
                         }

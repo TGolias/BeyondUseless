@@ -43,6 +43,11 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     }
 
     let description = parseStringForBoldMarkup(spell.description);
+    let descriptionAddendum = undefined;
+    const descriptionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingDescriptionAddendum", [], { spell: spell });
+    if (descriptionAddendumString) {
+        descriptionAddendum = parseStringForBoldMarkup(descriptionAddendumString);
+    }
 
     if (copyLinkToSpell) {
         copyLinkToSpell.onExecute = () => {
@@ -89,20 +94,20 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
         if (playerConfigs) {
             // Get the spell specifically for the character so that we can set the feature.
             const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-            const allSpells = getAllSpells(spellCastingFeatures);
+            const allSpells = getAllSpells(playerConfigs, spellCastingFeatures);
             const spellForPlayer = allSpells.find(s => s.name === spell.name);
             if (spellForPlayer) {
                 // When you get the spell for a player specifically it comes with the feature property on it.
                 spell.feature = spellForPlayer.feature;
                 featureName = spellForPlayer.feature.name;
 
-                duration = calculateDuration(playerConfigs, spell.duration);
-                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", [], { spell: spell });
+                duration = calculateDuration(playerConfigs, spell.duration, [], { spell: spell, slotLevel: castAtLevel });
+                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", [], { spell: spell, slotLevel: castAtLevel });
                 if (durationAddendumString) {
                     durationAddendum = parseStringForBoldMarkup(durationAddendumString);
                 }
 
-                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", [], { spell: spell });
+                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", [], { spell: spell, slotLevel: castAtLevel });
                 if (spellCastingConditionAddendumString) {
                     spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
                 }
@@ -141,7 +146,10 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
 
                 if (spell.type.includes("debuff")) {
                     if (spell.debuff.calculation) {
-                        debuffAmount = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
+                        const debuffAmountString  = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
+                        if (debuffAmountString) {
+                            debuffAmount = parseStringForBoldMarkup(debuffAmountString);
+                        }
                     }
                     debuffDescription = spell.debuff.description;
                     if (spell.debuff.conditions) {
@@ -189,6 +197,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div><span className="spellPageBold">Duration:</span> <b>{spell.concentration ? "Concentration" : ""}</b>{spell.concentration ? ", " : ""}{duration}</div>
             <div style={{display: (durationAddendum ? "block" : "none")}}>{durationAddendum}</div>
             <div className="spellPageDescription">{description}</div>
+            <div style={{display: (descriptionAddendum ? "block" : "none")}}>{descriptionAddendum}</div>
             <div className="spellPageDescription"><span className="spellPageBold">Spell List:</span> {concatStringArrayToAndStringWithCommas(spell.spellLists)}</div>
             <br style={{display: (data ? "block" : "none")}}></br>
             <div className="spellPageDescription" style={{display: (data ? "block" : "none")}}>
@@ -228,7 +237,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{parseStringForBoldMarkup(buffDescription)}</div>
             </div>
             <div className="spellPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
-                <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
+                <div><b>Debuff:</b> {debuffAmount ? debuffAmount : ""}{debuffAmount ? " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
             <div className="spellPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
                 <div><b>Allied Creatures:</b> {creatures}</div>

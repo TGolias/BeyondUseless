@@ -11,7 +11,7 @@ export function SpellSlotsDisplay({playerConfigs, casterLevel, pactSlotLevel}) {
         const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
 
         let pactSlotsUsed = 0;
-        if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots) {
+        if (playerConfigs.currentStatus && (playerConfigs.currentStatus.remainingPactSlots || playerConfigs.currentStatus.remainingPactSlots === 0)) {
             const remainingUses = playerConfigs.currentStatus.remainingPactSlots;
             pactSlotsUsed = pactSlotsForThisLevel.pactSlots - remainingUses;
         } 
@@ -31,7 +31,7 @@ export function SpellSlotsDisplay({playerConfigs, casterLevel, pactSlotLevel}) {
         }
 
         spellSlotRows.push(<>
-            <div className='spellslotsDisplayRow firstCol'>Pact - Lvl {pactSlotsForThisLevel.slotLevel}</div>
+            <div className='spellslotsDisplayRow firstCol'>Lvl {pactSlotsForThisLevel.slotLevel} Pact</div>
             <div className='spellslotsDisplayRow lastCol'>{slotUsesString}</div>
         </>);
     }

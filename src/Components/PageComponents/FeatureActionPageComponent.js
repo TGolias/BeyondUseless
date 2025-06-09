@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
@@ -110,7 +110,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
 
         if (featureAction.type.includes("debuff")) {
             if (featureAction.debuff.calculation) {
-                debuffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "debuff", "debuffBonus", [], { userInput: data.userInput });
+                const debuffAmountString = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "debuff", "debuffBonus", [], { userInput: data.userInput });
+                if (debuffAmountString) {
+                    debuffAmount = parseStringForBoldMarkup(debuffAmountString);
+                }
             }
             debuffDescription = featureAction.debuff.description;
             if (featureAction.debuff.conditions) {
@@ -145,9 +148,66 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("restoreSpellSlot")) {
-            const slotLevel = performMathCalculation(playerConfigs, featureAction.restoreSpellSlot.slotLevel.calculation, { userInput: data.userInput });
-            if (slotLevel && slotLevel > 0) {
-                restoreSpellSlot = "\nLVL " + slotLevel + " Spell Slots: +1";
+            if (featureAction.restoreSpellSlot.slotType === "pactSlots") {
+                const pactSlotLevel = getPactSlotLevel(playerConfigs);
+                if (pactSlotLevel > 0) {
+                    const pactSlotsForEachLevel = getCollection("pactslots");
+                    const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
+                    const pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
+                    const maxUses = pactSlotsForThisLevel.pactSlots;
+
+                    let pactSlotsRemaining;
+                    if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots || playerConfigs.currentStatus.remainingPactSlots === 0) {
+                        pactSlotsRemaining = playerConfigs.currentStatus.remainingPactSlots;
+                    } else {      
+                        pactSlotsRemaining = pactSlotsForThisLevel.pactSlots;
+                    }
+
+                    let amountRestored = 1;
+                    if (featureAction.restoreSpellSlot.amountRestored) {
+                        amountRestored = performMathCalculation(playerConfigs, featureAction.restoreSpellSlot.amountRestored.calculation, { userInput: data.userInput, maxUses });
+                    }
+                    if (!featureAction.restoreSpellSlot.allowOverMax) {
+                        if (pactSlotsRemaining + amountRestored > maxUses) {
+                            // only restore to full in this case.
+                            amountRestored = maxUses - pactSlotsRemaining;
+                        }
+                    }
+
+                    restoreSpellSlot = "\nLVL " + pactSlotCastLevel + " Pact Slots: +" + amountRestored;
+                }
+            } else {
+                const slotLevel = performMathCalculation(playerConfigs, featureAction.restoreSpellSlot.slotLevel.calculation, { userInput: data.userInput });
+                if (slotLevel && slotLevel > 0) {
+                    const spellcastingLevel = getSpellcastingLevel(playerConfigs);
+                    if (spellcastingLevel > 0) {
+                        const spellSlotsForEachLevel = getCollection("spellslots");
+                        const spellcastingIndex = spellcastingLevel - 1;
+                        const allSpellSlotsForThisLevel = spellSlotsForEachLevel[spellcastingIndex];
+                        const slotLevelPropertyPath = "slotLevel" + slotLevel;
+                        const maxUses = allSpellSlotsForThisLevel[slotLevelPropertyPath];
+
+                        let spellSlotsRemainingForSlotLevel;
+                        if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingSpellSlots && playerConfigs.currentStatus.remainingSpellSlots[slotLevelPropertyPath] !== undefined) {
+                            spellSlotsRemainingForSlotLevel = playerConfigs.currentStatus.remainingSpellSlots[slotLevelPropertyPath];
+                        } else {
+                            // We have all the slots remaining.
+                            spellSlotsRemainingForSlotLevel = maxUses;
+                        }
+                        let amountRestored = 1;
+                        if (featureAction.restoreSpellSlot.amountRestored) {
+                            amountRestored = performMathCalculation(playerConfigs, featureAction.restoreSpellSlot.amountRestored.calculation, { userInput: data.userInput, maxUses });
+                        }
+                        if (!featureAction.restoreSpellSlot.allowOverMax) {
+                            if (spellSlotsRemainingForSlotLevel + amountRestored > maxUses) {
+                                // only restore to full in this case.
+                                amountRestored = maxUses - spellSlotsRemainingForSlotLevel;
+                            }
+                        }
+
+                        restoreSpellSlot = "\nLVL " + slotLevel + " Spell Slots: +";
+                    }
+                }
             }
         }
 

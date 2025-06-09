@@ -110,7 +110,7 @@ const spellRows = [
 ];
 
 export function SpellcastingDisplay({playerConfigs, spellcastingFeatures, setCenterScreenMenu}) {
-    const allPlayerSpells = getAllSpells(spellcastingFeatures);
+    const allPlayerSpells = getAllSpells(playerConfigs, spellcastingFeatures);
 
     // First get our top column.
     const spellcastingDisplayRows = [];

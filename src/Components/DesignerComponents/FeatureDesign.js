@@ -58,7 +58,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
     if (feature.spellcasting) {
         const spellcastingFeatures = getAllSpellcastingFeatures(baseStateObject);
-        const alreadyKnownSpells = getAllSpells(spellcastingFeatures);
+        const alreadyKnownSpells = getAllSpells(baseStateObject, spellcastingFeatures);
         const spellName2AlreadyKnownSpell = convertArrayToDictionary(alreadyKnownSpells, "name");
 
         const spellcastingAbility = performMathCalculation(baseStateObject, feature.spellcasting.ability.calculation, parameters);
@@ -120,6 +120,13 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 if (feature.spellcasting.spellsKnown.validSpellLists && feature.spellcasting.spellsKnown.validSpellLists.length > 0) {
                     validSpells = validSpells.filter(spell => feature.spellcasting.spellsKnown.validSpellLists.some(validSpellList => spell.spellLists.includes(validSpellList)));
                 }
+                if (feature.spellcasting.spellsKnown.levelLimit) {
+                    const spellLevelLimit = performMathCalculation(baseStateObject, feature.spellcasting.spellsKnown.levelLimit);
+                    if (spellLevelLimit) {
+                        validSpells = validSpells.filter(spell => spell.level && spell.level <= spellLevelLimit);
+                    }
+                }
+
                 const validSpellNames = validSpells.map(cantrip => cantrip.name);
 
                 for (let i = 0; i < spellsKnown; i++) {

@@ -47,7 +47,7 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, activeEffectIn
         switch (activeEffect.type) {
             case "spell":
                 const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigsToSet);
-                const playerSpells = getAllSpells(spellCastingFeatures);
+                const playerSpells = getAllSpells(playerConfigsToSet, spellCastingFeatures);
                 const playerSpell = playerSpells.find(spell => spell.name === activeEffect.name);
 
                 playAudio("menuaudio");

@@ -236,7 +236,7 @@ export function getActionObjectForActiveEffect(playerConfigs, activeEffect) {
     switch (activeEffect.type) {
         case "spell":
             const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-            const playerSpells = getAllSpells(spellCastingFeatures);
+            const playerSpells = getAllSpells(playerConfigs, spellCastingFeatures);
             const playerSpell = playerSpells.find(spell => spell.name === activeEffect.name);
             return playerSpell;
         case "featureaction":

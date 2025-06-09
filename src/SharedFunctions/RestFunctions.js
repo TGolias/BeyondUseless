@@ -4,9 +4,14 @@ import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses } fr
 import { convertArrayToDictionary } from "./Utils";
 
 export function SetPlayerShortRested(playerConfigs) {
+    // Reset pact slots.
+    if (playerConfigs.currentStatus) {
+        delete playerConfigs.currentStatus.remainingPactSlots;
+    }
+
+    // Check class resources.
     const allPlayerClasses = getAllPlayerDNDClasses(playerConfigs);
     if (allPlayerClasses) {
-        // See if any of the class resources get restored.
         for (let i = 0; i < allPlayerClasses.length; i++) {
             const dndClass = allPlayerClasses[i];
             const classConfig = playerConfigs.classes[i];

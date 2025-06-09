@@ -34,16 +34,18 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
     let spellcastingLevel = 0
     let spellSlotsRemainingForSlotLevel = 0
     let pactSlotsRemaining = 0;
+    let pactSlotCastLevel = 0;
     let slotLevelPropertyPath = undefined;
     let haveSpellSlotsForNextLevel = false;
     if (menuConfig.spell.level) {
         const pactSlotLevel = getPactSlotLevel(playerConfigs);
         if (pactSlotLevel > 0) {
-            if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots) {
+            const pactSlotsForEachLevel = getCollection("pactslots");
+            const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
+            pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
+            if (playerConfigs.currentStatus && playerConfigs.currentStatus.remainingPactSlots || playerConfigs.currentStatus.remainingPactSlots === 0) {
                 pactSlotsRemaining = playerConfigs.currentStatus.remainingPactSlots;
-            } else {
-                const pactSlotsForEachLevel = getCollection("pactslots");
-                const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
+            } else {      
                 pactSlotsRemaining = pactSlotsForThisLevel.pactSlots;
             }
         }
@@ -66,9 +68,9 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
 
     // Now do any modifications based on their current configuration of this menu.
     let canCastSpell = false;
-    if (menuConfig.useFreeUse || menuConfig.useRitual) {
+    if (menuConfig.useFreeUse || menuConfig.useRitual || menuConfig.usePactSlot) {
         // If using as a ritual or free use, level the spell down to its normal level.
-        menuConfig.useSpellSlotLevel = menuConfig.spell.level
+        menuConfig.useSpellSlotLevel = menuConfig.spell.level;
 
         if (menuConfig.useRitual) {
             canCastSpell = true;
@@ -93,7 +95,15 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
 
                 playerConfigsClone.currentStatus.remainingFreeSpellUses[menuConfig.spell.name] = remainingFreeUses - 1;
             }
-            
+        }
+
+        if (menuConfig.usePactSlot) {
+            if (pactSlotsRemaining > 0) {
+                // If using as a pact slot, use the pact slot level.
+                menuConfig.useSpellSlotLevel = pactSlotCastLevel;
+                canCastSpell = true;
+                playerConfigsClone.currentStatus.remainingPactSlots = pactSlotsRemaining - 1;
+            }
         }
     } else {
         if (menuConfig.spell.level) {
@@ -139,7 +149,7 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
-        <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
+        <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} pactSlotCastLevel={pactSlotCastLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">

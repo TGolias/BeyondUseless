@@ -68,7 +68,7 @@ export function calculateInitiativeBonus(playerConfigs) {
     let totalInitiativeBonus = createDiceObjectWithType({});
     totalInitiativeBonus = addDiceObjectsWithTypeTogether(totalInitiativeBonus, calculateAspectCollection(playerConfigs, "dexterityModifier"));
 
-    // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
+    // See if we have anything that gives us more to our initiative.
     findAllConfiguredAspects(playerConfigs, "initiativeBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         let initiativeBonus;
         if (aspectValue.calculation) {
@@ -1403,12 +1403,17 @@ function calculateSingleRange(playerConfigs, singleRange) {
     return range;
 }
 
-export function calculateDuration(playerConfigs, initialDuration) {
-    let duration = initialDuration;
+export function calculateDuration(playerConfigs, initialDuration, additionalEffects, parameters = {}) {
+    let duration;
+    if (initialDuration && initialDuration.calculation) {
+        duration = performMathCalculation(playerConfigs, initialDuration.calculation, parameters);
+    } else {
+        duration = initialDuration;
+    }
 
-    findAllConfiguredAspects(playerConfigs, "durationMultiplier", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigs, "durationMultiplier", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, duration });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { ...parameters, playerConfigForObject, duration });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -1417,7 +1422,7 @@ export function calculateDuration(playerConfigs, initialDuration) {
 
         let durationMultiplier;
         if (aspectValue.calculation) {
-            durationMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, duration });
+            durationMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { ...parameters, playerConfigForObject, duration });
         } else {
             durationMultiplier = aspectValue;
         }
@@ -1609,7 +1614,7 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return calculateFeatures(playerConfigs).map(x => x.feature.name);
         case "knownSpells":
             const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-            return getAllSpells(spellCastingFeatures);
+            return getAllSpells(playerConfigs, spellCastingFeatures);
         case "heldItems":
             return GetHeldItems(playerConfigs.items);
 
@@ -2060,7 +2065,7 @@ function getOrAddCachedActiveEffectCollection(playerConfigs, collections, fromRe
 
     if (playerConfigsToSearchFor) {
         const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigsToSearchFor);
-        const playerSpells = getAllSpells(spellCastingFeatures);
+        const playerSpells = getAllSpells(playerConfigsToSearchFor, spellCastingFeatures);
         const spellName2Spell = convertArrayToDictionary(playerSpells, "name");
 
         const actionFeatures = getAllActionFeatures(playerConfigsToSearchFor);
@@ -2473,13 +2478,13 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
 
         if (singleCalculation.lessThan) {
             const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.lessThan, parameters)
-            const valueToReturn = (singleValue <= valueToEqual);
+            const valueToReturn = (singleValue < valueToEqual);
             return valueToReturn;
         }
 
         if (singleCalculation.lessThanOrEqualTo) {
             const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.lessThanOrEqualTo, parameters)
-            const valueToReturn = (singleValue < valueToEqual);
+            const valueToReturn = (singleValue <= valueToEqual);
             return valueToReturn;
         }
 
@@ -2638,7 +2643,7 @@ export function doesItemHaveConsumeAction(dndItem) {
     return dndItem && dndItem.consumable && dndItem.consumeEffect;
 }
 
-export function getAllSpells(spellcastingFeatures) {
+export function getAllSpells(playerConfig, spellcastingFeatures) {
     // Get all spells and cantrips built into dictionaries for instant lookup.
     let allCantrips = getCollection("cantrips");
     const cantripName2Cantrip = convertArrayToDictionary(allCantrips, "name");
@@ -2677,8 +2682,12 @@ export function getAllSpells(spellcastingFeatures) {
                     if (spellName2Spell[predeterminedSelection.spellName]) {
                         const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
                         spellToAdd.feature = spellcastingFeature.feature;
-                        if (predeterminedSelection.freeUses && predeterminedSelection.freeUses > 0) {
-                            spellToAdd.freeUses = predeterminedSelection.freeUses;
+                        if (predeterminedSelection.freeUses) {
+                            if (predeterminedSelection.freeUses.calculation) {
+                                spellToAdd.freeUses = performMathCalculation(playerConfig, predeterminedSelection.freeUses.calculation);
+                            } else if (predeterminedSelection.freeUses > 0) {
+                                spellToAdd.freeUses = predeterminedSelection.freeUses;
+                            }
                         }
                         addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
                     }
@@ -2691,6 +2700,13 @@ export function getAllSpells(spellcastingFeatures) {
                 for (let cantripName of userInputForSpells.spells) {
                     const spellToAdd = {...spellName2Spell[cantripName]};
                     spellToAdd.feature = spellcastingFeature.feature;
+                    if (spellcasting.spellsKnown.freeUses) {
+                        if (spellcasting.spellsKnown.freeUses.calculation) {
+                            spellToAdd.freeUses = performMathCalculation(playerConfig, spellcasting.spellsKnown.freeUses.calculation);
+                        } else if (spellcasting.spellsKnown.freeUses > 0) {
+                            spellToAdd.freeUses = spellcasting.spellsKnown.freeUses;
+                        }
+                    }
                     addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
                 }
             }

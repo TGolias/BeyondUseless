@@ -3,16 +3,19 @@ import './UseSpellSlotComponent.css'
 import { CircleButton } from "../SimpleComponents/CircleButton";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 
-export function UseSpellSlotComponent({spellcastingLevel, minSpellLevel, spellSlotsRemainingForSlotLevel, haveSpellSlotsForNextLevel, pactSlotsRemaining, hasFreeUses, remainingFreeUses, isRitual, menuConfig, menuStateChangeHandler}) {
+export function UseSpellSlotComponent({spellcastingLevel, minSpellLevel, spellSlotsRemainingForSlotLevel, haveSpellSlotsForNextLevel, pactSlotsRemaining, pactSlotCastLevel, hasFreeUses, remainingFreeUses, isRitual, menuConfig, menuStateChangeHandler}) {
     return (<>
-        <div style={{display: (!menuConfig.usePactSlot && !menuConfig.useFreeUse && !menuConfig.useRitual ? "flex" : "none")}} className="useSpellSlotVertical">
+        <div style={{display: (minSpellLevel > 0 && !menuConfig.usePactSlot && !menuConfig.useFreeUse && !menuConfig.useRitual ? "flex" : "none")}} className="useSpellSlotVertical">
             <div>Spell Slots Left: {spellSlotsRemainingForSlotLevel}</div>
         </div>
         <div style={{display: (menuConfig.usePactSlot ? "flex" : "none")}} className="useSpellSlotVertical">
-            <div>Pact Slots Left: {pactSlotsRemaining}</div>
+            <div>LVL {pactSlotCastLevel} Pact Slots Left: {pactSlotsRemaining}</div>
         </div>
         <div style={{display: (menuConfig.useFreeUse ? "flex" : "none")}} className="useSpellSlotVertical">
             <div>Free Uses Left: {remainingFreeUses}</div>
+        </div>
+        <div style={{display: (menuConfig.useRitual ? "flex" : "none")}} className="useSpellSlotVertical">
+            <div>Ritual cast: +10 minutes</div>
         </div>
         <div style={{display: (minSpellLevel ? "flex" : "none")}} className="useSpellSlotCastingHorizontal">
             <div style={{display: (spellcastingLevel > 0 || pactSlotsRemaining > 0 ? "flex" : "none")}} className="useSpellSlotVertical">
@@ -23,9 +26,18 @@ export function UseSpellSlotComponent({spellcastingLevel, minSpellLevel, spellSl
                     <CircleButton text={"+"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "useSpellSlotLevel", menuConfig.useSpellSlotLevel + 1)}} disabled={spellcastingLevel == 0 || menuConfig.usePactSlot || menuConfig.useFreeUse || menuConfig.useRitual || !haveSpellSlotsForNextLevel}></CircleButton>
                 </div>
             </div>
-            <div style={{display: (pactSlotsRemaining > 0 ? "flex" : "none")}} className="useSpellSlotVertical">
+            <div style={{display: (pactSlotsRemaining > 0 && pactSlotCastLevel >= minSpellLevel ? "flex" : "none")}} className="useSpellSlotVertical">
                 <div>Use Pact</div>
-                <CheckboxInput baseStateObject={menuConfig} pathToProperty={"usePactSlot"} inputHandler={menuStateChangeHandler} disabled={menuConfig.useFreeUse || menuConfig.useRitual || !pactSlotsRemaining}></CheckboxInput>
+                <CheckboxInput baseStateObject={menuConfig} pathToProperty={"usePactSlot"} inputHandler={(baseStateObject, pathToProperty, newValue) => {
+                    if (!newValue) {
+                        baseStateObject.useSpellSlotLevel = minSpellLevel;
+                        baseStateObject.usePactSlot = false;
+                        menuStateChangeHandler(baseStateObject, "", baseStateObject);
+                    } else {
+                        menuStateChangeHandler(baseStateObject, pathToProperty, newValue);
+                    }
+                    
+                }} disabled={menuConfig.useFreeUse || menuConfig.useRitual || !pactSlotsRemaining}></CheckboxInput>
             </div>
             <div style={{display: (hasFreeUses ? "flex" : "none")}} className="useSpellSlotVertical">
                 <div>Free Use</div>
