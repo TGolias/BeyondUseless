@@ -43,6 +43,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
         featureContent.push(<>
             <div className="featureSelectList">
+                <div className="selectFeatText">Select Feat:</div>
                 <SelectList options={validFeatNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".name"} inputHandler={inputHandler}></SelectList>
             </div>
         </>);
@@ -55,53 +56,44 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
     }
 
     if (feature.eldrichInvocations) {
-        const selectedInvocationNames = (playerFeatureObject && playerFeatureObject.eldrichInvocations && playerFeatureObject.eldrichInvocations.length > 0) ? playerFeatureObject.eldrichInvocations.map(x => x ? x.name : undefined) : [];
-
         const invocations = getCollection("eldrichinvocations");
-        const alreadySelectedInvocations = calculateAspectCollection(baseStateObject, "eldrichinvocations");
-        const validInvocations = invocations.filter(invocation => {
-            if (selectedInvocationNames.includes(invocation.name)) {
-                // This is the one we currently have selected. Keep it.
-                return true;
-            }
-
-            if (!invocation.repeatable && alreadySelectedInvocations.includes(invocation.name)) {
-                // This invocation is not repeatable and it's already selected somewhere else.
-                return false;
-            }
-
-            if (invocation.prerequisites) {
-                const meetsPrerequisites = performBooleanCalculation(baseStateObject, invocation.prerequisites, parameters);
-                return meetsPrerequisites;
-            }
-            return true;
-        });
-        const validInvocationNames = validInvocations.map(invocation => invocation.name);
 
         let invocationsKnown = performMathCalculation(baseStateObject, feature.eldrichInvocations.invocationsKnown.calculation, parameters);
         if (invocationsKnown && invocationsKnown > 0) {
             for (let i = 0; i < invocationsKnown; i++) {
+                const selectedInvocationNames = (playerFeatureObject && playerFeatureObject.eldrichInvocations && playerFeatureObject.eldrichInvocations.length > 0) ? playerFeatureObject.eldrichInvocations.map(x => x ? x.name : undefined) : [];
                 const pathToEldrichInvocation = pathToFeatureProperty + ".eldrichInvocations[" + i + "]";
                 const pathToEldrichInvocationName = pathToEldrichInvocation + ".name";
+                const selectedInvocationName = getValueFromObjectAndPath(baseStateObject, pathToEldrichInvocationName);
+                const validInvocations = invocations.filter(invocation => {
+                    if (selectedInvocationName && selectedInvocationName === invocation.name) {
+                        // This is the one we currently have selected. Keep it.
+                        return true;
+                    }
+
+                    if (!invocation.repeatable && selectedInvocationNames.includes(invocation.name)) {
+                        // This invocation is not repeatable and it's already selected somewhere else.
+                        return false;
+                    }
+
+                    if (invocation.prerequisites) {
+                        const meetsPrerequisites = performBooleanCalculation(baseStateObject, invocation.prerequisites, parameters);
+                        return meetsPrerequisites;
+                    }
+                    return true;
+                });
+                const validInvocationNames = validInvocations.map(invocation => invocation.name);
+
                 featureContent.push(<>
                     <div className="featureSelectList">
                         <SelectList options={validInvocationNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToEldrichInvocationName} inputHandler={inputHandler}></SelectList>
                     </div>
                 </>);
-
-                const selectedInvocationName = getValueFromObjectAndPath(baseStateObject, pathToEldrichInvocationName);
+                
                 if (selectedInvocationName) {
                     featureContent.push(<>
                         <FeatDesign baseStateObject={baseStateObject} inputHandler={inputHandler} selectedFeatName={selectedInvocationName} feats={invocations} pathToFeatureProperty={pathToEldrichInvocation}></FeatDesign>
                     </>);
-                }
-            }
-        }
-
-        if (selectedInvocationNames.length > 0) {
-            for (let selectedInvocationName of selectedInvocationNames) {
-                if (selectedInvocationName) {
-                    
                 }
             }
         }

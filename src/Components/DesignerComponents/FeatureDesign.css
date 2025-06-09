@@ -16,3 +16,8 @@
 .featureHolder > * {
     width: 100%;
 }
+
+.selectFeatText {
+    font-weight: bold;
+    padding-bottom: .25em;
+}
