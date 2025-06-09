@@ -5,6 +5,8 @@ import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 import { CircleButton } from "../SimpleComponents/CircleButton";
 import { calculateBackgroundPointsBought } from "../../SharedFunctions/TabletopMathFunctions";
+import { FeatureDesign } from "./FeatureDesign";
+import { FeatDesign } from "./FeatDesign";
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -63,6 +65,8 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
         }
     }
 
+    const feats = getCollection("feats");
+
     return (<>
         <div className="backgroundDisplayer">
             <div className="backgroundAttributeLabel">{"Ability Scores Total: " + abilityScorePointsBought + "/" + maxAbilityScorePoints}</div>
@@ -75,10 +79,12 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
             <div className="backgroundEndOfSection">{skillProficienciesRows}</div>
             <div className="backgroundAttributeLabel">Tool Proficiencies</div>
             <div className="backgroundEndOfSection">{toolProficienciesRows}</div>
-            <div className="backgroundAttributeLabel">Feat</div>
-            <div className="backgroundEndOfSection">{rightTriangleUnicode + dndbackground.feat}</div>
             <div style={{display: (dndbackground.choices ? "block" : "none")}}>
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerConfigObjectForChoices={"background"} inputHandler={inputHandler}></ChoiceDesign>
+            </div>
+            <div className="backgroundAttributeLabel">Feat</div>
+            <div className="backgroundEndOfSection">
+                <FeatDesign baseStateObject={baseStateObject} inputHandler={inputHandler} selectedFeatName={dndbackground.feat} feats={feats} pathToFeatureProperty={"background"}></FeatDesign>
             </div>
         </div>
     </>)

@@ -1527,6 +1527,9 @@ export function calculateFeatures(playerConfigs) {
 }
 
 function findAllValidFeatures(playerConfigs, onFeatureFound) {
+    const dndSubclasses = getCollection("subclasses");
+    const name2DndSubclass = convertArrayToDictionary(dndSubclasses, "name");
+
     return findAllConfiguredAspects(playerConfigs, "features", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         switch (typeFoundOn) {
             case "class":
@@ -1540,6 +1543,17 @@ function findAllValidFeatures(playerConfigs, onFeatureFound) {
                 for (let speciesFeature of aspectValue) {
                     if (speciesFeature.level <= aspectPlayerConfigs.level) {
                         onFeatureFound(speciesFeature, typeFoundOn, playerConfigForObject);
+                    }
+                }
+                return;
+            case "subclass":
+                for (let subclassFeature of aspectValue) {
+                    const subclassName = playerConfigForObject.name;
+                    const subclass = name2DndSubclass[subclassName];
+                    const className = subclass.class;
+                    const classLevel = calculateAspectCollection(playerConfigs, "classLevel" + className);
+                    if (subclassFeature.classLevel <= classLevel) {
+                        onFeatureFound(subclassFeature, typeFoundOn, playerConfigForObject);
                     }
                 }
                 return;
@@ -1615,6 +1629,9 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
         case "knownSpells":
             const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
             return getAllSpells(playerConfigs, spellCastingFeatures);
+        case "knownSpellsNames":
+            const spellCastingFeatures2 = getAllSpellcastingFeatures(playerConfigs);
+            return getAllSpells(playerConfigs, spellCastingFeatures2).map(x => x.name);
         case "heldItems":
             return GetHeldItems(playerConfigs.items);
 
@@ -1682,6 +1699,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     const backgrounds = getCollection("backgrounds");
     const species = getCollection("species");
     const feats = getCollection('feats');
+    const eldrichinvocations = getCollection('eldrichinvocations');
     const subclasses = getCollection('subclasses');
 
     // Check the base player for the aspect.
@@ -1715,38 +1733,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                 const speciesFeature = allDndSpeciesFeatures[j];
                 if (!speciesFeature.level || speciesFeature.level <= playerConfigs.level) {
                     const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + speciesFeature.level;
-                    const speciesFeaturePlayerConfig = playerConfigs.species.features ? playerConfigs.species.features[featurePropertyName] : undefined;
-
-                    if (aspectName !== "feat") {
-                        const speciesFeatureAspectValue = getValueFromObjectAndPath(speciesFeature, aspectName);
-                        if (speciesFeatureAspectValue) {
-                            onAspectFound(playerConfigs, speciesFeatureAspectValue, "feature", speciesFeaturePlayerConfig);
-                        }
-                    }
-
-                    if (speciesFeature.choices) {
-                        findAspectsFromChoice(playerConfigs, speciesFeature, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feature", speciesFeaturePlayerConfig.choices));
-                    }
-
-                    if (speciesFeature.feat) {
-                        const selectedFeatName = speciesFeaturePlayerConfig?.name;
-                        if (selectedFeatName) {
-                            if (aspectName === "feat") {
-                                onAspectFound(playerConfigs, selectedFeatName, "feature", speciesFeaturePlayerConfig);
-                            }
-
-                            const dndfeat = feats.find(x => x.name === selectedFeatName);
-                            if (dndfeat) {
-                                if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
-                                    onAspectFound(playerConfigs, dndfeat.aspects[aspectName], "feat", playerConfigs.species.features[featurePropertyName]);
-                                }
-
-                                if (dndfeat.choices) {
-                                    findAspectsFromChoice(playerConfigs, dndfeat, "species.features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feat", speciesFeaturePlayerConfig.choices));
-                                }
-                            }
-                        }
-                    }
+                    processFeature(playerConfigs, aspectName, speciesFeature, playerConfigs.species, "species", featurePropertyName, { feats, eldrichinvocations }, onAspectFound);
                 }
             }
         }
@@ -1780,16 +1767,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                     const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
                     const classFeaturePlayerConfig = playerConfigs.classes[i].features ? playerConfigs.classes[i].features[featurePropertyName] : undefined;
 
-                    if (aspectName !== "feat") {
-                        const classFeatureAspectValue = getValueFromObjectAndPath(classFeature, aspectName);
-                        if (classFeatureAspectValue) {
-                            onAspectFound(playerConfigs, classFeatureAspectValue, "feature", classFeaturePlayerConfig);
-                        }
-                    }
-
-                    if (classFeature.choices) {
-                        findAspectsFromChoice(playerConfigs, classFeature, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feature", classFeaturePlayerConfig.choices));
-                    }
+                    processFeature(playerConfigs, aspectName, classFeature, playerConfigs.classes[i], "classes[" + i + "]", featurePropertyName, { feats, eldrichinvocations }, onAspectFound);
 
                     if (classFeature.subclass) {
                         const selectedSubclass = classFeaturePlayerConfig?.name;
@@ -1815,26 +1793,6 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                             }
                         }
                     }
-
-                    if (classFeature.feat) {
-                        const selectedFeatName = classFeaturePlayerConfig?.name;
-                        if (selectedFeatName) {
-                            if (aspectName === "feat") {
-                                onAspectFound(playerConfigs, selectedFeatName, "feature", classFeaturePlayerConfig);
-                            }
-
-                            const dndfeat = feats.find(x => x.name === selectedFeatName);
-                            if (dndfeat) {
-                                if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
-                                    onAspectFound(playerConfigs, dndfeat.aspects[aspectName], "feat", playerConfigs.classes[i].features[featurePropertyName]);
-                                }
-
-                                if (dndfeat.choices) {
-                                    findAspectsFromChoice(playerConfigs, dndfeat, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feat", classFeaturePlayerConfig.choices));
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -1851,27 +1809,21 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         if (dndBackground.feat) {
             const dndfeat = feats.find(x => x.name === dndBackground.feat);
             if (dndfeat) {
-                if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
-                    onAspectFound(playerConfigs, dndfeat.aspects[aspectName], "feat", playerConfigs.background);
-                }
-    
-                if (dndfeat.choices) {
-                    findAspectsFromChoice(playerConfigs, dndfeat, "background.choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feat", playerConfigs.background));
-                }
+                processFeat(playerConfigs, aspectName, dndBackground.feat, playerConfigs.background, "background", "feats", { feats, eldrichinvocations }, onAspectFound);
             }
         }
+    }
 
-        if (playerConfigs.items) {
-            // Check equipped items for the aspect.
-            const items = getCollection("items");
-            // Convert to a dictionary for quick searches because the list could be LONG.
-            const itemsDictionary = convertArrayToDictionary(items, "name");
-            for (let item of playerConfigs.items) {
-                if (item.equipped) {
-                    const dndItem = itemsDictionary[item.name];
-                    if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
-                        onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
-                    }
+    if (playerConfigs.items) {
+        // Check equipped items for the aspect.
+        const items = getCollection("items");
+        // Convert to a dictionary for quick searches because the list could be LONG.
+        const itemsDictionary = convertArrayToDictionary(items, "name");
+        for (let item of playerConfigs.items) {
+            if (item.equipped) {
+                const dndItem = itemsDictionary[item.name];
+                if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
+                    onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
                 }
             }
         }
@@ -1983,6 +1935,79 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                 }
             }
         }    
+    }
+}
+
+function processFeature(playerConfigs, aspectName, feature, playerConfigFeatureObject, pathToFeatureConfigObject, featurePropertyName, collections, onAspectFound) {
+    const playerConfigFeatureObjectFeature = playerConfigFeatureObject.features ? playerConfigFeatureObject.features[featurePropertyName] : undefined;
+    if (aspectName !== "feat" && aspectName !== "eldrichInvocations") {
+        const classFeatureAspectValue = getValueFromObjectAndPath(feature, aspectName);
+        if (classFeatureAspectValue) {
+            onAspectFound(playerConfigs, classFeatureAspectValue, "feature", playerConfigFeatureObjectFeature);
+        }
+    }
+    
+    if (feature.choices) {
+        findAspectsFromChoice(playerConfigs, feature, pathToFeatureConfigObject + ".features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feature", playerConfigFeatureObjectFeature.choices));
+    }
+
+    if (feature.feat) {
+        const selectedFeatName = playerConfigFeatureObjectFeature?.name;
+        if (selectedFeatName) {
+            const dndfeat = collections.feats.find(x => x.name === selectedFeatName);
+            if (dndfeat) {
+                processFeat(playerConfigs, aspectName, selectedFeatName, playerConfigFeatureObjectFeature, pathToFeatureConfigObject + ".features." + featurePropertyName, "feats", collections, onAspectFound);
+            }
+        }
+    }
+
+    if (feature.eldrichInvocations) {
+        const eldrichInvocations = playerConfigFeatureObjectFeature?.eldrichInvocations;
+        if (eldrichInvocations && eldrichInvocations.length > 0) {
+            for (let i = 0; i < eldrichInvocations.length; i++) {
+                const eldrichInvocation = eldrichInvocations[i];
+                if (eldrichInvocation) {
+                    processFeat(playerConfigs, aspectName, eldrichInvocation.name, eldrichInvocation, pathToFeatureConfigObject + ".features." + featurePropertyName + ".eldrichInvocations[" + i + "]", "eldrichinvocations", collections, onAspectFound);
+                }
+            }
+        }
+    }
+}
+
+function processFeat(playerConfigs, aspectName, selectedFeatName, playerConfigFeatureObjectFeature, pathToFeatureConfigObjectFeat, collection, collections, onAspectFound) {
+    if (aspectName === "feat") {
+        onAspectFound(playerConfigs, selectedFeatName, "feature", playerConfigFeatureObjectFeature);
+    }
+
+    const dndfeat = collections[collection].find(x => x.name === selectedFeatName);
+    if (dndfeat) {
+        if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
+            onAspectFound(playerConfigs, dndfeat.aspects[aspectName], "feat", playerConfigFeatureObjectFeature);
+        }
+
+        const allFeatures = dndfeat?.aspects?.features ? [...dndfeat.aspects.features] : [];
+        if (dndfeat.choices) {
+            findAspectsFromChoice(playerConfigs, dndfeat, pathToFeatureConfigObjectFeat + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "feat", playerConfigFeatureObjectFeature.choices));
+
+            findAspectsFromChoice(playerConfigs, dndfeat, pathToFeatureConfigObjectFeat, "features", (aspectValue) => {
+                for (let oneFeature of aspectValue) {
+                    allFeatures.push(oneFeature);
+                }
+            });
+        }
+
+        if (allFeatures.length > 0) {
+            for (let i = 0; i < allFeatures.length; i++) {
+                const featFeature = allFeatures[i];
+                if (featFeature) {
+                    const featureName = featFeature.name.replace(/\s/g, "");
+
+                    if (featFeature) {
+                        processFeature(playerConfigs, aspectName, featFeature, playerConfigFeatureObjectFeature, pathToFeatureConfigObjectFeat, featureName, collections, onAspectFound);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -2664,7 +2689,7 @@ export function getAllSpells(playerConfig, spellcastingFeatures) {
                 }
             }
 
-            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel);
+            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel ?? "");
             const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
             if (userInputForSpells && userInputForSpells.cantrips) {
                 for (let cantripName of userInputForSpells.cantrips) {
@@ -2694,7 +2719,7 @@ export function getAllSpells(playerConfig, spellcastingFeatures) {
                 }
             }
 
-            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel);
+            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel ?? "");
             const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
             if (userInputForSpells && userInputForSpells.spells) {
                 for (let cantripName of userInputForSpells.spells) {
