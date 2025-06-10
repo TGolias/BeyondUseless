@@ -2204,7 +2204,7 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
         return 0;
     };
     const performSpecialTransformations = (playerConfigs, singleCalculation, singleValue) => {
-        if (singleCalculation.type === "if-then") {
+        if (singleCalculation.type === "if-then" || singleCalculation.type === "multiple-if") {
             // It is already in the correct format.
             return singleValue;
         }
@@ -2260,7 +2260,7 @@ export function computeAverageDiceRoll(diceObjectWithType) {
     for (let diceType of Object.keys(diceObjectWithType)) {
         const diceObject = diceObjectWithType[diceType];
         for (let diceObjectKey of Object.keys(diceObject)) {
-            if (diceObjectKey === "static") {
+            if (diceObjectKey === "") {
                 total += diceObject[diceObjectKey];
             }
             else if (diceObjectKey.startsWith("d")) {
@@ -2339,7 +2339,7 @@ export function addDiceObjectsWithTypeTogether(diceObjectWithType1, diceObjectWi
 
 export function addDiceObjectsTogether(diceObject1, diceObject2) {
     if (Array.isArray(diceObject2)) {
-        diceObject1["static"] = concatStringArrayToAndStringWithCommas(diceObject2);
+        diceObject1[""] = concatStringArrayToAndStringWithCommas(diceObject2);
     } else if (isObject(diceObject2)) {
         // The value to add is a die object. Iterate through each of the dice and add them to our totals.
         for (let key of Object.keys(diceObject2)) {
@@ -2351,10 +2351,10 @@ export function addDiceObjectsTogether(diceObject1, diceObject2) {
         }
     } else {
         // The value to add is just a numeric value. Add it to the "static" amount.
-        if (diceObject1["static"]) {
-            diceObject1["static"] += diceObject2;
+        if (diceObject1[""]) {
+            diceObject1[""] += diceObject2;
         } else {
-            diceObject1["static"] = diceObject2;
+            diceObject1[""] = diceObject2;
         }
     }
     return diceObject1;

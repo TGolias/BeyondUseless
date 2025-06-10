@@ -103,7 +103,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
 
         if (featureAction.type.includes("buff")) {
             if (featureAction.buff.calculation) {
-                buffAmount = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "buff", "buffBonus", [], { userInput: data.userInput });
+                const buffAmountString = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "buff", "buffBonus", [], { userInput: data.userInput });
+                if (buffAmountString) {
+                    buffAmount = parseStringForBoldMarkup(buffAmountString);
+                }
             }
             buffDescription = featureAction.buff.description;
         }
@@ -135,7 +138,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         if (featureAction.type.includes("healing")) {
             healing = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "healing", "healingBonus", [], { userInput: data.userInput });
             if (healing) {
-                healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], [], { userInput: data.userInput });
+                const healingAddendumString = calculateAddendumAspects(playerConfigs, ["healingAddendum"], [], { userInput: data.userInput });
+                if (healingAddendumString) {
+                    healingAddendum = parseStringForBoldMarkup(healingAddendumString);
+                }
             }
         }
 
