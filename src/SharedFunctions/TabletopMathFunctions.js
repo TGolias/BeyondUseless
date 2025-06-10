@@ -1705,6 +1705,10 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
     }
 }
 
+let findAllConfiguredAspects_collections = undefined;
+let findAllConfiguredAspects_lastAspects = {};
+let findAllConfiguredAspects_levelsDeep = 0;
+
 function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, onAspectFound) {
     const backgrounds = getCollection("backgrounds");
     const species = getCollection("species");
@@ -1851,44 +1855,6 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         }
     }
 
-    if (aspectName !== "features") {
-        if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
-            const dndConditions = getCollection("conditions");
-            const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
-            // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
-            const dndConditionsChecked = {};
-            for (let playerCondition of playerConfigs.currentStatus.conditions) {
-                findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "condition", playerCondition));
-            }
-        }
-
-        const collections = {};
-        if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
-            for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
-                processActiveEffect(playerConfigs, playerConfigs, activeEffect, collections, aspectName, onAspectFound);
-
-                if (activeEffect.allies) {
-                    for (let ally of activeEffect.allies) {
-                        findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
-                            for (let parentAspectName of Object.keys(parentAspect)) {
-                                if (parentAspectName === aspectName) {
-                                    const aspectValue = parentAspect[parentAspectName];
-                                    onAspectFound(aspectPlayerConfigs, aspectValue, "ally", ally);
-                                }
-                            }
-                        });
-
-                        checkAllyForActiveEffects(playerConfigs, ally, collections, aspectName, onAspectFound);
-                    }
-                }
-            }
-        }
-
-        if (playerConfigs.parent) {
-            checkParentForActiveEffects(playerConfigs, playerConfigs.parent, collections, aspectName, onAspectFound);
-        }
-    }
-
     if (playerConfigs?.statBlocks && playerConfigs.statBlocks.length > 0) {
         const allStatBlocks = getCollection("statblocks");
         const statBlockMap = convertArrayToDictionary(allStatBlocks, "name");
@@ -1944,6 +1910,59 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                     }
                 }
             }
+        }
+    }
+
+    // TODO: Right now there's an infinite recursion problem if this is visited more than once. 
+    // There's likely a better solution than what I have implemented here. We basically don't allow a lower callstack to execute for an aspect if a higher callstack already has.
+    // It re-iterates in processActiveEffect, maybe the caching needs to be done in there instead so that caculating out an active effect doesn't take itself into account when doing so?
+    // As far as I am aware this hasn't caused any problems yet, so maybe it's fine to leave it like this for now, since it's only for calculating aspects on active effects, and I can't think of examples of active effects affecting other active effects...
+    if (findAllConfiguredAspects_lastAspects[aspectName]) {
+        if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
+            const dndConditions = getCollection("conditions");
+            const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
+            // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
+            const dndConditionsChecked = {};
+            for (let playerCondition of playerConfigs.currentStatus.conditions) {
+                findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "condition", playerCondition));
+            }
+        }
+
+        if (findAllConfiguredAspects_levelsDeep === 0) {
+            findAllConfiguredAspects_collections = {};
+        }
+        findAllConfiguredAspects_levelsDeep++;
+        findAllConfiguredAspects_lastAspects[aspectName] = true;
+
+        if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
+            for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
+                processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+
+                if (activeEffect.allies) {
+                    for (let ally of activeEffect.allies) {
+                        findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
+                            for (let parentAspectName of Object.keys(parentAspect)) {
+                                if (parentAspectName === aspectName) {
+                                    const aspectValue = parentAspect[parentAspectName];
+                                    onAspectFound(aspectPlayerConfigs, aspectValue, "ally", ally);
+                                }
+                            }
+                        });
+
+                        checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+                    }
+                }
+            }
+        }
+
+        if (playerConfigs.parent) {
+            checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+        }
+
+        findAllConfiguredAspects_levelsDeep--;
+        delete findAllConfiguredAspects_lastAspects[aspectName];
+        if (findAllConfiguredAspects_levelsDeep === 0) {
+            findAllConfiguredAspects_collections = undefined;
         }
     }
 }
