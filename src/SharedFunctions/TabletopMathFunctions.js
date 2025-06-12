@@ -1055,9 +1055,8 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
     if ((!isExtraLightAttack && !isExtraCleaveAttack) || highestValidAbilityModifier < 0) {
         damage = addDiceObjectsWithTypeTogether(damage, highestValidAbilityModifier);
     }
-    
+
     // See if there are additional bonuses to apply to our damage.
-    let totalDamageBonus = undefined;
     findAllConfiguredAspects(playerConfigs, "weaponDamageBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
             const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject, additionalEffects });
@@ -1074,15 +1073,36 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
             weaponDamageBonus = aspectValue;
         }
 
-        if (totalDamageBonus) {
-            totalDamageBonus = addDiceObjectsWithTypeTogether(totalDamageBonus, weaponDamageBonus);
+        damage = addDiceObjectsWithTypeTogether(damage, weaponDamageBonus);
+    });
+    
+    // See if there are additional bonuses to apply to our damage.
+    let additionalWeaponDamage = undefined;
+    findAllConfiguredAspects(playerConfigs, "weaponDamageAdditional", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject, additionalEffects });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let weaponDamageAdditional;
+        if (aspectValue.calculation) {
+            weaponDamageAdditional = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject, additionalEffects });
         } else {
-            totalDamageBonus = weaponDamageBonus;
+            weaponDamageAdditional = aspectValue;
+        }
+
+        if (additionalWeaponDamage) {
+            additionalWeaponDamage = addDiceObjectsWithTypeTogether(additionalWeaponDamage, weaponDamageAdditional);
+        } else {
+            additionalWeaponDamage = weaponDamageAdditional;
         }  
     });
 
-    if (totalDamageBonus) {
-        damage = addDiceObjectsWithTypeTogether(damage, totalDamageBonus);
+    if (additionalWeaponDamage) {
+        damage = addDiceObjectsWithTypeTogether(damage, additionalWeaponDamage);
     }
 
     const finalDamage = convertDiceRollWithTypeToValue(damage);
@@ -1917,7 +1937,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     // There's likely a better solution than what I have implemented here. We basically don't allow a lower callstack to execute for an aspect if a higher callstack already has.
     // It re-iterates in processActiveEffect, maybe the caching needs to be done in there instead so that caculating out an active effect doesn't take itself into account when doing so?
     // As far as I am aware this hasn't caused any problems yet, so maybe it's fine to leave it like this for now, since it's only for calculating aspects on active effects, and I can't think of examples of active effects affecting other active effects...
-    if (findAllConfiguredAspects_lastAspects[aspectName]) {
+    if (!findAllConfiguredAspects_lastAspects[aspectName]) {
         if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
             const dndConditions = getCollection("conditions");
             const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
@@ -1933,36 +1953,37 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         }
         findAllConfiguredAspects_levelsDeep++;
         findAllConfiguredAspects_lastAspects[aspectName] = true;
+        try {
+            if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
+                for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
+                    processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_collections, aspectName, onAspectFound);
 
-        if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
-            for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
-                processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_collections, aspectName, onAspectFound);
-
-                if (activeEffect.allies) {
-                    for (let ally of activeEffect.allies) {
-                        findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
-                            for (let parentAspectName of Object.keys(parentAspect)) {
-                                if (parentAspectName === aspectName) {
-                                    const aspectValue = parentAspect[parentAspectName];
-                                    onAspectFound(aspectPlayerConfigs, aspectValue, "ally", ally);
+                    if (activeEffect.allies) {
+                        for (let ally of activeEffect.allies) {
+                            findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
+                                for (let parentAspectName of Object.keys(parentAspect)) {
+                                    if (parentAspectName === aspectName) {
+                                        const aspectValue = parentAspect[parentAspectName];
+                                        onAspectFound(aspectPlayerConfigs, aspectValue, "ally", ally);
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                        checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+                            checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+                        }
                     }
                 }
             }
-        }
 
-        if (playerConfigs.parent) {
-            checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_collections, aspectName, onAspectFound);
-        }
-
-        findAllConfiguredAspects_levelsDeep--;
-        delete findAllConfiguredAspects_lastAspects[aspectName];
-        if (findAllConfiguredAspects_levelsDeep === 0) {
-            findAllConfiguredAspects_collections = undefined;
+            if (playerConfigs.parent) {
+                checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+            }
+        } finally {
+            findAllConfiguredAspects_levelsDeep--;
+            delete findAllConfiguredAspects_lastAspects[aspectName];
+            if (findAllConfiguredAspects_levelsDeep === 0) {
+                findAllConfiguredAspects_collections = undefined;
+            }
         }
     }
 }
@@ -2279,7 +2300,7 @@ export function computeAverageDiceRoll(diceObjectWithType) {
     for (let diceType of Object.keys(diceObjectWithType)) {
         const diceObject = diceObjectWithType[diceType];
         for (let diceObjectKey of Object.keys(diceObject)) {
-            if (diceObjectKey === "") {
+            if (diceObjectKey === "static") {
                 total += diceObject[diceObjectKey];
             }
             else if (diceObjectKey.startsWith("d")) {
@@ -2358,7 +2379,7 @@ export function addDiceObjectsWithTypeTogether(diceObjectWithType1, diceObjectWi
 
 export function addDiceObjectsTogether(diceObject1, diceObject2) {
     if (Array.isArray(diceObject2)) {
-        diceObject1[""] = concatStringArrayToAndStringWithCommas(diceObject2);
+        diceObject1["static"] = concatStringArrayToAndStringWithCommas(diceObject2);
     } else if (isObject(diceObject2)) {
         // The value to add is a die object. Iterate through each of the dice and add them to our totals.
         for (let key of Object.keys(diceObject2)) {
@@ -2370,10 +2391,10 @@ export function addDiceObjectsTogether(diceObject1, diceObject2) {
         }
     } else {
         // The value to add is just a numeric value. Add it to the "static" amount.
-        if (diceObject1[""]) {
-            diceObject1[""] += diceObject2;
+        if (diceObject1["static"]) {
+            diceObject1["static"] += diceObject2;
         } else {
-            diceObject1[""] = diceObject2;
+            diceObject1["static"] = diceObject2;
         }
     }
     return diceObject1;
