@@ -151,6 +151,25 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
                 }
             }
             break;
+        case "feat":
+            if (originName) {
+                const allFeats = getCollection("feats");
+                const feat = allFeats.find(x => x.name === originName);
+                const featResource = feat.resources.find(resource => resource.name === resourceName);
+                const resource = {...featResource};
+
+                resource.maxUses = GetUsesForResource(playerConfigs, featResource, undefined, actionFeature.playerConfigForObject);
+
+                let remainingUses;
+                if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
+                    remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
+                } else {
+                    remainingUses = resource.maxUses;
+                }
+                resource.remainingUses = remainingUses;
+                return resource;
+            }
+            break;
         case "homebrew":
             if (originName) {
                 const allHomebrew = getCollection("homebrew");
@@ -239,6 +258,10 @@ function getFeatureOrigin(actionFeature) {
             const allStatBlocks = getCollection("statblocks");
             const dndStatblock = allStatBlocks.find(singleDndStatblock => singleDndStatblock.name === actionFeature.playerConfigForObject.name);
             return { type: "statblock", value: dndStatblock };
+        case "feat":
+            const allFeats = getCollection("feats");
+            const dndFeat = allFeats.find(dndFeat => dndFeat.name === actionFeature.playerConfigForObject.name);
+            return {type: "feat", value: dndFeat };
         case "homebrew":
             const allHomebrew = getCollection("homebrew");
             const dndHomebrew = allHomebrew.find(singleHomebrew => singleHomebrew.name === actionFeature.playerConfigForObject.name);

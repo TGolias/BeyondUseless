@@ -2873,3 +2873,15 @@ export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefin
     }
     return undefined;
 }
+
+export function getAllResources(resourceSource) {
+    const newResources = [];
+    for (let originalResource of resourceSource.resources) {
+        if (originalResource.combineGlobalResources) {
+
+        } else {
+            newResources.push({...originalResource});
+        }
+    }
+    return newResources;
+}
