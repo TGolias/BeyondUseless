@@ -2774,9 +2774,11 @@ export function getAllSpells(playerConfigs, spellcastingFeatures) {
             const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
             if (userInputForSpells && userInputForSpells.cantrips) {
                 for (let cantripName of userInputForSpells.cantrips) {
-                    const cantripToAdd = {...cantripName2Cantrip[cantripName]};
-                    cantripToAdd.feature = spellcastingFeature.feature;
-                    addSpellToSortedCollection(sortedCantripsCollection, cantripToAdd);
+                    if (cantripName) {
+                        const cantripToAdd = {...cantripName2Cantrip[cantripName]};
+                        cantripToAdd.feature = spellcastingFeature.feature;
+                        addSpellToSortedCollection(sortedCantripsCollection, cantripToAdd);
+                    }
                 }
             }
         }
@@ -2803,17 +2805,19 @@ export function getAllSpells(playerConfigs, spellcastingFeatures) {
             const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel ?? "");
             const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
             if (userInputForSpells && userInputForSpells.spells) {
-                for (let cantripName of userInputForSpells.spells) {
-                    const spellToAdd = {...spellName2Spell[cantripName]};
-                    spellToAdd.feature = spellcastingFeature.feature;
-                    if (spellcasting.spellsKnown.freeUses) {
-                        if (spellcasting.spellsKnown.freeUses.calculation) {
-                            spellToAdd.freeUses = performMathCalculation(playerConfigs, spellcasting.spellsKnown.freeUses.calculation);
-                        } else if (spellcasting.spellsKnown.freeUses > 0) {
-                            spellToAdd.freeUses = spellcasting.spellsKnown.freeUses;
+                for (let spellName of userInputForSpells.spells) {
+                    if (spellName) {
+                        const spellToAdd = {...spellName2Spell[spellName]};
+                        spellToAdd.feature = spellcastingFeature.feature;
+                        if (spellcasting.spellsKnown.freeUses) {
+                            if (spellcasting.spellsKnown.freeUses.calculation) {
+                                spellToAdd.freeUses = performMathCalculation(playerConfigs, spellcasting.spellsKnown.freeUses.calculation);
+                            } else if (spellcasting.spellsKnown.freeUses > 0) {
+                                spellToAdd.freeUses = spellcasting.spellsKnown.freeUses;
+                            }
                         }
+                        addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
                     }
-                    addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
                 }
             }
         }
