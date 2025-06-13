@@ -173,8 +173,12 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
     }
 
     if (dndClass) {
-        const classResource = dndClass.resources.find(resource => resource.name === resourceName);
+        // TODO: Continue here next time. Need to be able to retrieve global resources and have them be their own thing as far is this is concerned here.
+        const classResource = dndClass.resources.find(resource => resource.name === resourceName || resource.combineGlobalResources && (resource.name + resource.subName) === resourceName);
         const resource = {...classResource};
+        if (resource.name !== resourceName && resource.combineGlobalResources) {
+            resource.displayName = resource.subDisplayName + " " + resource.displayName;
+        }
 
         const classLevel = actionFeature.playerConfigForObject.levels;
         resource.classLevel = classLevel;

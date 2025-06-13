@@ -1664,6 +1664,8 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return getAllSpells(playerConfigs, spellCastingFeatures2).map(x => x.name);
         case "heldItems":
             return GetHeldItems(playerConfigs.items);
+        case "metamagic":
+            return getAllSelectedMetamagicOptions(playerConfigs);
 
     }
 
@@ -2733,7 +2735,21 @@ export function doesItemHaveConsumeAction(dndItem) {
     return dndItem && dndItem.consumable && dndItem.consumeEffect;
 }
 
-export function getAllSpells(playerConfig, spellcastingFeatures) {
+export function getAllSelectedMetamagicOptions(playerConfigs) {
+    let allMetamagicOptions = [];
+    findAllConfiguredAspects(playerConfigs, "metamagic", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
+        if (playerConfigForObject) {
+            if (Array.isArray(playerConfigForObject.metamagic)) {
+                allMetamagicOptions = [...allMetamagicOptions, ...playerConfigForObject.metamagic];
+            } else {
+                allMetamagicOptions.push(playerConfigForObject.metamagic);
+            }
+        }
+    });
+    return allMetamagicOptions;
+}
+
+export function getAllSpells(playerConfigs, spellcastingFeatures) {
     // Get all spells and cantrips built into dictionaries for instant lookup.
     let allCantrips = getCollection("cantrips");
     const cantripName2Cantrip = convertArrayToDictionary(allCantrips, "name");
@@ -2774,7 +2790,7 @@ export function getAllSpells(playerConfig, spellcastingFeatures) {
                         spellToAdd.feature = spellcastingFeature.feature;
                         if (predeterminedSelection.freeUses) {
                             if (predeterminedSelection.freeUses.calculation) {
-                                spellToAdd.freeUses = performMathCalculation(playerConfig, predeterminedSelection.freeUses.calculation);
+                                spellToAdd.freeUses = performMathCalculation(playerConfigs, predeterminedSelection.freeUses.calculation);
                             } else if (predeterminedSelection.freeUses > 0) {
                                 spellToAdd.freeUses = predeterminedSelection.freeUses;
                             }
@@ -2792,7 +2808,7 @@ export function getAllSpells(playerConfig, spellcastingFeatures) {
                     spellToAdd.feature = spellcastingFeature.feature;
                     if (spellcasting.spellsKnown.freeUses) {
                         if (spellcasting.spellsKnown.freeUses.calculation) {
-                            spellToAdd.freeUses = performMathCalculation(playerConfig, spellcasting.spellsKnown.freeUses.calculation);
+                            spellToAdd.freeUses = performMathCalculation(playerConfigs, spellcasting.spellsKnown.freeUses.calculation);
                         } else if (spellcasting.spellsKnown.freeUses > 0) {
                             spellToAdd.freeUses = spellcasting.spellsKnown.freeUses;
                         }

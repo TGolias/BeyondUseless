@@ -211,7 +211,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                             }
                         }
 
-                        restoreSpellSlot = "\nLVL " + slotLevel + " Spell Slots: +";
+                        restoreSpellSlot = "\nLVL " + slotLevel + " Spell Slots: +" + amountRestored;
                     }
                 }
             }

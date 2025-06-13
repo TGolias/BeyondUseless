@@ -5,7 +5,6 @@ import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 import { CircleButton } from "../SimpleComponents/CircleButton";
 import { calculateBackgroundPointsBought } from "../../SharedFunctions/TabletopMathFunctions";
-import { FeatureDesign } from "./FeatureDesign";
 import { FeatDesign } from "./FeatDesign";
 
 const rightTriangleUnicode = '\u25B6';
@@ -83,6 +82,7 @@ export function BackgroundDesign({baseStateObject, inputHandler}) {
                 <ChoiceDesign baseStateObject={baseStateObject} choiceObject={dndbackground} pathToPlayerConfigObjectForChoices={"background"} inputHandler={inputHandler}></ChoiceDesign>
             </div>
             <div className="backgroundAttributeLabel">Feat</div>
+            <div>{rightTriangleUnicode + dndbackground.feat}</div>
             <div className="backgroundEndOfSection">
                 <FeatDesign baseStateObject={baseStateObject} inputHandler={inputHandler} selectedFeatName={dndbackground.feat} feats={feats} pathToFeatureProperty={"background"}></FeatDesign>
             </div>

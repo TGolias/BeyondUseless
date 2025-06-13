@@ -54,6 +54,10 @@ const allCollections = [
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/masteries.json"
     },
     {
+        name: "metamagic",
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/metamagic.json"
+    },
+    {
         name: "misc",
         url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/misc.json"
     },

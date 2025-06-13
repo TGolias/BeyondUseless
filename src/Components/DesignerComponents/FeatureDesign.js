@@ -5,7 +5,7 @@ import { getCollection } from "../../Collections";
 import { calculateAspectCollection, getAllSpellcastingFeatures, getAllSpells, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
-import { convertArrayToDictionary } from "../../SharedFunctions/Utils";
+import { convertArrayOfStringsToHashMap, convertArrayToDictionary } from "../../SharedFunctions/Utils";
 import { FeatDesign } from "./FeatDesign";
 
 const rightTriangleUnicode = '\u25B6';
@@ -184,6 +184,31 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 }
             }
         }
+    }
+
+    if (feature.metamagic) {
+        const metamagicOptions = getCollection("metamagic");
+        const alreadySelectedMetamagicOptions = calculateAspectCollection(baseStateObject, "metamagic");
+        const alreadySelectedMetamagicOptionsMap = convertArrayOfStringsToHashMap(alreadySelectedMetamagicOptions);
+
+        const optionsKnown = performMathCalculation(baseStateObject, feature.metamagic.optionsKnown.calculation, parameters);
+
+        if (feature.metamagic.sorceryPointResource) {
+            const sorceryPointResource = performMathCalculation(baseStateObject, feature.metamagic.sorceryPointResource.calculation, parameters);
+            featureContent.push(<>
+                <div>{rightTriangleUnicode}Sorcery Points: {sorceryPointResource}</div>
+            </>);
+        }
+
+        for (let i = 0; i < optionsKnown; i++) {
+            const pathToMetamagic = pathToFeatureProperty + ".metamagic[" + i + "]";
+            const selectedInvocationName = getValueFromObjectAndPath(baseStateObject, pathToMetamagic);
+
+            const filteredMetamagicOptions = metamagicOptions.filter(x => x.name === selectedInvocationName || !alreadySelectedMetamagicOptionsMap[x.name]).map(x => x.name);
+            featureContent.push(<>
+                <SelectList options={filteredMetamagicOptions} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".metamagic[" + i + "]"} inputHandler={inputHandler}></SelectList>
+            </>);
+        }  
     }
 
     if (feature.choices) {
