@@ -1,15 +1,16 @@
 import React from "react";
 import './UserInputsComponent.css'
-import { getPactSlotLevel, getSpellcastingLevel, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateHitDiceMap, getPactSlotLevel, getSpellcastingLevel, performBooleanCalculation, performDiceRollCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { CheckListInput } from "../SimpleComponents/CheckListInput";
 import { SelectList } from "../SimpleComponents/SelectList";
 import { UseSpellSlotComponent } from "./UseSpellSlotComponent";
 import { getCollection } from "../../Collections";
+import { playAudio } from "../../SharedFunctions/Utils";
 
 const userInputTypes = {
     textField: {
-        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
             if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
                 menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, "");
             }
@@ -23,13 +24,13 @@ const userInputTypes = {
         }
     },
     numberField: {
-        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
             if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
                 menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, 0);
             }
 
-            const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
-            const max = singleUserInput.max ? performMathCalculation(playerConfigs, singleUserInput.max, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : undefined;
+            const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { ...data, resource: menuConfig.resource }) : undefined;
+            const max = singleUserInput.max ? performMathCalculation(playerConfigs, singleUserInput.max, { ...data, resource: menuConfig.resource }) : undefined;
             return (<>
                 <div className="userInputsSingleInput">
                     <div>{singleUserInput.displayName}</div>
@@ -39,12 +40,12 @@ const userInputTypes = {
         }
     },
     checkboxList: {
-        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
             if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
                 menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, []);
             }
 
-            const allCheckboxValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+            const allCheckboxValues = performMathCalculation(playerConfigs, singleUserInput.values, { ...data, resource: menuConfig.resource });
             return (<>
                 <div className="userInputsSingleInput">
                     <div>{singleUserInput.displayName}</div>
@@ -54,12 +55,12 @@ const userInputTypes = {
         }
     },
     selectList: {
-        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
             if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
                 menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, undefined);
             }
             
-            let allSelectListValues = performMathCalculation(playerConfigs, singleUserInput.values, { userInput: menuConfig.userInput, resource: menuConfig.resource });
+            let allSelectListValues = performMathCalculation(playerConfigs, singleUserInput.values, { ...data, resource: menuConfig.resource });
             if (singleUserInput.optionFilter) {
                 allSelectListValues = allSelectListValues.filter(option => performBooleanCalculation(playerConfigs, singleUserInput.optionFilter, { option }));
             }
@@ -75,8 +76,8 @@ const userInputTypes = {
         }
     },
     consumeSpellSlot: {
-        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler) => {
-            const minLevel = singleUserInput.minLevel ? performMathCalculation(playerConfigs, singleUserInput.minLevel, { userInput: menuConfig.userInput, resource: menuConfig.resource }) : 1;
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
+            const minLevel = singleUserInput.minLevel ? performMathCalculation(playerConfigs, singleUserInput.minLevel, { ...data, resource: menuConfig.resource }) : 1;
             if (!menuConfig.useSpellSlotLevel) {
                 menuStateChangeHandler(menuConfig, "useSpellSlotLevel", minLevel);
             }
@@ -136,15 +137,113 @@ const userInputTypes = {
                 </div>
             </>);
         }
+    },
+    consumeHitDice: {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, 0);
+            }
+
+            const min = singleUserInput.min ? performMathCalculation(playerConfigs, singleUserInput.min, { ...data, resource: menuConfig.resource }) : undefined;
+            const max = singleUserInput.max ? performMathCalculation(playerConfigs, singleUserInput.max, { ...data, resource: menuConfig.resource }) : undefined;
+
+            let totalToBeExpendedString = "";
+            let totalDiceUsedNow = 0;
+            let totalDiceCalculation = [];
+            
+            const hitDiceMap = calculateHitDiceMap(playerConfigs);
+            const hitDiceControls = [];
+        
+            const oldExpendedDice = playerConfigs.currentStatus.remainingHitDice ?? {};
+        
+            for (let hitDieType of Object.keys(hitDiceMap)) {
+                const singleHitDieRows = [];
+        
+                const totalDice = hitDiceMap[hitDieType];
+                const diceUsedPrior = oldExpendedDice[hitDieType] ?? 0;
+        
+                const totalDiceToExpendNow = totalDice - diceUsedPrior;
+                const diceUsedIncludingNow = menuConfig?.remainingHitDice && menuConfig?.remainingHitDice[hitDieType] ? menuConfig?.remainingHitDice[hitDieType] : 0;
+                const diceUsedNow = diceUsedIncludingNow - diceUsedPrior;
+                const remainingDiceToExpendNow = totalDiceToExpendNow - diceUsedNow;
+
+                let calculationForDieType = {
+                    type: "dieRoll",
+                    value: parseInt(hitDieType),
+                    multiplier: [
+                        {
+                            type: "static",
+                            value: diceUsedNow
+                        }
+                    ]
+                }
+                totalDiceCalculation.push(calculationForDieType);
+        
+                if (diceUsedNow > 0) {
+                    totalDiceUsedNow += diceUsedNow;
+                    if (totalToBeExpendedString.length > 0) {
+                        totalToBeExpendedString += " + "
+                    }
+                    totalToBeExpendedString += (diceUsedNow + "d" + hitDieType);
+                }
+        
+                singleHitDieRows.push(<div>{"d" + hitDieType + " total: " + totalDice}</div>);
+                if (diceUsedPrior > 0) {
+                    singleHitDieRows.push(<div>{"Expended prior: " + diceUsedPrior}</div>);
+                }
+                if (totalDiceToExpendNow > 0) {
+                    let expendedUsesString = "";
+                    for (let i = 0; i < totalDiceToExpendNow; i++) {
+                        if (i == 10) {
+                            expendedUsesString += "\n";
+                        }
+        
+                        if (i < diceUsedNow) {
+                            expendedUsesString += "X";
+                        } else {
+                            expendedUsesString += "O";
+                        }
+                    }
+        
+                    singleHitDieRows.push(<div>{"Available to expend: " + totalDiceToExpendNow}</div>);
+                    singleHitDieRows.push(<div className="hitDiceToExpend">{expendedUsesString}</div>)
+                }
+        
+                hitDiceControls.push(<>
+                    <div onClick={() => {
+                        if (remainingDiceToExpendNow > 0 && totalDiceUsedNow < max) {
+                            if (!menuConfig.remainingHitDice) {
+                                menuConfig.remainingHitDice = {}
+                            }
+
+                            menuConfig.remainingHitDice[hitDieType] = diceUsedIncludingNow + 1;
+
+                            calculationForDieType.multiplier[0].value = diceUsedNow + 1
+
+                            menuConfig.userInput[singleUserInput.name] = performDiceRollCalculation(playerConfigs, totalDiceCalculation)[""];
+                            menuStateChangeHandler(menuConfig, "", menuConfig);
+                            playAudio("selectionaudio");
+                        }
+                    }}>{singleHitDieRows}</div>
+                </>)
+            }
+
+            return (<>
+                <div className="userInputsSingleInput">
+                    <div>{singleUserInput.displayName}</div>
+                    {hitDiceControls}
+                </div>
+            </>);
+        }
     }
 }
 
-export function UserInputsComponent({playerConfigs, menuConfig, userInputConfig, menuStateChangeHandler}) {
+export function UserInputsComponent({playerConfigs, menuConfig, userInputConfig, menuStateChangeHandler, data}) {
 
     let userInput = [];
     if (userInputConfig) {
         for (let singleUserInput of userInputConfig) {
-            userInput.push(userInputTypes[singleUserInput.type].generateControl(playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler));
+            userInput.push(userInputTypes[singleUserInput.type].generateControl(playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data));
         }
     }
 

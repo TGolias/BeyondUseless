@@ -11,10 +11,13 @@ export function ActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuC
 
     const userInputRows = [];
     let userInputsAllHaveValues = true;
+
+    const data = {};
+    data.userInput = menuConfig.userInput;
     if (menuConfig.action.userInput && menuConfig.action.userInput.length) {
         userInputRows.push(<>
             <div className="centerMenuSeperator"></div>
-            <UserInputsComponent playerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.action.userInput}></UserInputsComponent>
+            <UserInputsComponent playerConfigs={playerConfigs} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.action.userInput}></UserInputsComponent>
         </>);
 
         for (const userInput of menuConfig.action.userInput) {
@@ -24,9 +27,6 @@ export function ActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuC
             }
         }
     }
-
-    const data = {};
-    data.userInput = menuConfig.userInput;
 
     return (<>
         <div className="actionMenuWrapperDiv">

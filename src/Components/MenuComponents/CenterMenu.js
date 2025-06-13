@@ -114,6 +114,7 @@ const menuCollection = {
             newSpellMenu.useRitual = false;
             newSpellMenu.hpIsChanging = false;
             newSpellMenu.healAmount = 0;
+            newSpellMenu.remainingHitDice = playerConfigs.currentStatus?.remainingHitDice ? {...playerConfigs.currentStatus?.remainingHitDice} : {};
             newSpellMenu.copyLinkToSpell = {};
             return newSpellMenu;
         },

@@ -32,7 +32,7 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
     }
 
     controlsDisplay.push(<>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={featureActionUserInput}></UserInputsComponent>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={featureActionUserInput}></UserInputsComponent>
     </>);
 
     // See if there is a spell slot input.

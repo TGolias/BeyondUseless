@@ -148,7 +148,7 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
             <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
         <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
         <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} pactSlotCastLevel={pactSlotCastLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
@@ -160,6 +160,11 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
 }
 
 function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+    // If any hit dice are expended, put them on the new player configs.
+    if (menuConfig.remainingHitDice) {
+        playerConfigsClone.currentStatus.remainingHitDice = menuConfig.remainingHitDice;
+    }
+
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
         inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });

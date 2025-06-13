@@ -20,7 +20,7 @@ export function HomebrewDesign({baseStateObject, inputHandler, homebrewIndex}) {
 
     if (dndHomebrew.userInput) {
         controls.push(<>
-            <UserInputsComponent playerConfigs={baseStateObject} userInputConfig={dndHomebrew.userInput} menuConfig={characterHomebrewCopy} menuStateChangeHandler={(bso, ptp, newValue) => {
+            <UserInputsComponent playerConfigs={baseStateObject} userInputConfig={dndHomebrew.userInput} data={characterHomebrewCopy} menuConfig={characterHomebrewCopy} menuStateChangeHandler={(bso, ptp, newValue) => {
                 inputHandler(baseStateObject, "homebrew[" + homebrewIndex + "]." + ptp, newValue);
             }}></UserInputsComponent>
         </>);
