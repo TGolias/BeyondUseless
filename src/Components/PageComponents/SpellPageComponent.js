@@ -1,9 +1,9 @@
 import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
     let castingTime = "";
@@ -162,8 +162,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                         if (!debuffDescription) {
                             debuffDescription = "";
                         }
-                        const allConditions = getCollection("conditions");
-                        const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+                        const allConditionsMap = getNameDictionaryForCollection("conditions");
                         for (let condition of spell.debuff.conditions) {
                             const dndCondition = allConditionsMap[condition];
                             if (debuffDescription.length > 0) {

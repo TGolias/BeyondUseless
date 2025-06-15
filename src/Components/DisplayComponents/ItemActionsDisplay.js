@@ -1,8 +1,8 @@
 import React from 'react';
 import './ItemActionsDisplay.css';
 import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
-import { getCollection } from '../../Collections';
-import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
+import { getNameDictionaryForCollection } from '../../Collections';
+import { playAudio } from '../../SharedFunctions/Utils';
 import { getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
 
 const itemActionRows = [
@@ -38,8 +38,7 @@ const itemActionRows = [
 ];
 
 export function ItemActionsDisplay({playerConfigs, items, getItemAction, setCenterScreenMenu}) {
-    const dndItems = getCollection("items");
-    const itemName2Item = convertArrayToDictionary(dndItems, "name");
+    const itemName2Item = getNameDictionaryForCollection("items");
 
     const controlsToDisplay = [];
     controlsToDisplay.push(createSingleItemActionsGroup(playerConfigs, setCenterScreenMenu, "Consumable Items", items, itemName2Item, getItemAction));

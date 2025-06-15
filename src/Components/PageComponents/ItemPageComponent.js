@@ -4,7 +4,7 @@ import { calculateAddendumAspect, calculateAddendumAspects, calculateAspectColle
 import { getValueFromObjectAndPath, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl, playAudio } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 const rarityToSuggestedCost = {
     "Common": 100,
@@ -57,8 +57,8 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                             const stringSplit = itemProperty.split(" ");
                             const firstString = stringSplit[0];
 
-                            const properties = getCollection("properties");
-                            const dndProperty = properties.find(property => property.name === firstString);
+                            const propertyMap = getNameDictionaryForCollection("properties");
+                            const dndProperty = propertyMap[firstString];
                             if (dndProperty) {
                                 if (addToMenuStack) {
                                     addToMenuStack();
@@ -73,8 +73,8 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             if (item.mastery) {
                 masteries.push(<>
                     <span className="propertyOfTheItem"><RetroButton text={item.mastery} onClickHandler={() => {
-                        const properties = getCollection("masteries");
-                        const dndMastery = properties.find(mastery => mastery.name === item.mastery);
+                        const masteryMap = getNameDictionaryForCollection("masteries");
+                        const dndMastery = masteryMap[item.mastery];
                         if (dndMastery) {
                             if (addToMenuStack) {
                                 addToMenuStack();
@@ -267,8 +267,8 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                                     if (childItem.custom) {
                                         setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: childItem, readonly: true } });
                                     } else {
-                                        const dndItems = getCollection("items");
-                                        const dndItem = dndItems.find(x => x.name === childItem.name);
+                                        const dndItemMap = getNameDictionaryForCollection("items");
+                                        const dndItem = dndItemMap[childItem.name];
 
                                         let newPathToProperty = "";
                                         if (pathToProperty) {

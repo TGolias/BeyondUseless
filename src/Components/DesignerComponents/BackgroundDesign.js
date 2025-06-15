@@ -1,6 +1,6 @@
 import React from "react";
 import "./BackgroundDesign.css";
-import { getCollection } from "../../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName, onInputChangeHandler } from "../../SharedFunctions/ComponentFunctions";
 import { CircleButton } from "../SimpleComponents/CircleButton";
@@ -10,8 +10,8 @@ import { FeatDesign } from "./FeatDesign";
 const rightTriangleUnicode = '\u25B6';
 
 export function BackgroundDesign({baseStateObject, inputHandler}) {
-    const backgrounds = getCollection("backgrounds");
-    const dndbackground = backgrounds.find(x => x.name === baseStateObject.background.name);
+    const backgroundsMap = getNameDictionaryForCollection("backgrounds");
+    const dndbackground = backgroundsMap[baseStateObject.background.name];
     if (!dndbackground) {
         return (<><div></div></>);
     } 

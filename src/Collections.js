@@ -1,29 +1,36 @@
-import { delay } from "./SharedFunctions/Utils";
+import { convertArrayToDictionary, delay } from "./SharedFunctions/Utils";
 
 const collectionsMap = {};
+
+const collectionNameDictionaries = {};
 
 const localStorageCollectionConstant = "cached_collection_";
 
 const allCollections = [
     {
         name: "actions",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/actions.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/actions.json",
+        createNameDictionary: true
     },
     {
         name: "backgrounds",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/backgrounds.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/backgrounds.json",
+        createNameDictionary: true
     },
     {
         name: "cantrips",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/cantrips.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/cantrips.json",
+        createNameDictionary: true
     },
     {
         name: "classes",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/classes.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/classes.json",
+        createNameDictionary: true
     },
     {
         name: "conditions",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/conditions.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/conditions.json",
+        createNameDictionary: true
     },
     {
         name: "damagetypes",
@@ -31,19 +38,23 @@ const allCollections = [
     },
     {
         name: "eldrichinvocations",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/eldrichinvocations.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/eldrichinvocations.json",
+        createNameDictionary: true
     },
     {
         name: "feats",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/feats.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/feats.json",
+        createNameDictionary: true
     },
     {
         name: "homebrew",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/homebrew.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/homebrew.json",
+        createNameDictionary: true
     },
     {
         name: "items",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/items.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/items.json",
+        createNameDictionary: true
     },
     {
         name: "languages",
@@ -51,15 +62,18 @@ const allCollections = [
     },
     {
         name: "masteries",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/masteries.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/masteries.json",
+        createNameDictionary: true
     },
     {
         name: "metamagic",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/metamagic.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/metamagic.json",
+        createNameDictionary: true
     },
     {
         name: "misc",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/misc.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/misc.json",
+        createNameDictionary: true
     },
     {
         name: "pactslots",
@@ -67,7 +81,8 @@ const allCollections = [
     },
     {
         name: "properties",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/properties.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/properties.json",
+        createNameDictionary: true
     },
     {
         name: "rarelanguages",
@@ -75,15 +90,18 @@ const allCollections = [
     },
     {
         name: "skillProficiencies",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/skillproficiencies.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/skillproficiencies.json",
+        createNameDictionary: true
     },
     {
         name: "species",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/species.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/species.json",
+        createNameDictionary: true
     },
     {
         name: "spells",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/spells.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/spells.json",
+        createNameDictionary: true
     },
     {
         name: "spellslots",
@@ -91,15 +109,18 @@ const allCollections = [
     },
     {
         name: "statblocks",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/statblocks.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/statblocks.json",
+        createNameDictionary: true
     },
     {
         name: "subclasses",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/subclasses.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/subclasses.json",
+        createNameDictionary: true
     },
     {
         name: "unarmed",
-        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/unarmed.json"
+        url: "https://raw.githubusercontent.com/TGolias/DNDConfigObjects/master/unarmed.json",
+        createNameDictionary: true
     }
 ]
 
@@ -118,6 +139,10 @@ export async function fetchAllCollections() {
             const collectionJson = JSON.parse(cachedCollection);
             collectionsMap[collection.name] = collectionJson;
 
+            if (collection.createNameDictionary) {
+                collectionNameDictionaries[collection.name] = convertArrayToDictionary(collectionJson, "name");
+            }
+
             // TODO: we really shouldn't have to do this...
             await delay(1);
         } else {
@@ -131,6 +156,11 @@ export async function fetchAllCollections() {
             const collectionJson = await response.json();
 
             collectionsMap[collection.name] = collectionJson;
+
+            if (collection.createNameDictionary) {
+                collectionNameDictionaries[collection.name] = convertArrayToDictionary(collectionJson, "name");
+            }
+
             localStorage.setItem(localStorageCollectionConstant + collection.name, JSON.stringify(collectionJson));
 
             hasDoneAFetchPreviously = true;
@@ -145,6 +175,10 @@ export function getCollectionFetchProgress() {
 
 export function getCollection(collectionName) {
     return collectionsMap[collectionName];
+}
+
+export function getNameDictionaryForCollection(collectionName) {
+    return collectionNameDictionaries[collectionName]; 
 }
 
 async function retrieveCollection(collectionName, collectionUrl, retries = 0) {

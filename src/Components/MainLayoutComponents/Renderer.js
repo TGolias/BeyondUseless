@@ -15,9 +15,9 @@ import { FeatureActionsDisplay } from "../DisplayComponents/FeatureActionsDispla
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
 import { SetPlayerDead } from "../../SharedFunctions/DeathFunctions";
-import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, playAudio } from "../../SharedFunctions/Utils";
 import { ActiveEffectsDisplay } from "../DisplayComponents/ActiveEffectsDisplay";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { InventoryDisplay } from "../DisplayComponents/InventoryDisplay";
 import { addItemsToNewItems } from "../../SharedFunctions/ItemFunction";
@@ -52,8 +52,8 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     let mountedCombatDescription = undefined;
     if (playerConfigs.parent) {
         // This is an allied creature... Show mounted combatant rules at the bottom in case we want to mount it.
-        const misc = getCollection("misc");
-        const mountedCombat = misc.find(miscEntry => miscEntry.name === "MountedCombat");
+        const miscMap = getNameDictionaryForCollection("misc");
+        const mountedCombat = miscMap["MountedCombat"];
         mountedCombatDescription = parseStringForBoldMarkup(mountedCombat.description);
     }
 

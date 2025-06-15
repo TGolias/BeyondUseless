@@ -1,12 +1,11 @@
 import React from "react";
 import './ConditionsDisplay.css';
-import { getCollection } from "../../Collections";
-import { convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
+import { getNameDictionaryForCollection } from "../../Collections";
+import { playAudio } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 
 export function ConditionsDisplay({conditions, setCenterScreenMenu = undefined, onAddOrUpdate = undefined, onRemove = undefined, addConditionClicked = undefined}) {
-    const allConditions = getCollection("conditions");
-    const conditionName2Condition = convertArrayToDictionary(allConditions, "name");
+    const conditionName2Condition = getNameDictionaryForCollection("conditions");
 
     const allConditionDisplays = [];
     for (let conditionConfig of conditions) {

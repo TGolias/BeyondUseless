@@ -2,9 +2,9 @@ import React from "react";
 import './ManageHeldEquipmentMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateWeaponAttackBonus, calculateWeaponDamage, getItemFromItemTemplate } from "../../SharedFunctions/TabletopMathFunctions";
-import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
-import { getCollection } from "../../Collections";
-import { CanEquipItem, GetOpenHands, IsItemHoldable } from "../../SharedFunctions/EquipmentFunctions";
+import { addLeadingPlusIfNumericAndPositive, playAudio } from "../../SharedFunctions/Utils";
+import { getNameDictionaryForCollection } from "../../Collections";
+import { CanEquipItem, IsItemHoldable } from "../../SharedFunctions/EquipmentFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 
@@ -54,14 +54,13 @@ const rows = [
 ];
 
 export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
-    const misc = getCollection("misc");
-    const equippingWeapons = misc.find(miscEntry => miscEntry.name === "EquippingWeapons");
+    const miscMap = getNameDictionaryForCollection("misc");
+    const equippingWeapons = miscMap["EquippingWeapons"];
     const equippingItemsDescription = parseStringForBoldMarkup(equippingWeapons.description);
 
     const itemRows = [];
     if (menuConfig.items && menuConfig.items.length > 0) {
-        const items = getCollection("items");
-        const itemName2Item = convertArrayToDictionary(items, "name");
+        const itemName2Item = getNameDictionaryForCollection("items");
 
         // Do the header row first.
         for (let row of rows) {

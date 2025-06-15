@@ -1,15 +1,15 @@
 import React from "react";
 import './HomebrewDesign.css';
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 import { ChoiceDesign } from "./ChoiceDesign";
 
 const rightTriangleUnicode = '\u25B6';
 
 export function HomebrewDesign({baseStateObject, inputHandler, homebrewIndex}) {
 
-    const homebrew = getCollection("homebrew");
-    const dndHomebrew = homebrew.find(x => x.name === baseStateObject.homebrew[homebrewIndex].name);
+    const homebrewMap = getNameDictionaryForCollection("homebrew");
+    const dndHomebrew = homebrewMap[baseStateObject.homebrew[homebrewIndex].name];
 
     const characterHomebrewCopy = {...baseStateObject.homebrew[homebrewIndex]};
     if (!characterHomebrewCopy.userInput) {

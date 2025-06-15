@@ -1,15 +1,15 @@
 import React from "react";
 import './SpeciesDesign.css'
 import { ChoiceDesign } from "./ChoiceDesign";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 import { GetFeaturePropertyNameFromFeature } from "../../SharedFunctions/FeatureFunctions";
 import { FeatureDesign } from "./FeatureDesign";
 
 const rightTriangleUnicode = '\u25B6';
 
 export function SpeciesDesign({baseStateObject, inputHandler}) {
-    const species = getCollection("species");
-    const dndspecies = species.find(x => x.name === baseStateObject.species.name);
+    const speciesMap = getNameDictionaryForCollection("species");
+    const dndspecies = speciesMap[baseStateObject.species.name];
     if (!dndspecies) {
         return (<><div></div></>);
     } 

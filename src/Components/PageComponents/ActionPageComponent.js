@@ -1,9 +1,9 @@
 import React from "react";
 import './ActionPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateOtherFeatureActionAspect, calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs}) {
     let actionTime = "";
@@ -27,8 +27,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
 
     let conditionsDescription = "";
     if (action.conditions) {
-        const allConditions = getCollection("conditions");
-        const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+        const allConditionsMap = getNameDictionaryForCollection("conditions");
         for (let conditionName of action.conditions) {
             const condition = allConditionsMap[conditionName];
             if (condition) {

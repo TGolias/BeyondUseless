@@ -1,9 +1,9 @@
-import { getCollection } from "../Collections";
+import { getNameDictionaryForCollection } from "../Collections";
 import { createNewAlliedCreatureFromStatBlock, createStatBlockMap } from "./AlliedCreatureFunctions";
 import { removeConcentrationFromPlayerConfigs } from "./ConcentrationFunctions";
 import { GetAllActiveConnections } from "./LinkedPlayerFunctions";
 import { newActiveEffectMessage } from "./LinkedPlayerMessageFunctions";
-import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, calculateSpellAttack, calculateSpellSaveDC, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
+import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
 const effectTypes = {
@@ -245,12 +245,12 @@ export function getActionObjectForActiveEffect(playerConfigs, activeEffect) {
             const featureAction = actionFeature.feature.actions.find(action => action.name === activeEffect.name);
             return featureAction;
         case "action":
-            const actions = getCollection("actions")
-            const action = actions.find(act => act.name === activeEffect.name);
+            const actionMap = getNameDictionaryForCollection("actions")
+            const action = actionMap[activeEffect.name];
             return action;
         case "item":
-            const items = getCollection("items");
-            const item = items.find(x => x.name === activeEffect.name);
+            const itemMap = getNameDictionaryForCollection("items");
+            const item = itemMap[activeEffect.name];
             return item;
     }
 }

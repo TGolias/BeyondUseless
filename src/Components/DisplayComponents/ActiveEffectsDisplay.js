@@ -3,7 +3,7 @@ import './ActiveEffectsDisplay.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 export function ActiveEffectsDisplay({playerConfigs, activeEffects, setCenterScreenMenu, generateButtonText, onButtonClick }) {
 
@@ -62,15 +62,15 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, activeEffectIn
                 setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "featureaction", activeEffectIndex: activeEffectIndex, featureAction: featureAction, feature: actionFeature.feature, origin: activeEffect.origin, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap } } });
                 break;
             case "action":
-                const actions = getCollection("actions");
-                const action = actions.find(act => act.name === activeEffect.name);
+                const actionsMap = getNameDictionaryForCollection("actions");
+                const action = actionsMap[activeEffect.name];
 
                 playAudio("menuaudio");
                 setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "action", activeEffectIndex: activeEffectIndex, action: action, playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap } } });
                 break;
             case "item":
-                const items = getCollection("items");
-                const item = items.find(x => x.name === activeEffect.name);
+                const itemsMap = getNameDictionaryForCollection("items");
+                const item = itemsMap[activeEffect.name];
 
                 playAudio("menuaudio");
                 setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "item", activeEffectIndex: activeEffectIndex, item: item, pathToProperty: "", playerConfigs: playerConfigsToSet, data: { userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap } } });

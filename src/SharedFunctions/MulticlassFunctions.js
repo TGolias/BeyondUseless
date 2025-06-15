@@ -1,6 +1,6 @@
-import { getCollection } from "../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { performBooleanCalculation } from "./TabletopMathFunctions";
-import { convertArrayOfStringsToHashMap, convertArrayToDictionary } from "./Utils";
+import { convertArrayOfStringsToHashMap } from "./Utils";
 
 export function CanMulticlass(playerConfigs) {
     if (playerConfigs.classes.length === 0) {
@@ -9,7 +9,7 @@ export function CanMulticlass(playerConfigs) {
     }
 
     const classes = getCollection("classes");
-    const possibleClassesDictionary = convertArrayToDictionary(classes, "name");
+    const possibleClassesDictionary = {...getNameDictionaryForCollection("classes")};
     if (playerConfigs.classes.length >= classes.length) {
         // If the player has already selected all the classes, they obviously can't multiclass anymore.
         return false;

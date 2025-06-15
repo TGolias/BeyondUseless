@@ -1,16 +1,16 @@
 import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
-import { getCollection } from "../../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, playerConfigs, copyLinkToItem}) {
 
     if (featureAction.templateType && featureAction.templateOf) {
-        const templateCollection = getCollection(featureAction.templateType);
-        const newFeatureAction = {...templateCollection.find(x => x.name === featureAction.templateOf)};
+        const templateMap = getNameDictionaryForCollection(featureAction.templateType);
+        const newFeatureAction = {...templateMap[featureAction.templateOf]};
 
         for (let propertyToCopy of Object.keys(featureAction)) {
             newFeatureAction[propertyToCopy] = featureAction[propertyToCopy];
@@ -123,8 +123,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 if (!debuffDescription) {
                     debuffDescription = "";
                 }
-                const allConditions = getCollection("conditions");
-                const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+                const allConditionsMap = getNameDictionaryForCollection("conditions");
                 for (let condition of featureAction.debuff.conditions) {
                     const dndCondition = allConditionsMap[condition];
                     if (debuffDescription.length > 0) {

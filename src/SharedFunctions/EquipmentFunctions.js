@@ -1,6 +1,5 @@
-import { getCollection } from "../Collections";
+import { getNameDictionaryForCollection } from "../Collections";
 import { getItemFromItemTemplate } from "./TabletopMathFunctions";
-import { convertArrayToDictionary } from "./Utils";
 
 export function CanEquipItem(playerItems, item) {
     if (IsItemHoldable(item)) {
@@ -13,9 +12,7 @@ export function CanEquipItem(playerItems, item) {
         }
     }
     if (IsWearableArmor(item)) {
-        const items = getCollection('items');
-        // Convert to a dictionary for quick searches because the list could be LONG.
-        const itemsDictionary = convertArrayToDictionary(items, "name");
+        const itemsDictionary = getNameDictionaryForCollection('items');
         const alreadyWearingArmor = playerItems.some(playerItem => { 
             if (playerItem.equipped) {
                 const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
@@ -42,9 +39,7 @@ export function GetOpenHands(playerItems) {
 export function GetHeldItems(playerItems) {
     const heldItems = [];
 
-    const items = getCollection('items');
-    // Convert to a dictionary for quick searches because the list could be LONG.
-    const itemsDictionary = convertArrayToDictionary(items, "name");
+    const itemsDictionary = getNameDictionaryForCollection('items');
     for (let playerItem of playerItems) {
         if (playerItem.equipped) {
             const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);

@@ -1,10 +1,8 @@
-import { getCollection } from "../Collections";
-import { calculateSpellAttack, computeAverageDiceRoll, performDiceRollCalculation, performMathCalculation } from "./TabletopMathFunctions";
-import { convertArrayToDictionary } from "./Utils";
+import { getNameDictionaryForCollection } from "../Collections";
+import { computeAverageDiceRoll, performDiceRollCalculation, performMathCalculation } from "./TabletopMathFunctions";
 
 export function createStatBlockMap() {
-    const allStatBlocks = getCollection("statblocks");
-    const statBlockMap = convertArrayToDictionary(allStatBlocks, "name");
+    const statBlockMap = getNameDictionaryForCollection("statblocks");
     return statBlockMap;
 }
 

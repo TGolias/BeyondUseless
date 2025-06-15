@@ -6,7 +6,7 @@ import { getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
-import { getCollection } from "../../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
 
 export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
@@ -26,8 +26,8 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
 
     let featureActionUserInput = menuConfig.featureAction.userInput;
     if (menuConfig.featureAction.templateType && menuConfig.featureAction.templateOf && !menuConfig.featureAction.userInput) {
-        const templateCollection = getCollection(menuConfig.featureAction.templateType);
-        const newFeatureAction = {...templateCollection.find(x => x.name === menuConfig.featureAction.templateOf)};
+        const templateMap = getNameDictionaryForCollection(menuConfig.featureAction.templateType);
+        const newFeatureAction = {...templateMap[menuConfig.featureAction.templateOf]};
         featureActionUserInput = newFeatureAction.userInput;
     }
 

@@ -1,4 +1,4 @@
-import { getCollection } from "../Collections";
+import { getNameDictionaryForCollection } from "../Collections";
 import { calculateHPMax } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
@@ -63,8 +63,8 @@ function onSpeciesNameChangeHandler(newBaseStateObject, newSpeciesNameValue) {
 
 function onBackgroundNameChangeHandler(newBaseStateObject, newBackgroundValue) {
     // Remove all ability score increases that the new background does not have access to.
-    const backgrounds = getCollection("backgrounds");
-    const dndbackground = backgrounds.find(x => x.name === newBackgroundValue);
+    const backgroundMap = getNameDictionaryForCollection("backgrounds");
+    const dndbackground = backgroundMap[newBackgroundValue];
 
     // Clone the ability scores first in case things get removed, that way undo functionality still works.
     newBaseStateObject.background.abilityScores = {...newBaseStateObject.background.abilityScores};

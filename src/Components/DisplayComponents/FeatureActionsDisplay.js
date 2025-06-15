@@ -1,7 +1,7 @@
 import React from 'react';
 import './FeatureActionsDisplay.css';
 import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
-import { getCollection } from '../../Collections';
+import { getNameDictionaryForCollection } from '../../Collections';
 import { playAudio } from '../../SharedFunctions/Utils';
 import { GetUsesForResource } from '../../SharedFunctions/ResourcesFunctions';
 import { performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
@@ -137,24 +137,24 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
     switch (actionFeature.typeFoundOn) {
         case "class":
             if (originName) {
-                const allClasses = getCollection("classes");
-                dndClass = allClasses.find(dndClass => dndClass.name === originName);
+                const allClassesMap = getNameDictionaryForCollection("classes");
+                dndClass = allClassesMap[originName];
             }
             break;
         case "subclass":
             if (originName) {
-                const allSubclasses = getCollection("subclasses");
-                const dndSubclass = allSubclasses.find(dndSubclass => dndSubclass.name === originName);
+                const allSubclassesMap = getNameDictionaryForCollection("subclasses");
+                const dndSubclass = allSubclassesMap[originName];
                 if (dndSubclass) {
-                    const allClasses = getCollection("classes");
-                    dndClass = allClasses.find(dndClass => dndClass.name === dndSubclass.class);
+                    const allClassesMap = getNameDictionaryForCollection("classes");
+                    dndClass = allClassesMap[dndSubclass.class];
                 }
             }
             break;
         case "feat":
             if (originName) {
-                const allFeats = getCollection("feats");
-                const feat = allFeats.find(x => x.name === originName);
+                const allFeatsMap = getNameDictionaryForCollection("feats");
+                const feat = allFeatsMap[originName];
                 const featResource = feat.resources.find(resource => resource.name === resourceName);
                 const resource = {...featResource};
 
@@ -172,8 +172,8 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
             break;
         case "homebrew":
             if (originName) {
-                const allHomebrew = getCollection("homebrew");
-                const homebrew = allHomebrew.find(x => x.name === originName);
+                const allHomebrewMap = getNameDictionaryForCollection("homebrew");
+                const homebrew = allHomebrewMap[originName];
                 const homwbrewResource = homebrew.resources.find(resource => resource.name === resourceName);
                 const resource = {...homwbrewResource};
 
@@ -243,35 +243,35 @@ function getResourceForAtWill() {
 function getFeatureOrigin(actionFeature) {
     switch (actionFeature.typeFoundOn) {
         case "class":
-            const allClasses = getCollection("classes");
-            const dndClass = allClasses.find(dndClass => dndClass.name === actionFeature.playerConfigForObject.name);
+            const allClassesMap = getNameDictionaryForCollection("classes");
+            const dndClass = allClassesMap[actionFeature.playerConfigForObject.name];
             return { type: "class", value: dndClass };
         case "subclass":
-            const allSubclasses = getCollection("subclasses");
-            const dndSubclass = allSubclasses.find(dndSubclass => dndSubclass.name === actionFeature.playerConfigForObject.name);
+            const allSubclassesMap = getNameDictionaryForCollection("subclasses");
+            const dndSubclass = allSubclassesMap[actionFeature.playerConfigForObject.name];
             return { type: "subclass", value: dndSubclass };
         case "species":
-            const allSpecies = getCollection("species");
-            const dndSpecies = allSpecies.find(singleDndSpecies => singleDndSpecies.name === actionFeature.playerConfigForObject.name);
+            const allSpeciesMap = getNameDictionaryForCollection("species");
+            const dndSpecies = allSpeciesMap[actionFeature.playerConfigForObject.name];
             return { type: "species", value: dndSpecies };
         case "statblock":
-            const allStatBlocks = getCollection("statblocks");
-            const dndStatblock = allStatBlocks.find(singleDndStatblock => singleDndStatblock.name === actionFeature.playerConfigForObject.name);
+            const allStatBlocksMap = getNameDictionaryForCollection("statblocks");
+            const dndStatblock = allStatBlocksMap[actionFeature.playerConfigForObject.name];
             return { type: "statblock", value: dndStatblock };
         case "feat":
-            const allFeats = getCollection("feats");
-            const dndFeat = allFeats.find(dndFeat => dndFeat.name === actionFeature.playerConfigForObject.name);
+            const allFeatsMap = getNameDictionaryForCollection("feats");
+            const dndFeat = allFeatsMap[actionFeature.playerConfigForObject.name];
             return {type: "feat", value: dndFeat };
         case "homebrew":
-            const allHomebrew = getCollection("homebrew");
-            const dndHomebrew = allHomebrew.find(singleHomebrew => singleHomebrew.name === actionFeature.playerConfigForObject.name);
+            const allHomebrewMap = getNameDictionaryForCollection("homebrew");
+            const dndHomebrew = allHomebrewMap[actionFeature.playerConfigForObject.name];
             return { type: "homebrew", value: dndHomebrew };
     }
 
     if (actionFeature.typeFoundOn.startsWith("species[")) {
         const speciesName = actionFeature.typeFoundOn.substring(8, actionFeature.typeFoundOn.indexOf("]", 8));
-        const allSpecies = getCollection("species");
-        const dndSpecies = allSpecies.find(singleDndSpecies => singleDndSpecies.name === speciesName);
+        const allSpeciesMap = getNameDictionaryForCollection("species");
+        const dndSpecies = allSpeciesMap[speciesName];
         return { type: "species", value: dndSpecies };
     }
 

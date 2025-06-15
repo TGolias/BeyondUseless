@@ -2,8 +2,8 @@ import React from "react";
 import './UnarmedStrikePageComponent.css';
 import { calculateAddendumAspect, calculateRange, calculateSavingThrowTypes, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { getCollection } from "../../Collections";
+import { getHomePageUrl } from "../../SharedFunctions/Utils";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLinkToItem}) {
     let actionTime = "";
@@ -69,8 +69,7 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
                 if (!debuffDescription) {
                     debuffDescription = "";
                 }
-                const allConditions = getCollection("conditions");
-                const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+                const allConditionsMap = getNameDictionaryForCollection("conditions");
                 for (let condition of unarmedStrike.debuff.conditions) {
                     const dndCondition = allConditionsMap[condition];
                     if (debuffDescription.length > 0) {

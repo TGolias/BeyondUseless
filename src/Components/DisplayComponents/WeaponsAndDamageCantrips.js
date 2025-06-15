@@ -1,7 +1,7 @@
 import React from 'react';
 import './WeaponsAndDamageCantrips.css';
-import { getCollection } from '../../Collections';
-import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
+import { getCollection, getNameDictionaryForCollection } from '../../Collections';
+import { addLeadingPlusIfNumericAndPositive, playAudio } from '../../SharedFunctions/Utils';
 import { calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
 import { GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
@@ -67,8 +67,7 @@ const rows = [
 ];
 
 export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
-    const items = getCollection("items");
-    const itemName2Item = convertArrayToDictionary(items, "name");
+    const itemName2Item = getNameDictionaryForCollection("items");
 
     const weaponOrDamageCantripRows = [];
     for (let row of rows) {

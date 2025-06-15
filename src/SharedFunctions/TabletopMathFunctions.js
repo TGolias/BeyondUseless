@@ -1,4 +1,4 @@
-import { getCollection } from "../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
 import { GetHeldItems } from "./EquipmentFunctions";
@@ -167,9 +167,7 @@ export function currentWeightCarried(items) {
     let weightCarried = 0;
     if (items) {
         // Check equipped items for the aspect.
-        const dndItems = getCollection("items");
-        // Convert to a dictionary for quick searches because the list could be LONG.
-        const itemsDictionary = convertArrayToDictionary(dndItems, "name");
+        const itemsDictionary = getNameDictionaryForCollection("items");
         for (let item of items) {
             let quantity = item.amount || 1;
             if (item.custom) {
@@ -292,10 +290,9 @@ export function calculateTierForPlayerLevel(playerConfigs) {
 }
 
 export function getAllPlayerDNDClasses(playerConfigs) {
-    const classes = getCollection("classes");
+    const dndClassDict = getNameDictionaryForCollection("classes");
     
     const dndClasses = [];
-    const dndClassDict = convertArrayToDictionary(classes, "name");
 
     for (let i = 0; i < playerConfigs.classes.length; i++) {
         const playerClass = playerConfigs.classes[i];
@@ -496,8 +493,8 @@ export function calculateBaseStat(playerConfigs, statToCalculate) {
 }
 
 export function calculateSkillProficiency(playerConfigs, skillProficiencyName) {
-    const dndSkillProficiencies = getCollection("skillProficiencies");
-    const dndSkillProficiency = dndSkillProficiencies.find(prof => prof.name === skillProficiencyName);
+    const dndSkillProficiencyMap = getNameDictionaryForCollection("skillProficiencies");
+    const dndSkillProficiency = dndSkillProficiencyMap[skillProficiencyName];
 
     const playerSkillProficiencies = calculateAspectCollection(playerConfigs, "skillProficiencies");
     const hasProficiency = playerSkillProficiencies.some(prof => prof === skillProficiencyName)
@@ -940,8 +937,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, addi
     let addendum = calculateAddendumAspects(playerConfigs, ["weaponAttackAddendum", "allAttackAddendum"], additionalEffects, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, additionalEffects });
 
     if (weapon.properties) {
-        const allProperties = getCollection("properties");
-        const propertiesMap = convertArrayToDictionary(allProperties, "name");
+        const propertiesMap = getNameDictionaryForCollection("properties");
         for (let property of weapon.properties) {
             const stringSplit = property.split(" ");
             const firstString = stringSplit[0];
@@ -965,8 +961,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, addi
         const weaponMasteries = calculateAspectCollection(playerConfigs, "weaponmasteries");
         const hasWeaponMastery = weapon.tags.some(tag => weaponMasteries.includes(tag));
         if (hasWeaponMastery) {
-            const allMasteries = getCollection("masteries");
-            const dndMastery = allMasteries.find(mastery => mastery.name === weapon.mastery);
+            const masteryMap = getNameDictionaryForCollection("masteries");
+            const dndMastery = masteryMap[weapon.mastery];
 
             if (dndMastery && dndMastery.weaponAttackAddendum) {
                 const masteryString = performMathCalculation(playerConfigs, dndMastery.weaponAttackAddendum.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
@@ -982,8 +978,8 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, addi
     }
 
     if (weapon.weaponRange === "Ranged") {
-        const allMisc = getCollection("misc");
-        const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
+        const miscMap = getNameDictionaryForCollection("misc");
+        const rangedMisc = miscMap["Ranged"];
 
         const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
         if (rangedString) {
@@ -1183,8 +1179,8 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
         const spellRange = calculateRange(playerConfigsToUse, spell.range);
         // TODO: Need to differentiate between melee and ranged spell attacks.
         if (isNumeric(spellRange) && spellRange > 5) {
-            const allMisc = getCollection("misc");
-            const rangedMisc = allMisc.find(misc => misc.name === "Ranged");
+            const miscMap = getNameDictionaryForCollection("misc");
+            const rangedMisc = miscMap["Ranged"];
     
             const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
@@ -1557,8 +1553,7 @@ export function calculateFeatures(playerConfigs) {
 }
 
 function findAllValidFeatures(playerConfigs, onFeatureFound) {
-    const dndSubclasses = getCollection("subclasses");
-    const name2DndSubclass = convertArrayToDictionary(dndSubclasses, "name");
+    const name2DndSubclass = getNameDictionaryForCollection("subclasses");
 
     return findAllConfiguredAspects(playerConfigs, "features", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         switch (typeFoundOn) {
@@ -1732,11 +1727,11 @@ let findAllConfiguredAspects_lastAspects = {};
 let findAllConfiguredAspects_levelsDeep = 0;
 
 function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, onAspectFound) {
-    const backgrounds = getCollection("backgrounds");
-    const species = getCollection("species");
-    const feats = getCollection('feats');
-    const eldrichinvocations = getCollection('eldrichinvocations');
-    const subclasses = getCollection('subclasses');
+    const backgroundMap = getNameDictionaryForCollection("backgrounds");
+    const speciesMap = getNameDictionaryForCollection("species");
+    const featMap = getNameDictionaryForCollection('feats');
+    const eldrichinvocationMap = getNameDictionaryForCollection('eldrichinvocations');
+    const subclassMap = getNameDictionaryForCollection('subclasses');
 
     // Check additional effects first.
     if (additionalEffects && additionalEffects.length > 0) {
@@ -1757,7 +1752,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     }
 
     // Check the species for the aspect.
-    const dndspecies = species.find(x => x.name === playerConfigs.species.name);
+    const dndspecies = speciesMap[playerConfigs.species.name];
     if (dndspecies) {
         const speciesAspectValue = getValueFromObjectAndPath(dndspecies, aspectName)
         if (speciesAspectValue) {
@@ -1781,7 +1776,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                 const speciesFeature = allDndSpeciesFeatures[j];
                 if (!speciesFeature.level || speciesFeature.level <= playerConfigs.level) {
                     const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + speciesFeature.level;
-                    processFeature(playerConfigs, aspectName, speciesFeature, playerConfigs.species, "species", featurePropertyName, { feats, eldrichinvocations }, onAspectFound);
+                    processFeature(playerConfigs, aspectName, speciesFeature, playerConfigs.species, "species", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
                 }
             }
         }
@@ -1815,12 +1810,12 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                     const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
                     const classFeaturePlayerConfig = playerConfigs.classes[i].features ? playerConfigs.classes[i].features[featurePropertyName] : undefined;
 
-                    processFeature(playerConfigs, aspectName, classFeature, playerConfigs.classes[i], "classes[" + i + "]", featurePropertyName, { feats, eldrichinvocations }, onAspectFound);
+                    processFeature(playerConfigs, aspectName, classFeature, playerConfigs.classes[i], "classes[" + i + "]", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
 
                     if (classFeature.subclass) {
                         const selectedSubclass = classFeaturePlayerConfig?.name;
                         if (selectedSubclass) {
-                            const dndSubclass = subclasses.find(x => x.name === selectedSubclass);
+                            const dndSubclass = subclassMap[selectedSubclass];
                             if (dndSubclass) {
                                 if (dndSubclass[aspectName]) {
                                     onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
@@ -1847,7 +1842,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     }
 
     // Check the background for the aspect.
-    const dndBackground = backgrounds.find(x => x.name === playerConfigs.background.name);
+    const dndBackground = backgroundMap[playerConfigs.background.name];
     if (dndBackground) {
         const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName);
         if (backgroundAspectValue) {
@@ -1855,18 +1850,16 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         }
 
         if (dndBackground.feat) {
-            const dndfeat = feats.find(x => x.name === dndBackground.feat);
+            const dndfeat = featMap[dndBackground.feat];
             if (dndfeat) {
-                processFeat(playerConfigs, aspectName, dndBackground.feat, playerConfigs.background, "background", "feats", { feats, eldrichinvocations }, onAspectFound);
+                processFeat(playerConfigs, aspectName, dndBackground.feat, playerConfigs.background, "background", "featMap", { featMap, eldrichinvocationMap }, onAspectFound);
             }
         }
     }
 
     if (playerConfigs.items) {
         // Check equipped items for the aspect.
-        const items = getCollection("items");
-        // Convert to a dictionary for quick searches because the list could be LONG.
-        const itemsDictionary = convertArrayToDictionary(items, "name");
+        const itemsDictionary = getNameDictionaryForCollection("items");
         for (let item of playerConfigs.items) {
             if (item.equipped) {
                 const dndItem = itemsDictionary[item.name];
@@ -1878,8 +1871,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     }
 
     if (playerConfigs?.statBlocks && playerConfigs.statBlocks.length > 0) {
-        const allStatBlocks = getCollection("statblocks");
-        const statBlockMap = convertArrayToDictionary(allStatBlocks, "name");
+        const statBlockMap = getNameDictionaryForCollection("statblocks");
         for (let statBlock of playerConfigs.statBlocks) {
             const dndStatBlock = statBlockMap[statBlock];
             if (dndStatBlock && dndStatBlock.aspects && dndStatBlock.aspects[aspectName]) {
@@ -1900,8 +1892,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     }
 
     if (playerConfigs?.homebrew && playerConfigs.homebrew.length > 0) {
-        const allDndHomebrew = getCollection("homebrew");
-        const dndHomebrewMap = convertArrayToDictionary(allDndHomebrew, "name");
+        const dndHomebrewMap = getNameDictionaryForCollection("homebrew");
         for (let i = 0; i < playerConfigs.homebrew.length; i++) {
             const homebrew = playerConfigs.homebrew[i];
             const dndHomebrew = dndHomebrewMap[homebrew.name];
@@ -1941,8 +1932,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     // As far as I am aware this hasn't caused any problems yet, so maybe it's fine to leave it like this for now, since it's only for calculating aspects on active effects, and I can't think of examples of active effects affecting other active effects...
     if (!findAllConfiguredAspects_lastAspects[aspectName]) {
         if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
-            const dndConditions = getCollection("conditions");
-            const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
+            const dndConditionsMap = getNameDictionaryForCollection("conditions");
             // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
             const dndConditionsChecked = {};
             for (let playerCondition of playerConfigs.currentStatus.conditions) {
@@ -2006,9 +1996,9 @@ function processFeature(playerConfigs, aspectName, feature, playerConfigFeatureO
     if (feature.feat) {
         const selectedFeatName = playerConfigFeatureObjectFeature?.name;
         if (selectedFeatName) {
-            const dndfeat = collections.feats.find(x => x.name === selectedFeatName);
+            const dndfeat = collections.featMap[selectedFeatName];
             if (dndfeat) {
-                processFeat(playerConfigs, aspectName, selectedFeatName, playerConfigFeatureObjectFeature, pathToFeatureConfigObject + ".features." + featurePropertyName, "feats", collections, onAspectFound);
+                processFeat(playerConfigs, aspectName, selectedFeatName, playerConfigFeatureObjectFeature, pathToFeatureConfigObject + ".features." + featurePropertyName, "featMap", collections, onAspectFound);
             }
         }
     }
@@ -2019,7 +2009,7 @@ function processFeature(playerConfigs, aspectName, feature, playerConfigFeatureO
             for (let i = 0; i < eldrichInvocations.length; i++) {
                 const eldrichInvocation = eldrichInvocations[i];
                 if (eldrichInvocation) {
-                    processFeat(playerConfigs, aspectName, eldrichInvocation.name, eldrichInvocation, pathToFeatureConfigObject + ".features." + featurePropertyName + ".eldrichInvocations[" + i + "]", "eldrichinvocations", collections, onAspectFound);
+                    processFeat(playerConfigs, aspectName, eldrichInvocation.name, eldrichInvocation, pathToFeatureConfigObject + ".features." + featurePropertyName + ".eldrichInvocations[" + i + "]", "eldrichinvocationMap", collections, onAspectFound);
                 }
             }
         }
@@ -2031,7 +2021,8 @@ function processFeat(playerConfigs, aspectName, selectedFeatName, playerConfigFe
         onAspectFound(playerConfigs, selectedFeatName, "feature", playerConfigFeatureObjectFeature);
     }
 
-    const dndfeat = collections[collection].find(x => x.name === selectedFeatName);
+    const dndCollection = collections[collection];
+    const dndfeat = dndCollection[selectedFeatName];
     if (dndfeat) {
         if (dndfeat.aspects && dndfeat.aspects[aspectName]) {
             onAspectFound(playerConfigs, dndfeat.aspects[aspectName], "feat", playerConfigFeatureObjectFeature);
@@ -2147,11 +2138,8 @@ function getOrAddCachedActiveEffectCollection(playerConfigs, collections, fromRe
 
         const actionFeatures = getAllActionFeatures(playerConfigsToSearchFor);
 
-        const actions = getCollection("actions");
-        const actionName2Action = convertArrayToDictionary(actions, "name");
-
-        const items = getCollection("items");
-        const itemName2Item = convertArrayToDictionary(items, "name");
+        const actionName2Action = getNameDictionaryForCollection("actions");
+        const itemName2Item = getNameDictionaryForCollection("items");
 
         const collection = { spellName2Spell, actionFeatures, actionName2Action, itemName2Item };
         collections[characterName] = collection;
@@ -2716,8 +2704,7 @@ export function getAllActionFeatures(playerConfigs) {
 export function getAllConsumableActionItems(playerConfigs) {
     const consumableActionItems = [];
     if (playerConfigs.items && playerConfigs.items.length) {
-        const dndItems = getCollection("items");
-        const itemName2Item = convertArrayToDictionary(dndItems, "name");
+        const itemName2Item = getNameDictionaryForCollection("items");
 
         for (let item of playerConfigs.items) {
             let dndItem = itemName2Item[item.name];
@@ -2751,10 +2738,8 @@ export function getAllSelectedMetamagicOptions(playerConfigs) {
 
 export function getAllSpells(playerConfigs, spellcastingFeatures) {
     // Get all spells and cantrips built into dictionaries for instant lookup.
-    let allCantrips = getCollection("cantrips");
-    const cantripName2Cantrip = convertArrayToDictionary(allCantrips, "name");
-    let allSpells = getCollection("spells");
-    const spellName2Spell = convertArrayToDictionary(allSpells, "name");
+    const cantripName2Cantrip  = getNameDictionaryForCollection("cantrips");
+    const spellName2Spell = getNameDictionaryForCollection("spells");
 
     // Get each of the features with the same spellcasting modifiers together.
     const sortedCantripsCollection = [];
@@ -2856,8 +2841,7 @@ function addSpellToSortedCollection(sortedSpellsCollection, spellToAdd) {
 
 export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefined) {
     if (!itemName2Item && originalDndItem && originalDndItem.type === "Template") {
-        const items = getCollection("items");
-        itemName2Item = convertArrayToDictionary(items, "name");
+        itemName2Item = getNameDictionaryForCollection("items");
     }
 
     let dndItem = originalDndItem;

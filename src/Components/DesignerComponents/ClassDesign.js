@@ -1,7 +1,7 @@
 import React from "react";
 import './ClassDesign.css'
 import { ChoiceDesign } from "./ChoiceDesign";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 import { getCapitalizedAbilityScoreName } from "../../SharedFunctions/ComponentFunctions";
 import { FeatureDesign } from "./FeatureDesign";
 import { GetFeaturePropertyNameFromFeature } from "../../SharedFunctions/FeatureFunctions";
@@ -10,9 +10,9 @@ import { TransformDndClassBasedOnMainOrMulticlass } from "../../SharedFunctions/
 const rightTriangleUnicode = '\u25B6';
 
 export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
-    const classes = getCollection("classes");
+    const classesMap = getNameDictionaryForCollection("classes");
     const playerClassObject = baseStateObject.classes[classIndex];
-    const dndclass = TransformDndClassBasedOnMainOrMulticlass(baseStateObject, classes.find(x => x.name === playerClassObject.name));
+    const dndclass = TransformDndClassBasedOnMainOrMulticlass(baseStateObject, classesMap[playerClassObject.name]);
     const classLevel = playerClassObject.levels;
 
     const savingThrowProficienciesRows = [];
@@ -60,12 +60,12 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
         const subclassFeatures = dndclass.features.filter(feature => feature.subclass);
         let featuresFromSubclasses = [];
         if (subclassFeatures) {
-            const subclasses = getCollection("subclasses");
+            const subclassesMap = getNameDictionaryForCollection("subclasses");
             for (let subclassFeature of subclassFeatures) {
                 const subclassFeaturePropertyName = GetFeaturePropertyNameFromFeature(baseStateObject, subclassFeature);
                 const subclassName = playerClassObject.features && playerClassObject.features[subclassFeaturePropertyName] ? playerClassObject.features[subclassFeaturePropertyName].name : undefined
                 if (subclassName) {
-                    const subclass = subclasses.find(subclass => subclass.name === subclassName);
+                    const subclass = subclassesMap[subclassName];
                     featuresFromSubclasses = [...featuresFromSubclasses, ...subclass.features];
                 }
             }

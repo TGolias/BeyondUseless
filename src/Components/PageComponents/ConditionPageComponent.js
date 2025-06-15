@@ -1,17 +1,16 @@
 import React from "react";
 import './ConditionPageComponent.css';
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
-import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary, getHomePageUrl } from "../../SharedFunctions/Utils";
+import { addLeadingPlusIfNumericAndPositive, getHomePageUrl } from "../../SharedFunctions/Utils";
 import { calculateSkillProficiency } from "../../SharedFunctions/TabletopMathFunctions";
-import { getCollection } from "../../Collections";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 export function ConditionPageComponent({condition, copyLinkToItem, playerConfigs}) {
     let description = parseStringForBoldMarkup(condition.description);
 
     let additionalConditionsDescription = "";
     if (condition.additionalConditions) {
-        const allConditions = getCollection("conditions");
-        const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+        const allConditionsMap = getNameDictionaryForCollection("conditions");
         for (let additionalConditionName of condition.additionalConditions) {
             const additionalCondition = allConditionsMap[additionalConditionName];
             if (additionalCondition) {

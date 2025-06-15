@@ -1,12 +1,9 @@
-import { getCollection } from "../Collections";
+import { getNameDictionaryForCollection } from "../Collections";
 import { getItemFromItemTemplate } from "./TabletopMathFunctions";
-import { convertArrayToDictionary } from "./Utils";
 
 export function addItemsToNewItems(newItems, itemsToAdd) {
     // Check equipped items for the aspect.
-    const dndItems = getCollection("items");
-    // Convert to a dictionary for quick searches because the list could be LONG.
-    const itemsDictionary = convertArrayToDictionary(dndItems, "name");
+    const itemsDictionary = getNameDictionaryForCollection("items");
 
     for (let itemToAdd of itemsToAdd) {
         const existingItemIndex = newItems.findIndex(item => item.name === itemToAdd.name);

@@ -2,8 +2,8 @@ import React from "react";
 import './ArmorMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getItemFromItemTemplate, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
-import { convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
-import { getCollection } from "../../Collections";
+import { playAudio } from "../../SharedFunctions/Utils";
+import { getNameDictionaryForCollection } from "../../Collections";
 import { CanEquipItem } from "../../SharedFunctions/EquipmentFunctions";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 
@@ -45,8 +45,7 @@ const rows = [
 export function ArmorMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const itemRows = [];
     if (menuConfig.items && menuConfig.items.length > 0) {
-        const items = getCollection("items");
-        const itemName2Item = convertArrayToDictionary(items, "name");
+        const itemName2Item = getNameDictionaryForCollection("items");
 
         // Do the header row first.
         for (let row of rows) {

@@ -3,16 +3,14 @@ import './TransferItemsMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { CircleButton } from "../SimpleComponents/CircleButton";
 import { SelectList } from "../SimpleComponents/SelectList";
-import { getCollection } from "../../Collections";
-import { convertArrayToDictionary, playAudio } from "../../SharedFunctions/Utils";
+import { getNameDictionaryForCollection } from "../../Collections";
+import { playAudio } from "../../SharedFunctions/Utils";
 import { calculateCarry, currentWeightCarried, getItemFromItemTemplate } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function TransferItemsMenu({playerConfigs, inputChangeHandler, menuConfig, menuStateChangeHandler, setCenterScreenMenu}) {
 
     // Check equipped items for the aspect.
-    const items = getCollection("items");
-    // Convert to a dictionary for quick searches because the list could be LONG.
-    const itemsDictionary = convertArrayToDictionary(items, "name");
+    const itemsDictionary = getNameDictionaryForCollection("items");
                    
     const options = {};
     getOptionsFromPlayerConfigs(options, menuConfig.playerConfigs, itemsDictionary);

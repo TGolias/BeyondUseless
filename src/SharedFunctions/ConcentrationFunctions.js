@@ -1,7 +1,7 @@
-import { getCollection } from "../Collections";
+import { getNameDictionaryForCollection } from "../Collections";
 import { calculateCurrentHp } from "./HPFunctions";
 import { calculateAddendumAspect, calculateAspectCollection } from "./TabletopMathFunctions";
-import { addLeadingPlusIfNumericAndPositive, convertArrayToDictionary } from "./Utils";
+import { addLeadingPlusIfNumericAndPositive } from "./Utils";
 
 export function isPlayerCurrentlyConcentrating(playerConfigs) {
     const playerActiveEffects = playerConfigs.currentStatus.activeEffects;
@@ -105,8 +105,7 @@ export function removeConcentrationFromPlayerConfigs(playerConfigsClone) {
 
 export function playerHasConditionThatRemovesConcentration(playerConfigs) {
     if (playerConfigs.currentStatus.conditions) {
-        const dndConditions = getCollection("conditions");
-        const dndConditionsMap = convertArrayToDictionary(dndConditions, "name");
+        const dndConditionsMap = getNameDictionaryForCollection("conditions");
         for (let condition of playerConfigs.currentStatus.conditions) {
             const dndCondition = dndConditionsMap[condition.name];
             if (dndCondition && (dndCondition.name === "Incapacitated" || (dndCondition.additionalConditions && dndCondition.additionalConditions.includes("Incapacitated")))) {

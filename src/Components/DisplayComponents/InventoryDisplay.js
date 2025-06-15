@@ -1,8 +1,8 @@
 import React from 'react';
 import './InventoryDisplay.css';
 import { calculateCarry, calculateDragLiftPush, currentWeightCarried, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
-import { getCollection } from '../../Collections';
-import { convertArrayToDictionary, playAudio } from '../../SharedFunctions/Utils';
+import { getCollection, getNameDictionaryForCollection } from '../../Collections';
+import { playAudio } from '../../SharedFunctions/Utils';
 import { CheckboxInput } from '../SimpleComponents/CheckboxInput';
 import { CanAttuneItem, CanEquipItem } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
@@ -99,9 +99,7 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
         }
 
         // Check equipped items for the aspect.
-        const items = getCollection("items");
-        // Convert to a dictionary for quick searches because the list could be LONG.
-        const itemsDictionary = convertArrayToDictionary(items, "name");
+        const itemsDictionary = getNameDictionaryForCollection("items");
         for (let i = 0; i < playerConfigs.items.length; i++) {
             const item = playerConfigs.items[i];
             const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);

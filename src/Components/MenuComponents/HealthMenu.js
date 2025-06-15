@@ -5,7 +5,7 @@ import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { calculateAddendumAspect, calculateAspectCollection, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
-import { getCollection } from "../../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { concatStringArrayToAndStringWithCommas, convertArrayToDictionary } from "../../SharedFunctions/Utils";
 import { CheckIfPlayerDead, SetPlayerDead, SetPlayerRevived } from "../../SharedFunctions/DeathFunctions";
 import { AddOrUpdateCondition, RemoveConditionByName } from "../../SharedFunctions/ConditionFunctions";
@@ -73,7 +73,7 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
     playerConfigsClone.currentStatus.conditions = [...menuConfig.newConditions];
     const currentConditionsMap = convertArrayToDictionary(menuConfig.newConditions, "name");
     const allConditions = getCollection("conditions");
-    const allConditionsMap = convertArrayToDictionary(allConditions, "name");
+    const allConditionsMap = getNameDictionaryForCollection("conditions");
     const notYetSelectedConditionNames = allConditions.filter(condition => !currentConditionsMap[condition.name]).map(condition => condition.name);
 
     const wasDead = CheckIfPlayerDead(playerConfigs);
@@ -95,8 +95,8 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
     if (!willDie && isDying) {
         const hasUnconciousCondition = playerConfigsClone.currentStatus?.conditions ? playerConfigsClone.currentStatus.conditions.some(condition => condition.name === "Unconscious") : false;
         if (!hasUnconciousCondition) {
-            const dndConditions = getCollection("conditions");
-            const unconciousCondition = dndConditions.find(condition => condition.name === "Unconscious");
+            const dndConditionMap = getNameDictionaryForCollection("conditions");
+            const unconciousCondition = dndConditionMap["Unconscious"];
             
             const newNewConditions = AddOrUpdateCondition(menuConfig.newConditions, unconciousCondition);
             menuStateChangeHandler(menuConfig, "newConditions", newNewConditions);

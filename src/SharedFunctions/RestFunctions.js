@@ -1,7 +1,6 @@
-import { getCollection } from "../Collections";
+import { getNameDictionaryForCollection } from "../Collections";
 import { GetUsesForResource } from "./ResourcesFunctions";
 import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses } from "./TabletopMathFunctions";
-import { convertArrayToDictionary } from "./Utils";
 
 export function SetPlayerShortRested(playerConfigs) {
     // Reset pact slots.
@@ -63,8 +62,7 @@ export function SetPlayerLongRested(playerConfigs) {
     }
 
     if (playerConfigs.homebrew && playerConfigs.homebrew.length > 0) {
-        const allHomebrew = getCollection("homebrew");
-        const homebrewMap = convertArrayToDictionary(allHomebrew, "name");
+        const homebrewMap = getNameDictionaryForCollection("homebrew");
         for (let homebrew of playerConfigs.homebrew) {
             const dndHomebrew = homebrewMap[homebrew.name];
             if (dndHomebrew && dndHomebrew.resources && dndHomebrew.resources.length > 0) {
