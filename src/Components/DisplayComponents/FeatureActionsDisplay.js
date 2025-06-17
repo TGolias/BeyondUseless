@@ -3,8 +3,7 @@ import './FeatureActionsDisplay.css';
 import { getCastingTimeShorthand } from '../../SharedFunctions/ComponentFunctions';
 import { getNameDictionaryForCollection } from '../../Collections';
 import { playAudio } from '../../SharedFunctions/Utils';
-import { GetUsesForResource } from '../../SharedFunctions/ResourcesFunctions';
-import { performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
+import { findResource, performMathCalculation } from '../../SharedFunctions/TabletopMathFunctions';
 
 const featureActionRows = [
     {
@@ -155,18 +154,7 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
             if (originName) {
                 const allFeatsMap = getNameDictionaryForCollection("feats");
                 const feat = allFeatsMap[originName];
-                const featResource = feat.resources.find(resource => resource.name === resourceName);
-                const resource = {...featResource};
-
-                resource.maxUses = GetUsesForResource(playerConfigs, featResource, undefined, actionFeature.playerConfigForObject);
-
-                let remainingUses;
-                if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
-                    remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
-                } else {
-                    remainingUses = resource.maxUses;
-                }
-                resource.remainingUses = remainingUses;
+                const resource = findResource(playerConfigs, feat, "feat", actionFeature.playerConfigForObject, resourceName);
                 return resource;
             }
             break;
@@ -174,44 +162,17 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
             if (originName) {
                 const allHomebrewMap = getNameDictionaryForCollection("homebrew");
                 const homebrew = allHomebrewMap[originName];
-                const homwbrewResource = homebrew.resources.find(resource => resource.name === resourceName);
-                const resource = {...homwbrewResource};
-
-                resource.maxUses = GetUsesForResource(playerConfigs, homwbrewResource, undefined, actionFeature.playerConfigForObject);
-
-                let remainingUses;
-                if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
-                    remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
-                } else {
-                    remainingUses = resource.maxUses;
-                }
-                resource.remainingUses = remainingUses;
+                const resource = findResource(playerConfigs, homebrew, "homebrew", actionFeature.playerConfigForObject, resourceName);
                 return resource;
             }
             break;
     }
 
     if (dndClass) {
-        // TODO: Continue here next time. Need to be able to retrieve global resources and have them be their own thing as far is this is concerned here.
-        const classResource = dndClass.resources.find(resource => resource.name === resourceName || resource.combineGlobalResources && (resource.name + resource.subName) === resourceName);
-        const resource = {...classResource};
-        if (resource.name !== resourceName && resource.combineGlobalResources) {
-            resource.displayName = resource.subDisplayName + " " + resource.displayName;
-        }
+        const resource = findResource(playerConfigs, dndClass, "class", actionFeature.playerConfigForObject, resourceName);
 
         const classLevel = actionFeature.playerConfigForObject.levels;
         resource.classLevel = classLevel;
-        const resourcesForLevel = dndClass.resourcesPerLevel[classLevel - 1];
-
-        resource.maxUses = GetUsesForResource(playerConfigs, classResource, resourcesForLevel);
-
-        let remainingUses;
-        if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {
-            remainingUses = playerConfigs.currentStatus.remainingResources[resource.name];
-        } else {
-            remainingUses = resource.maxUses;
-        }
-        resource.remainingUses = remainingUses;
         return resource;
     }
 
@@ -222,6 +183,9 @@ function getResourceForUses(playerConfigs, action) {
     const resource = {};
     resource.name = action.name;
     resource.displayName = action.name;
+    resource.uses = {
+        calculation: [...action.cost.uses.calculation]
+    };
     resource.maxUses = performMathCalculation(playerConfigs, action.cost.uses.calculation);
     let remainingUses;
     if (playerConfigs.currentStatus?.remainingResources && (playerConfigs.currentStatus.remainingResources[resource.name] || playerConfigs.currentStatus.remainingResources[resource.name] === 0)) {

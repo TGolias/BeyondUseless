@@ -2,12 +2,12 @@ import React from "react";
 import './FeatureActionMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageComponent";
-import { getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { findResource, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
-import { GetUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
+import { GetRemainingUsesForResource, SetRemainingUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
 
 export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -40,7 +40,6 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
     let spellSlotChangeAmount = 0;
     let pactSlotsRemaining = 0;
     let pactSlotsChangeAmount = 0;
-    let pactSlotCastLevel = 0
     let slotLevelPropertyPath = undefined;
     let hasEnoughSpellSlots = true;
 
@@ -55,7 +54,6 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
             if (pactSlotLevel > 0) {
                 const pactSlotsForEachLevel = getCollection("pactslots");
                 const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
-                pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
                 if (playerConfigsClone.currentStatus && playerConfigsClone.currentStatus.remainingPactSlots || playerConfigsClone.currentStatus.remainingPactSlots === 0) {
                     pactSlotsRemaining = playerConfigsClone.currentStatus.remainingPactSlots;
                 } else {      
@@ -93,7 +91,6 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
             if (pactSlotLevel > 0) {
                 const pactSlotsForEachLevel = getCollection("pactslots");
                 const pactSlotsForThisLevel = pactSlotsForEachLevel[pactSlotLevel - 1];
-                pactSlotCastLevel = pactSlotsForThisLevel.slotLevel;
                 const maxUses = pactSlotsForThisLevel.pactSlots;
                 if (playerConfigsClone.currentStatus && playerConfigsClone.currentStatus.remainingPactSlots || playerConfigsClone.currentStatus.remainingPactSlots === 0) {
                     pactSlotsRemaining = playerConfigsClone.currentStatus.remainingPactSlots;
@@ -152,24 +149,12 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
         const resourcePropertyName = performMathCalculation(playerConfigs, menuConfig.featureAction.restoreResource.resourceName.calculation, { userInput: data.userInput });
         const amountRestored = performMathCalculation(playerConfigs, menuConfig.featureAction.restoreResource.amountRestored.calculation, { userInput: data.userInput });
 
-        const resourceToRestore = menuConfig.origin.value.resources.find(resource => resource.name === resourcePropertyName);
+        const dndClass = menuConfig.origin.value;
+        const classConfig = playerConfigsClone.classes.find(x => x.name === dndClass.name);
+        const resourceToRestore = findResource(playerConfigs, menuConfig.origin.value, menuConfig.origin.type, classConfig, resourcePropertyName);
         if (amountRestored && resourceToRestore && amountRestored > 0) {
-            const dndClass = menuConfig.origin.value;
-            const classConfig = playerConfigsClone.classes.find(x => x.name === dndClass.name);
-
-            const resourcesForThisLevel = dndClass.resourcesPerLevel[classConfig.levels - 1];
-            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resourceToRestore, resourcesForThisLevel, classConfig);
-
-            let currentResources = playerConfigsClone.currentStatus.remainingResources[resourcePropertyName];
-            if (currentResources === undefined) {
-                currentResources = maxResourcesForThisLevel;
-            }
-
-            let newAmount = currentResources + amountRestored;
-            if (newAmount > maxResourcesForThisLevel) {
-                newAmount = maxResourcesForThisLevel;
-            }
-            playerConfigsClone.currentStatus.remainingResources[resourcePropertyName] = newAmount;
+            const currentResources = GetRemainingUsesForResource(playerConfigs, resourceToRestore);
+            SetRemainingUsesForResource(playerConfigsClone, playerConfigsClone.currentStatus, resourceToRestore, currentResources + amountRestored);
         }
     }
 
@@ -201,7 +186,7 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
         const newRemainingUses = menuConfig.resource.remainingUses - cost;
         canUseAction = newRemainingUses >= 0 && cost !== 0;
 
-        playerConfigsClone.currentStatus.remainingResources[menuConfig.resource.name] = newRemainingUses;
+        SetRemainingUsesForResource(playerConfigsClone, playerConfigsClone.currentStatus, menuConfig.resource, newRemainingUses);
 
         controlsDisplay.push(<>
             <div className="featureActionResourceDisplay">

@@ -2,6 +2,7 @@ import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
 import { GetHeldItems } from "./EquipmentFunctions";
+import { GetMaxUsesForResource, GetRemainingUsesForResource } from "./ResourcesFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
 const rightTriangleUnicode = '\u25B6';
@@ -2862,14 +2863,132 @@ export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefin
     return undefined;
 }
 
-export function getAllResources(resourceSource) {
-    const newResources = [];
-    for (let originalResource of resourceSource.resources) {
-        if (originalResource.combineGlobalResources) {
+export function findResource(playerConfigs, resourceSource, typeForResource, playerConfigsForResource, resourceName) {
+    let resourceSourceResources = undefined;
+    if (resourceSource.resources) {
+        resourceSourceResources = resourceSource.resources;
+    }
 
-        } else {
-            newResources.push({...originalResource});
+    if (resourceSource.aspects?.resources) {
+        resourceSourceResources = resourceSource.aspects.resources;
+    }
+
+    for (let originalResource of resourceSourceResources) {
+
+        if (originalResource.name === resourceName) {
+            if (originalResource.combineGlobalResources) {
+                return generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource);
+            } else {
+                return generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource);
+            }
+        }
+
+        if (originalResource.combineGlobalResources && (originalResource.name + originalResource.subName) === resourceName) {
+            return generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource);
         }
     }
-    return newResources;
+}
+
+export function getAllResourcesForObject(playerConfigs, resourceSource, typeForResource, playerConfigsForResource) {
+    let resourceSourceResources = undefined;
+    if (resourceSource.resources) {
+        resourceSourceResources = resourceSource.resources;
+    }
+
+    if (resourceSource.aspects?.resources) {
+        resourceSourceResources = resourceSource.aspects.resources;
+    }
+
+    const allResources = [];
+
+    for (let originalResource of resourceSourceResources) {
+        allResources.push(generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource));
+    }
+    return allResources;
+}
+
+function generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource) {
+    let newResource = {...originalResource};
+
+    if (originalResource.combineGlobalResources) {
+        newResource.name = originalResource.name + originalResource.subName;
+        newResource.displayName = originalResource.subDisplayName + " " + originalResource.displayName;
+
+        delete newResource.combineGlobalResources;
+    }
+
+    generateNewUsesCalculationIfNotPresent(newResource);
+    addResourcesForLevelToUses(newResource.uses.calculation, playerConfigs, originalResource, typeForResource, playerConfigsForResource);
+
+    newResource.maxUses = GetMaxUsesForResource(playerConfigs, newResource, playerConfigsForResource);
+    newResource.remainingUses = GetRemainingUsesForResource(playerConfigs, newResource);
+
+    return newResource;
+}
+
+function generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource) {
+    let newResource = {...originalResource};
+
+    delete newResource.subName;
+    delete newResource.subDisplayName;
+
+    generateNewUsesCalculationIfNotPresent(newResource);
+    addResourcesForLevelToUses(newResource.uses.calculation, playerConfigs, originalResource, typeForResource, playerConfigsForResource);
+
+    newResource.subResources = [{ subName: originalResource.subName, maxCalculation: [...newResource.uses.calculation] }];
+    
+    findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (Array.isArray(aspectValue)) {
+            for (let innerResource of aspectValue) {
+                if (innerResource.combineGlobalResources && originalResource.name === innerResource.name && originalResource.subName !== innerResource.subName) {
+                    let innerResourceUsesCalculation = [];
+                    if (innerResource?.uses?.calculation) {
+                        innerResourceUsesCalculation = [...innerResource.uses.calculation];
+                    }
+
+                    addResourcesForLevelToUses(innerResourceUsesCalculation, playerConfigs, originalResource, typeFoundOn, playerConfigForObject);
+
+                    newResource.uses.calculation = [...newResource.uses.calculation, ...innerResourceUsesCalculation];
+
+                    let innerSubResource = { subName: innerResource.subName, maxCalculation: innerResourceUsesCalculation };
+                    if (typeFoundOn === "class" || typeFoundOn === "subclass") {
+                        // Resources that come from a class or subclass should move to the top of the sublist so that they are restored first (and expended last).
+                        newResource.subResources.splice(0, 0, innerSubResource);
+                    } else {
+                        newResource.subResources.push(innerSubResource);
+                    }
+                }
+            }
+        }
+    });
+
+    newResource.maxUses = GetMaxUsesForResource(playerConfigs, newResource, playerConfigsForResource);
+    newResource.remainingUses = GetRemainingUsesForResource(playerConfigs, newResource);
+
+    return newResource;
+}
+
+function generateNewUsesCalculationIfNotPresent(newResource) {
+    if (!newResource.uses || !newResource.uses.calculation) {
+        newResource.uses = {
+            calculation: []
+        };
+    }
+}
+
+function addResourcesForLevelToUses(calculationArray, playerConfigs, originalResource, typeForResource, playerConfigsForResource) {
+    switch (typeForResource) {
+        case "class":
+            const allClassesMap = getNameDictionaryForCollection("classes");
+            const dndClass = allClassesMap[playerConfigsForResource.name];
+            if (dndClass.resourcesPerLevel) {
+                const levels = playerConfigsForResource.levels;
+                const resourcesPerLevel = dndClass.resourcesPerLevel[levels - 1];
+                calculationArray.push({
+                    type: "static",
+                    value: resourcesPerLevel[originalResource.name]
+                });
+            }
+            break;
+    }
 }

@@ -1,6 +1,6 @@
 import { getNameDictionaryForCollection } from "../Collections";
-import { GetUsesForResource } from "./ResourcesFunctions";
-import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses } from "./TabletopMathFunctions";
+import { GetRemainingUsesForResource, HasUsedAnyOfResource, SetRemainingUsesForResource } from "./ResourcesFunctions";
+import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses, getAllResourcesForObject } from "./TabletopMathFunctions";
 
 export function SetPlayerShortRested(playerConfigs) {
     // Reset pact slots.
@@ -15,18 +15,15 @@ export function SetPlayerShortRested(playerConfigs) {
             const dndClass = allPlayerClasses[i];
             const classConfig = playerConfigs.classes[i];
             if (dndClass.resources) {
-                for (let resource of dndClass.resources) {
+                const allResources = getAllResourcesForObject(playerConfigs, dndClass, "class", classConfig);
+                for (let resource of allResources) {
                     const shortRestRecharge = resource.shortRestRecharge;
                     if (shortRestRecharge) {
-                        const remainingResources = playerConfigs?.currentStatus?.remainingResources ? playerConfigs?.currentStatus?.remainingResources[resource.name] : undefined;
-                        if (remainingResources || remainingResources === 0) {
-                            const resourcesForThisLevel = dndClass.resourcesPerLevel[classConfig.levels - 1];
-                            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resource, resourcesForThisLevel, classConfig);
+                        const canBeRecharged = HasUsedAnyOfResource(playerConfigs, resource);
+                        if (canBeRecharged) {
+                            const remainingResources = GetRemainingUsesForResource(playerConfigs, resource);
                             let newResourceAmount = remainingResources + shortRestRecharge;
-                            if (newResourceAmount > maxResourcesForThisLevel) {
-                                newResourceAmount = maxResourcesForThisLevel;
-                            }
-                            playerConfigs.currentStatus.remainingResources[resource.name] = newResourceAmount;
+                            SetRemainingUsesForResource(playerConfigs, playerConfigs.currentStatus, resource, newResourceAmount);
                         }
                     }
                 }
@@ -49,7 +46,7 @@ export function SetPlayerLongRested(playerConfigs) {
         if (exhaustionCondition.level > 1) {
             const newExhaustionCondition = {...exhaustionCondition};
             newExhaustionCondition.level--;
-            newCurrentStatus.conditions = [newExhaustionCondition] 
+            newCurrentStatus.conditions = [newExhaustionCondition];
         }
     }
 
@@ -66,21 +63,15 @@ export function SetPlayerLongRested(playerConfigs) {
         for (let homebrew of playerConfigs.homebrew) {
             const dndHomebrew = homebrewMap[homebrew.name];
             if (dndHomebrew && dndHomebrew.resources && dndHomebrew.resources.length > 0) {
-                for (let resource of dndHomebrew.resources) {
+                const allResources = getAllResourcesForObject(playerConfigs, dndHomebrew, "homebrew", homebrew);
+                for (let resource of allResources) {
                     const longRestRecharge = resource.longRestRecharge;
                     if (longRestRecharge || longRestRecharge === 0) {
-                        const remainingResources = playerConfigs?.currentStatus?.remainingResources ? playerConfigs?.currentStatus?.remainingResources[resource.name] : undefined;
-                        if (remainingResources || remainingResources === 0) {
-                            const maxResourcesForThisLevel = GetUsesForResource(playerConfigs, resource, undefined, homebrew);
+                        const canBeRecharged = HasUsedAnyOfResource(playerConfigs, resource);
+                        if (canBeRecharged) {
+                            const remainingResources = GetRemainingUsesForResource(playerConfigs, resource);
                             let newResourceAmount = remainingResources + longRestRecharge;
-                            if (newResourceAmount > maxResourcesForThisLevel) {
-                                newResourceAmount = maxResourcesForThisLevel;
-                            }
-
-                            if (!newCurrentStatus.remainingResources) {
-                                newCurrentStatus.remainingResources = {};
-                            }
-                            newCurrentStatus.remainingResources[resource.name] = newResourceAmount;
+                            SetRemainingUsesForResource(playerConfigs, newCurrentStatus, resource, newResourceAmount);
                         }
                     }
                 }
