@@ -85,7 +85,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                 </>);
             }
 
-            rangeString = calculateRange(playerConfigs, item.range);
+            rangeString = calculateRange(playerConfigs, additionalEffects, item.range);
             if (item.properties.includes("Thrown")) {
                 rangeString += " (Thrown)";
             }

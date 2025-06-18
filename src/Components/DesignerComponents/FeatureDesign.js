@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureDesign.css'
 import { SelectList } from "../SimpleComponents/SelectList";
 import { getCollection } from "../../Collections";
-import { calculateAspectCollection, getAllSpellcastingFeatures, getAllSpells, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, findResource, findResourceFromAllResources, getAllSpellcastingFeatures, getAllSpells, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
 import { convertArrayOfStringsToHashMap, convertArrayToDictionary } from "../../SharedFunctions/Utils";
@@ -195,8 +195,9 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
         if (feature.metamagic.sorceryPointResource) {
             const sorceryPointResource = performMathCalculation(baseStateObject, feature.metamagic.sorceryPointResource.calculation, parameters);
+            const resource = findResourceFromAllResources(baseStateObject, sorceryPointResource);
             featureContent.push(<>
-                <div>{rightTriangleUnicode}Sorcery Points: {sorceryPointResource}</div>
+                <div>{rightTriangleUnicode}Sorcery Points: +{resource.maxUses}</div>
             </>);
         }
 

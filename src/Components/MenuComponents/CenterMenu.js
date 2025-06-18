@@ -97,7 +97,7 @@ const menuCollection = {
         createMenuTitle: (playerConfigs, data, menuConfig) => {
             return (<>
                 <div className="menuTitleBarTitle">
-                    <RetroButton text={data.menuTitle} onClickHandler={() => {
+                    <RetroButton text={menuConfig.menuTitle} onClickHandler={() => {
                         if (menuConfig.copyLinkToSpell && menuConfig.copyLinkToSpell.onExecute) {
                             menuConfig.copyLinkToSpell.onExecute();
                         }
@@ -107,6 +107,7 @@ const menuCollection = {
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newSpellMenu = {};
+            newSpellMenu.menuTitle = data.menuTitle;
             newSpellMenu.spell = data.spell;
             newSpellMenu.useSpellSlotLevel = data.spell.level;
             newSpellMenu.userInput = {};
@@ -119,7 +120,7 @@ const menuCollection = {
             return newSpellMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
-            return (<><SpellMenu sessionId={sessionId} playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} inputChangeHandler={inputChangeHandler}></SpellMenu></>);
+            return (<><SpellMenu sessionId={sessionId} playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} addToMenuStack={addToMenuStack} inputChangeHandler={inputChangeHandler}></SpellMenu></>);
         }
     },
     ItemMenu: {

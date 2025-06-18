@@ -6,6 +6,8 @@ import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollF
 import { getNameDictionaryForCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
+    const additionalEffects = data?.additionalEffects ? data.additionalEffects : [];
+
     let castingTime = "";
     if (Array.isArray(spell.castingTime)) {
         for (let singleCastingTime of spell.castingTime) {
@@ -23,7 +25,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
         castingCondition = spell.castingCondition;
     }
 
-    const range = calculateRange(playerConfigs, spell.range);
+    const range = calculateRange(playerConfigs, additionalEffects, spell.range);
 
     let componentsString = "";
     if (spell.components) {
@@ -44,7 +46,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
 
     let description = parseStringForBoldMarkup(spell.description);
     let descriptionAddendum = undefined;
-    const descriptionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingDescriptionAddendum", [], { spell: spell });
+    const descriptionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingDescriptionAddendum", additionalEffects, { spell: spell });
     if (descriptionAddendumString) {
         descriptionAddendum = parseStringForBoldMarkup(descriptionAddendumString);
     }
@@ -101,19 +103,20 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 spell.feature = spellForPlayer.feature;
                 featureName = spellForPlayer.feature.name;
 
-                duration = calculateDuration(playerConfigs, spell.duration, [], { spell: spell, slotLevel: castAtLevel });
-                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", [], { spell: spell, slotLevel: castAtLevel });
+                const concentration = spell.concentration;
+                duration = calculateDuration(playerConfigs, spell.duration, additionalEffects, { spell: spell, slotLevel: castAtLevel, range, concentration });
+                const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", additionalEffects, { spell: spell, slotLevel: castAtLevel, range, concentration, duration });
                 if (durationAddendumString) {
                     durationAddendum = parseStringForBoldMarkup(durationAddendumString);
                 }
 
-                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", [], { spell: spell, slotLevel: castAtLevel });
+                const spellCastingConditionAddendumString = calculateAddendumAspect(playerConfigs, "spellCastingConditionAddendum", additionalEffects, { spell: spell, slotLevel: castAtLevel, range, concentration, duration });
                 if (spellCastingConditionAddendumString) {
                     spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
                 }
 
                 if (spell.challengeType === "attackRoll") {
-                    const attack = calculateAttackRollForAttackRollType(playerConfigs, spell, castAtLevel, spell.attackRollType);
+                    const attack = calculateAttackRollForAttackRollType(playerConfigs, additionalEffects, spell, castAtLevel, spell.attackRollType);
                     attackRoll = attack.amount;
                     if (attack.addendum) {
                         attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -123,7 +126,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 if (spell.challengeType === "savingThrow") {
                     savingThrowType = spell.savingThrowType;
 
-                    const savingThrowCalc = calculateSpellSaveDC(playerConfigs, spell, castAtLevel);
+                    const savingThrowCalc = calculateSpellSaveDC(playerConfigs, additionalEffects, spell, castAtLevel);
                     savingThrowDc = savingThrowCalc.dc;
                     if (savingThrowCalc.addendum) {
                         savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);
@@ -131,9 +134,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.type.includes("damage")) {
-                    damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", { userInput: data.userInput });
+                    damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
                     if (damage) {
-                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], [], { userInput: data.userInput });
+                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], additionalEffects, { userInput: data.userInput, range, concentration, duration });
                         if (damageAddendumString) {
                             damageAddendum = parseStringForBoldMarkup(damageAddendumString);
                         }
@@ -142,7 +145,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
 
                 if (spell.type.includes("buff")) {
                     if (spell.buff.calculation) {
-                        const buffAmountString = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "buff", "buffBonus", { userInput: data.userInput });
+                        const buffAmountString = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "buff", "buffBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
                         if (buffAmountString) {
                             buffAmount = parseStringForBoldMarkup(buffAmountString);
                         }
@@ -152,7 +155,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
 
                 if (spell.type.includes("debuff")) {
                     if (spell.debuff.calculation) {
-                        const debuffAmountString  = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", { userInput: data.userInput });
+                        const debuffAmountString  = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "debuff", "debuffBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
                         if (debuffAmountString) {
                             debuffAmount = parseStringForBoldMarkup(debuffAmountString);
                         }
@@ -174,9 +177,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.type.includes("healing")) {
-                    healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", { userInput: data.userInput });
+                    healing = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "healing", "healingBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
                     if (healing) {
-                        const healingAddendumString = calculateAddendumAspects(playerConfigs, ["healingAddendum"], [], { userInput: data.userInput });
+                        const healingAddendumString = calculateAddendumAspects(playerConfigs, ["healingAddendum"], additionalEffects, { userInput: data.userInput, range, concentration, duration });
                         if (healingAddendumString) {
                             healingAddendum = parseStringForBoldMarkup(healingAddendumString);
                         }
@@ -184,11 +187,11 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.type.includes("restore")) {
-                    restore = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "restore", "restoreBonus", { userInput: data.userInput });
+                    restore = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "restore", "restoreBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
                 }
 
                 if (spell.type.includes("creatures")) {
-                    creatures = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "creatures", undefined, { userInput: data.userInput });
+                    creatures = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "creatures", undefined, additionalEffects, { userInput: data.userInput, range, concentration, duration });
                 }
             }
         }

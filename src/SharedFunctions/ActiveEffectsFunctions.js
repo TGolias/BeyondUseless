@@ -14,7 +14,7 @@ const effectTypes = {
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
             if (menuConfig.spell.type.includes("creatures")) {
-                creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.spell, menuConfig.useSpellSlotLevel, "creatures", undefined, { userInput: menuConfig.userInput });
+                creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.spell, menuConfig.useSpellSlotLevel, "creatures", undefined, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
             }
             return creatures;
         },
@@ -26,6 +26,14 @@ const effectTypes = {
                 concentration: menuConfig.spell.concentration,
                 castAtLevel: menuConfig.useSpellSlotLevel,
                 userInput: menuConfig.userInput
+            }
+
+            if (menuConfig.additionalEffects) {
+                activeEffect.additionalEffects = menuConfig.additionalEffects;
+            }
+
+            if (menuConfig.spell.duration === "Indefinitely") {
+                activeEffect.indefinite = true;
             }
 
             if (menuConfig.spell.resources) {
@@ -45,18 +53,28 @@ const effectTypes = {
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
             if (menuConfig.featureAction.type && menuConfig.featureAction.type.includes("creatures")) {
-                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, [], { userInput: menuConfig.userInput });
+                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
             }
             return creatures;
         },
         createActiveEffect: (menuConfig, targetNamesMap) => {
-            return {
+            const activeEffect = {
                 type: "featureaction",
                 targetNamesMap: targetNamesMap,
                 name: menuConfig.featureAction.name,
                 origin: menuConfig.origin,
                 userInput: menuConfig.userInput
             }
+
+            if (menuConfig.additionalEffects) {
+                activeEffect.additionalEffects = menuConfig.additionalEffects;
+            }
+
+            if (menuConfig.featureAction.duration === "Indefinitely") {
+                activeEffect.indefinite = true;
+            }
+
+            return activeEffect;
         }
     },
     ActionMenu: {
@@ -66,18 +84,28 @@ const effectTypes = {
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
             if (menuConfig.action.type.includes("creatures")) {
-                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.action, "creatures", undefined, [], { userInput: menuConfig.userInput });
+                creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.action, "creatures", undefined, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
             }
             return creatures;
         },
         createActiveEffect: (menuConfig, targetNamesMap) => {
-            return {
+            const activeEffect = {
                 type: "action",
                 targetNamesMap: targetNamesMap,
                 name: menuConfig.action.name,
                 concentration: menuConfig.action.concentration,
                 userInput: menuConfig.userInput
             }
+
+            if (menuConfig.additionalEffects) {
+                activeEffect.additionalEffects = menuConfig.additionalEffects;
+            }
+
+            if (menuConfig.action.duration === "Indefinitely") {
+                activeEffect.indefinite = true;
+            }
+
+            return activeEffect;
         }
     },
     ItemMenu: {
@@ -92,11 +120,11 @@ const effectTypes = {
             let creatures = undefined;
             if (menuConfig.item.consumeEffect) {
                 if (menuConfig.item.consumeEffect.type.includes("creatures")) {
-                    creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.item.consumeEffect, "creatures", [], undefined, { userInput: menuConfig.userInput });
+                    creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.item.consumeEffect, "creatures", undefined, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
                 }
             } else { // if (menuConfig.item.spell) {
                 if (menuConfig.item.spell.type.includes("creatures")) {
-                    creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.item.spell, menuConfig.item.spell.level, "creatures", undefined, { userInput: menuConfig.userInput });
+                    creatures = calculateOtherSpellAspect(playerConfigsClone, menuConfig.item.spell, menuConfig.item.spell.level, "creatures", undefined, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
                 }
             }
             return creatures;
@@ -117,6 +145,14 @@ const effectTypes = {
                     concentration: menuConfig.item.spell.concentration,
                     castAtLevel: menuConfig.item.spell.level,
                     userInput: menuConfig.userInput
+                }
+
+                if (menuConfig.additionalEffects) {
+                    activeEffect.additionalEffects = menuConfig.additionalEffects;
+                }
+
+                if (menuConfig.spell.duration === "Indefinitely") {
+                    activeEffect.indefinite = true;
                 }
     
                 if (menuConfig.spell.resources) {

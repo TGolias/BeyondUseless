@@ -1,6 +1,6 @@
 import { getNameDictionaryForCollection } from "../Collections";
 import { GetRemainingUsesForResource, HasUsedAnyOfResource, SetRemainingUsesForResource } from "./ResourcesFunctions";
-import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses, getAllResourcesForObject } from "./TabletopMathFunctions";
+import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses, getAllStandardResourcesForCharacter, getAllStandardResourcesForObject } from "./TabletopMathFunctions";
 
 export function SetPlayerShortRested(playerConfigs) {
     // Reset pact slots.
@@ -8,25 +8,16 @@ export function SetPlayerShortRested(playerConfigs) {
         delete playerConfigs.currentStatus.remainingPactSlots;
     }
 
-    // Check class resources.
-    const allPlayerClasses = getAllPlayerDNDClasses(playerConfigs);
-    if (allPlayerClasses) {
-        for (let i = 0; i < allPlayerClasses.length; i++) {
-            const dndClass = allPlayerClasses[i];
-            const classConfig = playerConfigs.classes[i];
-            if (dndClass.resources) {
-                const allResources = getAllResourcesForObject(playerConfigs, dndClass, "class", classConfig);
-                for (let resource of allResources) {
-                    const shortRestRecharge = resource.shortRestRecharge;
-                    if (shortRestRecharge) {
-                        const canBeRecharged = HasUsedAnyOfResource(playerConfigs, resource);
-                        if (canBeRecharged) {
-                            const remainingResources = GetRemainingUsesForResource(playerConfigs, resource);
-                            let newResourceAmount = remainingResources + shortRestRecharge;
-                            SetRemainingUsesForResource(playerConfigs, playerConfigs.currentStatus, resource, newResourceAmount);
-                        }
-                    }
-                }
+    // Check resources.
+    const allResources = getAllStandardResourcesForCharacter(playerConfigs);
+    for (let resource of allResources) {
+        const shortRestRecharge = resource.shortRestRecharge;
+        if (shortRestRecharge) {
+            const canBeRecharged = HasUsedAnyOfResource(playerConfigs, resource);
+            if (canBeRecharged) {
+                const remainingResources = GetRemainingUsesForResource(playerConfigs, resource);
+                let newResourceAmount = remainingResources + shortRestRecharge;
+                SetRemainingUsesForResource(playerConfigs, playerConfigs.currentStatus, resource, newResourceAmount);
             }
         }
     }
@@ -50,31 +41,36 @@ export function SetPlayerLongRested(playerConfigs) {
         }
     }
 
-    // Creature active effects.
+    
     if (playerConfigs.currentStatus.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
-        const creatureActiveEffects = playerConfigs.currentStatus.activeEffects.filter(effect => effect.allies && effect.allies.length > 0);
-        if (creatureActiveEffects && creatureActiveEffects.length > 0) {
-            newCurrentStatus.activeEffects = [...creatureActiveEffects];
+        const activeEffectsToKeepAfterLongRest = playerConfigs.currentStatus.activeEffects.filter(effect => {
+            if (effect.allies && effect.allies.length > 0) {
+                // Creature active effects.
+                return true;
+            }
+
+            if (effect.indefinite) {
+                // Effect is indefinite.
+                return true;
+            }
+
+            return false;
+        });
+        if (activeEffectsToKeepAfterLongRest && activeEffectsToKeepAfterLongRest.length > 0) {
+            newCurrentStatus.activeEffects = [...activeEffectsToKeepAfterLongRest];
         }
     }
 
-    if (playerConfigs.homebrew && playerConfigs.homebrew.length > 0) {
-        const homebrewMap = getNameDictionaryForCollection("homebrew");
-        for (let homebrew of playerConfigs.homebrew) {
-            const dndHomebrew = homebrewMap[homebrew.name];
-            if (dndHomebrew && dndHomebrew.resources && dndHomebrew.resources.length > 0) {
-                const allResources = getAllResourcesForObject(playerConfigs, dndHomebrew, "homebrew", homebrew);
-                for (let resource of allResources) {
-                    const longRestRecharge = resource.longRestRecharge;
-                    if (longRestRecharge || longRestRecharge === 0) {
-                        const canBeRecharged = HasUsedAnyOfResource(playerConfigs, resource);
-                        if (canBeRecharged) {
-                            const remainingResources = GetRemainingUsesForResource(playerConfigs, resource);
-                            let newResourceAmount = remainingResources + longRestRecharge;
-                            SetRemainingUsesForResource(playerConfigs, newCurrentStatus, resource, newResourceAmount);
-                        }
-                    }
-                }
+    // Check resources.
+    const allResources = getAllStandardResourcesForCharacter(playerConfigs);
+    for (let resource of allResources) {
+        const longRestRecharge = resource.longRestRecharge;
+        if (longRestRecharge || longRestRecharge === 0) {
+            const canBeRecharged = HasUsedAnyOfResource(playerConfigs, resource);
+            if (canBeRecharged) {
+                const remainingResources = GetRemainingUsesForResource(playerConfigs, resource);
+                let newResourceAmount = remainingResources + longRestRecharge;
+                SetRemainingUsesForResource(playerConfigs, newCurrentStatus, resource, newResourceAmount);
             }
         }
     }

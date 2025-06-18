@@ -594,7 +594,7 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
     return finalSavingThrow;
 }
 
-export function calculateUnarmedAttackBonus(playerConfigs) {
+export function calculateUnarmedAttackBonus(playerConfigs, additionalEffects) {
     let attackBonus = createDiceObjectWithType({});
 
     let highestValidAbility = undefined;
@@ -604,9 +604,9 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
     highestValidAbility = "strength";
     highestValidAbilityModifier = strengthModifier;
 
-    findAllConfiguredAspects(playerConfigs, "alternateUnarmedAttackModifier", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigs, "alternateUnarmedAttackModifier", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this alternate modifier to apply.
                 return;
@@ -615,7 +615,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
 
         let modifierName;
         if (aspectValue.calculation) {
-            modifierName = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+            modifierName = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, additionalEffects });
         } else {
             modifierName = aspectValue;
         }
@@ -634,9 +634,9 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
     attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigs));
     
     // See if there are additional bonuses to apply to our attack.
-    findAllConfiguredAspects(playerConfigs, "unarmedAttackBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigs, "unarmedAttackBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -645,7 +645,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
 
         let unarmedAttackBonus;
         if (aspectValue.calculation) {
-            unarmedAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
+            unarmedAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject, additionalEffects });
         } else {
             unarmedAttackBonus = aspectValue;
         }
@@ -653,9 +653,9 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
         attackBonus = addDiceObjectsWithTypeTogether(attackBonus, unarmedAttackBonus);
     });
 
-    findAllConfiguredAspects(playerConfigs, "allAttackBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigs, "allAttackBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -664,7 +664,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
 
         let allAttackBonus;
         if (aspectValue.calculation) {
-            allAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject });
+            allAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, playerConfigForObject, additionalEffects });
         } else {
             allAttackBonus = aspectValue
         }
@@ -676,7 +676,7 @@ export function calculateUnarmedAttackBonus(playerConfigs) {
     if (!amount) {
         amount = "0";
     }
-    let addendum = calculateAddendumAspects(playerConfigs, ["unarmedAttackAddendum", "allAttackAddendum"], [], { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
+    let addendum = calculateAddendumAspects(playerConfigs, ["unarmedAttackAddendum", "allAttackAddendum"], additionalEffects, { attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     return { amount, addendum };
 }
@@ -935,7 +935,7 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, addi
     if (!amount) {
         amount = "0";
     }
-    let addendum = calculateAddendumAspects(playerConfigs, ["weaponAttackAddendum", "allAttackAddendum"], additionalEffects, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier, additionalEffects });
+    let addendum = calculateAddendumAspects(playerConfigs, ["weaponAttackAddendum", "allAttackAddendum"], additionalEffects, { weapon, isThrown, attackAbility: highestValidAbility, attackAbilityModifier: highestValidAbilityModifier });
 
     if (weapon.properties) {
         const propertiesMap = getNameDictionaryForCollection("properties");
@@ -1109,7 +1109,7 @@ export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLi
     return finalDamage;
 }
 
-export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
+export function calculateSpellAttack(playerConfigs, additionalEffects, spell, slotLevel) {
     let attackBonus = createDiceObjectWithType({});
 
     let playerConfigsToUse = playerConfigs;
@@ -1134,9 +1134,9 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     attackBonus = addDiceObjectsWithTypeTogether(attackBonus, calculateProficiencyBonus(playerConfigsToUse));
     
     // See if there are additional bonuses to apply to our attack.
-    findAllConfiguredAspects(playerConfigsToUse, "spellAttackBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigsToUse, "spellAttackBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -1145,16 +1145,16 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 
         let spellAttackBonus;
         if (aspectValue.calculation) {
-            spellAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            spellAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects });
         } else {
             spellAttackBonus = aspectValue;
         }
         attackBonus = addDiceObjectsWithTypeTogether(attackBonus, spellAttackBonus);
     });
 
-    findAllConfiguredAspects(playerConfigsToUse, "allAttackBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigsToUse, "allAttackBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -1163,7 +1163,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
 
         let allAttackBonus;
         if (aspectValue.calculation) {
-            allAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            allAttackBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects });
         } else {
             allAttackBonus = aspectValue;
         }
@@ -1174,16 +1174,16 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     if (!amount) {
         amount = "0";
     }
-    let addendum = calculateAddendumAspects(playerConfigs, ["spellAttackAddendum", "allAttackAddendum"], [], { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    let addendum = calculateAddendumAspects(playerConfigs, ["spellAttackAddendum", "allAttackAddendum"], additionalEffects, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     if (spellToUse.challengeType === "attackRoll") {
-        const spellRange = calculateRange(playerConfigsToUse, spell.range);
+        const spellRange = calculateRange(playerConfigsToUse, additionalEffects, spell.range);
         // TODO: Need to differentiate between melee and ranged spell attacks.
         if (isNumeric(spellRange) && spellRange > 5) {
             const miscMap = getNameDictionaryForCollection("misc");
             const rangedMisc = miscMap["Ranged"];
     
-            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, additionalEffects });
 
             if (rangedString) {
                 if (addendum.length > 0) {
@@ -1198,7 +1198,7 @@ export function calculateSpellAttack(playerConfigs, spell, slotLevel) {
     return { amount, addendum };
 }
 
-export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
+export function calculateSpellSaveDC(playerConfigs, additionalEffects, spell, slotLevel) {
     let spellSaveDC = createDiceObjectWithType({});
 
     let playerConfigsToUse = playerConfigs;
@@ -1226,9 +1226,9 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     spellSaveDC = addDiceObjectsWithTypeTogether(spellSaveDC, calculateProficiencyBonus(playerConfigsToUse));
     
     // See if there are additional bonuses to apply to our attack.
-    findAllConfiguredAspects(playerConfigsToUse, "spellSaveDCBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigsToUse, "spellSaveDCBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -1248,12 +1248,12 @@ export function calculateSpellSaveDC(playerConfigs, spell, slotLevel) {
     if (!dc) {
         dc = "0";
     }
-    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", [], { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
+    const addendum = calculateAddendumAspect(playerConfigs, "spellSaveDCAddendum", additionalEffects, { spell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
     return { dc, addendum };
 }
 
-export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalParams = undefined) {
+export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalEffects, additionalParams = undefined) {
     let playerConfigsToUse = playerConfigs;
     let spellToUse = spell;
     if (spell.feature.spellcasting.fromParentFeature) {
@@ -1270,13 +1270,13 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigsToUse, spellcastingAbility + "Modifier");
 
     // Start with the spell's calculation
-    let spellAspect = performDiceRollCalculation(playerConfigsToUse, spell[aspectName].calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, ...additionalParams });
+    let spellAspect = performDiceRollCalculation(playerConfigsToUse, spell[aspectName].calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, additionalEffects, ...additionalParams });
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
-        findAllConfiguredAspects(playerConfigsToUse, aspectBonusName, [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        findAllConfiguredAspects(playerConfigsToUse, aspectBonusName, additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
+                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects, ...additionalParams });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -1285,7 +1285,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
 
             let aspectBonus
             if (aspectValue.calculation) {
-                aspectBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, ...additionalParams });
+                aspectBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects, ...additionalParams });
             } else {
                 aspectBonus = aspectValue;
             }
@@ -1332,36 +1332,36 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
     return amount;
 }
 
-export function calculateAttackRollForAttackRollType(playerConfigs, actionObject, castAtLevel, attackRollType) {
+export function calculateAttackRollForAttackRollType(playerConfigs, additionalEffects, actionObject, castAtLevel, attackRollType) {
     switch (attackRollType) {
         // TODO: Need to differentiate between melee and ranged spell attacks.
         case "spellAttack":
-            return calculateSpellAttack(playerConfigs, actionObject, castAtLevel);
+            return calculateSpellAttack(playerConfigs, additionalEffects, actionObject, castAtLevel);
         case "unarmedAttack":
-            return calculateUnarmedAttackBonus(playerConfigs);
+            return calculateUnarmedAttackBonus(playerConfigs, additionalEffects);
     }
 }
 
-export function calculateRange(playerConfigs, range) {
+export function calculateRange(playerConfigs, additionalEffects, range) {
     if (range) {
         if (isObject(range) && (range.normal || range.long)) {
             let rangeString = "";
             if (range.normal) {
-                rangeString += calculateSingleRange(playerConfigs, range.normal);
+                rangeString += calculateSingleRange(playerConfigs, additionalEffects, range.normal);
             }
             if (range.long) {
                 rangeString += "/";
-                rangeString += calculateSingleRange(playerConfigs, range.long);
+                rangeString += calculateSingleRange(playerConfigs, additionalEffects, range.long);
             }
             return rangeString;
         } else {
-            return calculateSingleRange(playerConfigs, range);
+            return calculateSingleRange(playerConfigs, additionalEffects, range);
         }
     }
     return undefined;
 }
 
-function calculateSingleRange(playerConfigs, singleRange) {
+function calculateSingleRange(playerConfigs, additionalEffects, singleRange) {
     let range;
     if (isObject(singleRange) && singleRange.calculation) {
         range = performMathCalculation(playerConfigs, singleRange.calculation);
@@ -1370,9 +1370,9 @@ function calculateSingleRange(playerConfigs, singleRange) {
     }
 
     if (isNumeric(range)) {
-        findAllConfiguredAspects(playerConfigs, "rangeBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        findAllConfiguredAspects(playerConfigs, "rangeBonus", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range });
+                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range, additionalEffects });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -1381,16 +1381,16 @@ function calculateSingleRange(playerConfigs, singleRange) {
 
             let rangeBonus;
             if (aspectValue.calculation) {
-                rangeBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range });
+                rangeBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range, additionalEffects });
             } else {
                 rangeBonus = aspectValue;
             }
             range += rangeBonus;
         });
 
-        findAllConfiguredAspects(playerConfigs, "rangeMultiplier", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        findAllConfiguredAspects(playerConfigs, "rangeMultiplier", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
             if (aspectValue.conditions) {
-                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range });
+                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range, additionalEffects });
                 if (!conditionsAreMet) {
                     // We did not meet the conditions for this bonus to apply.
                     return;
@@ -1399,7 +1399,7 @@ function calculateSingleRange(playerConfigs, singleRange) {
 
             let rangeMultiplier;
             if (aspectValue.calculation) {
-                rangeMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range });
+                rangeMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range, additionalEffects });
             } else {
                 rangeMultiplier = aspectValue;
             }
@@ -1407,9 +1407,9 @@ function calculateSingleRange(playerConfigs, singleRange) {
         });
     }
 
-    findAllConfiguredAspects(playerConfigs, "rangeOverride", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+    findAllConfiguredAspects(playerConfigs, "rangeOverride", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, range, additionalEffects });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;
@@ -1418,7 +1418,7 @@ function calculateSingleRange(playerConfigs, singleRange) {
 
         let rangeOverride;
         if (aspectValue.calculation) {
-            rangeOverride = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range });
+            rangeOverride = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, range, additionalEffects });
         } else {
             rangeOverride = aspectValue;
         }
@@ -1728,22 +1728,16 @@ let findAllConfiguredAspects_lastAspects = {};
 let findAllConfiguredAspects_levelsDeep = 0;
 
 function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, onAspectFound) {
+    // TODO: Instead of playerConfigForObject, we can pass multiple parameters and be a bit more specific. This is going to require a lot of work and an overhaul to our configs as well but will make everything so much cleaner and easier to use, write and read.
     const backgroundMap = getNameDictionaryForCollection("backgrounds");
     const speciesMap = getNameDictionaryForCollection("species");
-    const featMap = getNameDictionaryForCollection('feats');
-    const eldrichinvocationMap = getNameDictionaryForCollection('eldrichinvocations');
-    const subclassMap = getNameDictionaryForCollection('subclasses');
+    const featMap = getNameDictionaryForCollection("feats");
+    const eldrichinvocationMap = getNameDictionaryForCollection("eldrichinvocations");
+    const subclassMap = getNameDictionaryForCollection("subclasses");
 
     // Check additional effects first.
     if (additionalEffects && additionalEffects.length > 0) {
-        for (let additionalEffect of additionalEffects) {
-            if (additionalEffect.effects) {
-                const additionalEffectAspectValue = additionalEffect.effects[aspectName];
-                if (additionalEffectAspectValue) {
-                    onAspectFound(playerConfigs, additionalEffectAspectValue, "additionalEffect", additionalEffect);
-                }
-            }
-        }    
+        processAdditionalEffects(playerConfigs, additionalEffects, "additionalEffects", aspectName, onAspectFound);  
     }
 
     // Check the base player for the aspect.
@@ -1951,6 +1945,10 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                 for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
                     processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_collections, aspectName, onAspectFound);
 
+                    if (activeEffect.additionalEffects && activeEffect.additionalEffects.length > 0) {
+                        processAdditionalEffects(playerConfigs, activeEffect.additionalEffects, "aspects", aspectName, onAspectFound, "activeEffect", activeEffect); 
+                    }
+
                     if (activeEffect.allies) {
                         for (let ally of activeEffect.allies) {
                             findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
@@ -1976,6 +1974,50 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
             delete findAllConfiguredAspects_lastAspects[aspectName];
             if (findAllConfiguredAspects_levelsDeep === 0) {
                 findAllConfiguredAspects_collections = undefined;
+            }
+        }
+    }
+}
+
+function processAdditionalEffects(playerConfigs, additionalEffects, searchType, aspectName, onAspectFound, typeFoundOn = undefined, playerConfigForObject = undefined) {
+    let spellName2Spell = undefined
+    const metamagicMap = getNameDictionaryForCollection("metamagic");
+    for (let additionalEffect of additionalEffects) {
+        let baseEffectObject = undefined;
+        switch (additionalEffect.type) {
+            case "spell":
+                if (spellName2Spell === undefined) {
+                    const spellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+                    const playerSpells = getAllSpells(playerConfigs, spellCastingFeatures);
+                    spellName2Spell = convertArrayToDictionary(playerSpells, "name");
+                }
+                baseEffectObject = spellName2Spell[additionalEffect.name];
+                break;
+            case "metamagic":
+                baseEffectObject = metamagicMap[additionalEffect.name];
+                break;
+        }
+
+        if (baseEffectObject) {
+            let additionalEffectsObject = undefined;
+            if (additionalEffect.path) {
+                const pathedToObject = getValueFromObjectAndPath(baseEffectObject, additionalEffect.path);
+                if (pathedToObject) {
+                    additionalEffectsObject = pathedToObject[searchType];
+                }
+            } else {
+                additionalEffectsObject = baseEffectObject[searchType];
+            }
+
+            if (additionalEffectsObject) {
+                const additionalEffectAspectValue = additionalEffectsObject[aspectName];
+                if (additionalEffectAspectValue) {
+                    if (typeFoundOn && playerConfigForObject) {
+                        onAspectFound(playerConfigs, additionalEffectAspectValue, typeFoundOn, playerConfigForObject);
+                    } else {
+                        onAspectFound(playerConfigs, additionalEffectAspectValue, additionalEffect.type, baseEffectObject);
+                    }
+                }
             }
         }
     }
@@ -2889,7 +2931,31 @@ export function findResource(playerConfigs, resourceSource, typeForResource, pla
     }
 }
 
-export function getAllResourcesForObject(playerConfigs, resourceSource, typeForResource, playerConfigsForResource) {
+export function findResourceFromAllResources(playerConfigs, resourceName) {
+    let resourceToFind = undefined;
+    findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (Array.isArray(aspectValue)) {
+            for (let singleResource of aspectValue) {
+                if (!resourceToFind) {
+                    if (singleResource.name === resourceName) {
+                        if (singleResource.combineGlobalResources) {
+                            resourceToFind = generateGlobalResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                        } else {
+                            resourceToFind = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                        }
+                    }
+
+                    if (singleResource.combineGlobalResources && (singleResource.name + singleResource.subName) === resourceName) {
+                        resourceToFind = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                    }
+                }
+            }
+        }
+    });
+    return resourceToFind;
+}
+
+export function getAllStandardResourcesForObject(playerConfigs, resourceSource, typeForResource, playerConfigsForResource) {
     let resourceSourceResources = undefined;
     if (resourceSource.resources) {
         resourceSourceResources = resourceSource.resources;
@@ -2904,6 +2970,19 @@ export function getAllResourcesForObject(playerConfigs, resourceSource, typeForR
     for (let originalResource of resourceSourceResources) {
         allResources.push(generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource));
     }
+    return allResources;
+}
+
+export function getAllStandardResourcesForCharacter(playerConfigs) {
+    const allResources = [];
+    findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (Array.isArray(aspectValue)) {
+            for (let singleResource of aspectValue) {
+                const resourceToAdd = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                allResources.push(resourceToAdd);
+            }
+        }
+    });
     return allResources;
 }
 

@@ -98,7 +98,7 @@ export function SetRemainingUsesForResource(playerConfigs, newCurrentStatus, res
 
         if (newTotal < currentTotal) {
             let totalToSubtract = currentTotal - newTotal;
-            for (let i = resource.subResources.length - 1; i <= 0; i++) {
+            for (let i = resource.subResources.length - 1; i >= 0; i--) {
                 const subName = resource.subResources[i].subName;
                 const maxCalculation = resource.subResources[i].maxCalculation;
                 const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation);

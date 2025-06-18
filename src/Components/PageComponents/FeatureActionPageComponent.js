@@ -36,7 +36,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         actionCondition = featureAction.actionCondition;
     }
 
-    const range = calculateRange(playerConfigs, featureAction.range);
+    const range = calculateRange(playerConfigs, [], featureAction.range);
     let description = parseStringForBoldMarkup(featureAction.description);
 
     if (copyLinkToItem) {
@@ -80,7 +80,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         featureAction.feature = allPossibleFeatures.find(feature => feature.spellcasting);
 
         if (featureAction.challengeType === "attackRoll") {
-            const attack = calculateAttackRollForAttackRollType(playerConfigs, featureAction, undefined, featureAction.attackRollType);
+            const attack = calculateAttackRollForAttackRollType(playerConfigs, [], featureAction, undefined, featureAction.attackRollType);
             attackRoll = attack.amount;
             if (attack.addendum) {
                 attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -90,7 +90,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         if (featureAction.challengeType === "savingThrow") {
             savingThrowType = featureAction.savingThrowType;
 
-            const savingThrowCalc = calculateSpellSaveDC(playerConfigs, featureAction, undefined);
+            const savingThrowCalc = calculateSpellSaveDC(playerConfigs, [], featureAction, undefined);
             savingThrowDc = savingThrowCalc.dc;
             if (savingThrowCalc.addendum) {
                 savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);

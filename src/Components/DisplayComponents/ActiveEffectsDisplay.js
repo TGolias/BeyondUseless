@@ -51,7 +51,7 @@ function openViewMenuForActiveEffect(playerConfigs, activeEffect, activeEffectIn
                 const playerSpell = playerSpells.find(spell => spell.name === activeEffect.name);
 
                 playAudio("menuaudio");
-                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", activeEffectIndex: activeEffectIndex, spell: playerSpell, playerConfigs: playerConfigsToSet, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap, feature: playerSpell.feature } } });
+                setCenterScreenMenu({ show: true, menuType: "ViewMenu", data: { menuTitle: activeEffect.name, viewType: "spell", activeEffectIndex: activeEffectIndex, spell: playerSpell, playerConfigs: playerConfigsToSet, data: { castAtLevel: activeEffect.castAtLevel, userInput: activeEffect.userInput, targetNamesMap: activeEffect.targetNamesMap, additionalEffects: activeEffect.additionalEffects, feature: playerSpell.feature } } });
                 break;
             case "featureaction":
                 const actionFeatures = getAllActionFeatures(playerConfigsToSet);

@@ -1,15 +1,17 @@
 import React from "react";
 import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
-import { getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { findResourceFromAllResources, getAllSelectedMetamagicOptions, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
-import { getCollection } from "../../Collections";
+import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 import { UseSpellSlotComponent } from "../SharedComponents/UseSpellSlotComponent";
+import { MetamagicComponent } from "../SharedComponents/MetamagicComponent";
+import { SetRemainingUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
 
-export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
+export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
     playerConfigsClone.currentStatus = {...playerConfigsClone.currentStatus};
 
@@ -30,6 +32,8 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
             remainingFreeUses = menuConfig.spell.freeUses;
         }
     }
+
+    const metamagicOptions = getAllSelectedMetamagicOptions(playerConfigs);
 
     let spellcastingLevel = 0
     let spellSlotsRemainingForSlotLevel = 0
@@ -143,12 +147,17 @@ export function SpellMenu({sessionId, playerConfigs, setCenterScreenMenu, menuCo
         data.castAtLevel = menuConfig.useSpellSlotLevel;
     }
 
+    if (menuConfig.additionalEffects) {
+        data.additionalEffects = menuConfig.additionalEffects;
+    }
+
     return (<>
         <div className="spellMenuWrapperDiv">
             <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
-        <div style={{display: (menuConfig.spell.level ? "block" : "none")}} className="centerMenuSeperator"></div>
+        <div style={{display: (menuConfig.spell.level || metamagicOptions.length > 0 || menuConfig.spell.userInput.length > 0 ? "block" : "none")}} className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
+        <MetamagicComponent playerConfigs={playerConfigsClone} metamagicOptions={metamagicOptions} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} addToMenuStack={addToMenuStack} setCenterScreenMenu={setCenterScreenMenu}></MetamagicComponent>
         <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} pactSlotCastLevel={pactSlotCastLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
@@ -163,6 +172,22 @@ function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, menuConf
     // If any hit dice are expended, put them on the new player configs.
     if (menuConfig.remainingHitDice) {
         playerConfigsClone.currentStatus.remainingHitDice = menuConfig.remainingHitDice;
+    }
+
+    if (menuConfig.additionalEffects && menuConfig.additionalEffects.length > 0) {
+        const metamagicMap = getNameDictionaryForCollection("metamagic");
+        let metamagicPointsConsumed = 0;
+        for (let additionalEffect of menuConfig.additionalEffects) {
+            if (additionalEffect.type === "metamagic") {
+                const dndMetamagic = metamagicMap[additionalEffect.name];
+                metamagicPointsConsumed = dndMetamagic.cost;
+            }
+        }
+
+        if (metamagicPointsConsumed > 0) {
+            const sorceryPoints = findResourceFromAllResources(playerConfigsClone, "sorceryPoints");
+            SetRemainingUsesForResource(playerConfigsClone, playerConfigsClone.currentStatus, sorceryPoints, sorceryPoints.remainingUses - metamagicPointsConsumed);
+        }
     }
 
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {

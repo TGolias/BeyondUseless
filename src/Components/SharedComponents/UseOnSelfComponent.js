@@ -94,17 +94,17 @@ function doesSpellOrFeatureActionTypeInclude(menuConfig, typeToCheck) {
 function calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, aspectName, aspectBonusName) {
     if (menuConfig.spell) {
         // This is a spell.
-        return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, aspectName, aspectBonusName, { userInput: menuConfig.userInput });
+        return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
     } else if (menuConfig.featureAction) {
         // This is a feature action.
-        return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.featureAction, aspectName, aspectBonusName, [], { userInput: menuConfig.userInput });
+        return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.featureAction, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
     } else { // if (menuConfig.item) {
         if (menuConfig.item.consumeEffect) {
             // This is an item consumeEffect.
-            return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.item.consumeEffect, aspectName, aspectBonusName, [], { userInput: menuConfig.userInput });
+            return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.item.consumeEffect, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
         } else  {// if (menuConfig.item.spell) {
             // This is an item spell.
-            return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.item.spell, menuConfig.item.spell.level, aspectName, aspectBonusName, { userInput: menuConfig.userInput });
+            return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.item.spell, menuConfig.item.spell.level, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
         }
     }
 }

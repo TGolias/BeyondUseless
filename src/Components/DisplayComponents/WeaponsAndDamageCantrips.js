@@ -32,15 +32,15 @@ const rows = [
             }
         },
         calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
-            const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, weaponAttackCantrip ? [{ type: "spell", object: weaponAttackCantrip, effects: weaponAttackCantrip.weaponAttack.additionalEffects }] : []);
+            const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []);
             return addLeadingPlusIfNumericAndPositive(attack.amount);
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
-                const spellSave = calculateSpellSaveDC(playerConfigs, dndCantrip, 0);
+                const spellSave = calculateSpellSaveDC(playerConfigs, [], dndCantrip, 0);
                 return "DC" + spellSave.dc;
             } else {
-                const attack = calculateAttackRollForAttackRollType(playerConfigs, dndCantrip, 0, dndCantrip.attackRollType);
+                const attack = calculateAttackRollForAttackRollType(playerConfigs, [], dndCantrip, 0, dndCantrip.attackRollType);
                 return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         }
@@ -55,11 +55,11 @@ const rows = [
             return "";
         },
         calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
-            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false, weaponAttackCantrip ? [{ type: "spell", object: weaponAttackCantrip, effects: weaponAttackCantrip.weaponAttack.additionalEffects}] : []);
+            const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false, weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []);
             return amount;
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
-            const amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, 0, "damage", "spellDamageBonus");
+            const amount = calculateOtherSpellAspect(playerConfigs, dndCantrip, 0, "damage", "spellDamageBonus", []);
             return amount;
         },
         addClass: "lastCol"
@@ -164,7 +164,7 @@ function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
 
 function openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, additionalEffects: (weaponAttackCantrip ? [{ type: "spell", object: weaponAttackCantrip, effects: weaponAttackCantrip.weaponAttack.additionalEffects }] : []) } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, additionalEffects: (weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []) } });
 }
 
 function openMenuForUnarmedStrike(dndUnarmedStrike, setCenterScreenMenu) {

@@ -17,7 +17,7 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
     } else {
         actionTime = unarmedStrike.castingTime;
     }
-    const range = calculateRange(playerConfigs, unarmedStrike.range);
+    const range = calculateRange(playerConfigs, [], unarmedStrike.range);
     let description = parseStringForBoldMarkup(unarmedStrike.description);
 
     if (copyLinkToItem) {
