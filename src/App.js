@@ -677,6 +677,15 @@ export default function App() {
       }
     },
     {
+      text: "UPDATE CONFIG",
+      buttonSound: "menuaudio",
+      clickHandler: async () => {
+        setShowStartMenu(false);
+        await clearAllCollections();
+        window.location.reload();
+      }
+    },
+    {
       text: "UNDO",
       disabled: (currentHistoryIndex === 0 && !addChangesToHistoryTimeout),
       clickHandler: undoPlayerConfigs
@@ -749,15 +758,6 @@ export default function App() {
       clickHandler: () => {
         setShowStartMenu(false);
         setCenterScreenMenu({ show: true, menuType: "LinkCableMenu", overrides: undefined, data: {} });
-      }
-    },
-    {
-      text: "CACHE RESET",
-      buttonSound: "menuaudio",
-      clickHandler: async () => {
-        setShowStartMenu(false);
-        await clearAllCollections();
-        window.location.reload();
       }
     },
     {
