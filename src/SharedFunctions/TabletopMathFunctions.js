@@ -269,6 +269,16 @@ export function calculateSpeed(playerConfigs) {
         speed = multiplyDiceObjectsWithTypeByMultiplier(speed, speedMultiplier);
     });
 
+    findAllConfiguredAspects(playerConfigs, "speedDivider", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        let speedDivider;
+        if (aspectValue.calculation) {
+            speedDivider = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            speedDivider = aspectValue;
+        }
+        speed = multiplyDiceObjectsWithTypeByMultiplier(speed, 1 / speedDivider);
+    });
+
     const finalSpeed = convertDiceRollWithTypeToValue(speed);
     if (!finalSpeed) {
         return 0;
