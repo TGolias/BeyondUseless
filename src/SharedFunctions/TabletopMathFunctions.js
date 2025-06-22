@@ -1,7 +1,7 @@
 import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
-import { GetHeldItems } from "./EquipmentFunctions";
+import { GetHeldItems, GetOpenHands } from "./EquipmentFunctions";
 import { GetMaxUsesForResource, GetRemainingUsesForResource } from "./ResourcesFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
@@ -182,6 +182,30 @@ export function currentWeightCarried(items) {
         }
     }
     return weightCarried;
+}
+
+export function calculateNumberOfHands(playerConfigs) {
+    let numberOfHands = 2;
+
+    findAllConfiguredAspects(playerConfigs, "numberOfHandsBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let numberOfHandsBonus;
+        if (aspectValue.calculation) {
+            numberOfHandsBonus = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            numberOfHandsBonus = aspectValue;
+        }
+        numberOfHands += numberOfHandsBonus;
+    });
+    
+    return numberOfHands;
 }
 
 export function calculateSpeed(playerConfigs) {
@@ -998,10 +1022,9 @@ export function calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, addi
 export function calculateWeaponDamage(playerConfigs, weapon, isThrown, isExtraLightAttack, isExtraCleaveAttack, additionalEffects = []) {
     let damage = undefined;
     if (weapon.properties && weapon.properties.includes("Versatile")) {
-        // Check if they can actually two-hand the weapon.
-        const heldItems = GetHeldItems(playerConfigs.items);
-        if (heldItems.length === 1 && heldItems[0].name === weapon.name) {
-
+        // Check if they can actually two-hand the weapon. They need an open hand to be able to use for it.
+        const openHands = GetOpenHands(playerConfigs, playerConfigs.items);
+        if (openHands > 0) {
             damage = performDiceRollCalculation(playerConfigs, weapon.twoHandedDamage.calculation);
         }
     }

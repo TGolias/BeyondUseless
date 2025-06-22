@@ -12,7 +12,7 @@ const rows = [
     {
         name: "Equip",
         calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
-            const canItemBeEquipped = CanEquipItem(menuConfig.items, item);
+            const canItemBeEquipped = CanEquipItem(playerConfigs, menuConfig.items, item);
             return (<>
                 <CheckboxInput baseStateObject={menuConfig} pathToProperty={"items[" + i + "].equipped"} inputHandler={menuStateChangeHandler} disabled={!itemConfig.equipped && !canItemBeEquipped}></CheckboxInput>
             </>);

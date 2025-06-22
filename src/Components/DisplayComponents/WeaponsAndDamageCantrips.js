@@ -87,7 +87,7 @@ export function WeaponsAndDamageCantrips({playerConfigs, setCenterScreenMenu}) {
         }
     }
 
-    const openHands = GetOpenHands(playerConfigs.items);
+    const openHands = GetOpenHands(playerConfigs, playerConfigs.items);
     const hasAtLeastOneOpenHand = openHands > 0;
     // Check unarmed strikes.
     const unarmedStrikes = getCollection("unarmed");

@@ -1,9 +1,9 @@
 import { getNameDictionaryForCollection } from "../Collections";
-import { getItemFromItemTemplate } from "./TabletopMathFunctions";
+import { calculateNumberOfHands, getItemFromItemTemplate } from "./TabletopMathFunctions";
 
-export function CanEquipItem(playerItems, item) {
+export function CanEquipItem(playerConfigs, playerItems, item) {
     if (IsItemHoldable(item)) {
-        const openHands = GetOpenHands(playerItems);
+        const openHands = GetOpenHands(playerConfigs, playerItems);
         const isTryingToEquipTwoHanded = item.type === "Weapon" && item.properties && item.properties.includes("Two-Handed");
         if (isTryingToEquipTwoHanded) {
             return openHands >= 2;
@@ -27,13 +27,16 @@ export function CanEquipItem(playerItems, item) {
     return true;
 }
 
-export function GetOpenHands(playerItems) {
+export function GetOpenHands(playerConfigs, playerItems) {
+    const numberOfHands = calculateNumberOfHands(playerConfigs);
+
     const heldItems = GetHeldItems(playerItems);
-    const hasTwoHandedWeapon = heldItems.some(item => item.type === "Weapon" && item.properties && item.properties.includes("Two-Handed"));
-    if (!hasTwoHandedWeapon && heldItems.length < 2) {
-        return 2 - heldItems.length;
+    const numberOfOccupiedHands = heldItems.map(item => item.type === "Weapon" && item.properties && item.properties.includes("Two-Handed") ? 2 : 1).reduce((a, b) => a + b, 0);
+    let openHands = numberOfHands - numberOfOccupiedHands;
+    if (openHands < 0) {
+        openHands = 0;
     }
-    return 0;
+    return openHands;
 }
 
 export function GetHeldItems(playerItems) {

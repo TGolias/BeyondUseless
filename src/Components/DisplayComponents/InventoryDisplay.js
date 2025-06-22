@@ -18,7 +18,7 @@ const rows = [
         },
         calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
             if (dndItem?.equippable) {
-                const canItemBeEquipped = CanEquipItem(playerConfigs.items, dndItem);
+                const canItemBeEquipped = CanEquipItem(playerConfigs, playerConfigs.items, dndItem);
                 return <>
                     <CheckboxInput baseStateObject={playerConfigs} pathToProperty={"items[" + i + "].equipped"} inputHandler={inputChangeHandler} disabled={!item.equipped && !canItemBeEquipped}></CheckboxInput>
                 </>
