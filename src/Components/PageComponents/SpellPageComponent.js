@@ -116,7 +116,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.challengeType === "attackRoll") {
-                    const attack = calculateAttackRollForAttackRollType(playerConfigs, additionalEffects, spell, castAtLevel, spell.attackRollType);
+                    const attack = calculateAttackRollForAttackRollType(playerConfigs, additionalEffects, spell, true, castAtLevel, spell.attackRollType);
                     attackRoll = attack.amount;
                     if (attack.addendum) {
                         attackRollAddendum = parseStringForBoldMarkup(attack.addendum);
@@ -126,7 +126,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 if (spell.challengeType === "savingThrow") {
                     savingThrowType = spell.savingThrowType;
 
-                    const savingThrowCalc = calculateSpellSaveDC(playerConfigs, additionalEffects, spell, castAtLevel);
+                    const savingThrowCalc = calculateSpellSaveDC(playerConfigs, additionalEffects, spell, true, castAtLevel);
                     savingThrowDc = savingThrowCalc.dc;
                     if (savingThrowCalc.addendum) {
                         savingThrowDcAddendum = parseStringForBoldMarkup(savingThrowCalc.addendum);

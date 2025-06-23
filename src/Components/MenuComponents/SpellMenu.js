@@ -155,7 +155,7 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         <div className="spellMenuWrapperDiv">
             <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
-        <div style={{display: (menuConfig.spell.level || metamagicOptions.length > 0 || menuConfig.spell.userInput.length > 0 ? "block" : "none")}} className="centerMenuSeperator"></div>
+        <div style={{display: (menuConfig.spell.level || metamagicOptions.length > 0 || (menuConfig.spell.userInput && menuConfig.spell.userInput.length > 0) ? "block" : "none")}} className="centerMenuSeperator"></div>
         <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
         <MetamagicComponent playerConfigs={playerConfigsClone} metamagicOptions={metamagicOptions} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} addToMenuStack={addToMenuStack} setCenterScreenMenu={setCenterScreenMenu}></MetamagicComponent>
         <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} pactSlotCastLevel={pactSlotCastLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>

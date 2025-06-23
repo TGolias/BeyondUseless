@@ -37,10 +37,10 @@ const rows = [
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             if (dndCantrip.challengeType === "savingThrow") {
-                const spellSave = calculateSpellSaveDC(playerConfigs, [], dndCantrip, 0);
+                const spellSave = calculateSpellSaveDC(playerConfigs, [], dndCantrip, true, 0);
                 return "DC" + spellSave.dc;
             } else {
-                const attack = calculateAttackRollForAttackRollType(playerConfigs, [], dndCantrip, 0, dndCantrip.attackRollType);
+                const attack = calculateAttackRollForAttackRollType(playerConfigs, [], dndCantrip, true, 0, dndCantrip.attackRollType);
                 return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         }
