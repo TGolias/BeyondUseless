@@ -174,8 +174,8 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
 
     const creatures = effectType.getCreatures(playerConfigsClone, menuConfig);
 
-    // We want to track the spell if it is not Instantaneous or has a creatures.
-    if (actionObject.duration !== "Instantaneous" || creatures) {
+    // We want to track the spell if it is not Instantaneous, is a buff, debuff or has a creatures.
+    if (actionObject.duration !== "Instantaneous" || actionObject.type.includes("buff") || actionObject.type.includes("debuff") || creatures) {
         if (actionObject.range === "Self") {
             const targetNamesMap = {};
             targetNamesMap[playerConfigsClone.name] = true;

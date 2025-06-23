@@ -251,8 +251,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             <div className="featureActionPageDescription" style={{display: (attackRollAddendum ? "block" : "none")}}>
                 <div>{attackRollAddendum}</div>
             </div>
-            <div className="featureActionPageDescription" style={{display: (savingThrowType ? "block" : "none")}}>
-                <div><b>DC{savingThrowDc}</b> {getCapitalizedAbilityScoreName(savingThrowType)}</div>
+            <div className="featureActionPageDescription" style={{display: (savingThrowDc || savingThrowType ? "block" : "none")}}>
+                <div><b>DC{savingThrowDc}</b>{savingThrowType ? " " + getCapitalizedAbilityScoreName(savingThrowType) : ""}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (savingThrowDcAddendum ? "block" : "none")}}>
                 <div>{savingThrowDcAddendum}</div>
@@ -270,10 +270,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 <div><b>Conditions Removed:</b> {restore}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: ((buffAmount || buffDescription) ? "block" : "none")}}>
-                <div><b>Buff:</b> {(buffAmount ? buffAmount + " " : "")}{buffDescription}</div>
+                <div><b>Buff:</b> {(buffAmount ? buffAmount : "")}{buffDescription ? " " : ""}{buffDescription}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: ((debuffAmount || debuffDescription) ? "block" : "none")}}>
-                <div><b>Debuff:</b> {debuffAmount ? debuffAmount + " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
+                <div><b>Debuff:</b> {debuffAmount ? debuffAmount : ""}{debuffDescription ? " " : ""}{parseStringForBoldMarkup(debuffDescription)}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
                 <div><b>Allied Creatures:</b> {creatures}</div>
@@ -285,7 +285,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 <div><b>Resources Gained</b> {restoreResource}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (targetNames ? "block" : "none")}}>
-                <div><b>Targets:</b> {targetNames}</div>
+                <div><b>Applied To:</b> {targetNames}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (feature ? "block" : "none")}}>
                 <div><b>Learned from:</b> {origin.value.name} - {feature.name}</div>

@@ -1,6 +1,6 @@
 import React from "react";
 import './MetamagicComponent.css'
-import { calculateDuration, calculateRange, findResourceFromAllResources, performBooleanCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateDuration, calculateMetamagicLimit, calculateRange, findResourceFromAllResources, performBooleanCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getNameDictionaryForCollection } from "../../Collections";
 
@@ -21,8 +21,7 @@ export function MetamagicComponent({playerConfigs, metamagicOptions, menuConfig,
 
             const metamagicMap = getNameDictionaryForCollection("metamagic");
 
-            // TODO: Later on this can be increased, we'll figure this out later, for now hardcode to 1.
-            const metamagicLimit = 1;
+            const metamagicLimit = calculateMetamagicLimit(playerConfigs);
 
             let anyMetamagic = false;
             let metamagicUsesSoFar = 0;

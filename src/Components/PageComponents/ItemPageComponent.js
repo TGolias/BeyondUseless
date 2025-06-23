@@ -356,7 +356,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                 {childItems}
             </div>
             <div className="itemPageDescription" style={{display: (targetNames ? "block" : "none")}}>
-                <div><b>Targets:</b> {targetNames}</div>
+                <div><b>Applied To:</b> {targetNames}</div>
             </div>
         </div>
     </>

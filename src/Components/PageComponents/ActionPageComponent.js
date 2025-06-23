@@ -105,7 +105,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
                 <div><b>Buff:</b> {parseStringForBoldMarkup(buffAmount)}{(buffAmount ? " " : "")}{parseStringForBoldMarkup(buffDescription)}</div>
             </div>
             <div className="actionPageDescription" style={{display: (targetNames ? "block" : "none")}}>
-                <div><b>Targets:</b> {targetNames}</div>
+                <div><b>Applied To:</b> {targetNames}</div>
             </div>
         </div>
     </>

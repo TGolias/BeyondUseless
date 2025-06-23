@@ -1506,6 +1506,31 @@ export function calculateDuration(playerConfigs, initialDuration, additionalEffe
     return duration
 }
 
+export function calculateMetamagicLimit(playerConfigs) {
+    let metamagicLimit = 1;
+
+    findAllConfiguredAspects(playerConfigs, "metamagicLimitBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let metamagicLimitBonus;
+        if (aspectValue.calculation) {
+            metamagicLimitBonus = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            metamagicLimitBonus = aspectValue;
+        }
+
+        metamagicLimit += metamagicLimitBonus;
+    });
+
+    return metamagicLimit;
+}
+
 export function calculateSavingThrowTypes(savingThrowType) {
     if (Array.isArray(savingThrowType)) {
         const saveThrowsCapitalized = savingThrowType.map(save => getCapitalizedAbilityScoreName(save));
