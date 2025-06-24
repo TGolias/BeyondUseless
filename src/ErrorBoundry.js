@@ -17,7 +17,6 @@ export class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      console.log(this.state.error);
       return <>
         <div style={{whiteSpace:"pre-wrap", overflowWrap:"break-word"}}>
             <h1>Oh no i died :(</h1>

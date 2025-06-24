@@ -11,7 +11,6 @@ export function MetamagicComponent({playerConfigs, metamagicOptions, menuConfig,
     let metamagicRows = [];
 
     if (metamagicOptions.length > 0) {
-        console.log(metamagicOptions);
         const sorceryPoints = findResourceFromAllResources(playerConfigs, "sorceryPoints");
     
         if (sorceryPoints && sorceryPoints.maxUses > 0) {

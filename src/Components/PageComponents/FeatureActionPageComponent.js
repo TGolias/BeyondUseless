@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 
@@ -77,7 +77,18 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
 
         // This works for now... We probably will need something better to get the associated spellcasting ability eventually.
         const allPossibleFeatures = GetAllPossibleFeaturesFromObject(origin.value);
-        featureAction.feature = allPossibleFeatures.find(feature => feature.spellcasting);
+        let spellcastingFeature = allPossibleFeatures.find(feature => feature.spellcasting);
+
+        if (!spellcastingFeature) {
+            const allSpellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+            let foundSpellcastingFeature = allSpellCastingFeatures.find(feature => feature.typeFoundOn === "class");
+            if (!foundSpellcastingFeature) {
+                foundSpellcastingFeature = allSpellCastingFeatures[0];
+            }
+
+            spellcastingFeature = foundSpellcastingFeature.feature;
+        }
+        featureAction.feature = spellcastingFeature;
 
         if (featureAction.challengeType === "attackRoll") {
             const attack = calculateAttackRollForAttackRollType(playerConfigs, [], featureAction, false, undefined, featureAction.attackRollType);
