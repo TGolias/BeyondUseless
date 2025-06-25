@@ -40,21 +40,45 @@ export function GetOpenHands(playerConfigs, playerItems) {
 }
 
 export function GetEquippedItems(playerItems) {
-    const equippedItems = [];
+    let equippedItems = [];
 
     const itemsDictionary = getNameDictionaryForCollection('items');
     for (let playerItem of playerItems) {
         if (playerItem.equipped) {
             const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
             equippedItems.push(actualItem);
+
+            if (playerItem.childItems && actualItem.childItems) {
+                const childItemsEquipped = processChildItemsEquipped(playerItem.childItems, actualItem.childItems);
+                equippedItems = [...equippedItems, ...childItemsEquipped];
+            }
         }
     }
 
     return equippedItems;
 }
 
+function processChildItemsEquipped(childItems, dndChildItems) {
+    let childItemsHeld = []
+    for (let i = 0; i < childItems.length; i++) {
+        const childItem = childItems[i];
+        if (childItem.equipped) {
+            const dndChildItem = dndChildItems[i];
+            if (IsItemHoldable(dndChildItem)) {
+                childItemsHeld.push(dndChildItem);
+            }
+
+            if (childItem.childItems && dndChildItem.childItems) {
+                const innerChildItemsHeld = processChildItemsHeld(childItem.childItems, dndChildItem.childItems);
+                childItemsHeld = [...childItemsHeld, ...innerChildItemsHeld];
+            }
+        }
+    }
+    return childItemsHeld;
+}
+
 export function GetHeldItems(playerItems) {
-    const heldItems = [];
+    let heldItems = [];
 
     const itemsDictionary = getNameDictionaryForCollection('items');
     for (let playerItem of playerItems) {
@@ -63,10 +87,34 @@ export function GetHeldItems(playerItems) {
             if (IsItemHoldable(actualItem)) {
                 heldItems.push(actualItem);
             }
+
+            if (playerItem.childItems && actualItem.childItems) {
+                const childItemsHeld = processChildItemsHeld(playerItem.childItems, actualItem.childItems);
+                heldItems = [...heldItems, ...childItemsHeld];
+            }
         }
     }
 
     return heldItems;
+}
+
+function processChildItemsHeld(childItems, dndChildItems) {
+    let childItemsHeld = []
+    for (let i = 0; i < childItems.length; i++) {
+        const childItem = childItems[i];
+        if (childItem.equipped) {
+            const dndChildItem = dndChildItems[i];
+            if (IsItemHoldable(dndChildItem)) {
+                childItemsHeld.push(dndChildItem);
+            }
+
+            if (childItem.childItems && dndChildItem.childItems) {
+                const innerChildItemsHeld = processChildItemsHeld(childItem.childItems, dndChildItem.childItems);
+                childItemsHeld = [...childItemsHeld, ...innerChildItemsHeld];
+            }
+        }
+    }
+    return childItemsHeld;
 }
 
 export function IsItemHoldable(item) {

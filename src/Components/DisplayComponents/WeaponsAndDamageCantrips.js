@@ -3,7 +3,7 @@ import './WeaponsAndDamageCantrips.css';
 import { getCollection, getNameDictionaryForCollection } from '../../Collections';
 import { addLeadingPlusIfNumericAndPositive, playAudio } from '../../SharedFunctions/Utils';
 import { calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
-import { GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
+import { GetEquippedItems, GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
 
 const rows = [
@@ -131,25 +131,22 @@ function pushCantripRowIfDamage(playerConfigs, weaponOrDamageCantripRows, itemNa
 function processAllWeapons(playerConfigs, itemName2Item, weaponAttackCantrip, weaponOrDamageCantripRows, setCenterScreenMenu) {
     // Check weapons
     let hasWeapons = false;
-    for (let item of playerConfigs.items) {
-        if (item.equipped) {
-            let dndItem = itemName2Item[item.name];
-            dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
-            if (dndItem.type === "Weapon") {
-                hasWeapons = true;
+    
+    for (let dndItem of GetEquippedItems(playerConfigs.items)) {
+        if (dndItem.type === "Weapon") {
+            hasWeapons = true;
 
-                // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
-                if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
-                    for (let row of rows) {
-                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false, weaponAttackCantrip)}</div>)
-                    }
+            // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
+            if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
+                for (let row of rows) {
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false, weaponAttackCantrip)}</div>)
                 }
+            }
 
-                // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
-                if (dndItem.properties.includes("Thrown")) {
-                    for (let row of rows) {
-                        weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true, weaponAttackCantrip)}</div>)
-                    }
+            // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
+            if (dndItem.properties.includes("Thrown")) {
+                for (let row of rows) {
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true, weaponAttackCantrip)}</div>)
                 }
             }
         }

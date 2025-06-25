@@ -1932,6 +1932,10 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                 if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
                     onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
                 }
+
+                if (item.childItems && dndItem.childItems) {
+                    processChildItems(playerConfigs, item.childItems, dndItem.childItems, aspectName, onAspectFound);
+                }
             }
         }
     }
@@ -2045,6 +2049,22 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
             delete findAllConfiguredAspects_lastAspects[aspectName];
             if (findAllConfiguredAspects_levelsDeep === 0) {
                 findAllConfiguredAspects_collections = undefined;
+            }
+        }
+    }
+}
+
+function processChildItems(playerConfigs, childItems, dndChildItems, aspectName, onAspectFound) {
+    for (let i = 0; i < childItems.length; i++) {
+        const childItem = childItems[0];
+        if (childItem.equipped) {
+            const dndChildItem = dndChildItems[0];
+            if (dndChildItem && (!dndChildItem.attunement || childItem.attuned === playerConfigs.name) && dndChildItem.aspects && dndChildItem.aspects[aspectName]) {
+                onAspectFound(playerConfigs, dndChildItem.aspects[aspectName], "item", dndChildItem);
+            }
+
+            if (childItem.childItems && dndChildItem.childItems) {
+                processChildItems(playerConfigs, childItem.childItems, dndChildItem.childItems, aspectName, onAspectFound);
             }
         }
     }

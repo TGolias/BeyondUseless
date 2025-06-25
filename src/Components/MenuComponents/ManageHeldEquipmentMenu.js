@@ -11,24 +11,24 @@ import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 const rows = [
     {
         name: "Equip",
-        calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+        calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
             const canItemBeEquipped = CanEquipItem(playerConfigs, menuConfig.items, item);
             return (<>
-                <CheckboxInput baseStateObject={menuConfig} pathToProperty={"items[" + i + "].equipped"} inputHandler={menuStateChangeHandler} disabled={!itemConfig.equipped && !canItemBeEquipped}></CheckboxInput>
+                <CheckboxInput baseStateObject={menuConfig} pathToProperty={pathToProperty + ".equipped"} inputHandler={menuStateChangeHandler} disabled={!itemConfig.equipped && !canItemBeEquipped}></CheckboxInput>
             </>);
         },
         addClass: "firstCol"
     },
     {
         name: "Name",
-        calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+        calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
             return item.name;
         },
         addOnClick: true,
     },
     {
         name: "Atk/DC",
-        calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+        calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
             if (item.type === "Weapon") {
                 const attack = calculateWeaponAttackBonus(playerConfigs, item, false);
                 return addLeadingPlusIfNumericAndPositive(attack.amount);
@@ -40,7 +40,7 @@ const rows = [
     },
     {
         name: "Damage",
-        calculateItemValue: (playerConfigs, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+        calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
             if (item.type === "Weapon") {
                 const amount = calculateWeaponDamage(playerConfigs, item, false, false, false);
                 return amount;
@@ -71,15 +71,20 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
 
         for (let i = 0; i < menuConfig.items.length; i++) {
             const itemConfig = menuConfig.items[i];
+            const pathToProperty = "items[" + i + "]";
             let dndItem = itemName2Item[itemConfig.name];
             if (dndItem) {
                 dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
                 if (IsItemHoldable(dndItem)) {
                     for (let row of rows) {
                         itemRows.push(<>
-                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                         </>);
                     }
+                }
+
+                if (dndItem.childItems && itemConfig.equipped) {
+                    processChildItems(playerConfigs, pathToProperty + ".childItems", itemConfig.childItems, dndItem.childItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu);
                 }
             }
         }
@@ -98,6 +103,31 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
             <RetroButton text="Cancel" onClickHandler={() => setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
+}
+
+function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dndChildItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu) {
+    for (let i = 0; i < dndChildItems.length; i++) {
+        const pathToItem = pathToProperty + "[" + i + "]";
+        const dndItem = dndChildItems[i];
+        let itemConfig = {
+            name: dndItem.name
+        }
+        if (childItemsConfigs && childItemsConfigs.length > i) {
+            itemConfig = {...itemConfig, ...childItemsConfigs[i]};
+        }
+
+        if (IsItemHoldable(dndItem)) {
+            for (let row of rows) {
+                itemRows.push(<>
+                    <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                </>);
+            }
+        }
+
+        if (dndItem.childItems && itemConfig.equipped) {
+            processChildItems(playerConfigs, pathToItem + ".childItems", itemConfig.childItems, dndItem.childItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu);
+        }
+    }
 }
 
 function openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) {

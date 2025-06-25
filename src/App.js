@@ -629,6 +629,8 @@ export default function App() {
     // Now we can set the new configs!
     setPlayerConfigs(newBaseStateObject);
 
+    console.log(newBaseStateObject);
+
     localStorage.setItem("CURRENT_CHARACTER", JSON.stringify(newBaseStateObject));
 
     // We only want want to add to the undo / redo stack if the value changed.
