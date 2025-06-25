@@ -1,7 +1,7 @@
 import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
-import { GetHeldItems, GetOpenHands } from "./EquipmentFunctions";
+import { GetEquippedItems, GetHeldItems, GetOpenHands } from "./EquipmentFunctions";
 import { GetMaxUsesForResource, GetRemainingUsesForResource } from "./ResourcesFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
@@ -1718,6 +1718,8 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return getAllSpells(playerConfigs, spellCastingFeatures2).map(x => x.name);
         case "heldItems":
             return GetHeldItems(playerConfigs.items);
+        case "equippedItems":
+            return GetEquippedItems(playerConfigs.items);
         case "metamagic":
             return getAllSelectedMetamagicOptions(playerConfigs);
 
@@ -2675,6 +2677,16 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
             }
         }
 
+        if (singleCalculation.notIncludes) {
+            if (singleValue) {
+                const valueThatShouldBeIncluded = performMathCalculation(playerConfigs, singleCalculation.notIncludes, parameters);
+                const valueToReturn = !singleValue.includes(valueThatShouldBeIncluded);
+                return valueToReturn;
+            } else {
+                return true;
+            }
+        }
+
         if (singleCalculation.some) {
             if (singleValue) {
                 const valueToReturn = singleValue.some(x => {
@@ -2686,6 +2698,20 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
                 return valueToReturn;
             } else {
                 return false;
+            }
+        }
+
+        if (singleCalculation.notSome) {
+            if (singleValue) {
+                const valueToReturn = !singleValue.some(x => {
+                    const newParameters = { ...parameters };
+                    newParameters[singleCalculation.itemParameterName] = x;
+                    const passesCheck = performBooleanCalculation(playerConfigs, singleCalculation.notSome, newParameters);
+                    return passesCheck;
+                })
+                return valueToReturn;
+            } else {
+                return true;
             }
         }
 

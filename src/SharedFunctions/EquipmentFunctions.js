@@ -39,6 +39,20 @@ export function GetOpenHands(playerConfigs, playerItems) {
     return openHands;
 }
 
+export function GetEquippedItems(playerItems) {
+    const equippedItems = [];
+
+    const itemsDictionary = getNameDictionaryForCollection('items');
+    for (let playerItem of playerItems) {
+        if (playerItem.equipped) {
+            const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
+            equippedItems.push(actualItem);
+        }
+    }
+
+    return equippedItems;
+}
+
 export function GetHeldItems(playerItems) {
     const heldItems = [];
 
@@ -56,6 +70,10 @@ export function GetHeldItems(playerItems) {
 }
 
 export function IsItemHoldable(item) {
+    if (item.notHoldable) {
+        return true;
+    }
+
     return item.type === "Weapon" || (item.type === "Armor" && item.armorType === "Shield") || item.holdable;
 }
 

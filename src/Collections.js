@@ -203,12 +203,15 @@ async function retrieveCollection(collectionName, collectionUrl, retries = 0) {
 }
 
 export async function clearAllCollections() {
+    const allKeysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const localStoragekey = localStorage.key(i);
         if (localStoragekey.startsWith(localStorageCollectionConstant)) {
-            localStorage.removeItem(localStoragekey);
-            // Decrement since we just removed this index.
-            i--;
+            allKeysToRemove.push(localStoragekey)
         }
+    }
+
+    for (let localStoragekey of allKeysToRemove) {
+        localStorage.removeItem(localStoragekey);
     }
 }

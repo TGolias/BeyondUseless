@@ -16,7 +16,7 @@ const rows = [
                 onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
             }
         },
-        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
+        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i, isChildItem) => {
             if (dndItem?.equippable) {
                 const canItemBeEquipped = CanEquipItem(playerConfigs, playerConfigs.items, dndItem);
                 return <>
@@ -41,7 +41,11 @@ const rows = [
         onClick: (playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) => {
             onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
         },
-        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
+        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i, isChildItem) => {
+            if (isChildItem) {
+                return "";
+            }
+
             return (item.weight ?? dndItem?.weight) + "lb";
         },
     },
@@ -52,7 +56,7 @@ const rows = [
                 onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
             }
         },
-        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
+        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i, isChildItem) => {
             if (dndItem?.attunement) {
                 const canItemBeAttuned = CanAttuneItem(playerConfigs);
                 return <>
@@ -71,7 +75,11 @@ const rows = [
                 removeItem(playerConfigs, inputChangeHandler, i);
             }
         },
-        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i) => {
+        calculateValue: (playerConfigs, inputChangeHandler, item, dndItem, i, isChildItem) => {
+            if (isChildItem) {
+                return "";
+            }
+
             if (!dndItem || dndItem.stackable) {
                 // Quanity increase and decrease buttons
                 let quantityString;
@@ -100,13 +108,7 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
 
         // Check equipped items for the aspect.
         const itemsDictionary = getNameDictionaryForCollection("items");
-        for (let i = 0; i < playerConfigs.items.length; i++) {
-            const item = playerConfigs.items[i];
-            const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
-            for (let row of rows) {
-                itemRows.push(<div className={row.addClass ? "inventoryDisplayItem " + row.addClass : "inventoryDisplayItem"} onClick={() => { row.onClick(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu); }}>{row.calculateValue(playerConfigs, inputChangeHandler, item, dndItem, i)}</div>);
-            }
-        }
+        processItems(playerConfigs, playerConfigs.items, itemRows, itemsDictionary, inputChangeHandler, setCenterScreenMenu, false);
     }
 
     const inventoryDisplayButtons = [];
@@ -142,6 +144,27 @@ export function InventoryDisplay({playerConfigs, inputChangeHandler, setCenterSc
             </div>
         </>
     )
+}
+
+function processItems(playerConfigs, items, itemRows, itemsDictionary, inputChangeHandler, setCenterScreenMenu, isChildItem) {
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        let dndItem;
+        if (isChildItem) {
+            // child items are already in dnd item format.
+            dndItem = item;
+        } else {
+            dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
+        }
+        
+        for (let row of rows) {
+            itemRows.push(<div className={row.addClass ? "inventoryDisplayItem " + row.addClass : "inventoryDisplayItem"} onClick={() => { row.onClick(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu); }}>{row.calculateValue(playerConfigs, inputChangeHandler, item, dndItem, i, isChildItem)}</div>);
+        }
+
+        if (dndItem && dndItem.childItems && item.equipped) {
+            processItems(playerConfigs, dndItem.childItems, itemRows, itemsDictionary, inputChangeHandler, setCenterScreenMenu, true);
+        }
+    }
 }
 
 function onItemClicked(playerConfigs, inputChangeHandler, item, dndItem, i, setCenterScreenMenu) {
