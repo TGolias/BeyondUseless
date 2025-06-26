@@ -19,6 +19,17 @@
     padding: 1em;
 }
 
+.itemMenuNotes {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 7em;
+}
+
+.itemMenuNotes > *:last-child {
+    flex: 1;
+}
+
 @media only screen and (max-width: 600px) {
     .itemMenuWrapperDiv {
         flex-grow: 1;

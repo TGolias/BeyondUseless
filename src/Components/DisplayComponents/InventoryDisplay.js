@@ -193,7 +193,7 @@ function onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, 
     playAudio("menuaudio");
 
     if (!item.custom) {
-        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, showNotes: true } });
     } else {
         setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: item, 
             onOkClicked: (newCustomItem) => {

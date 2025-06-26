@@ -17,7 +17,9 @@ export function CheckboxInput({baseStateObject, pathToProperty, inputHandler, se
             propertyValueToSetOnClick = setValueOnTrue;
         }
     } else {
-        currentCheckBoxValue = propertyValue;
+        const checkboxValue = propertyValue === true;
+
+        currentCheckBoxValue = checkboxValue;
         propertyValueToSetOnClick = !currentCheckBoxValue;
     }
 

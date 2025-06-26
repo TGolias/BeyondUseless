@@ -5,20 +5,21 @@ import { ItemPageComponent } from "../PageComponents/ItemPageComponent";
 import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
+import { TextInput } from "../SimpleComponents/TextInput";
 
 export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler}) {
+
+    let itemsProperty;
+    if (menuConfig.pathToProperty === "") {
+        itemsProperty = playerConfigs;
+    } else {
+        itemsProperty = getValueFromObjectAndPath(playerConfigs, menuConfig.pathToProperty);
+    }
 
     const isConsumable = menuConfig.item.consumable;
     if (isConsumable && !menuConfig.newPlayerConfigs) {
         const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", playerConfigs);
 
-        let itemsProperty;
-        if (menuConfig.pathToProperty === "") {
-            itemsProperty = playerConfigs;
-        } else {
-            itemsProperty = getValueFromObjectAndPath(playerConfigs, menuConfig.pathToProperty);
-        }
-        
         if (itemsProperty) {
             const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
             if (itemConfigIndex > -1) {
@@ -58,22 +59,45 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
 
     if (menuConfig.item.consumeEffect && menuConfig.item.consumeEffect.type && (menuConfig.item.consumeEffect.type.includes("healing") || menuConfig.item.consumeEffect.type.includes("restore"))) {
         userInteraction.push(<>
-            <div className="centerMenuSeperator"></div>
-        </>);
-    
-        userInteraction.push(<>
             <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         </>);
     }
 
+    if (itemsProperty && menuConfig.showNotes) {
+        const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
+        if (itemConfigIndex > -1) {
+            let pathToItemNotes = "";
+            if (menuConfig.pathToProperty) {
+                pathToItemNotes += menuConfig.pathToProperty + ".";
+            }
+            pathToItemNotes += "items[" + itemConfigIndex + "].notes";
+
+            let displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
+            userInteraction.push(<>
+                <div className="itemMenuNotes">
+                    <div>Notes</div>
+                    <TextInput isNumberValue={false} isMultiline={true} baseStateObject={displayConfigs} pathToProperty={pathToItemNotes} inputHandler={(baseStateObject, pathToProperty, newValue) => {
+                        const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", playerConfigs);
+                        menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToProperty, newValue);
+                    }}></TextInput>
+                </div>
+            </>);
+        }
+    }
+
     const buttons = []
     buttons.push(<>
-        <RetroButton text={isConsumable ? "Use" : "OK"} buttonSound={playerConfigsClone ? "healaudio" : "selectionaudio"} onClickHandler={() => {
+        <RetroButton text={isConsumable ? "Use" : "OK"} buttonSound={isConsumable ? "healaudio" : "selectionaudio"} onClickHandler={() => {
             if (playerConfigsClone) {
-                tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+                if (isConsumable) {
+                    tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
+                        inputChangeHandler(playerConfigs, "", playerConfigsClone);
+                        setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                    });
+                } else {
                     inputChangeHandler(playerConfigs, "", playerConfigsClone);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                });
+                }
             } else {
                 setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
             }
@@ -82,7 +106,27 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
 
     if (isConsumable) {
         buttons.push(<>
-            <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
+            <RetroButton text={"Close"} onClickHandler={() => {
+                if (playerConfigsClone && menuConfig.showNotes && itemsProperty) {
+                    const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
+                    if (itemConfigIndex > -1) {
+                        let pathToItemNotes = "";
+                        if (menuConfig.pathToProperty) {
+                            pathToItemNotes += menuConfig.pathToProperty + ".";
+                        }
+                        pathToItemNotes += "items[" + itemConfigIndex + "].notes";
+
+                        const oldNotes = getValueFromObjectAndPath(playerConfigs, pathToItemNotes);
+                        const newNotes = getValueFromObjectAndPath(playerConfigsClone, pathToItemNotes);
+
+                        if (oldNotes !== newNotes) {
+                            inputChangeHandler(playerConfigs, pathToItemNotes, newNotes);
+                        }
+                    }
+                }
+
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+            }} showTriangle={false} disabled={false}></RetroButton>
         </>);
     }
 
@@ -90,6 +134,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
         <div className="itemMenuWrapperDiv">
             <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} data={{ additionalEffects: menuConfig.additionalEffects }} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
         </div>
+        <div style={{display: userInteraction.length > 0 ? "block" : "none"}} className="centerMenuSeperator"></div>
             {userInteraction}
         <div className="centerMenuSeperator"></div>
         <div className="itemMenuHorizontal">

@@ -139,6 +139,7 @@ const menuCollection = {
             const newItemMenu = {};
             newItemMenu.item = data.item;
             newItemMenu.additionalEffects = data.additionalEffects;
+            newItemMenu.showNotes = data.showNotes;
             newItemMenu.pathToProperty = data.pathToProperty || "";
             newItemMenu.copyLinkToItem = {};
             return newItemMenu;

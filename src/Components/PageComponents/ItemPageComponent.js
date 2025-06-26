@@ -155,6 +155,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
 
     let attunedTo = undefined;
     let quantity = undefined;
+    let notes = undefined;
     let childItems = [];
 
     if (playerConfigs) {
@@ -252,6 +253,10 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
 
                     if (itemConfig.amount) {
                         quantity = itemConfig.amount;
+                    }
+
+                    if (itemConfig.notes) {
+                        notes = itemConfig.notes;
                     }
 
                     if (itemConfig.items) {
@@ -357,6 +362,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             </div>
             <div className="itemPageDescription" style={{display: (targetNames ? "block" : "none")}}>
                 <div><b>Applied To:</b> {targetNames}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (notes ? "block" : "none")}}>
+                <div><b>Notes:</b><b></b> {notes}</div>
             </div>
         </div>
     </>

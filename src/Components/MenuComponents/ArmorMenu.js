@@ -116,5 +116,5 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
 function openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) {
     playAudio("menuaudio");
     addToMenuStack({ menuType: "ArmorMenu", menuConfig });
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, showNotes: true } });
 }
