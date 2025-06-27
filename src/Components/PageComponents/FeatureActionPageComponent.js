@@ -5,6 +5,7 @@ import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings,
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
+import { GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, playerConfigs, copyLinkToItem}) {
 
@@ -61,6 +62,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let debuffAmount = undefined;
     let debuffDescription = undefined;
     let creatures = undefined;
+    let setVariableDescription = undefined;
     let restoreSpellSlot = undefined;
     let restoreResource = undefined;
     let targetNames = undefined;
@@ -86,7 +88,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 foundSpellcastingFeature = allSpellCastingFeatures[0];
             }
 
-            spellcastingFeature = foundSpellcastingFeature.feature;
+            if (foundSpellcastingFeature) {
+                spellcastingFeature = foundSpellcastingFeature.feature;
+            }
         }
         featureAction.feature = spellcastingFeature;
 
@@ -161,6 +165,26 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
 
         if (featureAction.type.includes("creatures")) {
             creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, [], { userInput: data.userInput });
+        }
+
+        if (featureAction.type.includes("setVariable")) {
+            let setVariableString = "";
+            if (featureAction.setVariable?.variableName?.calculation) {
+                const variableName = performMathCalculation(playerConfigs, featureAction.setVariable.variableName.calculation, { userInput: data.userInput });
+                if (variableName) {
+                    const displayName = GetVariableDisplayName(origin.value, variableName);
+                    setVariableString += "<b>Change " + displayName + ":</b>\nOld Value - " + variableName + "\n";
+                }
+            }
+
+            if (featureAction.setVariable?.value?.calculation) {
+                const newValue = performMathCalculation(playerConfigs, featureAction.setVariable.value.calculation, { userInput: data.userInput });
+                if (newValue) {
+                    setVariableString += "New Value - " + newValue;
+                }
+            }
+
+            setVariableDescription = parseStringForBoldMarkup(setVariableString);
         }
 
         if (featureAction.type.includes("restoreSpellSlot")) {
@@ -288,6 +312,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="featureActionPageDescription" style={{display: ((creatures) ? "block" : "none")}}>
                 <div><b>Allied Creatures:</b> {creatures}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: ((setVariableDescription) ? "block" : "none")}}>
+                <div>{setVariableDescription}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: ((restoreSpellSlot) ? "block" : "none")}}>
                 <div><b>Spell Slots Gained</b> {restoreSpellSlot}</div>

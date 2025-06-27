@@ -36,9 +36,11 @@ const castTimeShortHand = {
     "Bonus Action" : "BA",
     "Free": "F",
     "Magic Action" : "MA",
-    "Reaction" : "R",
+    "Reaction" : "RE",
     "Utilize" : "UA",
-    "1 minute" : "1 min"
+    "1 minute" : "1 min",
+    "1 hour" : "1 hour",
+    "Ritual" : "Rit"
 }
 
 export function getCastingTimeShorthand(castingTime) {

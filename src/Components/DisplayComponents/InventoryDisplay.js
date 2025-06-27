@@ -58,7 +58,7 @@ const rows = [
         },
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, isChildItem) => {
             if (dndItem?.attunement) {
-                const canItemBeAttuned = CanAttuneItem(playerConfigs);
+                const canItemBeAttuned = CanAttuneItem(playerConfigs, dndItem);
                 return <>
                     <CheckboxInput baseStateObject={playerConfigs} pathToProperty={pathToProperty + ".attuned"} inputHandler={inputChangeHandler} setValueOnTrue={playerConfigs.name} disabled={!item.attuned && !canItemBeAttuned}></CheckboxInput>
                 </>

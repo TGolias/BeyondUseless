@@ -27,6 +27,23 @@ const spellScrollScribeDetails = [
     { spellLevel: 9, daysToScribe: 120, costToScribe: 50000 }
 ]
 
+const mockPlayerConfigsForBaseCalculation = {
+    abilityScores: {
+        strength: " + Str Mod",
+        dexterity: " + Dex Mod",
+        constitution: " + Con Mod",
+        intelligence: " + Int Mod",
+        wisdom: " + Wis Mod",
+        charisma: " + Cha Mod"
+    },
+    background: {},
+    species: {},
+    languages: [],
+    classes: [],
+    items: [],
+    currentStatus: {}
+}
+
 export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, data, addToMenuStack = undefined}) {
     const additionalEffects = data?.additionalEffects ? data.additionalEffects : [];
 
@@ -39,11 +56,11 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     switch (item.type) {
         case "Weapon":
             typeString = item.weaponRange + " " + item.type + " (" + item.weaponType + ")";
-            const baseDamageDice = performDiceRollCalculation({}, item.damage.calculation, {});
+            const baseDamageDice = performDiceRollCalculation(mockPlayerConfigsForBaseCalculation, item.damage.calculation, {});
             baseDamage = convertDiceRollWithTypeToValue(baseDamageDice);
 
             if (item.properties.includes("Versatile")) {
-                const twoHandedDamageDice = performDiceRollCalculation({}, item.twoHandedDamage.calculation, {});
+                const twoHandedDamageDice = performDiceRollCalculation(mockPlayerConfigsForBaseCalculation, item.twoHandedDamage.calculation, {});
                 twoHandedDamage = convertDiceRollWithTypeToValue(twoHandedDamageDice);
             }
 
@@ -96,6 +113,15 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
         default:
             typeString = item.type;
             break;
+    }
+
+    let attunement = undefined;
+    if (item.attunement) {
+        let attunementText = "<b>Requires Attunement</b>";
+        if (item.attunementRequirements) {
+            attunementText += " - " + item.attunementRequirements.description;
+        }
+        attunement = parseStringForBoldMarkup(attunementText);
     }
 
     let description = parseStringForBoldMarkup(item.description);
@@ -294,6 +320,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     return <>
         <div className="itemPageContainer">
             <div>{typeString}</div>
+            <div style={{display: (attunement ? "block" : "none")}}>{attunement}</div>
             <div style={{display: (baseDamage ? "block" : "none")}}><b>Base Damage:</b> {baseDamage}</div>
             <div style={{display: (twoHandedDamage ? "block" : "none")}}><b>Two-Handed:</b> {twoHandedDamage}</div>
             <div style={{display: (rangeString ? "block" : "none")}}><b>Range:</b> {rangeString}</div>

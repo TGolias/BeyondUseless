@@ -166,6 +166,13 @@ function getResourceForResourceType(playerConfigs, actionFeature, resourceName) 
                 return resource;
             }
             break;
+        case "item":
+            if (originName) {
+                const allItemsMap = getNameDictionaryForCollection("items");
+                const dndItem = allItemsMap[originName];
+                const resource = findResource(playerConfigs, dndItem, "item", actionFeature.playerConfigForObject, resourceName);
+                return resource;
+            }
     }
 
     if (dndClass) {
@@ -230,6 +237,10 @@ function getFeatureOrigin(actionFeature) {
             const allHomebrewMap = getNameDictionaryForCollection("homebrew");
             const dndHomebrew = allHomebrewMap[actionFeature.playerConfigForObject.name];
             return { type: "homebrew", value: dndHomebrew };
+        case "item":
+            const allItemsMap = getNameDictionaryForCollection("items");
+            const dndItem = allItemsMap[actionFeature.playerConfigForObject.name];
+            return { type: "item", value: dndItem }
     }
 
     if (actionFeature.typeFoundOn.startsWith("species[")) {

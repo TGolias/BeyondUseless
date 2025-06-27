@@ -310,6 +310,11 @@ export function calculatePassivePerception(playerConfigs) {
 }
 
 export function calculateModifierForBaseStat(baseStatValue) {
+    if (typeof baseStatValue === "string") {
+        // Some weapons use mock playerConfigs that put the word "Dex" or "Str" instead of the actual value for display purposes.
+        return baseStatValue;
+    }
+    
     return Math.floor((baseStatValue - 10) / 2);
 }
 
@@ -552,6 +557,11 @@ export function calculateSkillBonus(playerConfigs, dndSkillProficiency, hasProfi
 
 export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficiency, hasProficiency, hasExpertise, hasHalfProficiency) {
     let startingSkillBonus = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, dndSkillProficiency.modifier));
+    if (typeof startingSkillBonus === "string") {
+        // Some weapons use mock playerConfigs that put the word "Dex" or "Str" instead of the actual value for display purposes.
+        return startingSkillBonus;
+    }
+
     if (hasProficiency) {
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
         startingSkillBonus += proficencyBonus;
@@ -593,6 +603,11 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
 
 export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficiency) {
     let startingSavingThrow = calculateModifierForBaseStat(calculateBaseStat(playerConfigs, modifier));
+    if (typeof startingSavingThrow === "string") {
+        // Some weapons use mock playerConfigs that put the word "Dex" or "Str" instead of the actual value for display purposes.
+        return startingSavingThrow;
+    }
+
     if (hasProficiency) {
         let proficencyBonus = calculateProficiencyBonus(playerConfigs);
         startingSavingThrow += proficencyBonus;
@@ -2056,10 +2071,12 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
 
 function processChildItems(playerConfigs, childItems, dndChildItems, aspectName, onAspectFound) {
     for (let i = 0; i < childItems.length; i++) {
-        const childItem = childItems[0];
+        const childItem = {...childItems[0]};
         if (childItem.equipped) {
             const dndChildItem = dndChildItems[0];
             if (dndChildItem && (!dndChildItem.attunement || childItem.attuned === playerConfigs.name) && dndChildItem.aspects && dndChildItem.aspects[aspectName]) {
+                // We technically should be passing the config... But it doesn't have the name. Let's help them out here.
+                childItem.name = dndChildItem.name;
                 onAspectFound(playerConfigs, dndChildItem.aspects[aspectName], "item", dndChildItem);
             }
 
@@ -2438,7 +2455,8 @@ export function computeAverageDiceRoll(diceObjectWithType) {
             }
         }
     }
-    return total;
+    // Round down in case it is not an int.
+    return Math.floor(total);
 }
 
 export function calculateSingleDieAverage(dieSize) {

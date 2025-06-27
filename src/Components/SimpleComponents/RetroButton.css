@@ -4,10 +4,6 @@
     cursor: pointer;
 }
 
-.retroButtonWrapper * {
-    white-space: nowrap;
-}
-
 .triangle {
     visibility: hidden;
 }

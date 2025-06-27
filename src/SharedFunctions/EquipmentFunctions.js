@@ -1,5 +1,5 @@
 import { getNameDictionaryForCollection } from "../Collections";
-import { calculateNumberOfHands, getItemFromItemTemplate } from "./TabletopMathFunctions";
+import { calculateNumberOfHands, getItemFromItemTemplate, performBooleanCalculation } from "./TabletopMathFunctions";
 
 export function CanEquipItem(playerConfigs, playerItems, item) {
     if (IsItemHoldable(item)) {
@@ -129,7 +129,14 @@ export function IsWearableArmor(item) {
     return item.type === "Armor" && item.armorType !== "Shield";
 }
 
-export function CanAttuneItem(playerConfigs) {
+export function CanAttuneItem(playerConfigs, dndItem) {
+    if (dndItem.attunementRequirements) {
+        const requirementsMet = performBooleanCalculation(playerConfigs, dndItem.attunementRequirements.calculation, {});
+        if (!requirementsMet) {
+            return false;
+        }
+    }
+
     let attunementCount = getAttunementCount(playerConfigs);
     // Later on with artificer we are going to have to get the updated attuement count, but for now we're good to just hardcode 3.
     return attunementCount < 3;
