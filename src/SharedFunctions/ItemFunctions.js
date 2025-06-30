@@ -23,3 +23,8 @@ export function addItemsToNewItems(newItems, itemsToAdd) {
         }
     }
 }
+
+export function getItemFromId(items, id) {
+    const foundItem = items.find(x => x.id === id);
+    return foundItem;
+}

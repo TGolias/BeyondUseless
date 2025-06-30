@@ -8,6 +8,7 @@ import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetRemainingUsesForResource, SetRemainingUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
+import { GetCurrentVariableValue, SetCurrentVariableValue } from "../../SharedFunctions/VariableFunctions";
 
 export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -211,13 +212,13 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="featureActionMenuHorizontal">
-            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(sessionId, playerConfigs, playerConfigsClone, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction || !hasEnoughSpellSlots} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(sessionId, playerConfigs, playerConfigsClone, data, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction || !hasEnoughSpellSlots} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
 
-function useActionClicked(sessionId, playerConfigs, playerConfigsClone, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+function useActionClicked(sessionId, playerConfigs, playerConfigsClone, data, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu) {
     if (spellSlotChangeAmount !== 0) {
         // We have any slots for the level we are casting it at.
         if (playerConfigsClone.currentStatus.remainingSpellSlots) {
@@ -240,7 +241,32 @@ function useActionClicked(sessionId, playerConfigs, playerConfigsClone, spellSlo
     }
 
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
-        inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+        pushPlayerConfigChanges(playerConfigs, playerConfigsClone, menuConfig, data, inputChangeHandler);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });
+}
+
+function pushPlayerConfigChanges(playerConfigs, playerConfigsClone, menuConfig, data, inputChangeHandler) {
+    let updateWholePlayerConfigs = false;
+    const featureAction = menuConfig.featureAction
+    if (featureAction.type.includes("setVariable") && 
+        featureAction.setVariable?.variableName?.calculation && 
+        featureAction.setVariable?.value?.calculation) {
+
+        const variableName = performMathCalculation(playerConfigs, featureAction.setVariable.variableName.calculation, { userInput: data.userInput });
+        const newValue = performMathCalculation(playerConfigs, featureAction.setVariable.value.calculation, { userInput: data.userInput });
+        if (variableName && newValue) {
+            const oldValue = GetCurrentVariableValue(playerConfigs, menuConfig.origin, variableName);
+            if (newValue !== oldValue) {
+                updateWholePlayerConfigs = true;
+                SetCurrentVariableValue(playerConfigs, menuConfig.origin, variableName, newValue);
+            }
+        }
+    }
+
+    if (updateWholePlayerConfigs) {
+        inputChangeHandler(playerConfigs, "", playerConfigsClone);
+    } else {
+        inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+    }
 }

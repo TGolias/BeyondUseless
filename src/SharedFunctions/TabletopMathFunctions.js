@@ -10,6 +10,14 @@ const rightTriangleUnicode = '\u25B6';
 export function calculateProficiencyBonus(playerConfigs) {
     let proficiencyBonusOverride = undefined
     findAllConfiguredAspects(playerConfigs, "proficiencyBonusOverride", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         if (aspectValue.calculation) {
             proficiencyBonusOverride = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
         } else {
@@ -31,6 +39,14 @@ export function calculateArmorClass(playerConfigs) {
 
     // Check if there are any other ways to calculate armor class.
     findAllConfiguredAspects(playerConfigs, "armorClass", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let newArmorClass;
         if (aspectValue.calculation) {
             newArmorClass = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -48,6 +64,14 @@ export function calculateArmorClass(playerConfigs) {
 
     // Now that we are using the highest AC calculation, check for any other AC bonuses and add them to the score.
     findAllConfiguredAspects(playerConfigs, "armorClassBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let armorClassBonus;
         if (aspectValue.calculation) {
             armorClassBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -71,6 +95,14 @@ export function calculateInitiativeBonus(playerConfigs) {
 
     // See if we have anything that gives us more to our initiative.
     findAllConfiguredAspects(playerConfigs, "initiativeBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let initiativeBonus;
         if (aspectValue.calculation) {
             initiativeBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -96,6 +128,14 @@ export function calculateSize(playerConfigs) {
     });
 
     findAllConfiguredAspects(playerConfigs, "sizeBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let sizeBonus;
         if (aspectValue.calculation) {
             sizeBonus = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -141,6 +181,14 @@ export function calculateCarry(playerConfigs) {
     let carrySize = calculateSize(playerConfigs);
 
     findAllConfiguredAspects(playerConfigs, "carryBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let carryBonus;
         if (aspectValue.calculation) {
             carryBonus = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -248,6 +296,14 @@ export function calculateSpeed(playerConfigs) {
     });
 
     findAllConfiguredAspects(playerConfigs, "forcedSpeed", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let forcedSpeed;
         if (aspectValue.calculation) {
             forcedSpeed = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -260,6 +316,14 @@ export function calculateSpeed(playerConfigs) {
     });
 
     findAllConfiguredAspects(playerConfigs, "speedMultiplier", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+        
         let speedMultiplier;
         if (aspectValue.calculation) {
             speedMultiplier = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -270,6 +334,14 @@ export function calculateSpeed(playerConfigs) {
     });
 
     findAllConfiguredAspects(playerConfigs, "speedDivider", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let speedDivider;
         if (aspectValue.calculation) {
             speedDivider = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -417,6 +489,14 @@ export function calculateHPMax(playerConfigs) {
     }
 
     findAllConfiguredAspects(playerConfigs, "maxHpBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let maxHpBonus;
         if (aspectValue.calculation) {
             maxHpBonus = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -428,6 +508,14 @@ export function calculateHPMax(playerConfigs) {
     });
 
     findAllConfiguredAspects(playerConfigs, "maxHpOverride", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let maxHpOverride;
         if (aspectValue.calculation) {
             maxHpOverride = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -579,6 +667,14 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
     skillBonus = addDiceObjectsWithTypeTogether(skillBonus, startingSkillBonus);
 
     findAllConfiguredAspects(playerConfigs, "skillProficiency" + dndSkillProficiency.name + "Bonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let skillProficiencyBonus;
         if (aspectValue.calculation) {
             skillProficiencyBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -589,6 +685,14 @@ export function calculateSkillBonusAsDiceObject(playerConfigs, dndSkillProficien
     });
 
     findAllConfiguredAspects(playerConfigs, "skillProficiencyAllBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let skillProficiencyBonus;
         if (aspectValue.calculation) {
             skillProficiencyBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -617,6 +721,14 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
     savingThrow = addDiceObjectsWithTypeTogether(savingThrow, startingSavingThrow);
 
     findAllConfiguredAspects(playerConfigs, modifier + "SavingThrowBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
         let savingThrowBonus;
         if (aspectValue.calculation) {
             savingThrowBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
@@ -627,6 +739,14 @@ export function calculateSavingThrowBonus(playerConfigs, modifier, hasProficienc
     });
 
     findAllConfiguredAspects(playerConfigs, "allSavingThrowBonus", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+        
         let savingThrowBonus;
         if (aspectValue.calculation) {
             savingThrowBonus = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });

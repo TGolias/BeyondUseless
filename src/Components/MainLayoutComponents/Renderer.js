@@ -20,7 +20,7 @@ import { ActiveEffectsDisplay } from "../DisplayComponents/ActiveEffectsDisplay"
 import { getNameDictionaryForCollection } from "../../Collections";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { InventoryDisplay } from "../DisplayComponents/InventoryDisplay";
-import { addItemsToNewItems } from "../../SharedFunctions/ItemFunction";
+import { addItemsToNewItems } from "../../SharedFunctions/ItemFunctions";
 import { ItemActionsDisplay } from "../DisplayComponents/ItemActionsDisplay";
 
 export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu, showDeathScreen}) {

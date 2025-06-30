@@ -225,11 +225,20 @@ export function clearAllCollections() {
 
 function updateStoredConfigs(playerConfigs) {
     // Add item ids if not present.
-    if (playerConfigs.items && playerConfigs.items.length > 0) {
-        for (let i = 0; i < playerConfigs.items.length; i++) {
-            if (!playerConfigs.items[i].id) {
+    updateItems(playerConfigs.items);
+}
+
+function updateItems(itemsCollection) {
+    if (itemsCollection && itemsCollection.length > 0) {
+        for (let i = 0; i < itemsCollection.length; i++) {
+            if (!itemsCollection[i].id) {
                 // This is bit OCD, but this makes sure the id is the first property on the object when viewing so that it is consistent with others.
-                playerConfigs.items[i] = { id: guidGenerator(), ...playerConfigs.items[i]};
+                itemsCollection[i] = { id: guidGenerator(), ...itemsCollection[i]};
+            }
+
+            if (itemsCollection[i].items) {
+                // this item has items... yo dawg.
+                updateItems(itemsCollection[i].items);
             }
         }
     }

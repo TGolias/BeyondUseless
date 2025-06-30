@@ -6,7 +6,7 @@ import { guidGenerator, playAudio } from '../../SharedFunctions/Utils';
 import { CheckboxInput } from '../SimpleComponents/CheckboxInput';
 import { CanAttuneItem, CanEquipItem } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
-import { addItemsToNewItems } from '../../SharedFunctions/ItemFunction';
+import { addItemsToNewItems } from '../../SharedFunctions/ItemFunctions';
 
 const rows = [
     {

@@ -240,7 +240,7 @@ function getFeatureOrigin(actionFeature) {
         case "item":
             const allItemsMap = getNameDictionaryForCollection("items");
             const dndItem = allItemsMap[actionFeature.playerConfigForObject.name];
-            return { type: "item", value: dndItem }
+            return { type: "item", value: dndItem, id: actionFeature.playerConfigForObject.id }
     }
 
     if (actionFeature.typeFoundOn.startsWith("species[")) {

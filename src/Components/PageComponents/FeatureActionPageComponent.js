@@ -5,7 +5,7 @@ import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings,
 import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
-import { GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
+import { GetCurrentVariableValue, GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
 
 export function FeatureActionPageComponent({featureAction, feature, origin, data, playerConfigs, copyLinkToItem}) {
 
@@ -172,8 +172,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             if (featureAction.setVariable?.variableName?.calculation) {
                 const variableName = performMathCalculation(playerConfigs, featureAction.setVariable.variableName.calculation, { userInput: data.userInput });
                 if (variableName) {
-                    const displayName = GetVariableDisplayName(origin.value, variableName);
-                    setVariableString += "<b>Change " + displayName + ":</b>\nOld Value - " + variableName + "\n";
+                    const displayName = GetVariableDisplayName(origin, variableName);
+                    const oldValue = GetCurrentVariableValue(playerConfigs, origin, variableName)
+                    setVariableString += "<b>Change " + displayName + ":</b>\nOld Value - " + oldValue + "\n";
                 }
             }
 
