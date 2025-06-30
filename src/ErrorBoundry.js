@@ -25,8 +25,8 @@ export class ErrorBoundary extends React.Component {
             <br></br>
             <div>This is almost certainly Tyler's fault...</div>
             <br></br>
-            <div>-If you got this error during the initial load or haven't clicked 'UPDATE CONFIG' recently, first you can try <button onClick={async () => {
-                await clearAllCollections();
+            <div>-If you got this error during the initial load or haven't clicked 'UPDATE CONFIG' recently, first you can try <button onClick={() => {
+                clearAllCollections();
                 window.location.reload();
             }}>clicking here!!!</button></div>
             <br></br>

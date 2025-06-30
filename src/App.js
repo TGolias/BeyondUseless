@@ -678,9 +678,9 @@ export default function App() {
     {
       text: "UPDATE CONFIG",
       buttonSound: "menuaudio",
-      clickHandler: async () => {
+      clickHandler: () => {
         setShowStartMenu(false);
-        await clearAllCollections();
+        clearAllCollections();
         window.location.reload();
       }
     },

@@ -2,7 +2,7 @@ import React from 'react';
 import './InventoryDisplay.css';
 import { calculateCarry, calculateDragLiftPush, currentWeightCarried, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
 import { getCollection, getNameDictionaryForCollection } from '../../Collections';
-import { playAudio } from '../../SharedFunctions/Utils';
+import { guidGenerator, playAudio } from '../../SharedFunctions/Utils';
 import { CheckboxInput } from '../SimpleComponents/CheckboxInput';
 import { CanAttuneItem, CanEquipItem } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
@@ -240,13 +240,13 @@ function addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu) {
     setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Item", menuText: "Select the item to add:", options: itemSelections, 
         onOkClicked: (result) => {
             if (result === "Custom Item") {
-                setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: { custom: true }, 
+                setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: { id: guidGenerator(), custom: true }, 
                     onOkClicked: (newCustomItem) => {
                         addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, newCustomItem);
                     }
                 } });
             } else {
-                addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, { name: result });
+                addItemsOrIncreaseStackCount(playerConfigs, inputChangeHandler, allItems, { id: guidGenerator(), name: result });
             }
         } } 
     });

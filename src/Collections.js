@@ -1,4 +1,4 @@
-import { convertArrayToDictionary, delay } from "./SharedFunctions/Utils";
+import { convertArrayToDictionary, delay, guidGenerator } from "./SharedFunctions/Utils";
 
 const collectionsMap = {};
 
@@ -202,16 +202,35 @@ async function retrieveCollection(collectionName, collectionUrl, retries = 0) {
     }
 }
 
-export async function clearAllCollections() {
+export function clearAllCollections() {
     const allKeysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
         const localStoragekey = localStorage.key(i);
         if (localStoragekey.startsWith(localStorageCollectionConstant)) {
             allKeysToRemove.push(localStoragekey)
+        } else if (localStoragekey.startsWith("SAVE_SLOT") || localStoragekey === "CURRENT_CHARACTER") {
+            // Perform updates
+            const oldLocalStorageString = localStorage.getItem(localStoragekey);
+            const playerConfigs = JSON.parse(oldLocalStorageString);
+            updateStoredConfigs(playerConfigs);
+            const newLocalStorageString = JSON.stringify(playerConfigs);
+            localStorage.setItem(localStoragekey, newLocalStorageString);
         }
     }
 
     for (let localStoragekey of allKeysToRemove) {
         localStorage.removeItem(localStoragekey);
+    }
+}
+
+function updateStoredConfigs(playerConfigs) {
+    // Add item ids if not present.
+    if (playerConfigs.items && playerConfigs.items.length > 0) {
+        for (let i = 0; i < playerConfigs.items.length; i++) {
+            if (!playerConfigs.items[i].id) {
+                // This is bit OCD, but this makes sure the id is the first property on the object when viewing so that it is consistent with others.
+                playerConfigs.items[i] = { id: guidGenerator(), ...playerConfigs.items[i]};
+            }
+        }
     }
 }
