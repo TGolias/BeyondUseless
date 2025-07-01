@@ -1903,13 +1903,13 @@ export function calculateAspectCollectionCore(playerConfigs, aspectName, pathToP
     let aspectCollection = {};
 
     findAllConfiguredAspects(playerConfigs, aspectName, [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
-        setAspectCollectionFromArrayOrProperty(aspectCollection, aspectValue, pathToProperty);
+        setAspectCollectionFromArrayOrProperty(aspectPlayerConfigs, aspectCollection, aspectValue, playerConfigForObject, pathToProperty);
     });
 
     return convertHashMapToArrayOfStrings(aspectCollection);
 }
 
-function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrProperty, pathToProperty = "$VALUE") {
+function setAspectCollectionFromArrayOrProperty(aspectPlayerConfigs, totalAspectCollection, arrayOrProperty, playerConfigForObject, pathToProperty = "$VALUE") {
     if (arrayOrProperty) {
         if (Array.isArray(arrayOrProperty)) {
             // It is an array.
@@ -1920,8 +1920,23 @@ function setAspectCollectionFromArrayOrProperty(totalAspectCollection, arrayOrPr
                 }
             }
         } else {
+            if (arrayOrProperty.conditions) {
+                const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, arrayOrProperty.conditions, { playerConfigForObject });
+                if (!conditionsAreMet) {
+                    // We did not meet the conditions for this bonus to apply.
+                    return;
+                }
+            }
+
+            let property;
+            if (arrayOrProperty.calculation) {
+                property = performMathCalculation(aspectPlayerConfigs, arrayOrProperty.calculation, { playerConfigForObject });
+            } else {
+                property = arrayOrProperty;
+            }
+
             // It is a property
-            const aspectValue = getValueFromObjectAndPath(arrayOrProperty, pathToProperty);
+            const aspectValue = getValueFromObjectAndPath(property, pathToProperty);
             if (aspectValue !== null) {
                 totalAspectCollection[aspectValue] = true;
             }
