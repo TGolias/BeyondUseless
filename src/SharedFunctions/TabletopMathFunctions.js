@@ -1733,7 +1733,7 @@ export function calculateFeatures(playerConfigs) {
 
     findAllValidFeatures(playerConfigs, (feature, typeFoundOn, playerConfigForObject) => {
         if (feature.conditions) {
-            const conditionsAreMet = performBooleanCalculation(playerConfigs, feature.conditions, { ...playerConfigForObject });
+            const conditionsAreMet = performBooleanCalculation(playerConfigs, feature.conditions, { playerConfigForObject });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for feature to apply.
                 return;
@@ -2810,9 +2810,21 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
             return valueToReturn;
         }
 
-        if (singleCalculation.notEquals) {
+        if (singleCalculation.exactEquals) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.exactEquals, parameters);
+            const valueToReturn = (singleValue === valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.notExactEquals) {
             const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.notEquals, parameters);
             const valueToReturn = (singleValue != valueToEqual);
+            return valueToReturn;
+        }
+
+        if (singleCalculation.notExactEquals) {
+            const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.notExactEquals, parameters);
+            const valueToReturn = (singleValue !== valueToEqual);
             return valueToReturn;
         }
 
