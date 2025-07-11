@@ -2816,7 +2816,7 @@ export function performBooleanCalculation(playerConfigs, calculation, parameters
             return valueToReturn;
         }
 
-        if (singleCalculation.notExactEquals) {
+        if (singleCalculation.notEquals) {
             const valueToEqual = performMathCalculation(playerConfigs, singleCalculation.notEquals, parameters);
             const valueToReturn = (singleValue != valueToEqual);
             return valueToReturn;
