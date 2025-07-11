@@ -1,6 +1,5 @@
-import { getNameDictionaryForCollection } from "../Collections";
 import { GetRemainingUsesForResource, HasUsedAnyOfResource, SetRemainingUsesForResource } from "./ResourcesFunctions";
-import { calculateHeroicInspirationLongRestRecharge, getAllPlayerDNDClasses, getAllStandardResourcesForCharacter, getAllStandardResourcesForObject } from "./TabletopMathFunctions";
+import { calculateHeroicInspirationLongRestRecharge, getAllStandardResourcesForCharacter } from "./TabletopMathFunctions";
 
 export function SetPlayerShortRested(playerConfigs) {
     // Reset pact slots.
