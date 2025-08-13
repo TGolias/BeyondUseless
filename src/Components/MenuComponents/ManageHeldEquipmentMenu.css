@@ -27,9 +27,13 @@
     font-size: 0.8em;
     padding: 0.5em;
     text-align: center;
-    border-top: 4px solid black;
     border-left: 2px solid black;
     border-right: 2px solid black;
+    border-top: 4px solid black;
+}
+
+.manageHeldEquipmentMenuItemsGrid > .firstDataRow {
+    border-top: 0;
 }
 
 .manageHeldEquipmentMenuItemsGrid > .firstCol {
@@ -43,8 +47,13 @@
 }
 
 .manageHeldEquipmentMenuItemsGrid > .manageHeldEquipmentMenuHeaderCell {
+    z-index: 5;
+    background-color: white;
+    position: sticky;
+    top: 0;
     font-weight: bold;
     border-top: 0;
+    border-bottom: 4px solid black;
 }
 
 .manageHeldEquipmentMenuButtonsWrapper {
@@ -57,5 +66,10 @@
 @media only screen and (max-width: 600px) {
     .manageHeldEquipmentMenuDescriptionText {
         flex-grow: 1;
+    }
+
+    .manageHeldEquipmentMenuItemsGrid {
+        min-height: 10em;
+        overflow-y: auto;
     }
 }

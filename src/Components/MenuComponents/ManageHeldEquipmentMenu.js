@@ -8,7 +8,7 @@ import { CanEquipItem, IsItemHoldable } from "../../SharedFunctions/EquipmentFun
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { CheckboxInput } from "../SimpleComponents/CheckboxInput";
 
-const rows = [
+const columns = [
     {
         name: "Equip",
         calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
@@ -63,9 +63,9 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
         const itemName2Item = getNameDictionaryForCollection("items");
 
         // Do the header row first.
-        for (let row of rows) {
+        for (let col of columns) {
             itemRows.push(<>
-                <div className={row.addClass ? "manageHeldEquipmentMenuHeaderCell " + row.addClass : "manageHeldEquipmentMenuHeaderCell"}>{row.name}</div>
+                <div className={col.addClass ? "manageHeldEquipmentMenuHeaderCell " + col.addClass : "manageHeldEquipmentMenuHeaderCell"}>{col.name}</div>
             </>);
         }
 
@@ -76,9 +76,15 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
             if (dndItem) {
                 dndItem = getItemFromItemTemplate(dndItem, itemName2Item);
                 if (IsItemHoldable(dndItem)) {
-                    for (let row of rows) {
+                    for (let col of columns) {
+                        let allClasses = col.addClass ? "manageHeldEquipmentMenuRow " + col.addClass : "manageHeldEquipmentMenuRow";
+                        if (itemRows.length >= columns.length && itemRows.length < (2 * columns.length)) {
+                            // This is the first data row.
+                            allClasses += " firstDataRow";
+                        }
+
                         itemRows.push(<>
-                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                            <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                         </>);
                     }
                 }
@@ -117,9 +123,15 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
         }
 
         if (IsItemHoldable(dndItem)) {
-            for (let row of rows) {
+            for (let col of columns) {
+                let allClasses = col.addClass ? "manageHeldEquipmentMenuRow " + col.addClass : "manageHeldEquipmentMenuRow";
+                if (itemRows.length >= columns.length && itemRows.length < (2 * columns.length)) {
+                    // This is the first data row.
+                    allClasses += " firstDataRow";
+                }
+
                 itemRows.push(<>
-                    <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                    <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                 </>);
             }
         }
