@@ -49,7 +49,7 @@ export function MetamagicComponent({playerConfigs, metamagicOptions, menuConfig,
             }
 
             if (metamagicPointsThatWillBeRemaining > 0) {
-                const range = calculateRange(playerConfigs, menuConfig.additionalEffects ?? [], menuConfig.spell.range);
+                const range = calculateRange(playerConfigs, menuConfig.additionalEffects ?? [], menuConfig.spell.range, { slotLevel: menuConfig.useSpellSlotLevel });
                 const concentration = menuConfig.spell.concentration;
                 const duration = calculateDuration(playerConfigs, menuConfig.spell.duration, menuConfig.additionalEffects ?? [], { spell: menuConfig.spell, slotLevel: menuConfig.useSpellSlotLevel, range, concentration });
 
