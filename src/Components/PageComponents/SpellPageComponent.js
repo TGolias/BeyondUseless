@@ -25,7 +25,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
         castingCondition = spell.castingCondition;
     }
 
-    const range = calculateRange(playerConfigs, additionalEffects, spell.range);
+    let range = calculateRange(playerConfigs, additionalEffects, spell.range, { slotLevel: data?.castAtLevel ?? spell.level});
 
     let componentsString = "";
     if (spell.components) {

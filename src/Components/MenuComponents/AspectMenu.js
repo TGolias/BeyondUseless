@@ -23,7 +23,7 @@ export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
         finalAspect = addLeadingPlusIfNumericAndPositive(finalAspect);
     }
 
-    // Now put any details about it.aspectMenuSmallScreenGrow
+    // Now put any details about it.
     let details = [];
     if (menuConfig.addendumsToShow) {
         for (let addendumToShow of menuConfig.addendumsToShow) {

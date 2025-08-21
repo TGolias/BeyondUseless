@@ -83,5 +83,5 @@ function openSavingThrowMenu(setCenterScreenMenu, baseStatName) {
 
 function openSkillProfMenu(setCenterScreenMenu, skillProfName) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: skillProfName, aspectName: ("skillProficiency" + skillProfName), addendumsToShow: [("skillProficiency" + skillProfName + "Addendum"), "skillProficiencyAllAddendum"], leadingPlus: true } });
+    setCenterScreenMenu({ show: true, menuType: "AspectMenu", data: { menuTitle: skillProfName, aspectName: ("skillProficiency" + skillProfName), addendumsToShow: [("skillProficiency" + skillProfName.replace(/\s/g, "") + "Addendum"), "skillProficiencyAllAddendum"], leadingPlus: true } });
 }

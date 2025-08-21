@@ -1510,29 +1510,29 @@ export function calculateAttackRollForAttackRollType(playerConfigs, additionalEf
     }
 }
 
-export function calculateRange(playerConfigs, additionalEffects, range) {
+export function calculateRange(playerConfigs, additionalEffects, range, parameters = {}) {
     if (range) {
         if (isObject(range) && (range.normal || range.long)) {
             let rangeString = "";
             if (range.normal) {
-                rangeString += calculateSingleRange(playerConfigs, additionalEffects, range.normal);
+                rangeString += calculateSingleRange(playerConfigs, additionalEffects, range.normal, parameters);
             }
             if (range.long) {
                 rangeString += "/";
-                rangeString += calculateSingleRange(playerConfigs, additionalEffects, range.long);
+                rangeString += calculateSingleRange(playerConfigs, additionalEffects, range.long, parameters);
             }
             return rangeString;
         } else {
-            return calculateSingleRange(playerConfigs, additionalEffects, range);
+            return calculateSingleRange(playerConfigs, additionalEffects, range, parameters);
         }
     }
     return undefined;
 }
 
-function calculateSingleRange(playerConfigs, additionalEffects, singleRange) {
+function calculateSingleRange(playerConfigs, additionalEffects, singleRange, parameters) {
     let range;
     if (isObject(singleRange) && singleRange.calculation) {
-        range = performMathCalculation(playerConfigs, singleRange.calculation);
+        range = performMathCalculation(playerConfigs, singleRange.calculation, parameters);
     } else {
         range = singleRange;
     }
