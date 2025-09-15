@@ -1,8 +1,12 @@
 .hitDiceMenuWrapperDiv {
     display: flex;
     flex-direction: column;
+    margin: -0.5em;
+    padding: 1em;
     gap: 1em;
     text-align: center;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .hitDicemenuText {
@@ -34,22 +38,8 @@
         height: 100%;
     }
 
-    .hitDiceMenuWrapperDiv > * {
-        flex-grow: 1;
-    }
-
-    .hitDiceMenuWrapperDiv > .centerMenuSeperator,
-    .hitDiceMenuWrapperDiv > .hitDiceMenuHorizontal {
-        flex-grow: 0;
-    }
-
     .healthMenuMainSection {
         flex-grow: 1;
         justify-content: space-around;
-    }
-
-    .hideHealControls {
-        display: block;
-        visibility: hidden;
     }
 }

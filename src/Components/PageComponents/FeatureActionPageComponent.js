@@ -300,7 +300,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 <div><b>Healing:</b> {healing}</div>
             </div>
             <div className="spellPageDescription" style={{display: (healingAddendum ? "block" : "none")}}>
-                <div>{parseStringForBoldMarkup(healingAddendum)}</div>
+                <div>{healingAddendum}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (restore ? "block" : "none")}}>
                 <div><b>Conditions Removed:</b> {restore}</div>

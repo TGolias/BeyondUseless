@@ -1,3 +1,4 @@
+import merge from "deepmerge-json";
 import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
@@ -2078,7 +2079,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         const itemsDictionary = getNameDictionaryForCollection("items");
         for (let item of playerConfigs.items) {
             if (item.equipped) {
-                const dndItem = itemsDictionary[item.name];
+                const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
                 if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
                     onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
                 }
@@ -3171,14 +3172,15 @@ export function getItemFromItemTemplate(originalDndItem, itemName2Item = undefin
     if (dndItem) {
         while (dndItem.type === "Template") {
             const itemName = dndItem.templateOf;
-            let newItem = {...itemName2Item[itemName]};
-            for (let itemProperty of Object.keys(dndItem)) {
-                if (itemProperty !== "type" && itemProperty !== "templateOf") {
-                    // Override using the properties of the template.
-                    newItem[itemProperty] = originalDndItem[itemProperty];
-                }
-            }
-            dndItem = newItem;
+            let itemBasedOnOriginal = {...itemName2Item[itemName]};
+
+            // We don't want the type or the "templateOf" from the original object. We actually want those two to favor the base item's values.
+            let templateItem = {...dndItem};
+            delete templateItem.type;
+            delete templateItem.templateOf;
+
+            // Merge the two items, but if there are any repeat items, override with the template object's values over the original base object.
+            dndItem = merge(itemBasedOnOriginal, templateItem);
         }
         return dndItem;
     }

@@ -97,17 +97,17 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
             <div>{hitDiceControls}</div>
             <div>{totalToBeExpendedString === "" ? "No hit dice to be expended" : "Expending " + totalToBeExpendedString}</div>
             <div className={totalToBeExpendedString !== "" ? "" : "hideHealControls"}>{healControls}</div>
-            <div className="centerMenuSeperator"></div>
-            <div className="hitDiceMenuHorizontal">
-                <RetroButton text="Confirm" onClickHandler={() => {
-                    menuConfig.onBeforeConfirm(playerConfigsClone);
-                    inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={false} disabled={false} buttonSound={totalToBeExpendedString === "" ? menuConfig.soundOnNoHitDiceExpend : menuConfig.soundOnHitDiceExpend }></RetroButton>
-                <RetroButton text="Cancel" onClickHandler={() => {
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={false} disabled={false}></RetroButton>
-            </div>
+        </div>
+        <div className="centerMenuSeperator"></div>
+        <div className="hitDiceMenuHorizontal">
+            <RetroButton text="Confirm" onClickHandler={() => {
+                menuConfig.onBeforeConfirm(playerConfigsClone);
+                inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+            }} showTriangle={false} disabled={false} buttonSound={totalToBeExpendedString === "" ? menuConfig.soundOnNoHitDiceExpend : menuConfig.soundOnHitDiceExpend }></RetroButton>
+            <RetroButton text="Cancel" onClickHandler={() => {
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+            }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
