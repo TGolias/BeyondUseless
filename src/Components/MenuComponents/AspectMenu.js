@@ -27,8 +27,12 @@ export function AspectMenu({playerConfigs, menuConfig, setCenterScreenMenu}) {
     let details = [];
     if (menuConfig.addendumsToShow) {
         for (let addendumToShow of menuConfig.addendumsToShow) {
-            const addendumString = calculateAddendumAspect(playerConfigs, addendumToShow, []);
+            let addendumString = calculateAddendumAspect(playerConfigs, addendumToShow, []);
             if (addendumString) {
+                if (details.length > 0) {
+                    addendumString = "\n\n" + addendumString;
+                }
+
                 details.push(parseStringForBoldMarkup(addendumString));
             }
         }
