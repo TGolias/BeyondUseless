@@ -1,6 +1,6 @@
 import React from "react";
 import './HitDiceMenu.css';
-import { calculateHitDiceMap, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, calculateHitDiceMap, calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { RetroButton } from "../SimpleComponents/RetroButton";
@@ -29,6 +29,7 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
 
     playerConfigsClone.currentStatus.remainingHp = newRemainingHp;
 
+    let totalToExpendNow = 0;
     for (let hitDieType of Object.keys(hitDiceMap)) {
         const singleHitDieRows = [];
 
@@ -38,6 +39,7 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
         const totalDiceToExpendNow = totalDice - diceUsedPrior;
         const diceUsedIncludingNow = menuConfig.remainingHitDice[hitDieType] ?? 0;
         const diceUsedNow = diceUsedIncludingNow - diceUsedPrior;
+        totalToExpendNow += diceUsedNow;
         const remainingDiceToExpendNow = totalDiceToExpendNow - diceUsedNow;
 
         if (diceUsedNow > 0) {
@@ -84,6 +86,15 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
                 }
             }}>{singleHitDieRows}</div>
         </>)
+    }
+
+    if (menuConfig.isShortRest) {
+        // Add constitution modifier for each die expended on a short rest.
+        const constitutionModifier = calculateAspectCollection(playerConfigs, "constitutionModifier");
+        if (totalToExpendNow > 0 && constitutionModifier !== 0) {
+            const additionalHealing = constitutionModifier * totalToExpendNow;
+            totalToBeExpendedString += " + " + additionalHealing;
+        }
     }
 
     const healControls = [];

@@ -69,6 +69,7 @@ const menuCollection = {
             newHitDiceMenuConfig.onBeforeConfirm = data.onBeforeConfirm;
             newHitDiceMenuConfig.soundOnHitDiceExpend = data.soundOnHitDiceExpend;
             newHitDiceMenuConfig.soundOnNoHitDiceExpend = data.soundOnNoHitDiceExpend;
+            newHitDiceMenuConfig.isShortRest = data.isShortRest;
             newHitDiceMenuConfig.remainingHitDice = playerConfigs.currentStatus.remainingHitDice ?? {};
             newHitDiceMenuConfig.healAmount = 0;
             return newHitDiceMenuConfig;

@@ -154,7 +154,8 @@ export function HealthMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, 
                             onClick: () => {
                                 setCenterScreenMenu({ show: true, menuType: "HitDiceMenu", data: { 
                                     menuTitle: "Short Rest", 
-                                    menuText: "Select any hit dice you'd like expend as part of your Short Rest.",
+                                    menuText: "Select any hit dice you'd like expend as part of your Short Rest.\nYou can decide to spend an additonal Hit Point Die after each roll.",
+                                    isShortRest: true,
                                     soundOnHitDiceExpend: "shortrestaudio",
                                     soundOnNoHitDiceExpend: "shortrestaudio",
                                     onBeforeConfirm: (newPlayerConfigs) => {
