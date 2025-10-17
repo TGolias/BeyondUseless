@@ -32,7 +32,11 @@
 }
 
 .viewMenuResourceUses {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     font-size: 2em;
+    gap: 0.25em;
 }
 
 .viewMenuHorizontal {

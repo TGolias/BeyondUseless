@@ -3,7 +3,7 @@ import { createNewAlliedCreatureFromStatBlock, createStatBlockMap } from "./Alli
 import { removeConcentrationFromPlayerConfigs } from "./ConcentrationFunctions";
 import { GetAllActiveConnections } from "./LinkedPlayerFunctions";
 import { newActiveEffectMessage } from "./LinkedPlayerMessageFunctions";
-import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells } from "./TabletopMathFunctions";
+import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells, performMathCalculation } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
 const effectTypes = {
@@ -18,7 +18,7 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, targetNamesMap) => {
+        createActiveEffect: (playerConfigsClone, menuConfig, targetNamesMap) => {
             const activeEffect = {
                 type: "spell",
                 targetNamesMap: targetNamesMap,
@@ -39,7 +39,13 @@ const effectTypes = {
             if (menuConfig.spell.resources) {
                 activeEffect.remainingResources = {};
                 for (let resource of menuConfig.spell.resources) {
-                    activeEffect.remainingResources[resource.name] = resource.uses;
+                    let uses;
+                    if (resource.uses.calculation) {
+                        uses = performMathCalculation(playerConfigsClone, resource.uses.calculation);
+                    } else {
+                        uses = resource.uses;
+                    }
+                    activeEffect.remainingResources[resource.name] = uses;
                 }
             }
             
@@ -57,7 +63,7 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, targetNamesMap) => {
+        createActiveEffect: (playerConfigsClone, menuConfig, targetNamesMap) => {
             const activeEffect = {
                 type: "featureaction",
                 targetNamesMap: targetNamesMap,
@@ -88,7 +94,7 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, targetNamesMap) => {
+        createActiveEffect: (playerConfigsClone, menuConfig, targetNamesMap) => {
             const activeEffect = {
                 type: "action",
                 targetNamesMap: targetNamesMap,
@@ -131,7 +137,7 @@ const effectTypes = {
             }
             return creatures;
         },
-        createActiveEffect: (menuConfig, targetNamesMap) => {
+        createActiveEffect: (playerConfigsClone, menuConfig, targetNamesMap) => {
             if (menuConfig.item.consumeEffect) {
                 return {
                     type: "item",
@@ -160,7 +166,13 @@ const effectTypes = {
                 if (menuConfig.spell.resources) {
                     activeEffect.remainingResources = {};
                     for (let resource of menuConfig.spell.resources) {
-                        activeEffect.remainingResources[resource.name] = resource.uses;
+                        let uses;
+                        if (resource.uses.calculation) {
+                            uses = performMathCalculation(playerConfigsClone, resource.uses.calculation);
+                        } else {
+                            uses = resource.uses;
+                        }
+                        activeEffect.remainingResources[resource.name] = uses;
                     }
                 }
                 
@@ -195,7 +207,7 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
                         const singleActiveConnection = allActiveConnections[key];
                         if (targetNamesMap[singleActiveConnection.remotePlayerConfigs.name]) {
                             // We need to let this other remote linked character know that we fucked with their shit. (added to their shit)
-                            const newActiveEffect = effectType.createActiveEffect(menuConfig, targetNamesMap);
+                            const newActiveEffect = effectType.createActiveEffect(playerConfigsClone, menuConfig, targetNamesMap);
                             newActiveEffect.fromRemoteCharacter = playerConfigsClone.name;
                             const message = newActiveEffectMessage(sessionId, newActiveEffect);
                             singleActiveConnection.channel.send(JSON.stringify(message));
@@ -215,7 +227,7 @@ export async function tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone,
 
 async function castSpellWithAddingToEffects(playerConfigsClone, setCenterScreenMenu, effectType, creatures, menuConfig, targetNamesMap) {
     playerConfigsClone.currentStatus.activeEffects = playerConfigsClone.currentStatus.activeEffects ? [...playerConfigsClone.currentStatus.activeEffects] : [];
-    const newActiveEffect = effectType.createActiveEffect(menuConfig, targetNamesMap);
+    const newActiveEffect = effectType.createActiveEffect(playerConfigsClone, menuConfig, targetNamesMap);
     
     // See if we have any creatures.
     if (creatures) {

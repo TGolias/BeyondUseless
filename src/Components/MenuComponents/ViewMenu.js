@@ -6,6 +6,7 @@ import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageC
 import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { ItemPageComponent } from "../PageComponents/ItemPageComponent";
+import { CircleButton } from "../SimpleComponents/CircleButton";
 
 export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu, menuConfig, menuStateChangeHandler, addToMenuStack}) {
 
@@ -98,32 +99,25 @@ export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
 function createResourceRow(resource, currentActiveEffect, menuConfig, menuStateChangeHandler) {
     const totalUses = resource.uses;
     const remainingUses = menuConfig.newRemainingResources ? menuConfig.newRemainingResources[resource.name] : currentActiveEffect.remainingResources[resource.name];
-    const usedUses = totalUses - remainingUses;
-
-    let usesString = ""
-    for (let i = 0; i < totalUses; i++) {
-        if (i > 0) {
-            usesString += " ";
-        }
-        if (i < usedUses) {
-            usesString += "X"
-        } else {
-            usesString += "O"
-        }
-    }
 
     return (<>
-        <div className="viewMenuSingleResource" onClick={() => {
-            if (remainingUses > 0) {
-                playAudio("selectionaudio");
-                const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {};
-                newRemainingResources[resource.name] = remainingUses - 1;
-                menuStateChangeHandler(menuConfig, "newRemainingResources", newRemainingResources);
-            }
-        }}>
+        <div className="viewMenuSingleResource">
             <div>{resource.displayName}</div>
-            <div className="viewMenuResourceUses">{usesString}</div>
+            <div className="viewMenuResourceUses">
+                <CircleButton text={"-"} onClickHandler={() => { 
+                    const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {};
+                    newRemainingResources[resource.name] = remainingUses - 1;
+                    menuStateChangeHandler(menuConfig, "newRemainingResources", newRemainingResources);
+                }} disabled={menuConfig.quantity <= 0}></CircleButton>
+                <div>{remainingUses}</div>
+                <CircleButton text={"+"} onClickHandler={() => {
+                    const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {};
+                    newRemainingResources[resource.name] = remainingUses + 1;
+                    menuStateChangeHandler(menuConfig, "newRemainingResources", newRemainingResources);
+                }} disabled={false}></CircleButton>
+            </div>
         </div>
+        
     </>);
 }
 

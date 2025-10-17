@@ -23,7 +23,7 @@ const rows = [
     {
         name: "Atk/DC",
         calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
-            if (unarmedStrike.challengeType === "savingThrow") {
+            if (unarmedStrike.challengeType.includes("savingThrow")) {
                 const unarmedAttackDC = calculateUnarmedAttackDC(playerConfigs);
                 return "DC" + unarmedAttackDC.dc;
             } else {
@@ -36,7 +36,7 @@ const rows = [
             return addLeadingPlusIfNumericAndPositive(attack.amount);
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
-            if (dndCantrip.challengeType === "savingThrow") {
+            if (dndCantrip.challengeType.includes("savingThrow")) {
                 const spellSave = calculateSpellSaveDC(playerConfigs, [], dndCantrip, true, 0);
                 return "DC" + spellSave.dc;
             } else {

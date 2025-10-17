@@ -42,7 +42,7 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
             itemDescriptionAddendum = parseStringForBoldMarkup(itemDescriptionAddendumString);
         }
 
-        if (unarmedStrike.challengeType === "savingThrow") {
+        if (unarmedStrike.challengeType.includes("savingThrow")) {
             savingThrowType = calculateSavingThrowTypes(unarmedStrike.savingThrowType);
 
             const savingThrowCalc = calculateUnarmedAttackDC(playerConfigs);

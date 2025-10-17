@@ -1345,21 +1345,23 @@ export function calculateSpellAttack(playerConfigs, additionalEffects, spell, is
     }
     let addendum = calculateAddendumAspects(playerConfigs, ["spellAttackAddendum", "allAttackAddendum"], additionalEffects, { spell: spellToUse, isSpell, spellcastingAbility, spellcastingAbilityModifier, slotLevel });
 
-    if (spellToUse.challengeType === "attackRoll") {
-        const spellRange = calculateRange(playerConfigsToUse, additionalEffects, spell.range);
-        // TODO: Need to differentiate between melee and ranged spell attacks.
-        if (isNumeric(spellRange) && spellRange > 5) {
-            const miscMap = getNameDictionaryForCollection("misc");
-            const rangedMisc = miscMap["Ranged"];
-    
-            const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell: spellToUse, isSpell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, additionalEffects });
+    if (spellToUse.challengeType.includes("attackRoll")) {
+        if (!spellToUse.attackRollIsMelee) {
+            const spellRange = calculateRange(playerConfigsToUse, additionalEffects, spell.range);
+            // TODO: Need to differentiate between melee and ranged spell attacks.
+            if (isNumeric(spellRange) && spellRange > 5) {
+                const miscMap = getNameDictionaryForCollection("misc");
+                const rangedMisc = miscMap["Ranged"];
+        
+                const rangedString = performMathCalculation(playerConfigs, rangedMisc.weaponAttackAddendum.calculation, { spell: spellToUse, isSpell, spellcastingAbility, spellcastingAbilityModifier, slotLevel, additionalEffects });
 
-            if (rangedString) {
-                if (addendum.length > 0) {
-                    // Newline between different addendums.
-                    addendum += "\n\n";
+                if (rangedString) {
+                    if (addendum.length > 0) {
+                        // Newline between different addendums.
+                        addendum += "\n\n";
+                    }
+                    addendum += rangedString;
                 }
-                addendum += rangedString;
             }
         }
     }
@@ -1423,6 +1425,10 @@ export function calculateSpellSaveDC(playerConfigs, additionalEffects, spell, is
 }
 
 export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalEffects, additionalParams = undefined) {
+    return calculateOtherSpellAspectFromCalculation(playerConfigs, spell, slotLevel, spell[aspectName].calculation, aspectBonusName, additionalEffects, additionalParams);
+}
+
+export function calculateOtherSpellAspectFromCalculation(playerConfigs, spell, slotLevel, aspectCalculation, aspectBonusName, additionalEffects, additionalParams = undefined) {
     let playerConfigsToUse = playerConfigs;
     let spellToUse = spell;
     if (spell.feature.spellcasting.fromParentFeature) {
@@ -1439,7 +1445,7 @@ export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspec
     const spellcastingAbilityModifier = calculateAspectCollection(playerConfigsToUse, spellcastingAbility + "Modifier");
 
     // Start with the spell's calculation
-    let spellAspect = performDiceRollCalculation(playerConfigsToUse, spell[aspectName].calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, additionalEffects, ...additionalParams });
+    let spellAspect = performDiceRollCalculation(playerConfigsToUse, aspectCalculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, additionalEffects, ...additionalParams });
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.

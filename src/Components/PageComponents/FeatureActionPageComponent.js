@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 import { GetCurrentVariableValue, GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
@@ -94,7 +94,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
         featureAction.feature = spellcastingFeature;
 
-        if (featureAction.challengeType === "attackRoll") {
+        if (featureAction.challengeType.includes("attackRoll")) {
             const attack = calculateAttackRollForAttackRollType(playerConfigs, [], featureAction, false, undefined, featureAction.attackRollType);
             attackRoll = attack.amount;
             if (attack.addendum) {
@@ -102,8 +102,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             }
         }
 
-        if (featureAction.challengeType === "savingThrow") {
-            savingThrowType = featureAction.savingThrowType;
+        if (featureAction.challengeType.includes("savingThrow")) {
+            savingThrowType = calculateSavingThrowTypes(featureAction.savingThrowType);
 
             const savingThrowCalc = calculateSpellSaveDC(playerConfigs, [], featureAction, false, undefined);
             savingThrowDc = savingThrowCalc.dc;
@@ -288,7 +288,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 <div>{attackRollAddendum}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (savingThrowDc || savingThrowType ? "block" : "none")}}>
-                <div><b>DC{savingThrowDc}</b>{savingThrowType ? " " + getCapitalizedAbilityScoreName(savingThrowType) : ""}</div>
+                <div><b>DC{savingThrowDc}</b>{savingThrowType ? savingThrowType : ""}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (savingThrowDcAddendum ? "block" : "none")}}>
                 <div>{savingThrowDcAddendum}</div>

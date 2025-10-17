@@ -2,7 +2,7 @@ import React from "react";
 import './SpellPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateOtherSpellAspect, calculateRange, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateOtherSpellAspect, calculateOtherSpellAspectFromCalculation, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getAllSpells } from "../../SharedFunctions/TabletopMathFunctions";
 import { getNameDictionaryForCollection } from "../../Collections";
 
 export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}) {
@@ -70,6 +70,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let savingThrowDc = undefined;
     let savingThrowDcAddendum = undefined;
     let damage = undefined;
+    let alternateDamageRows = [];
     let damageAddendum = undefined;
     let healing = undefined;
     let healingAddendum = undefined;
@@ -115,7 +116,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                     spellCastingConditionAddendum = parseStringForBoldMarkup(spellCastingConditionAddendumString);
                 }
 
-                if (spell.challengeType === "attackRoll") {
+                if (spell.challengeType.includes("attackRoll")) {
                     const attack = calculateAttackRollForAttackRollType(playerConfigs, additionalEffects, spell, true, castAtLevel, spell.attackRollType);
                     attackRoll = attack.amount;
                     if (attack.addendum) {
@@ -123,8 +124,8 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                     }
                 }
 
-                if (spell.challengeType === "savingThrow") {
-                    savingThrowType = spell.savingThrowType;
+                if (spell.challengeType.includes("savingThrow")) {
+                    savingThrowType = calculateSavingThrowTypes(spell.savingThrowType);
 
                     const savingThrowCalc = calculateSpellSaveDC(playerConfigs, additionalEffects, spell, true, castAtLevel);
                     savingThrowDc = savingThrowCalc.dc;
@@ -134,8 +135,22 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 }
 
                 if (spell.type.includes("damage")) {
-                    damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
-                    if (damage) {
+                    if (spell.damage.calculation) {
+                        damage = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "damage", "spellDamageBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
+                    }
+                    
+                    if (spell.damage.alternateDamage && spell.damage.alternateDamage.length > 0) {
+                        for (let singleAlternateDamage of spell.damage.alternateDamage) {
+                            const additionalDamage = calculateOtherSpellAspectFromCalculation(playerConfigs, spell, castAtLevel, singleAlternateDamage.calculation, "spellDamageBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
+
+                            alternateDamageRows.push(<>
+                                <div className="spellPageDescription">
+                                    <div><b>{singleAlternateDamage.description}</b> {additionalDamage}</div>
+                                </div>
+                            </>);
+                        }
+                    }
+                    if (damage || alternateDamageRows.length > 0) {
                         const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], additionalEffects, { userInput: data.userInput, range, concentration, duration });
                         if (damageAddendumString) {
                             damageAddendum = parseStringForBoldMarkup(damageAddendumString);
@@ -224,7 +239,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 <div>{attackRollAddendum}</div>
             </div>
             <div className="spellPageDescription" style={{display: (savingThrowDc || savingThrowType ? "block" : "none")}}>
-                <div><b>DC{savingThrowDc}</b>{savingThrowType ? " " + getCapitalizedAbilityScoreName(savingThrowType) : ""}</div>
+                <div><b>DC{savingThrowDc}</b>{savingThrowType ? " " + savingThrowType : ""}</div>
             </div>
             <div className="spellPageDescription" style={{display: (savingThrowDcAddendum ? "block" : "none")}}>
                 <div>{savingThrowDcAddendum}</div>
@@ -232,6 +247,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div className="spellPageDescription" style={{display: (damage ? "block" : "none")}}>
                 <div><b>Damage:</b> {damage}</div>
             </div>
+            {alternateDamageRows}
             <div className="spellPageDescription" style={{display: (damageAddendum ? "block" : "none")}}>
                 <div>{damageAddendum}</div>
             </div>
