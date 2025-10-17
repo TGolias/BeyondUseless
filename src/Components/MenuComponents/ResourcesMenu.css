@@ -1,16 +1,12 @@
-.resourcesMenuWrapperDiv {
+.resourcesMenuText {
     display: flex;
     flex-direction: column;
+    margin: -0.5em;
+    padding: 1em;
     gap: 1em;
     text-align: center;
-}
-
-.resourcesMenuText {
-    padding-top: 0.5em;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    row-gap: 0.5em;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .resourcesMenuButtons {

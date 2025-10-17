@@ -61,32 +61,30 @@ export function ResourcesMenu({playerConfigs, inputChangeHandler, menuConfig, se
     }
 
     return (<>
-        <div className="resourcesMenuWrapperDiv">
-            <div className="resourcesMenuText">
-                {resourceRows}
-            </div>
-            <div className="centerMenuSeperator"></div>
-            <div className="resourcesMenuHorizontal">
-                <RetroButton text={"OK"} onClickHandler={() => {
-                    if (menuConfig.remainingFreeSpellUses || menuConfig.remainingResources || menuConfig.remainingSpellSlots) {
-                        const newCurrentStatus = {...playerConfigs.currentStatus};
-                        if (menuConfig.remainingFreeSpellUses) {
-                            newCurrentStatus.remainingFreeSpellUses = menuConfig.remainingFreeSpellUses;
-                        }
-
-                        if (menuConfig.remainingResources) {
-                            newCurrentStatus.remainingResources = menuConfig.remainingResources;
-                        }
-
-                        if (menuConfig.remainingSpellSlots) {
-                            newCurrentStatus.remainingSpellSlots = menuConfig.remainingSpellSlots;
-                        }
-                        inputChangeHandler(playerConfigs, "currentStatus", newCurrentStatus);
+        <div className="resourcesMenuText">
+            {resourceRows}
+        </div>
+        <div className="centerMenuSeperator"></div>
+        <div className="resourcesMenuHorizontal">
+            <RetroButton text={"OK"} onClickHandler={() => {
+                if (menuConfig.remainingFreeSpellUses || menuConfig.remainingResources || menuConfig.remainingSpellSlots) {
+                    const newCurrentStatus = {...playerConfigs.currentStatus};
+                    if (menuConfig.remainingFreeSpellUses) {
+                        newCurrentStatus.remainingFreeSpellUses = menuConfig.remainingFreeSpellUses;
                     }
-                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                }} showTriangle={false} disabled={false}></RetroButton>
-                <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
-            </div>
+
+                    if (menuConfig.remainingResources) {
+                        newCurrentStatus.remainingResources = menuConfig.remainingResources;
+                    }
+
+                    if (menuConfig.remainingSpellSlots) {
+                        newCurrentStatus.remainingSpellSlots = menuConfig.remainingSpellSlots;
+                    }
+                    inputChangeHandler(playerConfigs, "currentStatus", newCurrentStatus);
+                }
+                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+            }} showTriangle={false} disabled={false}></RetroButton>
+            <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
