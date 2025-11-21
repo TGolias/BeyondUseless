@@ -2,11 +2,14 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 1em;
 }
 
 .outerDiv > * {
     padding-bottom: 1em;
+}
+
+.outerDiv > *:last-child {
+    padding-bottom: 0;
 }
 
 .playerName {
@@ -52,4 +55,15 @@
 
 .textWithLinesWrapper {
     white-space: pre-line;
+}
+
+.featuresListFeatureMainHeading {
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 1.5em;
+}
+
+.featuresListFeatureHeading {
+    font-weight: bold;
+    font-size: 1.20em;
 }

@@ -42,7 +42,13 @@
     color: rgb(200,162,18);
 }
 
+.spellNameCol {
+    min-width: 13.5em;
+}
+
 .spellcastingDisplayRow {
     min-height: 3.5em;
     font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

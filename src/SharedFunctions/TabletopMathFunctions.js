@@ -2080,23 +2080,6 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         }
     }
 
-    if (playerConfigs.items) {
-        // Check equipped items for the aspect.
-        const itemsDictionary = getNameDictionaryForCollection("items");
-        for (let item of playerConfigs.items) {
-            if (item.equipped) {
-                const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
-                if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
-                    onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
-                }
-
-                if (item.childItems && dndItem.childItems) {
-                    processChildItems(playerConfigs, item.childItems, dndItem.childItems, aspectName, onAspectFound);
-                }
-            }
-        }
-    }
-
     if (playerConfigs?.statBlocks && playerConfigs.statBlocks.length > 0) {
         const statBlockMap = getNameDictionaryForCollection("statblocks");
         for (let statBlock of playerConfigs.statBlocks) {
@@ -2148,6 +2131,24 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                             onAspectFound(playerConfigs, homebrewFeature[aspectName], "feature", homebrew);
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // Check items after homebrew.
+    if (playerConfigs.items) {
+        // Check equipped items for the aspect.
+        const itemsDictionary = getNameDictionaryForCollection("items");
+        for (let item of playerConfigs.items) {
+            if (item.equipped) {
+                const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
+                if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
+                    onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
+                }
+
+                if (item.childItems && dndItem.childItems) {
+                    processChildItems(playerConfigs, item.childItems, dndItem.childItems, aspectName, onAspectFound);
                 }
             }
         }
@@ -3017,6 +3018,11 @@ function doSingleCalculation(playerConfigs, singleCalculation, performCalculatio
             return false;
     }
     return performCalculationForSpecialTypes(singleCalculation);
+}
+
+export function getAllFeatures(playerConfigs) {
+    const features = calculateAspectCollection(playerConfigs, "features");
+    return features;
 }
 
 export function getAllSpellcastingFeatures(playerConfigs) {

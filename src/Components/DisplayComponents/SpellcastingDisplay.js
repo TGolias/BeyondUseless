@@ -26,7 +26,7 @@ const spellRows = [
                     return "spellcastingDisplayConcentratingOn";
                 }
             }
-            return "";
+            return "spellNameCol";
         }
     },
     {

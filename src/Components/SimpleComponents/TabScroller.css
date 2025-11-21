@@ -1,0 +1,87 @@
+.tabScrollerOuterDiv {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    min-width: 500px;
+}
+
+.tabScrollerContentContainer {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1em;
+    width: 100%;
+}
+
+.tabScrollerFootBar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0.5em;
+    position: relative;
+    border-top: 4px solid black;
+    background-color: lightgrey;
+}
+
+
+.tabScrollerArrow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    flex-grow: 1;
+    font-size: 1.5em;
+}
+
+.tabScrollerArrow * {
+    font-size: 1.5em;
+}
+
+.tabScrollerArrow.tabScrollerArrowRight {
+    justify-content: end;
+}
+
+.tabScrollerTabFooters * {
+    position: absolute;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    opacity: 1;
+    font-size: .6em;
+    font-weight: 0;
+    top: 5%;
+    bottom: 95%;
+    width: 56%;
+    left: 22%;
+    right: 22%;
+}
+
+.tabScrollerTabFooters .tabScrollerTabPrevious {
+    width: 50%;
+    left: 0%;
+    right: 50%;
+}
+
+.tabScrollerTabFooters .tabScrollerCurrent {
+    font-weight: 700;
+    font-size: 1em;
+    top: 1.25em;
+    bottom: 100% - 1.25em;
+}
+
+.tabScrollerTabFooters .tabScrollerTabNext {
+    width: 50%;
+    left: 50%;
+    right: 0%;
+}
+
+.tabScrollerTabFooters .tabScrollerTabOffScreen {
+    opacity: 0;
+    font-size: .1em;
+}
+
