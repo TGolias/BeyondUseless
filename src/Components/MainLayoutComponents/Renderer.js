@@ -43,7 +43,6 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 const passivePerception = calculatePassivePerception(playerConfigs);
 
                 const conditions = playerConfigs.currentStatus.conditions ?? [];
-                const activeEffects = playerConfigs.currentStatus.activeEffects ?? [];
 
                 const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
 
@@ -59,9 +58,6 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                         </div>
                         <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
                             <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
-                        </div>
-                        <div style={{display: (activeEffects.length > 0 ? "block" : "none")}}>
-                            <ActiveEffectsDisplay playerConfigs={playerConfigs} activeEffects={activeEffects} setCenterScreenMenu={setCenterScreenMenu} generateButtonText={(i) => "X"} onButtonClick={(i) => removeActiveEffect(playerConfigs, activeEffects, i, inputChangeHandler)}></ActiveEffectsDisplay>
                         </div>
                         <div className="encounterStats">
                             <BasicStatDisplay statValue={addLeadingPlusIfNumericAndPositive(initiativeBonus)} onClick={() => {
