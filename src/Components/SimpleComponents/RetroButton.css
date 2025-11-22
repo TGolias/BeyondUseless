@@ -16,6 +16,10 @@
     visibility: visible;
 }
 
+.alwaysShowTriangle.triangle {
+    visibility: visible;
+}
+
 .retroButtonWrapper:hover .retroButtonText {
     text-decoration: underline;
 }

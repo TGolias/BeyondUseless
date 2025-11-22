@@ -6,7 +6,7 @@ export function StartMenu({menuItems}) {
     const rows = []
     for (let i = 0; i < menuItems.length; i++) {
         const menuItem = menuItems[i];
-        rows.push(<StartMenuItem menuText={menuItem.text} onClickHandler={menuItem.clickHandler} disabled={menuItem.disabled} buttonSound={menuItem.buttonSound}></StartMenuItem>);
+        rows.push(<StartMenuItem menuText={menuItem.text} onClickHandler={menuItem.clickHandler} currentlySelected={menuItem.currentlySelected} disabled={menuItem.disabled} buttonSound={menuItem.buttonSound}></StartMenuItem>);
     }
     return (
         <>

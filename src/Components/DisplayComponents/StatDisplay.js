@@ -49,7 +49,7 @@ export function StatDisplay({playerConfigs, name, value, setCenterScreenMenu}) {
                 <div className="statName">{name}</div>
                 <div className="baseStatContainer">
                     <div className='statDisplaystatLabel'>MODIFIER</div>
-                    <div className='modifier'>{(modifierAmount < 0 ? "" : "+") + calculateModifierForBaseStat(value)}</div>
+                    <div className='modifier'>{(typeof modifierAmount === "string" || modifierAmount < 0 ? "" : "+") + calculateModifierForBaseStat(value)}</div>
                     <div className='statDisplaystatLabel'>SCORE</div>
                     <div className="scoreContainer">
                         <div className='pixel-corners--wrapper'>

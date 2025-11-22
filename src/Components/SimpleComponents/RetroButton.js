@@ -4,7 +4,7 @@ import { playAudio } from "../../SharedFunctions/Utils";
 
 const rightTriangleUnicode = '\u25B6';
 
-export function RetroButton({text, onClickHandler, showTriangle, disabled, buttonSound = undefined}) {
+export function RetroButton({text, onClickHandler, showTriangle, disabled, alwaysShowTriangle = false, buttonSound = undefined}) {
 
     return (
         <>
@@ -12,7 +12,7 @@ export function RetroButton({text, onClickHandler, showTriangle, disabled, butto
                 playAudio(buttonSound ? buttonSound : "selectionaudio");
                 onClickHandler();
             }}>
-                <div className={"triangle" + (showTriangle ? "" : " hideTriangle")}>{rightTriangleUnicode}</div>
+                <div className={"triangle" + (showTriangle ? "" : " hideTriangle") + (alwaysShowTriangle ? " alwaysShowTriangle" : "")}>{rightTriangleUnicode}</div>
                 <div className="retroButtonText">{text}</div>
             </div>
         </>

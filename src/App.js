@@ -807,7 +807,7 @@ export default function App() {
           </div>
         </div>
       </div>
-      <div className={"startMenu" + (showStartMenu ? "" : " hide")}>
+      <div className={"startMenuWrapper" + (showStartMenu ? "" : " hide")}>
         <StartMenu menuItems={startMenuItems}></StartMenu>
       </div>
       <div className={"centerMenuWrapper" + (centerScreenMenu.show ? "" : " hide")}>
