@@ -3,7 +3,7 @@ import './TabScroller.css'
 import { StartMenu } from "../MainLayoutComponents/StartMenu";
 import { playAudio } from "../../SharedFunctions/Utils";
 
-export function TabScroller({tabScrollerId, tabs}) {
+export function TabScroller({tabScrollerId, tabs, header}) {
 
     const [, forceUpdate] = useReducer(x => !x, false);
     const [showChangePageMenu, setShowChangePageMenu] = useState(false);
@@ -70,6 +70,9 @@ export function TabScroller({tabScrollerId, tabs}) {
 
     return <>
         <div className="tabScrollerOuterDiv">
+            <div className="tabScrollerHeader">
+                {header}
+            </div>
             <div className="tabScrollerContentContainer">{tabContent}</div>
             <div className="tabScrollerFootBar">
                 <div className="tabScrollerArrow" onClick={() => {

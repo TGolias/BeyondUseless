@@ -7,6 +7,15 @@
     min-width: 500px;
 }
 
+.tabScrollerHeader {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 1em;
+}
+
 .tabScrollerContentContainer {
     flex: 1;
     overflow-y: auto;

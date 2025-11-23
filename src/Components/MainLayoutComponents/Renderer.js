@@ -31,6 +31,23 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
 
     const spellcastingFeatures = getAllSpellcastingFeatures(playerConfigs);
 
+    const conditions = playerConfigs.currentStatus.conditions ?? [];
+    const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
+
+    const header = <>
+        <div className="playerName">{playerConfigs.title ? playerConfigs.title : playerConfigs.name}</div>
+        <div className="healthBarAndDefense">
+            <HPandLVLDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} playLowHpAudio={true}></HPandLVLDisplay>
+            <ArmorClassDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></ArmorClassDisplay>
+        </div>
+        <div style={{display: (conditions.length > 0 ? "block" : "none")}}>
+            <ConditionsDisplay setCenterScreenMenu={setCenterScreenMenu} conditions={conditions} onAddOrUpdate={(newCondition) => onAddCondition(playerConfigs, inputChangeHandler, newCondition, showDeathScreen)} onRemove={(conditionNameToRemove) => onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRemove)}></ConditionsDisplay>
+        </div>
+        <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
+            <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
+        </div>
+    </>;
+
     const tabs = [
         {
             name: "Stats",
@@ -42,23 +59,8 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 const size = calculateSize(playerConfigs);
                 const passivePerception = calculatePassivePerception(playerConfigs);
 
-                const conditions = playerConfigs.currentStatus.conditions ?? [];
-
-                const showDeathSavingThrows = playerConfigs.currentStatus.remainingHp === 0;
-
                 return <>
                     <div className="outerDiv">
-                        <div className="playerName">{playerConfigs.title ? playerConfigs.title : playerConfigs.name}</div>
-                        <div className="healthBarAndDefense">
-                            <HPandLVLDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu} playLowHpAudio={true}></HPandLVLDisplay>
-                            <ArmorClassDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></ArmorClassDisplay>
-                        </div>
-                        <div style={{display: (conditions.length > 0 ? "block" : "none")}}>
-                            <ConditionsDisplay setCenterScreenMenu={setCenterScreenMenu} conditions={conditions} onAddOrUpdate={(newCondition) => onAddCondition(playerConfigs, inputChangeHandler, newCondition, showDeathScreen)} onRemove={(conditionNameToRemove) => onRemoveCondition(playerConfigs, inputChangeHandler, conditionNameToRemove)}></ConditionsDisplay>
-                        </div>
-                        <div style={{display: (showDeathSavingThrows ? "block" : "none")}}>
-                            <DeathSavingThrowsDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} showDeathScreen={showDeathScreen}></DeathSavingThrowsDisplay>
-                        </div>
                         <div className="encounterStats">
                             <BasicStatDisplay statValue={addLeadingPlusIfNumericAndPositive(initiativeBonus)} onClick={() => {
                                 playAudio("menuaudio");
@@ -303,7 +305,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
     return (
         <>
             <div className="outerDiv">
-                <TabScroller tabScrollerId={"MAIN_RENDERER"} tabs={tabs}></TabScroller>
+                <TabScroller tabScrollerId={"MAIN_RENDERER"} tabs={tabs} header={header}></TabScroller>
             </div>
         </>
     )
