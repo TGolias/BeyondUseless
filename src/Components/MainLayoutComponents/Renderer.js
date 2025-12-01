@@ -97,7 +97,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             }
         },
         {
-            name: "Active FX",
+            name: "Active EFX",
             showTab: () => {
                 return activeEffects.length > 0;
             },
