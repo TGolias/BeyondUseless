@@ -97,7 +97,6 @@ export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
 }
 
 function createResourceRow(resource, currentActiveEffect, menuConfig, menuStateChangeHandler) {
-    const totalUses = resource.uses;
     const remainingUses = menuConfig.newRemainingResources ? menuConfig.newRemainingResources[resource.name] : currentActiveEffect.remainingResources[resource.name];
 
     return (<>
@@ -105,13 +104,13 @@ function createResourceRow(resource, currentActiveEffect, menuConfig, menuStateC
             <div>{resource.displayName}</div>
             <div className="viewMenuResourceUses">
                 <CircleButton text={"-"} onClickHandler={() => { 
-                    const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {};
+                    const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {...currentActiveEffect.remainingResources};
                     newRemainingResources[resource.name] = remainingUses - 1;
                     menuStateChangeHandler(menuConfig, "newRemainingResources", newRemainingResources);
                 }} disabled={menuConfig.quantity <= 0}></CircleButton>
                 <div>{remainingUses}</div>
                 <CircleButton text={"+"} onClickHandler={() => {
-                    const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {};
+                    const newRemainingResources = menuConfig.newRemainingResources ? {...menuConfig.newRemainingResources} : {...currentActiveEffect.remainingResources};
                     newRemainingResources[resource.name] = remainingUses + 1;
                     menuStateChangeHandler(menuConfig, "newRemainingResources", newRemainingResources);
                 }} disabled={false}></CircleButton>

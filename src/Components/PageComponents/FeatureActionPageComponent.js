@@ -141,7 +141,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
                 const allConditionsMap = getNameDictionaryForCollection("conditions");
                 for (let condition of featureAction.debuff.conditions) {
                     const dndCondition = allConditionsMap[condition];
-                    if (debuffDescription.length > 0) {
+                    if (debuffDescription.length > 0 || debuffAmount.length > 0) {
                         debuffDescription += "\n\n";
                     }
                     debuffDescription += "<b>" + dndCondition.name + ".</b> " + dndCondition.description;

@@ -140,7 +140,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             }
         },
         {
-            name: "Item Actions",
+            name: "Consumables",
             showTab: () => {
                 return consumeActionItems.length > 0;
             },
