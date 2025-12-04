@@ -41,7 +41,7 @@ const effectTypes = {
                 for (let resource of menuConfig.spell.resources) {
                     let uses;
                     if (resource.uses.calculation) {
-                        uses = performMathCalculation(playerConfigsClone, resource.uses.calculation);
+                        uses = performMathCalculation(playerConfigsClone, resource.uses.calculation, { castAtLevel: menuConfig.useSpellSlotLevel, userInput: menuConfig.userInput });
                     } else {
                         uses = resource.uses;
                     }

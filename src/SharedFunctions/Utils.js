@@ -35,8 +35,13 @@ export function isObject(value) {
 
 export function isNumeric(someValue) {
     try {
-        if (someValue && typeof someValue === "string") {
-            return /^\d+$/.test(someValue);
+        if (someValue) {
+            if (typeof someValue === "string") {
+                return /^\d+$/.test(someValue);
+            } else if (Array.isArray(someValue)) {
+                // An array is not a number, silly.
+                return false;
+            }
         }
         return !isNaN(parseInt(someValue));
     } catch {
