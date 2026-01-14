@@ -1,0 +1,22 @@
+{
+  "name": "BeyondUseless",
+  "short_name": "BeyondUseless",
+  "icons": [
+    {
+      "src": "web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "start_url": "https://tgolias.github.io/BeyondUseless/",
+  "theme_color": "#d3d3d3",
+  "background_color": "#d3d3d3",
+  "display": "standalone"
+}

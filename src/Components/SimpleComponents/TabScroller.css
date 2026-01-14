@@ -7,6 +7,10 @@
     min-width: 500px;
 }
 
+.centerMenu .tabScrollerOuterDiv {
+    min-width: calc(500px - 2em);
+}
+
 .tabScrollerHeader {
     display: flex;
     flex-direction: column;

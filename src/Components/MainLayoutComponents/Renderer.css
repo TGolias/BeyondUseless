@@ -12,6 +12,14 @@
     padding-bottom: 0;
 }
 
+.centerMenu .outerDiv {
+    height: 100%;
+}
+
+.outerDiv .outerDiv > *:last-child {
+    padding-bottom: 1em;
+}
+
 .playerName {
     white-space: pre-line;
     font-weight: bold;
