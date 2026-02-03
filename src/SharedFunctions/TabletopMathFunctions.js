@@ -257,6 +257,30 @@ export function calculateNumberOfHands(playerConfigs) {
     return numberOfHands;
 }
 
+export function calculateAttunementSlots(playerConfigs, itemsAttunedTo, itemToAttuneTo) {
+    let attunementSlots = 3;
+
+    findAllConfiguredAspects(playerConfigs, "additionalAttunementSlots", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, itemsAttunedTo, itemToAttuneTo });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let additionalSlots;
+        if (aspectValue.calculation) {
+            additionalSlots = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject, itemsAttunedTo, itemToAttuneTo });
+        } else {
+            additionalSlots = aspectValue;
+        }
+        attunementSlots += additionalSlots;
+    });
+    
+    return attunementSlots;
+}
+
 export function calculateSpeed(playerConfigs) {
     // Start with 0, lol. All races have a base speed set, and if we end up seeing 0 in the UI, we'll know something is wrong for sure.
     let startingSpeed = 0;
@@ -2340,7 +2364,10 @@ function processFeat(playerConfigs, aspectName, selectedFeatName, playerConfigFe
                     const featureName = featFeature.name.replace(/\s/g, "");
 
                     if (featFeature) {
-                        processFeature(playerConfigs, aspectName, featFeature, playerConfigFeatureObjectFeature, pathToFeatureConfigObjectFeat, featureName, collections, onAspectFound);
+                        const rebuiltPlayerConfigFeatureObject = {};
+                        rebuiltPlayerConfigFeatureObject.features = {};
+                        rebuiltPlayerConfigFeatureObject.features[featureName] = playerConfigFeatureObjectFeature;
+                        processFeature(playerConfigs, aspectName, featFeature, rebuiltPlayerConfigFeatureObject, pathToFeatureConfigObjectFeat, featureName, collections, onAspectFound);
                     }
                 }
             }

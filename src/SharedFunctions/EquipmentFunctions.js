@@ -1,5 +1,5 @@
 import { getNameDictionaryForCollection } from "../Collections";
-import { calculateNumberOfHands, getItemFromItemTemplate, performBooleanCalculation } from "./TabletopMathFunctions";
+import { calculateAttunementSlots, calculateNumberOfHands, getItemFromItemTemplate, performBooleanCalculation } from "./TabletopMathFunctions";
 
 export function CanEquipItem(playerConfigs, playerItems, item) {
     if (IsItemHoldable(item)) {
@@ -137,62 +137,67 @@ export function CanAttuneItem(playerConfigs, dndItem) {
         }
     }
 
-    let attunementCount = getAttunementCount(playerConfigs);
-    // Later on with artificer we are going to have to get the updated attuement count, but for now we're good to just hardcode 3.
-    return attunementCount < 3;
+    const attunedItems = getAttunedItems(playerConfigs);
+
+    const itemsDictionary = getNameDictionaryForCollection("items");
+    const attunedDndItems = attunedItems.map(item => getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary));
+
+    const attunementSlots = calculateAttunementSlots(playerConfigs, attunedDndItems, dndItem);
+
+    return attunedItems.length < attunementSlots;
 }
 
-function getAttunementCount(playerConfigs) {
-    const attunementFromItems = getAttunementCountFromItems(playerConfigs.items, playerConfigs.name);
-    const attunementFromAllies = getAttunementFromAllies(playerConfigs, playerConfigs.name);
-    const attunementFromParents = getAttunementFromParents(playerConfigs, playerConfigs.name); 
+function getAttunedItems(playerConfigs) {
+    const attunedItemsFromItems = getAttunedItemsFromItems(playerConfigs.items, playerConfigs.name);
+    const attunedItemsFromAllies = getAttunedItemsFromAllies(playerConfigs, playerConfigs.name);
+    const attunedItemsFromParents = getAttunedItemsFromParents(playerConfigs, playerConfigs.name); 
 
-    return attunementFromItems + attunementFromAllies + attunementFromParents;
+    return [...attunedItemsFromItems, ...attunedItemsFromAllies, ...attunedItemsFromParents];
 }
 
-function getAttunementCountFromItems(items, nameToCheckForAttuned) {
-    let attunementCount = 0;
+function getAttunedItemsFromItems(items, nameToCheckForAttuned) {
+    let attunedItems = [];
     for (let playerItem of items) {
         if (playerItem.attuned === nameToCheckForAttuned) {
-            attunementCount++;
+            attunedItems.push(playerItem);
         }
 
         if (playerItem.items) {
-            const innerItemAttunmentCount = getAttunementCountFromItems(playerItem.items, nameToCheckForAttuned);
-            attunementCount += innerItemAttunmentCount;
+            const innerAttunedItems = getAttunedItemsFromItems(playerItem.items, nameToCheckForAttuned);
+            attunedItems = [...attunedItems, ...innerAttunedItems];
         }
     }
 
-    return attunementCount;
+    return attunedItems;
 }
 
-function getAttunementFromAllies(playerConfigs, nameToCheckForAttuned) {
-    let attunementCount = 0;
+function getAttunedItemsFromAllies(playerConfigs, nameToCheckForAttuned) {
+    let attunementItems = [];
     if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
         for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
             if (activeEffect.allies && activeEffect.allies.length > 0) {
                 for (let ally of activeEffect.allies) {
-                    const allyAttunementFromItems = getAttunementCountFromItems(ally.items, nameToCheckForAttuned);
+                    const attunedItemsFromAllies = getAttunedItemsFromItems(ally.items, nameToCheckForAttuned);
 
                     // Our allies could have allies... Yo dawg.
-                    const allyAttunementFromAllies = getAttunementFromAllies(ally, nameToCheckForAttuned);
+                    const attunedItemsFromAlliesOfAllies = getAttunedItemsFromAllies(ally, nameToCheckForAttuned);
 
-                    attunementCount += (allyAttunementFromItems + allyAttunementFromAllies);
+                    attunementItems = [...attunementItems, ...attunedItemsFromAllies, ...attunedItemsFromAlliesOfAllies];
                 }
             }
         }
     }
-    return attunementCount;
+    return attunementItems;
 }
 
-function getAttunementFromParents(playerConfigs, nameToCheckForAttuned) {
+function getAttunedItemsFromParents(playerConfigs, nameToCheckForAttuned) {
     if (playerConfigs.parent) {
-        const allyAttunementFromItems = getAttunementCountFromItems(playerConfigs.parent.items, nameToCheckForAttuned);
+        const attunedItemsFromParent = getAttunedItemsFromItems(playerConfigs.parent.items, nameToCheckForAttuned);
         
         // Our parents could have parents... Yo dawg.
-        const allyAttunementFromAllies = getAttunementFromParents(playerConfigs.parent, nameToCheckForAttuned);
+        const attunedItemsFromParentAllies = getAttunedItemsFromParents(playerConfigs.parent, nameToCheckForAttuned);
 
-        return allyAttunementFromItems + allyAttunementFromAllies;
+        return [...attunedItemsFromParent, ...attunedItemsFromParentAllies];
     }
-    return 0;
+    return [];
 }
