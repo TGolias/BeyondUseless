@@ -55,24 +55,28 @@ export function MetamagicComponent({playerConfigs, metamagicOptions, menuConfig,
 
                 const dndMetamagicOptions = metamagicOptions.map(metamagicOption => metamagicMap[metamagicOption]);
                 const filteredMetamagicNames = dndMetamagicOptions.filter(dndMetamagicOption => {
-                    if (menuConfig.additionalEffects && menuConfig.additionalEffects.length > 0 && menuConfig.additionalEffects.some(x => x.type === "metamagic" && x.name === dndMetamagicOption.name)) {
-                        // This one has already been selected.
-                        return false;
-                    }
-
-                    if (metamagicUsesSoFar + dndMetamagicOption.metamagicPerSpellCost > metamagicLimit) {
-                        // This will go over our limit of the number of metamagics we are allowed to apply to a single spell.
-                        return false;
-                    }
-
-                    if (dndMetamagicOption.conditions) {
-                        const isConditionMet = performBooleanCalculation(playerConfigs, dndMetamagicOption.conditions, { spell: menuConfig.spell, slotLevel: menuConfig.useSpellSlotLevel, range, concentration, duration });
-                        if (!isConditionMet) {
+                    if (dndMetamagicOption) {
+                        if (menuConfig.additionalEffects && menuConfig.additionalEffects.length > 0 && menuConfig.additionalEffects.some(x => x.type === "metamagic" && x.name === dndMetamagicOption.name)) {
+                            // This one has already been selected.
                             return false;
                         }
-                    }
 
-                    return true;
+                        if (metamagicUsesSoFar + dndMetamagicOption.metamagicPerSpellCost > metamagicLimit) {
+                            // This will go over our limit of the number of metamagics we are allowed to apply to a single spell.
+                            return false;
+                        }
+
+                        if (dndMetamagicOption.conditions) {
+                            const isConditionMet = performBooleanCalculation(playerConfigs, dndMetamagicOption.conditions, { spell: menuConfig.spell, slotLevel: menuConfig.useSpellSlotLevel, range, concentration, duration });
+                            if (!isConditionMet) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    } else {
+                        return false
+                    }
                 }).map(metamagicOption => metamagicOption.name);
 
                 if (filteredMetamagicNames.length > 0) {
