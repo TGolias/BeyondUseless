@@ -35,6 +35,7 @@ const rows = [
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i) => {
             return item.name;
         },
+        addClass: "inventoryDisplayName"
     },
     {
         name: "lbs",
