@@ -20,6 +20,13 @@
     padding-bottom: 1em;
 }
 
+.singleTabContent.outerDiv {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: max-content;
+    min-width: calc(500px - 2em);
+}
+
 .playerName {
     white-space: pre-line;
     font-weight: bold;
@@ -57,7 +64,6 @@
 }
 
 .textEntry {
-    width: 0;
     min-width: 100%;
 }
 

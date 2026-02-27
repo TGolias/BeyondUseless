@@ -60,7 +60,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 const passivePerception = calculatePassivePerception(playerConfigs);
 
                 return <>
-                    <div className="outerDiv">
+                    <div className="outerDiv singleTabContent">
                         <div className="encounterStats">
                             <BasicStatDisplay statValue={addLeadingPlusIfNumericAndPositive(initiativeBonus)} onClick={() => {
                                 playAudio("menuaudio");
@@ -103,7 +103,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             },
             generateTab: () => {
                 return <>
-                    <div className="outerDiv">
+                    <div className="outerDiv singleTabContent">
                         <div>
                             <ActiveEffectsDisplay playerConfigs={playerConfigs} activeEffects={activeEffects} setCenterScreenMenu={setCenterScreenMenu} generateButtonText={(i) => "X"} onButtonClick={(i) => removeActiveEffect(playerConfigs, activeEffects, i, inputChangeHandler)}></ActiveEffectsDisplay>
                         </div>
@@ -116,7 +116,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             showTab: () => true,
             generateTab: () => {
                 return <>
-                    <div className="outerDiv">
+                    <div className="outerDiv singleTabContent">
                         <div>
                             <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
                         </div>
@@ -131,7 +131,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             },
             generateTab: () => {
                 return <>
-                    <div className="outerDiv">
+                    <div className="outerDiv singleTabContent">
                         <div>
                             <FeatureActionsDisplay playerConfigs={playerConfigs} actionFeatures={actionFeatures} setCenterScreenMenu={setCenterScreenMenu}></FeatureActionsDisplay>
                         </div>
@@ -146,7 +146,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             },
             generateTab: () => {
                 return <>
-                    <div className="outerDiv">
+                    <div className="outerDiv singleTabContent">
                         <div>
                             <ItemActionsDisplay playerConfigs={playerConfigs} items={consumeActionItems} getItemAction={(dndItem) => dndItem.consumeEffect} setCenterScreenMenu={setCenterScreenMenu}></ItemActionsDisplay>
                         </div>
@@ -166,7 +166,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 const pactSlotLevel = getPactSlotLevel(playerConfigs);
 
                 return <>
-                     <div className="outerDiv">
+                     <div className="outerDiv singleTabContent">
                         <div style={{display: (spellcastingLevel > 0 || pactSlotLevel > 0 ? "block" : "none")}}>
                             <SpellSlotsDisplay playerConfigs={playerConfigs} casterLevel={spellcastingLevel} pactSlotLevel={pactSlotLevel}></SpellSlotsDisplay>
                         </div>
@@ -184,7 +184,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             },
             generateTab: () => {
                 return <>
-                     <div className="outerDiv">
+                     <div className="outerDiv singleTabContent">
                         <div>
                             <OtherActionsDisplay playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></OtherActionsDisplay>
                         </div>
@@ -199,7 +199,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             },
             generateTab: () => {
                 return <>
-                     <div className="outerDiv">
+                     <div className="outerDiv singleTabContent">
                         <InventoryDisplay playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></InventoryDisplay>
                     </div>
                 </>
@@ -225,7 +225,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 }
 
                 return <>
-                     <div className="outerDiv">
+                     <div className="outerDiv singleTabContent">
                         <div className="textEntry" style={{display: (languagesString ? "block" : "none")}}>
                             <div><b>Languages:</b> {languagesString}</div>
                         </div>
@@ -294,7 +294,7 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                 }
 
                 return <>
-                     <div className="outerDiv">
+                     <div className="outerDiv singleTabContent">
                         {featureRows}
                     </div>
                 </>
