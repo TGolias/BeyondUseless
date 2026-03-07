@@ -16,10 +16,6 @@
     height: 100%;
 }
 
-.outerDiv .outerDiv > *:last-child {
-    padding-bottom: 1em;
-}
-
 .singleTabContent.outerDiv {
     margin-left: auto;
     margin-right: auto;

@@ -28,14 +28,22 @@ const rows = [
     {
         name: "AC",
         calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+            let armorClassValue = "";
             if (item.aspects) {
                 if (item.aspects.armorClass) {
-                    return performMathCalculation(playerConfigs, item.aspects.armorClass.calculation);
-                } else if (item.aspects.armorClassBonus) {
-                    return "+" + performMathCalculation(playerConfigs, item.aspects.armorClassBonus.calculation);
+                    armorClassValue = performMathCalculation(playerConfigs, item.aspects.armorClass.calculation);
+                }
+                
+                if (item.aspects.armorClassBonus) {
+                    let armorClassBonus = performMathCalculation(playerConfigs, item.aspects.armorClassBonus.calculation);
+                    if (armorClassValue !== "") {
+                        armorClassValue += armorClassBonus;
+                    } else {
+                        armorClassValue = "+" + armorClassBonus;
+                    }
                 }
             }
-            return "";
+            return armorClassValue;
         },
         addOnClick: true,
         addClass: "lastCol"
