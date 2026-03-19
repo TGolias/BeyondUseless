@@ -183,6 +183,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     let quantity = undefined;
     let notes = undefined;
     let childItems = [];
+    let ammo = [];
 
     if (playerConfigs) {
         const itemDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "itemDescriptionAddendum", additionalEffects, { item });
@@ -230,6 +231,21 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                         lightWeaponDamageThrown = calculateWeaponDamage(playerConfigs, item, true, true, false, additionalEffects);
                     }
                     showItemSummary = true;
+                }
+                
+                if (item.tags.includes("Firearm")) {
+                    const reloadProperty = item.properties.find(prop => prop.startsWith('Reload '));
+                    if (reloadProperty) {
+                        const reloadAmountString = reloadProperty.substring(7);
+                        const reloadAmount = parseInt(reloadAmountString);
+                        if (reloadAmount > 0) {
+                            for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
+                                ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletNormal"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
+                            }
+
+                            showItemSummary = true;
+                        }
+                    }
                 }
                 break;
         }
@@ -364,6 +380,10 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             </div>
             <div className="itemPageDescription" style={{display: (lightWeaponDamageThrown ? "block" : "none")}}>
                 <div><b>Light Thrown Damage:</b> {lightWeaponDamageThrown}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (ammo.length > 0 ? "block" : "none")}}>
+                <div><b>Ammo:</b></div>
+                <div className="imagePageAmmoHolder">{ammo}</div>
             </div>
             <div className="itemPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
