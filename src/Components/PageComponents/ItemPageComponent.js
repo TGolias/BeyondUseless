@@ -232,21 +232,6 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                     }
                     showItemSummary = true;
                 }
-                
-                if (item.tags.includes("Firearm")) {
-                    const reloadProperty = item.properties.find(prop => prop.startsWith('Reload '));
-                    if (reloadProperty) {
-                        const reloadAmountString = reloadProperty.substring(7);
-                        const reloadAmount = parseInt(reloadAmountString);
-                        if (reloadAmount > 0) {
-                            for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
-                                ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletNormal"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
-                            }
-
-                            showItemSummary = true;
-                        }
-                    }
-                }
                 break;
         }
 
@@ -299,6 +284,26 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
 
                     if (itemConfig.notes) {
                         notes = itemConfig.notes;
+                    }
+
+                    if (item.tags.includes("Firearm")) {
+                        const reloadProperty = item.properties.find(prop => prop.startsWith('Reload '));
+                        if (reloadProperty) {
+                            const reloadAmountString = reloadProperty.substring(7);
+                            const reloadAmount = parseInt(reloadAmountString);
+                            if (reloadAmount > 0) {
+                                for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
+                                    if (itemConfig.bullets && itemConfig.bullets.length > ammoIndex && itemConfig.bullets[ammoIndex]) {
+                                        ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletNormal"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
+                                    } else {
+                                        ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletEmpty"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
+                                    }
+                                    
+                                }
+
+                                showItemSummary = true;
+                            }
+                        }
                     }
 
                     if (itemConfig.items) {

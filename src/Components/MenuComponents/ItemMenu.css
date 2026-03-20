@@ -30,6 +30,15 @@
     flex: 1;
 }
 
+.itemMenuReload {
+    display: flex;
+    flex-direction: row;
+    align-content: space-between;
+    justify-content: space-between;
+    gap: 1em;
+    padding-bottom: 1em;
+}
+
 @media only screen and (max-width: 600px) {
     .itemMenuWrapperDiv {
         flex-grow: 1;

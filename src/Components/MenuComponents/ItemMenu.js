@@ -17,6 +17,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     }
 
     const isConsumable = menuConfig.item.consumable;
+    const isReloadableFirearm = menuConfig.item.tags.includes("Firearm") && menuConfig.item.properties.find(prop => prop.startsWith('Reload '));
     if (isConsumable && !menuConfig.newPlayerConfigs) {
         const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", playerConfigs);
 
@@ -63,6 +64,47 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
         </>);
     }
 
+    let pathToBullets = "";
+    let currentBullets = [];
+    if (itemsProperty && isReloadableFirearm) {
+        const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
+        if (itemConfigIndex > -1) {
+            if (menuConfig.pathToProperty) {
+                pathToBullets += menuConfig.pathToProperty + ".";
+            }
+            pathToBullets += "items[" + itemConfigIndex + "].bullets";
+
+            const reloadProperty = menuConfig.item.properties.find(prop => prop.startsWith('Reload '));
+            if (reloadProperty) {
+                const reloadAmountString = reloadProperty.substring(7);
+                const reloadAmount = parseInt(reloadAmountString);
+                if (reloadAmount > 0) {
+                    const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
+                    currentBullets = getValueFromObjectAndPath(displayConfigs, pathToBullets) ?? [];
+
+                    userInteraction.push(<>
+                        <div className="itemMenuReload">
+                            <RetroButton text={"Load"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                                const newBullets = [...currentBullets];
+                                newBullets.push("Regular");
+
+                                const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                                menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                            }} showTriangle={false} disabled={currentBullets.length >= reloadAmount}></RetroButton>
+                            <RetroButton text={"Eject"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                                const newBullets = [...currentBullets];
+                                newBullets.pop();
+
+                                const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                                menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                            }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
+                        </div>
+                    </>);
+                }
+            }
+        }
+    }
+
     if (itemsProperty && menuConfig.showNotes) {
         const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
         if (itemConfigIndex > -1) {
@@ -72,12 +114,12 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
             }
             pathToItemNotes += "items[" + itemConfigIndex + "].notes";
 
-            let displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
+            const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
             userInteraction.push(<>
                 <div className="itemMenuNotes">
                     <div>Notes</div>
                     <TextInput isNumberValue={false} isMultiline={true} baseStateObject={displayConfigs} pathToProperty={pathToItemNotes} inputHandler={(baseStateObject, pathToProperty, newValue) => {
-                        const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", playerConfigs);
+                        const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
                         menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToProperty, newValue);
                     }}></TextInput>
                 </div>
@@ -86,41 +128,82 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     }
 
     const buttons = []
-    buttons.push(<>
-        <RetroButton text={isConsumable ? "Use" : "OK"} buttonSound={isConsumable ? "healaudio" : "selectionaudio"} onClickHandler={() => {
-            if (playerConfigsClone) {
-                if (isConsumable) {
+
+    if (isConsumable) {
+        buttons.push(<>
+            <RetroButton text={"Use"} buttonSound={"healaudio"} onClickHandler={() => {
+                if (playerConfigsClone) {
                     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
                         inputChangeHandler(playerConfigs, "", playerConfigsClone);
                         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                     });
                 } else {
-                    inputChangeHandler(playerConfigs, "", playerConfigsClone);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }
-            } else {
-                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-            }
-        }} showTriangle={false} disabled={false}></RetroButton>
-    </>);
+            }} showTriangle={false} disabled={false}></RetroButton>
+        </>);
+    } else if (isReloadableFirearm) {
+        buttons.push(<>
+            <RetroButton text={"Fire"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                const newBullets = [...currentBullets];
+                newBullets.pop();
 
-    if (isConsumable) {
+                if (playerConfigsClone) {
+                    const newPlayerConfigsClone = menuStateChangeHandler(playerConfigsClone, pathToBullets, newBullets);
+
+                    inputChangeHandler(playerConfigs, "", newPlayerConfigsClone);
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                } else {
+                    const newPlayerConfigs = menuStateChangeHandler(playerConfigs, pathToBullets, newBullets);
+
+                    inputChangeHandler(playerConfigs, "", newPlayerConfigs);
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
+        </>);
+    } else {
+        buttons.push(<>
+            <RetroButton text={"OK"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                if (playerConfigsClone) {
+                    inputChangeHandler(playerConfigs, "", playerConfigsClone);
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                } else {
+                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                }
+            }} showTriangle={false} disabled={false}></RetroButton>
+        </>);
+    }
+
+    if (isConsumable || isReloadableFirearm) {
         buttons.push(<>
             <RetroButton text={"Close"} onClickHandler={() => {
                 if (playerConfigsClone && menuConfig.showNotes && itemsProperty) {
                     const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
                     if (itemConfigIndex > -1) {
-                        let pathToItemNotes = "";
+                        let pathToItem = "";
                         if (menuConfig.pathToProperty) {
-                            pathToItemNotes += menuConfig.pathToProperty + ".";
+                            pathToItem += menuConfig.pathToProperty + ".";
                         }
-                        pathToItemNotes += "items[" + itemConfigIndex + "].notes";
+                        pathToItem += "items[" + itemConfigIndex + "]";
+
+                        const pathToItemNotes = pathToItem + ".notes";
 
                         const oldNotes = getValueFromObjectAndPath(playerConfigs, pathToItemNotes);
                         const newNotes = getValueFromObjectAndPath(playerConfigsClone, pathToItemNotes);
 
                         if (oldNotes !== newNotes) {
                             inputChangeHandler(playerConfigs, pathToItemNotes, newNotes);
+                        }
+
+                        if (isReloadableFirearm) {
+                            const pathToItemBullets = pathToItem + ".bullets";
+
+                            const oldBullets = getValueFromObjectAndPath(playerConfigs, pathToItemBullets);
+                            const newBullets = getValueFromObjectAndPath(playerConfigsClone, pathToItemBullets);
+
+                            if (oldBullets !== newBullets) {
+                                inputChangeHandler(playerConfigs, pathToItemBullets, newBullets);
+                            }
                         }
                     }
                 }
@@ -132,7 +215,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
 
     return (<>
         <div className="itemMenuWrapperDiv">
-            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigs} data={{ additionalEffects: menuConfig.additionalEffects }} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
+            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigsClone ?? playerConfigs} data={{ additionalEffects: menuConfig.additionalEffects }} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
         </div>
         <div style={{display: userInteraction.length > 0 ? "block" : "none"}} className="centerMenuSeperator"></div>
             {userInteraction}
