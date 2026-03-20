@@ -353,6 +353,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             <div className="itemPageDescription" style={{display: (showItemSummary ? "block" : "none")}}>
                 <div><b>Item Summary</b></div>
             </div>
+            <div className="itemPageDescription" style={{display: (ammo.length > 0 ? "block" : "none")}}>
+                <div className="imagePageAmmoHolder">{ammo}</div>
+            </div>
             <div className="itemPageDescription" style={{display: (weaponAttack ? "block" : "none")}}>
                 <div><b>Attack Roll:</b> +{weaponAttack}</div>
             </div>
@@ -380,10 +383,6 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             </div>
             <div className="itemPageDescription" style={{display: (lightWeaponDamageThrown ? "block" : "none")}}>
                 <div><b>Light Thrown Damage:</b> {lightWeaponDamageThrown}</div>
-            </div>
-            <div className="itemPageDescription" style={{display: (ammo.length > 0 ? "block" : "none")}}>
-                <div><b>Ammo:</b></div>
-                <div className="imagePageAmmoHolder">{ammo}</div>
             </div>
             <div className="itemPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
