@@ -59,12 +59,13 @@ function createSingleItemActionsGroup(playerConfigs, setCenterScreenMenu, groupN
         actionRows.push(<div className={row.addClass}>{row.name}</div>);
     }
 
-    for (let item of items) {
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         let dndItem = itemName2Item[item.name];
         dndItem = getItemFromItemTemplate(dndItem);
         const itemAction = getItemAction(dndItem);
         for (let row of itemActionRows) {
-            actionRows.push(<div onClick={() => openMenuForItemAction(dndItem, setCenterScreenMenu)} className={row.addClass ? "itemActionsDisplayRow " + row.addClass : "itemActionsDisplayRow"}>{row.calculateValue(playerConfigs, item, dndItem, itemAction)}</div>);
+            actionRows.push(<div onClick={() => openMenuForItemAction(dndItem, i, setCenterScreenMenu)} className={row.addClass ? "itemActionsDisplayRow " + row.addClass : "itemActionsDisplayRow"}>{row.calculateValue(playerConfigs, item, dndItem, itemAction)}</div>);
         }
     }
 
@@ -75,7 +76,7 @@ function createSingleItemActionsGroup(playerConfigs, setCenterScreenMenu, groupN
     </>);
 }
 
-function openMenuForItemAction(dndItem, setCenterScreenMenu) {
+function openMenuForItemAction(dndItem, itemIndex, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex } });
 }

@@ -44,7 +44,7 @@ const mockPlayerConfigsForBaseCalculation = {
     currentStatus: {}
 }
 
-export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, data, addToMenuStack = undefined}) {
+export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLinkToItem, setCenterScreenMenu, data, itemIndex = undefined, addToMenuStack = undefined}) {
     const additionalEffects = data?.additionalEffects ? data.additionalEffects : [];
 
     let typeString;
@@ -269,69 +269,67 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             itemsProperty = getValueFromObjectAndPath(playerConfigs, pathToProperty);
         }
          
-        if (itemsProperty) {
-            const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === item.name);
-            if (itemConfigIndex > -1) {
-                const itemConfig = itemsProperty.items[itemConfigIndex];
-                if (itemConfig) {
-                    if (itemConfig.attuned) {
-                        attunedTo = itemConfig.attuned;
-                    }
+        if (itemsProperty && itemIndex !== undefined) {
+            const itemConfig = itemsProperty.items[itemIndex];
+            if (itemConfig) {
+                if (itemConfig.attuned) {
+                    attunedTo = itemConfig.attuned;
+                }
 
-                    if (itemConfig.amount) {
-                        quantity = itemConfig.amount;
-                    }
+                if (itemConfig.amount) {
+                    quantity = itemConfig.amount;
+                }
 
-                    if (itemConfig.notes) {
-                        notes = itemConfig.notes;
-                    }
+                if (itemConfig.notes) {
+                    notes = itemConfig.notes;
+                }
 
-                    if (item.tags.includes("Firearm")) {
-                        const reloadProperty = item.properties.find(prop => prop.startsWith('Reload '));
-                        if (reloadProperty) {
-                            const reloadAmountString = reloadProperty.substring(7);
-                            const reloadAmount = parseInt(reloadAmountString);
-                            if (reloadAmount > 0) {
-                                for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
-                                    if (itemConfig.bullets && itemConfig.bullets.length > ammoIndex && itemConfig.bullets[ammoIndex]) {
-                                        ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletNormal"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
-                                    } else {
-                                        ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletEmpty"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
-                                    }
-                                    
+                if (item.tags && item.properties && item.tags.includes("Firearm")) {
+                    const reloadProperty = item.properties.find(prop => prop.startsWith('Reload '));
+                    if (reloadProperty) {
+                        const reloadAmountString = reloadProperty.substring(7);
+                        const reloadAmount = parseInt(reloadAmountString);
+                        if (reloadAmount > 0) {
+                            for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
+                                if (itemConfig.bullets && itemConfig.bullets.length > ammoIndex && itemConfig.bullets[ammoIndex]) {
+                                    ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletNormal"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
+                                } else {
+                                    ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletEmpty"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
+                                }
+                                
+                            }
+
+                            showItemSummary = true;
+                        }
+                    }
+                }
+
+                if (itemConfig.items) {
+                    for (let i = 0; i < itemConfig.items.length; i++) {
+                        const childItem = itemConfig.items[i];
+                        childItems.push(<>
+                            <div className="itemPageChildItem" onClick={() => {
+                                playAudio("selectionaudio");
+                                setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
+                                if (addToMenuStack) {
+                                    addToMenuStack();
                                 }
 
-                                showItemSummary = true;
-                            }
-                        }
-                    }
+                                if (childItem.custom) {
+                                    setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: childItem, readonly: true } });
+                                } else {
+                                    const dndItemMap = getNameDictionaryForCollection("items");
+                                    const dndItem = dndItemMap[childItem.name];
 
-                    if (itemConfig.items) {
-                        for (let childItem of itemConfig.items) {
-                            childItems.push(<>
-                                <div className="itemPageChildItem" onClick={() => {
-                                    playAudio("selectionaudio");
-                                    setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
-                                    if (addToMenuStack) {
-                                        addToMenuStack();
+                                    let newPathToProperty = "";
+                                    if (pathToProperty) {
+                                        newPathToProperty = pathToProperty + ".";
                                     }
-
-                                    if (childItem.custom) {
-                                        setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: childItem, readonly: true } });
-                                    } else {
-                                        const dndItemMap = getNameDictionaryForCollection("items");
-                                        const dndItem = dndItemMap[childItem.name];
-
-                                        let newPathToProperty = "";
-                                        if (pathToProperty) {
-                                            newPathToProperty = pathToProperty + ".";
-                                        }
-                                        newPathToProperty += "items[" + itemConfigIndex + "]";
-                                        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, pathToProperty: newPathToProperty } });
-                                    }
-                                }}>{childItem.name + (childItem.amount ? " x" + childItem.amount : "")}</div>
-                            </>);
-                        }
+                                    newPathToProperty += "items[" + itemIndex + "]";
+                                    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: i, pathToProperty: newPathToProperty } });
+                                }
+                            }}>{childItem.name + (childItem.amount ? " x" + childItem.amount : "")}</div>
+                        </>);
                     }
                 }
             }

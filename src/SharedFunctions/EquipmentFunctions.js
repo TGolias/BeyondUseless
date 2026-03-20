@@ -40,16 +40,22 @@ export function GetOpenHands(playerConfigs, playerItems) {
 }
 
 export function GetEquippedItems(playerItems) {
+    const itemsWithIndexAndPaths = GetEquippedItemsWithIndexAndPaths(playerItems);
+    return itemsWithIndexAndPaths.map(x => x.item);
+}
+
+export function GetEquippedItemsWithIndexAndPaths(playerItems) {
     let equippedItems = [];
 
     const itemsDictionary = getNameDictionaryForCollection('items');
-    for (let playerItem of playerItems) {
+    for (let i = 0; i < playerItems.length; i++) {
+        const playerItem = playerItems[i];
         if (playerItem.equipped) {
             const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
-            equippedItems.push(actualItem);
+            equippedItems.push({ item: actualItem, pathToItem: '', index: i });
 
             if (playerItem.childItems && actualItem.childItems) {
-                const childItemsEquipped = processChildItemsEquipped(playerItem.childItems, actualItem.childItems);
+                const childItemsEquipped = processChildItemsEquipped(playerItem.childItems, actualItem.childItems, 'items[' + i + ']');
                 equippedItems = [...equippedItems, ...childItemsEquipped];
             }
         }
@@ -58,23 +64,23 @@ export function GetEquippedItems(playerItems) {
     return equippedItems;
 }
 
-function processChildItemsEquipped(childItems, dndChildItems) {
-    let childItemsHeld = []
+function processChildItemsEquipped(childItems, dndChildItems, pathToProperty) {
+    let childItemsEquipped = []
     for (let i = 0; i < childItems.length; i++) {
         const childItem = childItems[i];
         if (childItem.equipped) {
             const dndChildItem = dndChildItems[i];
             if (IsItemHoldable(dndChildItem)) {
-                childItemsHeld.push(dndChildItem);
+                childItemsEquipped.push({ item: dndChildItem, pathToItem: pathToProperty, index: i });
             }
 
             if (childItem.childItems && dndChildItem.childItems) {
-                const innerChildItemsHeld = processChildItemsHeld(childItem.childItems, dndChildItem.childItems);
-                childItemsHeld = [...childItemsHeld, ...innerChildItemsHeld];
+                const innerChildItemsHeld = processChildItemsEquipped(childItem.childItems, dndChildItem.childItems, pathToProperty + '.childItems[' + i + ']');
+                childItemsEquipped = [...childItemsEquipped, ...innerChildItemsHeld];
             }
         }
     }
-    return childItemsHeld;
+    return childItemsEquipped;
 }
 
 export function GetHeldItems(playerItems) {

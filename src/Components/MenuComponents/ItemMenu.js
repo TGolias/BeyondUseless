@@ -17,35 +17,32 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     }
 
     const isConsumable = menuConfig.item.consumable;
-    const isReloadableFirearm = menuConfig.item.tags.includes("Firearm") && menuConfig.item.properties.find(prop => prop.startsWith('Reload '));
+    const isReloadableFirearm = menuConfig.item.tags && menuConfig.item.properties && menuConfig.item.tags.includes("Firearm") && menuConfig.item.properties.find(prop => prop.startsWith('Reload '));
     if (isConsumable && !menuConfig.newPlayerConfigs) {
         const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", playerConfigs);
 
         if (itemsProperty) {
-            const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
-            if (itemConfigIndex > -1) {
-                const itemConfig = itemsProperty.items[itemConfigIndex];
-                if (itemConfig) {
-                    if (itemConfig.amount && itemConfig.amount > 1) {
-                        let pathToItemAmount = "newPlayerConfigs.";
-                        if (menuConfig.pathToProperty) {
-                            pathToItemAmount += menuConfig.pathToProperty + ".";
-                        }
-                        pathToItemAmount += "items[" + itemConfigIndex + "].amount";
-
-                        const newAmount = itemConfig.amount - 1;
-                        menuStateChangeHandler(newMenuConfig, pathToItemAmount, newAmount);
-                    } else {
-                        let pathToItems = "newPlayerConfigs.";
-                        if (menuConfig.pathToProperty) {
-                            pathToItems += menuConfig.pathToProperty + ".";
-                        }
-                        pathToItems += "items";
-
-                        const newItems = [...itemsProperty.items];
-                        newItems.splice(itemConfigIndex, 1);
-                        menuStateChangeHandler(newMenuConfig, pathToItems, newItems);
+            const itemConfig = itemsProperty.items[menuConfig.itemIndex];
+            if (itemConfig) {
+                if (itemConfig.amount && itemConfig.amount > 1) {
+                    let pathToItemAmount = "newPlayerConfigs.";
+                    if (menuConfig.pathToProperty) {
+                        pathToItemAmount += menuConfig.pathToProperty + ".";
                     }
+                    pathToItemAmount += "items[" + menuConfig.itemIndex + "].amount";
+
+                    const newAmount = itemConfig.amount - 1;
+                    menuStateChangeHandler(newMenuConfig, pathToItemAmount, newAmount);
+                } else {
+                    let pathToItems = "newPlayerConfigs.";
+                    if (menuConfig.pathToProperty) {
+                        pathToItems += menuConfig.pathToProperty + ".";
+                    }
+                    pathToItems += "items";
+
+                    const newItems = [...itemsProperty.items];
+                    newItems.splice(menuConfig.itemIndex, 1);
+                    menuStateChangeHandler(newMenuConfig, pathToItems, newItems);
                 }
             }
         }
@@ -67,64 +64,58 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     let pathToBullets = "";
     let currentBullets = [];
     if (itemsProperty && isReloadableFirearm) {
-        const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
-        if (itemConfigIndex > -1) {
-            if (menuConfig.pathToProperty) {
-                pathToBullets += menuConfig.pathToProperty + ".";
-            }
-            pathToBullets += "items[" + itemConfigIndex + "].bullets";
+        if (menuConfig.pathToProperty) {
+            pathToBullets += menuConfig.pathToProperty + ".";
+        }
+        pathToBullets += "items[" + menuConfig.itemIndex + "].bullets";
 
-            const reloadProperty = menuConfig.item.properties.find(prop => prop.startsWith('Reload '));
-            if (reloadProperty) {
-                const reloadAmountString = reloadProperty.substring(7);
-                const reloadAmount = parseInt(reloadAmountString);
-                if (reloadAmount > 0) {
-                    const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
-                    currentBullets = getValueFromObjectAndPath(displayConfigs, pathToBullets) ?? [];
+        const reloadProperty = menuConfig.item.properties ? menuConfig.item.properties.find(prop => prop.startsWith('Reload ')) : undefined;
+        if (reloadProperty) {
+            const reloadAmountString = reloadProperty.substring(7);
+            const reloadAmount = parseInt(reloadAmountString);
+            if (reloadAmount > 0) {
+                const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
+                currentBullets = getValueFromObjectAndPath(displayConfigs, pathToBullets) ?? [];
 
-                    userInteraction.push(<>
-                        <div className="itemMenuReload">
-                            <RetroButton text={"Load"} buttonSound={"selectionaudio"} onClickHandler={() => {
-                                const newBullets = [...currentBullets];
-                                newBullets.push("Regular");
+                userInteraction.push(<>
+                    <div className="itemMenuReload">
+                        <RetroButton text={"Load"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                            const newBullets = [...currentBullets];
+                            newBullets.push("Regular");
 
-                                const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
-                                menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
-                            }} showTriangle={false} disabled={currentBullets.length >= reloadAmount}></RetroButton>
-                            <RetroButton text={"Eject"} buttonSound={"selectionaudio"} onClickHandler={() => {
-                                const newBullets = [...currentBullets];
-                                newBullets.pop();
+                            const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                            menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                        }} showTriangle={false} disabled={currentBullets.length >= reloadAmount}></RetroButton>
+                        <RetroButton text={"Eject"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                            const newBullets = [...currentBullets];
+                            newBullets.pop();
 
-                                const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
-                                menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
-                            }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
-                        </div>
-                    </>);
-                }
+                            const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                            menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                        }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
+                    </div>
+                </>);
             }
         }
     }
 
     if (itemsProperty && menuConfig.showNotes) {
-        const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
-        if (itemConfigIndex > -1) {
-            let pathToItemNotes = "";
-            if (menuConfig.pathToProperty) {
-                pathToItemNotes += menuConfig.pathToProperty + ".";
-            }
-            pathToItemNotes += "items[" + itemConfigIndex + "].notes";
-
-            const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
-            userInteraction.push(<>
-                <div className="itemMenuNotes">
-                    <div>Notes</div>
-                    <TextInput isNumberValue={false} isMultiline={true} baseStateObject={displayConfigs} pathToProperty={pathToItemNotes} inputHandler={(baseStateObject, pathToProperty, newValue) => {
-                        const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
-                        menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToProperty, newValue);
-                    }}></TextInput>
-                </div>
-            </>);
+        let pathToItemNotes = "";
+        if (menuConfig.pathToProperty) {
+            pathToItemNotes += menuConfig.pathToProperty + ".";
         }
+        pathToItemNotes += "items[" + menuConfig.itemIndex + "].notes";
+
+        const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
+        userInteraction.push(<>
+            <div className="itemMenuNotes">
+                <div>Notes</div>
+                <TextInput isNumberValue={false} isMultiline={true} baseStateObject={displayConfigs} pathToProperty={pathToItemNotes} inputHandler={(baseStateObject, pathToProperty, newValue) => {
+                    const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                    menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToProperty, newValue);
+                }}></TextInput>
+            </div>
+        </>);
     }
 
     const buttons = []
@@ -144,7 +135,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
         </>);
     } else if (isReloadableFirearm) {
         buttons.push(<>
-            <RetroButton text={"Fire"} buttonSound={"selectionaudio"} onClickHandler={() => {
+            <RetroButton text={"Fire"} buttonSound={"gunaudio"} onClickHandler={() => {
                 const newBullets = [...currentBullets];
                 newBullets.pop();
 
@@ -177,15 +168,14 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     if (isConsumable || isReloadableFirearm) {
         buttons.push(<>
             <RetroButton text={"Close"} onClickHandler={() => {
-                if (playerConfigsClone && menuConfig.showNotes && itemsProperty) {
-                    const itemConfigIndex = itemsProperty.items.findIndex(x => x.name === menuConfig.item.name);
-                    if (itemConfigIndex > -1) {
-                        let pathToItem = "";
-                        if (menuConfig.pathToProperty) {
-                            pathToItem += menuConfig.pathToProperty + ".";
-                        }
-                        pathToItem += "items[" + itemConfigIndex + "]";
+                if (playerConfigsClone) {
+                    let pathToItem = "";
+                    if (menuConfig.pathToProperty) {
+                        pathToItem += menuConfig.pathToProperty + ".";
+                    }
+                    pathToItem += "items[" + menuConfig.itemIndex + "]";
 
+                    if (menuConfig.showNotes) {
                         const pathToItemNotes = pathToItem + ".notes";
 
                         const oldNotes = getValueFromObjectAndPath(playerConfigs, pathToItemNotes);
@@ -194,16 +184,16 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                         if (oldNotes !== newNotes) {
                             inputChangeHandler(playerConfigs, pathToItemNotes, newNotes);
                         }
+                    }
 
-                        if (isReloadableFirearm) {
-                            const pathToItemBullets = pathToItem + ".bullets";
+                    if (isReloadableFirearm) {
+                        const pathToItemBullets = pathToItem + ".bullets";
 
-                            const oldBullets = getValueFromObjectAndPath(playerConfigs, pathToItemBullets);
-                            const newBullets = getValueFromObjectAndPath(playerConfigsClone, pathToItemBullets);
+                        const oldBullets = getValueFromObjectAndPath(playerConfigs, pathToItemBullets);
+                        const newBullets = getValueFromObjectAndPath(playerConfigsClone, pathToItemBullets);
 
-                            if (oldBullets !== newBullets) {
-                                inputChangeHandler(playerConfigs, pathToItemBullets, newBullets);
-                            }
+                        if (oldBullets !== newBullets) {
+                            inputChangeHandler(playerConfigs, pathToItemBullets, newBullets);
                         }
                     }
                 }
@@ -215,7 +205,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
 
     return (<>
         <div className="itemMenuWrapperDiv">
-            <ItemPageComponent item={menuConfig.item} playerConfigs={playerConfigsClone ?? playerConfigs} data={{ additionalEffects: menuConfig.additionalEffects }} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
+            <ItemPageComponent item={menuConfig.item} itemIndex={menuConfig.itemIndex} playerConfigs={playerConfigsClone ?? playerConfigs} data={{ additionalEffects: menuConfig.additionalEffects }} copyLinkToItem={menuConfig.copyLinkToItem} pathToProperty={menuConfig.pathToProperty} setCenterScreenMenu={setCenterScreenMenu} addToMenuStack={() => { addToMenuStack({ menuType: "ItemMenu", menuConfig, menuTitle: menuConfig.item.name }); } }></ItemPageComponent>
         </div>
         <div style={{display: userInteraction.length > 0 ? "block" : "none"}} className="centerMenuSeperator"></div>
             {userInteraction}

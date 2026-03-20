@@ -84,7 +84,7 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
                         }
 
                         itemRows.push(<>
-                            <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                            <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                         </>);
                     }
                 }
@@ -131,7 +131,7 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
                 }
 
                 itemRows.push(<>
-                    <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                    <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                 </>);
             }
         }
@@ -142,8 +142,8 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
     }
 }
 
-function openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) {
+function openMenuForItem(dndItem, addToMenuStack, menuConfig, itemIndex, setCenterScreenMenu) {
     playAudio("menuaudio");
     addToMenuStack({ menuType: "ManageHeldEquipmentMenu", menuConfig });
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, showNotes: true } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex, showNotes: true } });
 }

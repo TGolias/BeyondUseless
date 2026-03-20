@@ -13,7 +13,7 @@ const rows = [
         name: "Equip",
         onClick: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu, isChildItem) => {
             if (item.custom || !dndItem.equippable) {
-                onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, setCenterScreenMenu);
+                onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
             }
         },
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, isChildItem) => {
@@ -30,7 +30,7 @@ const rows = [
     {
         name: "Name",
         onClick: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu, isChildItem) => {
-            onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, setCenterScreenMenu);
+            onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
         },
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i) => {
             return item.name;
@@ -40,7 +40,7 @@ const rows = [
     {
         name: "lbs",
         onClick: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu, isChildItem) => {
-            onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, setCenterScreenMenu);
+            onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
         },
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, isChildItem) => {
             if (isChildItem) {
@@ -54,7 +54,7 @@ const rows = [
         name: "Attune",
         onClick: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu, isChildItem) => {
             if (item.custom || !dndItem.attunement) {
-                onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, setCenterScreenMenu);
+                onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
             }
         },
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, isChildItem) => {
@@ -190,11 +190,11 @@ function processChildItems(playerConfigs, childItemsConfigs, pathToProperty, ite
     }
 }
 
-function onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, setCenterScreenMenu) {
+function onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, itemIndex, setCenterScreenMenu) {
     playAudio("menuaudio");
 
     if (!item.custom) {
-        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, showNotes: true } });
+        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex, showNotes: true } });
     } else {
         setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: item, 
             onOkClicked: (newCustomItem) => {

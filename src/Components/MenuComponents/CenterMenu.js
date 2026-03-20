@@ -139,6 +139,7 @@ const menuCollection = {
         createDefaultMenuConfig: (playerConfigs, data) => {
             const newItemMenu = {};
             newItemMenu.item = data.item;
+            newItemMenu.itemIndex = data.itemIndex;
             newItemMenu.additionalEffects = data.additionalEffects;
             newItemMenu.showNotes = data.showNotes;
             newItemMenu.pathToProperty = data.pathToProperty || "";

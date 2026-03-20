@@ -71,13 +71,13 @@ export function ArmorMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, m
                 if (dndItem.type === "Armor") {
                     for (let row of rows) {
                         itemRows.push(<>
-                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "armorMenuRow " + row.addClass : "armorMenuRow"}>{row.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                            <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, "", setCenterScreenMenu) : {}} className={row.addClass ? "armorMenuRow " + row.addClass : "armorMenuRow"}>{row.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                         </>);
                     }
                 }
 
                 if (dndItem.childItems && itemConfig.equipped) {
-                    processChildItems(playerConfigs, pathToProperty + ".childItems", itemConfig.childItems, dndItem.childItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu);
+                    processChildItems(playerConfigs, pathToProperty, itemConfig.childItems, dndItem.childItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu);
                 }
             }
         }
@@ -98,7 +98,7 @@ export function ArmorMenu({playerConfigs, setCenterScreenMenu, addToMenuStack, m
 
 function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dndChildItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu) {
     for (let i = 0; i < dndChildItems.length; i++) {
-        const pathToItem = pathToProperty + "[" + i + "]";
+        const pathToItem = pathToProperty + ".childItems[" + i + "]";
         const dndItem = dndChildItems[i];
         let itemConfig = {
             name: dndItem.name
@@ -110,19 +110,19 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
         if (dndItem.type === "Armor") {
             for (let row of rows) {
                 itemRows.push(<>
-                    <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                    <div onClick={() => row.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, pathToProperty, setCenterScreenMenu) : {}} className={row.addClass ? "manageHeldEquipmentMenuRow " + row.addClass : "manageHeldEquipmentMenuRow"}>{row.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                 </>);
             }
         }
 
         if (dndItem.childItems && itemConfig.equipped) {
-            processChildItems(playerConfigs, pathToItem + ".childItems", itemConfig.childItems, dndItem.childItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu);
+            processChildItems(playerConfigs, pathToItem, itemConfig.childItems, dndItem.childItems, itemRows, menuConfig, menuStateChangeHandler, addToMenuStack, setCenterScreenMenu);
         }
     }
 }
 
-function openMenuForItem(dndItem, addToMenuStack, menuConfig, setCenterScreenMenu) {
+function openMenuForItem(dndItem, addToMenuStack, menuConfig, itemIndex, pathToProperty, setCenterScreenMenu) {
     playAudio("menuaudio");
     addToMenuStack({ menuType: "ArmorMenu", menuConfig });
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, showNotes: true } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex, pathToProperty: pathToProperty, showNotes: true } });
 }

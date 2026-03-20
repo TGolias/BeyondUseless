@@ -3,7 +3,7 @@ import './WeaponsAndDamageCantrips.css';
 import { getCollection, getNameDictionaryForCollection } from '../../Collections';
 import { addLeadingPlusIfNumericAndPositive, playAudio } from '../../SharedFunctions/Utils';
 import { calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
-import { GetEquippedItems, GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
+import { GetEquippedItemsWithIndexAndPaths, GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
 
 const rows = [
@@ -132,21 +132,22 @@ function processAllWeapons(playerConfigs, itemName2Item, weaponAttackCantrip, we
     // Check weapons
     let hasWeapons = false;
     
-    for (let dndItem of GetEquippedItems(playerConfigs.items)) {
+    for (let itemWithIndexAndPath of GetEquippedItemsWithIndexAndPaths(playerConfigs.items)) {
+        const dndItem = itemWithIndexAndPath.item;
         if (dndItem.type === "Weapon") {
             hasWeapons = true;
 
             // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
             if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
                 for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false, weaponAttackCantrip)}</div>)
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, itemWithIndexAndPath.index, itemWithIndexAndPath.pathToItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false, weaponAttackCantrip)}</div>)
                 }
             }
 
             // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
             if (dndItem.properties.includes("Thrown")) {
                 for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true, weaponAttackCantrip)}</div>)
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, itemWithIndexAndPath.index, itemWithIndexAndPath.pathToItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true, weaponAttackCantrip)}</div>)
                 }
             }
         }
@@ -159,9 +160,9 @@ function openMenuForSpell(dndcantrip, setCenterScreenMenu) {
     setCenterScreenMenu({ show: true, menuType: "SpellMenu", data: { menuTitle: dndcantrip.name, spell: dndcantrip } });
 }
 
-function openMenuForItem(dndItem, weaponAttackCantrip, setCenterScreenMenu) {
+function openMenuForItem(dndItem, weaponAttackCantrip, itemIndex, pathToProperty, setCenterScreenMenu) {
     playAudio("menuaudio");
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, additionalEffects: (weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []) } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex, pathToProperty: pathToProperty, additionalEffects: (weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []) } });
 }
 
 function openMenuForUnarmedStrike(dndUnarmedStrike, setCenterScreenMenu) {
