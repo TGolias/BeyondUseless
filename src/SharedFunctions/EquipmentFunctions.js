@@ -84,6 +84,11 @@ function processChildItemsEquipped(childItems, dndChildItems, pathToProperty) {
 }
 
 export function GetHeldItems(playerItems) {
+    const heldItems = GetHeldItemsWithPlayerItem(playerItems);
+    return heldItems.map(x => x.dndItem);
+}
+
+export function GetHeldItemsWithPlayerItem(playerItems) {
     let heldItems = [];
 
     const itemsDictionary = getNameDictionaryForCollection('items');
@@ -91,7 +96,7 @@ export function GetHeldItems(playerItems) {
         if (playerItem.equipped) {
             const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
             if (IsItemHoldable(actualItem)) {
-                heldItems.push(actualItem);
+                heldItems.push({ dndItem: actualItem, playerItem: playerItem });
             }
 
             if (playerItem.childItems && actualItem.childItems) {
@@ -111,7 +116,7 @@ function processChildItemsHeld(childItems, dndChildItems) {
         if (childItem.equipped) {
             const dndChildItem = dndChildItems[i];
             if (IsItemHoldable(dndChildItem)) {
-                childItemsHeld.push(dndChildItem);
+                childItemsHeld.push({ dndItem: dndChildItem, playerItem: childItem });
             }
 
             if (childItem.childItems && dndChildItem.childItems) {

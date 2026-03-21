@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
-import { findResourceFromAllResources, getAllSelectedMetamagicOptions, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, findResourceFromAllResources, getAllSelectedMetamagicOptions, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
@@ -133,6 +133,11 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
             // This is a cantrip.
             canCastSpell = true;
         }
+    }
+
+    const additionalSpellcastingConditions = calculateAspectCollection(playerConfigs, "additionalSpellcastingConditions");
+    if (!additionalSpellcastingConditions) {
+        canCastSpell = false;
     }
 
     // Create config for the spell component.

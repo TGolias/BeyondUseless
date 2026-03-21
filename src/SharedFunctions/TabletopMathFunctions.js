@@ -2,7 +2,7 @@ import merge from "deepmerge-json";
 import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
-import { GetEquippedItems, GetHeldItems, GetOpenHands } from "./EquipmentFunctions";
+import { GetEquippedItems, GetHeldItems, GetHeldItemsWithPlayerItem, GetOpenHands } from "./EquipmentFunctions";
 import { GetMaxUsesForResource, GetRemainingUsesForResource } from "./ResourcesFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 
@@ -1884,12 +1884,16 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return getAllSpells(playerConfigs, spellCastingFeatures2).map(x => x.name);
         case "heldItems":
             return GetHeldItems(playerConfigs.items);
+        case "heldItemsWithPlayerItems":
+            return GetHeldItemsWithPlayerItem(playerConfigs.items);
         case "equippedItems":
             return GetEquippedItems(playerConfigs.items);
         case "metamagic":
             return getAllSelectedMetamagicOptions(playerConfigs);
         case "additionalBulletTypes":
             return getAdditionalBulletTypes(playerConfigs);
+        case "additionalSpellcastingConditions":
+            return checkAdditionalSpellcastingConditions(playerConfigs);
 
     }
 
@@ -3108,6 +3112,29 @@ export function getAdditionalBulletTypes(playerConfigs) {
         additionalBulletTypes = [...additionalBulletTypes, ...newAdditonalBulletTypes]
     });
     return additionalBulletTypes;
+}
+
+export function checkAdditionalSpellcastingConditions(playerConfigs) {
+    let additionalSpellcastingConditionsPassed = true;
+    findAllConfiguredAspects(playerConfigs, "additionalSpellcastingCondition", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let didAdditionalSpellcastingConditionPass
+        if (aspectValue.calculation) {
+            didAdditionalSpellcastingConditionPass = performBooleanCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            didAdditionalSpellcastingConditionPass = aspectValue;
+        }
+
+        additionalSpellcastingConditionsPassed = additionalSpellcastingConditionsPassed && didAdditionalSpellcastingConditionPass;
+    });
+    return additionalSpellcastingConditionsPassed;
 }
 
 export function getAllSelectedMetamagicOptions(playerConfigs) {

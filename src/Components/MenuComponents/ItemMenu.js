@@ -84,7 +84,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                         const newBullets = [...currentBullets];
                         newBullets.unshift(
                             { 
-                                type: "regular",
+                                type: "ammo",
                                 color: "#ffca00"
                             }
                         );
@@ -167,10 +167,14 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
             }} showTriangle={false} disabled={false}></RetroButton>
         </>);
     } else if (isReloadableFirearm) {
+        const hasBulletSelection = menuConfig.item.properties.includes("Bullet-Selection");
+        
         buttons.push(<>
             <RetroButton text={"Fire"} buttonSound={"gunaudio"} onClickHandler={() => {
                 const newBullets = [...currentBullets];
-                newBullets.shift();
+                
+                const indexToRemove = currentBullets.findIndex(x => x.type === "ammo");
+                newBullets.splice(indexToRemove, 1);
 
                 if (playerConfigsClone) {
                     const newPlayerConfigsClone = menuStateChangeHandler(playerConfigsClone, pathToBullets, newBullets);
@@ -183,7 +187,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                     inputChangeHandler(playerConfigs, "", newPlayerConfigs);
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                 }
-            }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
+            }} showTriangle={false} disabled={hasBulletSelection ? !currentBullets.some(x => x.type === "ammo") : (currentBullets.length === 0 || currentBullets[0].type !== "ammo")}></RetroButton>
         </>);
     } else {
         buttons.push(<>
