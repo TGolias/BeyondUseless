@@ -1888,6 +1888,8 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return GetEquippedItems(playerConfigs.items);
         case "metamagic":
             return getAllSelectedMetamagicOptions(playerConfigs);
+        case "additionalBulletTypes":
+            return getAdditionalBulletTypes(playerConfigs);
 
     }
 
@@ -3083,6 +3085,29 @@ export function getAllConsumableActionItems(playerConfigs) {
 
 export function doesItemHaveConsumeAction(dndItem) {
     return dndItem && dndItem.consumable && dndItem.consumeEffect;
+}
+
+export function getAdditionalBulletTypes(playerConfigs) {
+    let additionalBulletTypes = [];
+    findAllConfiguredAspects(playerConfigs, "additionalBulletTypes", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let newAdditonalBulletTypes;
+        if (aspectValue.calculation) {
+            newAdditonalBulletTypes = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { playerConfigForObject });
+        } else {
+            newAdditonalBulletTypes = aspectValue;
+        }
+
+        additionalBulletTypes = [...additionalBulletTypes, ...newAdditonalBulletTypes]
+    });
+    return additionalBulletTypes;
 }
 
 export function getAllSelectedMetamagicOptions(playerConfigs) {

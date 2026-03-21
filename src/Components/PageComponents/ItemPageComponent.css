@@ -34,10 +34,6 @@
     flex-direction: row;
 }
 
-.imagePageSingleBulletNormal {
-    background-color: #ffca00;
-}
-
 .imagePageSingleBulletEmpty {
     background-color: #163050;
 }

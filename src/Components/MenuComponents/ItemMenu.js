@@ -6,6 +6,7 @@ import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFuncti
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
+import { calculateAspectCollection } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler}) {
 
@@ -77,23 +78,55 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                 const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
                 currentBullets = getValueFromObjectAndPath(displayConfigs, pathToBullets) ?? [];
 
+                const bulletButtons = [];
+                bulletButtons.push(<>
+                    <RetroButton text={"Load"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                        const newBullets = [...currentBullets];
+                        newBullets.unshift(
+                            { 
+                                type: "regular",
+                                color: "#ffca00"
+                            }
+                        );
+
+                        const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                        menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                    }} showTriangle={false} disabled={currentBullets.length >= reloadAmount}></RetroButton>
+                </>);
+
+                const additionalBulletTypes = calculateAspectCollection(playerConfigs, "additionalBulletTypes");
+                if (additionalBulletTypes && additionalBulletTypes.length) {
+                    for (const additionalBulletType of additionalBulletTypes) {
+                        bulletButtons.push(<>
+                            <RetroButton text={additionalBulletType.name} buttonSound={"selectionaudio"} onClickHandler={() => {
+                                const newBullets = [...currentBullets];
+                                newBullets.unshift(
+                                    { 
+                                        type: additionalBulletType.type,
+                                        color: additionalBulletType.color
+                                    }
+                                );
+
+                                const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                                menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                            }} showTriangle={false} disabled={currentBullets.length >= reloadAmount}></RetroButton>
+                        </>);
+                    }
+                }
+
+                bulletButtons.push(<>
+                    <RetroButton text={"Eject"} buttonSound={"selectionaudio"} onClickHandler={() => {
+                        const newBullets = [...currentBullets];
+                        newBullets.shift();
+
+                        const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                        menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
+                    }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
+                </>);
+                
+
                 userInteraction.push(<>
-                    <div className="itemMenuReload">
-                        <RetroButton text={"Load"} buttonSound={"selectionaudio"} onClickHandler={() => {
-                            const newBullets = [...currentBullets];
-                            newBullets.push("Regular");
-
-                            const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
-                            menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
-                        }} showTriangle={false} disabled={currentBullets.length >= reloadAmount}></RetroButton>
-                        <RetroButton text={"Eject"} buttonSound={"selectionaudio"} onClickHandler={() => {
-                            const newBullets = [...currentBullets];
-                            newBullets.pop();
-
-                            const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
-                            menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToBullets, newBullets);
-                        }} showTriangle={false} disabled={currentBullets.length <= 0}></RetroButton>
-                    </div>
+                    <div className="itemMenuReload">{bulletButtons}</div>
                 </>);
             }
         }
@@ -137,7 +170,7 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
         buttons.push(<>
             <RetroButton text={"Fire"} buttonSound={"gunaudio"} onClickHandler={() => {
                 const newBullets = [...currentBullets];
-                newBullets.pop();
+                newBullets.shift();
 
                 if (playerConfigsClone) {
                     const newPlayerConfigsClone = menuStateChangeHandler(playerConfigsClone, pathToBullets, newBullets);

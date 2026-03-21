@@ -292,11 +292,10 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                         if (reloadAmount > 0) {
                             for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
                                 if (itemConfig.bullets && itemConfig.bullets.length > ammoIndex && itemConfig.bullets[ammoIndex]) {
-                                    ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletNormal"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
+                                    ammo.push(<div className="imagePageSingleBullet" style={{ backgroundColor: itemConfig.bullets[ammoIndex].color }}><div className="imagePageSingleBulletBottomOfShell"></div></div>);
                                 } else {
                                     ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletEmpty"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
                                 }
-                                
                             }
 
                             showItemSummary = true;
