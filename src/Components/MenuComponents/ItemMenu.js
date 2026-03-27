@@ -6,7 +6,8 @@ import { getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFuncti
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
 import { TextInput } from "../SimpleComponents/TextInput";
-import { calculateAspectCollection } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, getItemFromItemTemplate } from "../../SharedFunctions/TabletopMathFunctions";
+import { getNameDictionaryForCollection } from "../../Collections";
 
 export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCenterScreenMenu, addToMenuStack, menuConfig, menuStateChangeHandler}) {
 
@@ -65,17 +66,31 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     let pathToBullets = "";
     let currentBullets = [];
     if (itemsProperty && isReloadableFirearm) {
+        const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
         if (menuConfig.pathToProperty) {
-            pathToBullets += menuConfig.pathToProperty + ".";
+            pathToBullets += menuConfig.pathToProperty;
         }
-        pathToBullets += "items[" + menuConfig.itemIndex + "].bullets";
+        if (pathToBullets.length > 0) {
+            const parentItemConfig = getValueFromObjectAndPath(displayConfigs, pathToBullets);
+            const itemName2Item = getNameDictionaryForCollection("items");
+            let parentDndItem = itemName2Item[parentItemConfig.name];
+            parentDndItem = getItemFromItemTemplate(parentDndItem, itemName2Item);
+            if (parentDndItem.childItems) {
+                pathToBullets += ".childItems[" + menuConfig.itemIndex + "].bullets";
+            } else {
+                pathToBullets += ".items[" + menuConfig.itemIndex + "].bullets";
+            }
+            
+        } else {
+            pathToBullets += "items[" + menuConfig.itemIndex + "].bullets";
+        }
+        
 
         const reloadProperty = menuConfig.item.properties ? menuConfig.item.properties.find(prop => prop.startsWith('Reload ')) : undefined;
         if (reloadProperty) {
             const reloadAmountString = reloadProperty.substring(7);
             const reloadAmount = parseInt(reloadAmountString);
             if (reloadAmount > 0) {
-                const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
                 currentBullets = getValueFromObjectAndPath(displayConfigs, pathToBullets) ?? [];
 
                 const bulletButtons = [];
@@ -208,9 +223,23 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                 if (playerConfigsClone) {
                     let pathToItem = "";
                     if (menuConfig.pathToProperty) {
-                        pathToItem += menuConfig.pathToProperty + ".";
+                        pathToItem += menuConfig.pathToProperty;
                     }
-                    pathToItem += "items[" + menuConfig.itemIndex + "]";
+                    if (pathToItem.length > 0) {
+                        const parentItemConfig = getValueFromObjectAndPath(playerConfigsClone, pathToItem);
+                        const itemName2Item = getNameDictionaryForCollection("items");
+                        let parentDndItem = itemName2Item[parentItemConfig.name];
+                        parentDndItem = getItemFromItemTemplate(parentDndItem, itemName2Item);
+                        if (parentDndItem.childItems) {
+                            pathToItem += ".childItems[" + menuConfig.itemIndex + "]";
+                        } else {
+                            pathToItem += ".items[" + menuConfig.itemIndex + "]";
+                        }
+                        
+                    } else {
+                        pathToItem += "items[" + menuConfig.itemIndex + "]";
+                    }
+
 
                     if (menuConfig.showNotes) {
                         const pathToItemNotes = pathToItem + ".notes";

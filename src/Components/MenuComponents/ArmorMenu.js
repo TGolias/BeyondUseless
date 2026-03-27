@@ -122,7 +122,10 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
 }
 
 function openMenuForItem(dndItem, addToMenuStack, menuConfig, itemIndex, pathToProperty, setCenterScreenMenu) {
+    const lastIndexOfDot = pathToProperty.lastIndexOf('.');
+    const pathToParent = lastIndexOfDot > -1 ? pathToProperty.substring(0, lastIndexOfDot) : undefined;
+
     playAudio("menuaudio");
     addToMenuStack({ menuType: "ArmorMenu", menuConfig });
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex, pathToProperty: pathToProperty, showNotes: true } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex, pathToProperty: pathToParent, showNotes: true } });
 }

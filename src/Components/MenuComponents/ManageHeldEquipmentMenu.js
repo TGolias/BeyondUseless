@@ -131,7 +131,7 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
                 }
 
                 itemRows.push(<>
-                    <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                    <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, pathToProperty, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToItem, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                 </>);
             }
         }
@@ -142,8 +142,11 @@ function processChildItems(playerConfigs, pathToProperty, childItemsConfigs, dnd
     }
 }
 
-function openMenuForItem(dndItem, addToMenuStack, menuConfig, itemIndex, setCenterScreenMenu) {
+function openMenuForItem(dndItem, addToMenuStack, menuConfig, itemIndex, pathToProperty, setCenterScreenMenu) {
+    const lastIndexOfDot = pathToProperty.lastIndexOf('.');
+    const pathToParent = lastIndexOfDot > -1 ? pathToProperty.substring(0, lastIndexOfDot) : undefined;
+
     playAudio("menuaudio");
     addToMenuStack({ menuType: "ManageHeldEquipmentMenu", menuConfig });
-    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex, showNotes: true } });
+    setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex, pathToProperty: pathToParent, showNotes: true } });
 }

@@ -270,7 +270,13 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
         }
          
         if (itemsProperty && itemIndex !== undefined) {
-            const itemConfig = itemsProperty.items[itemIndex];
+            let itemConfig;
+            if (pathToProperty && pathToProperty.length > 0) {
+                itemConfig = itemsProperty.childItems ? itemsProperty.childItems[itemIndex] : undefined;
+            } else {
+                itemConfig = itemsProperty.items ? itemsProperty.items[itemIndex] : undefined;
+            }
+            
             if (itemConfig) {
                 if (itemConfig.attuned) {
                     attunedTo = itemConfig.attuned;

@@ -194,7 +194,9 @@ function onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, 
     playAudio("menuaudio");
 
     if (!item.custom) {
-        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, itemIndex: itemIndex, showNotes: true } });
+        const lastIndexOfDot = pathToProperty.lastIndexOf('.');
+        const pathToParent = lastIndexOfDot > -1 ? pathToProperty.substring(0, lastIndexOfDot) : undefined;
+        setCenterScreenMenu({ show: true, menuType: "ItemMenu", data: { menuTitle: dndItem.name, item: dndItem, pathToProperty: pathToParent, itemIndex: itemIndex, showNotes: true } });
     } else {
         setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: item, 
             onOkClicked: (newCustomItem) => {
