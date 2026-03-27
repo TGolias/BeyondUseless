@@ -8,6 +8,7 @@ import { UseSpellSlotComponent } from "./UseSpellSlotComponent";
 import { getCollection } from "../../Collections";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { GetHeldItemsWithPlayerItem } from "../../SharedFunctions/EquipmentFunctions";
+import { BulletDisplay } from "../DisplayComponents/BulletDisplay";
 
 const userInputTypes = {
     textField: {
@@ -84,13 +85,47 @@ const userInputTypes = {
             
             const heldItems = GetHeldItemsWithPlayerItem(playerConfigs.items);
             const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
-            const gunNames = gunsWithMagicBullets.map(gun => gun.dndItem.name);
+            const renamedGunsWithMagicBullets = gunsWithMagicBullets.map((gun, index) => {
+                const clonedGun = {...gun.dndItem};
+                clonedGun.uniqueName = (index + 1) + "-" + clonedGun.name;
+                return clonedGun;
+            });
+            const gunNames = renamedGunsWithMagicBullets.map(gun => gun.uniqueName);
+
+            const displayRows = [];
+            displayRows.push(<>
+                <div>{singleUserInput.displayName}</div>
+            </>);
+            displayRows.push(<>
+                <SelectList options={gunNames} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></SelectList>
+            </>);
+
+            const selectedGunString = menuConfig.userInput[singleUserInput.name];
+            if (selectedGunString) {
+                const indexOfDash = selectedGunString.indexOf('-');
+                if (indexOfDash > 0) {
+                    const numberOfGunString = selectedGunString.substring(0, indexOfDash);
+                    const numberOfGun = parseInt(numberOfGunString);
+                    const indexOfGun = numberOfGun - 1;
+                    const selectedGun = gunsWithMagicBullets[indexOfGun];
+
+                    const newBullets = [...selectedGun.playerItem.bullets];
+                    const indexToRemove = newBullets.findIndex(x => x.type === "focus");
+                    newBullets.splice(indexToRemove, 1);
+
+                    const dndItemBeforeBulletsRemoved = {...selectedGun.dndItem};
+                    const playerItemBeforeBulletsRemoved = {...selectedGun.playerItem};
+
+                    displayRows.push(<>
+                        <div className="userInputsCenterAndSpace">
+                            <BulletDisplay item={dndItemBeforeBulletsRemoved} itemConfig={playerItemBeforeBulletsRemoved}/>
+                        </div>
+                </>);
+                }
+            }
 
             return (<>
-                <div className="userInputsSingleInput">
-                    <div>{singleUserInput.displayName}</div>
-                    <SelectList options={gunNames} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></SelectList>
-                </div>
+                <div className="userInputsSingleInput">{displayRows}</div>
             </>);
         }
     },

@@ -1,4 +1,5 @@
 import { encode, decode } from 'base32768'
+import { getTotalPath } from './ComponentFunctions';
 
 export function convertArrayOfStringsToHashMap(arrayOfStrings) {
     const hashMap = {};
@@ -144,4 +145,55 @@ export function delay(time) {
     return new Promise(res => {
         setTimeout(res,time)
     });
+}
+
+export function deepCloneToMakeChange(currentState, pathToProperty, newValue) {
+    const totalPath = getTotalPath(pathToProperty);
+
+    // We are traversing the path, but also making shallow copies all the way down for the new version of the state as we go except for the top object
+    let newPropertyObject = currentState;
+
+    // We do - 1 to the length because we don't want to end up with the actual property at the end, just right before.
+    for (let i = 0; i < totalPath.length - 1; i++) {
+        let pathSegment = totalPath[i];
+        const nextPropertyObject = newPropertyObject[pathSegment];
+
+        let newNextPropertyObject
+        
+        if (nextPropertyObject === undefined) {
+            // This object didn't exist on the previous version of the state. We need to make a new one, but we have to figure out if it's an array or object first.
+            const nextPath = totalPath[i + 1];
+            if (isNumeric(nextPath)) {
+                newNextPropertyObject = [];
+            } else {
+                newNextPropertyObject = {};
+            }
+        } else {
+            // Sometimes some slippery arrays make their way in here... those get cloned differently.
+            if (Array.isArray(nextPropertyObject)) {
+                newNextPropertyObject = [...nextPropertyObject]
+            } else {
+                newNextPropertyObject = Object.assign({}, nextPropertyObject);
+            }
+        }
+        
+        newPropertyObject[pathSegment] = newNextPropertyObject;
+        newPropertyObject = newNextPropertyObject
+    }
+
+    // Check if the value is going to change when we set it. Important for later.
+    let valueChanged;
+    if (pathToProperty === "") {
+      valueChanged = newPropertyObject !== newValue;
+    } else {
+      valueChanged = newPropertyObject[totalPath[totalPath.length - 1]] !== newValue;
+    }
+
+    // Now we have the property object right at the end of the path and have done our shallow clones all the way to it.
+    if (pathToProperty === "") {
+      newPropertyObject = newValue;
+      currentState = newPropertyObject;
+    } else {
+      newPropertyObject[totalPath[totalPath.length - 1]] = newValue;
+    }
 }

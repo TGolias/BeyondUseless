@@ -1,0 +1,23 @@
+.bulletDisplayAmmoHolder {
+    display: flex;
+    flex-direction: row;
+}
+
+.bulletDisplaySingleBulletEmpty {
+    background-color: #163050;
+}
+
+.bulletDisplaySingleBullet {
+    display: flex;
+    flex-direction: column;
+    border: 4px solid black;
+    justify-content: end;
+    width: 1.5em;
+    height: 3em;
+}
+
+.bulletDisplaySingleBulletBottomOfShell {
+    width: 100%;
+    height: 0.5em;
+    border-top: 4px solid black;
+}

@@ -240,6 +240,8 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                         pathToItem += "items[" + menuConfig.itemIndex + "]";
                     }
 
+                    let changeMade = false;
+                    let newItemConfig = {...getValueFromObjectAndPath(playerConfigs, pathToItem)};
 
                     if (menuConfig.showNotes) {
                         const pathToItemNotes = pathToItem + ".notes";
@@ -248,7 +250,8 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                         const newNotes = getValueFromObjectAndPath(playerConfigsClone, pathToItemNotes);
 
                         if (oldNotes !== newNotes) {
-                            inputChangeHandler(playerConfigs, pathToItemNotes, newNotes);
+                            changeMade = true;
+                            newItemConfig.notes = newNotes;
                         }
                     }
 
@@ -259,8 +262,13 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                         const newBullets = getValueFromObjectAndPath(playerConfigsClone, pathToItemBullets);
 
                         if (oldBullets !== newBullets) {
-                            inputChangeHandler(playerConfigs, pathToItemBullets, newBullets);
+                            changeMade = true;
+                            newItemConfig.bullets = newBullets;
                         }
+                    }
+
+                    if (changeMade) {
+                        inputChangeHandler(playerConfigs, pathToItem, newItemConfig);
                     }
                 }
 

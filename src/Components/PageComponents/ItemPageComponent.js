@@ -5,6 +5,7 @@ import { getValueFromObjectAndPath, parseStringForBoldMarkup } from "../../Share
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl, playAudio } from "../../SharedFunctions/Utils";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getNameDictionaryForCollection } from "../../Collections";
+import { BulletDisplay } from "../DisplayComponents/BulletDisplay";
 
 const rarityToSuggestedCost = {
     "Common": 100,
@@ -296,14 +297,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                         const reloadAmountString = reloadProperty.substring(7);
                         const reloadAmount = parseInt(reloadAmountString);
                         if (reloadAmount > 0) {
-                            for (let ammoIndex = 0; ammoIndex < reloadAmount; ammoIndex++) {
-                                if (itemConfig.bullets && itemConfig.bullets.length > ammoIndex && itemConfig.bullets[ammoIndex]) {
-                                    ammo.push(<div className="imagePageSingleBullet" style={{ backgroundColor: itemConfig.bullets[ammoIndex].color }}><div className="imagePageSingleBulletBottomOfShell"></div></div>);
-                                } else {
-                                    ammo.push(<div className="imagePageSingleBullet imagePageSingleBulletEmpty"><div className="imagePageSingleBulletBottomOfShell"></div></div>);
-                                }
-                            }
-
+                            ammo.push(<BulletDisplay item={item} itemConfig={itemConfig}/>)
                             showItemSummary = true;
                         }
                     }
@@ -362,7 +356,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                 <div><b>Item Summary</b></div>
             </div>
             <div className="itemPageDescription" style={{display: (ammo.length > 0 ? "block" : "none")}}>
-                <div className="imagePageAmmoHolder">{ammo}</div>
+                {ammo}
             </div>
             <div className="itemPageDescription" style={{display: (weaponAttack ? "block" : "none")}}>
                 <div><b>Attack Roll:</b> +{weaponAttack}</div>

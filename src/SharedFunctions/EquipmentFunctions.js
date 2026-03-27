@@ -90,17 +90,19 @@ export function GetHeldItems(playerItems) {
 
 export function GetHeldItemsWithPlayerItem(playerItems) {
     let heldItems = [];
-
+    
     const itemsDictionary = getNameDictionaryForCollection('items');
-    for (let playerItem of playerItems) {
+    for (let i = 0; i < playerItems.length; i++) {
+        const playerItem = playerItems[i];
+        const pathToItem = "items[" + i + "]"
         if (playerItem.equipped) {
             const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
             if (IsItemHoldable(actualItem)) {
-                heldItems.push({ dndItem: actualItem, playerItem: playerItem });
+                heldItems.push({ dndItem: actualItem, playerItem: playerItem, pathToItem });
             }
 
             if (playerItem.childItems && actualItem.childItems) {
-                const childItemsHeld = processChildItemsHeld(playerItem.childItems, actualItem.childItems);
+                const childItemsHeld = processChildItemsHeld(playerItem.childItems, actualItem.childItems, pathToItem);
                 heldItems = [...heldItems, ...childItemsHeld];
             }
         }
@@ -109,18 +111,19 @@ export function GetHeldItemsWithPlayerItem(playerItems) {
     return heldItems;
 }
 
-function processChildItemsHeld(childItems, dndChildItems) {
+function processChildItemsHeld(childItems, dndChildItems, pathToItem) {
     let childItemsHeld = []
     for (let i = 0; i < childItems.length; i++) {
         const childItem = childItems[i];
+        const pathToChildItem = pathToItem + ".childItems[" + i + "]";
         if (childItem.equipped) {
             const dndChildItem = dndChildItems[i];
             if (IsItemHoldable(dndChildItem)) {
-                childItemsHeld.push({ dndItem: dndChildItem, playerItem: childItem });
+                childItemsHeld.push({ dndItem: dndChildItem, playerItem: childItem, pathToItem: pathToChildItem });
             }
 
             if (childItem.childItems && dndChildItem.childItems) {
-                const innerChildItemsHeld = processChildItemsHeld(childItem.childItems, dndChildItem.childItems);
+                const innerChildItemsHeld = processChildItemsHeld(childItem.childItems, dndChildItem.childItems, pathToChildItem);
                 childItemsHeld = [...childItemsHeld, ...innerChildItemsHeld];
             }
         }

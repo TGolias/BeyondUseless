@@ -10,6 +10,8 @@ import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffects
 import { UseSpellSlotComponent } from "../SharedComponents/UseSpellSlotComponent";
 import { MetamagicComponent } from "../SharedComponents/MetamagicComponent";
 import { SetRemainingUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
+import { GetHeldItemsWithPlayerItem } from "../../SharedFunctions/EquipmentFunctions";
+import { deepCloneToMakeChange } from "../../SharedFunctions/Utils";
 
 export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -161,6 +163,14 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         spellUserInput = [...spellUserInput, ...menuConfig.spell.userInput];
     }
 
+    if (spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) {
+        const magicBulletsInput = spellUserInput.find(ui => ui.type === "magicBullets");
+        const gunToUseString = menuConfig.userInput[magicBulletsInput.name];
+        if (!gunToUseString) {
+            canCastSpell = false;
+        }
+    }
+
     return (<>
         <div className="spellMenuWrapperDiv">
             <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
@@ -172,13 +182,13 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">
-            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUserInput, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={(spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) ? ("magicgunaudio") : (menuConfig.usingOnSelf ? "healaudio" : "selectionaudio")}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => { setCenterScreenMenu({ show: false, menuType: undefined, data: undefined }) }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
 
-function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUserInput, menuConfig, inputChangeHandler, setCenterScreenMenu) {
     // If any hit dice are expended, put them on the new player configs.
     if (menuConfig.remainingHitDice) {
         playerConfigsClone.currentStatus.remainingHitDice = menuConfig.remainingHitDice;
@@ -199,6 +209,26 @@ function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, menuConf
             SetRemainingUsesForResource(playerConfigsClone, playerConfigsClone.currentStatus, sorceryPoints, sorceryPoints.remainingUses - metamagicPointsConsumed);
         }
     }
+
+    // if (spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) {
+    //     const magicBulletsInput = spellUserInput.find(ui => ui.type === "magicBullets");
+    //     const gunToUseString = menuConfig.userInput[magicBulletsInput.name];
+
+    //     const heldItems = GetHeldItemsWithPlayerItem(playerConfigs.items);
+    //     const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
+
+    //     const indexOfDash = gunToUseString.indexOf('-');
+    //     const numberOfGunString = gunToUseString.substring(0, indexOfDash);
+    //     const numberOfGun = parseInt(numberOfGunString);
+    //     const indexOfGun = numberOfGun - 1;
+    //     const selectedGun = gunsWithMagicBullets[indexOfGun];
+
+    //     const newBullets = [...selectedGun.playerItem.bullets];
+    //     const indexToRemove = newBullets.findIndex(x => x.type === "focus");
+    //     newBullets.splice(indexToRemove, 1);
+
+    //     deepCloneToMakeChange(playerConfigsClone, selectedGun.pathToItem, newBullets);
+    // }
 
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
         inputChangeHandler(playerConfigs, "", playerConfigsClone);
