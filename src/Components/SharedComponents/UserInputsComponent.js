@@ -7,6 +7,7 @@ import { SelectList } from "../SimpleComponents/SelectList";
 import { UseSpellSlotComponent } from "./UseSpellSlotComponent";
 import { getCollection } from "../../Collections";
 import { playAudio } from "../../SharedFunctions/Utils";
+import { GetHeldItemsWithPlayerItem } from "../../SharedFunctions/EquipmentFunctions";
 
 const userInputTypes = {
     textField: {
@@ -71,6 +72,24 @@ const userInputTypes = {
                 <div className="userInputsSingleInput">
                     <div>{singleUserInput.displayName}</div>
                     <SelectList options={allSelectListValues} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></SelectList>
+                </div>
+            </>);
+        }
+    },
+    magicBullets: {
+        generateControl: (playerConfigs, menuConfig, singleUserInput, menuStateChangeHandler, data) => {
+            if (!menuConfig.userInput.hasOwnProperty(singleUserInput.name)) {
+                menuStateChangeHandler(menuConfig, "userInput." + singleUserInput.name, undefined);
+            }
+            
+            const heldItems = GetHeldItemsWithPlayerItem(playerConfigs.items);
+            const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
+            const gunNames = gunsWithMagicBullets.map(gun => gun.dndItem.name);
+
+            return (<>
+                <div className="userInputsSingleInput">
+                    <div>{singleUserInput.displayName}</div>
+                    <SelectList options={gunNames} isNumberValue={false} baseStateObject={menuConfig} pathToProperty={"userInput." + singleUserInput.name} inputHandler={menuStateChangeHandler}></SelectList>
                 </div>
             </>);
         }

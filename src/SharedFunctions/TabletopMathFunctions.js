@@ -3091,6 +3091,52 @@ export function doesItemHaveConsumeAction(dndItem) {
     return dndItem && dndItem.consumable && dndItem.consumeEffect;
 }
 
+export function getAdditionalFeatureActionUserInputs(playerConfigs, feature) {
+    let userInputs = [];
+    findAllConfiguredAspects(playerConfigs, "additionalFeatureActionUserInput", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, feature });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let additionalUserInput;
+        if (aspectValue.userInput) {
+            additionalUserInput = aspectValue.userInput;
+        } else {
+            additionalUserInput = aspectValue;
+        }
+
+        userInputs = [...userInputs, ...additionalUserInput]
+    });
+    return userInputs;
+}
+
+export function getAdditionalSpellcastingUserInputs(playerConfigs) {
+    let userInputs = [];
+    findAllConfiguredAspects(playerConfigs, "additionalSpellcastingUserInput", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let additionalUserInput;
+        if (aspectValue.userInput) {
+            additionalUserInput = aspectValue.userInput;
+        } else {
+            additionalUserInput = aspectValue;
+        }
+
+        userInputs = [...userInputs, ...additionalUserInput]
+    });
+    return userInputs;
+}
+
 export function getAdditionalBulletTypes(playerConfigs) {
     let additionalBulletTypes = [];
     findAllConfiguredAspects(playerConfigs, "additionalBulletTypes", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {

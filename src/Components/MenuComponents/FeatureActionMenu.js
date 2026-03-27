@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageComponent";
-import { findResource, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { findResource, getAdditionalFeatureActionUserInputs, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
@@ -25,11 +25,11 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
 
     const controlsDisplay = [];
 
-    let featureActionUserInput = menuConfig.featureAction.userInput;
+    let featureActionUserInput = getAdditionalFeatureActionUserInputs(playerConfigsClone, menuConfig.feature);
     if (menuConfig.featureAction.templateType && menuConfig.featureAction.templateOf && !menuConfig.featureAction.userInput) {
         const templateMap = getNameDictionaryForCollection(menuConfig.featureAction.templateType);
         const newFeatureAction = {...templateMap[menuConfig.featureAction.templateOf]};
-        featureActionUserInput = newFeatureAction.userInput;
+        featureActionUserInput = [...featureActionUserInput, ...newFeatureAction.userInput];
     }
 
     controlsDisplay.push(<>
@@ -247,7 +247,6 @@ function useActionClicked(sessionId, playerConfigs, playerConfigsClone, data, sp
 }
 
 function pushPlayerConfigChanges(playerConfigs, playerConfigsClone, menuConfig, data, inputChangeHandler) {
-    let updateWholePlayerConfigs = false;
     const featureAction = menuConfig.featureAction
     if (featureAction.type.includes("setVariable") && 
         featureAction.setVariable?.variableName?.calculation && 
@@ -258,15 +257,10 @@ function pushPlayerConfigChanges(playerConfigs, playerConfigsClone, menuConfig, 
         if (variableName && newValue) {
             const oldValue = GetCurrentVariableValue(playerConfigs, menuConfig.origin, variableName);
             if (newValue !== oldValue) {
-                updateWholePlayerConfigs = true;
                 SetCurrentVariableValue(playerConfigs, menuConfig.origin, variableName, newValue);
             }
         }
     }
 
-    if (updateWholePlayerConfigs) {
-        inputChangeHandler(playerConfigs, "", playerConfigsClone);
-    } else {
-        inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
-    }
+    inputChangeHandler(playerConfigs, "", playerConfigsClone);
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import './SpellMenu.css';
 import { SpellPageComponent } from "../PageComponents/SpellPageComponent";
-import { calculateAspectCollection, findResourceFromAllResources, getAllSelectedMetamagicOptions, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, findResourceFromAllResources, getAdditionalSpellcastingUserInputs, getAllSelectedMetamagicOptions, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
@@ -156,12 +156,17 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         data.additionalEffects = menuConfig.additionalEffects;
     }
 
+    let spellUserInput = getAdditionalSpellcastingUserInputs(playerConfigsClone);
+    if (menuConfig.spell.userInput) {
+        spellUserInput = [...spellUserInput, ...menuConfig.spell.userInput];
+    }
+
     return (<>
         <div className="spellMenuWrapperDiv">
             <SpellPageComponent spell={menuConfig.spell} data={data} playerConfigs={playerConfigs} copyLinkToSpell={menuConfig.copyLinkToSpell}></SpellPageComponent>
         </div>
-        <div style={{display: (menuConfig.spell.level || metamagicOptions.length > 0 || (menuConfig.spell.userInput && menuConfig.spell.userInput.length > 0) ? "block" : "none")}} className="centerMenuSeperator"></div>
-        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={menuConfig.spell.userInput}></UserInputsComponent>
+        <div style={{display: (menuConfig.spell.level || metamagicOptions.length > 0 || (spellUserInput && spellUserInput.length > 0) ? "block" : "none")}} className="centerMenuSeperator"></div>
+        <UserInputsComponent playerConfigs={playerConfigsClone} menuConfig={menuConfig} data={data} menuStateChangeHandler={menuStateChangeHandler} userInputConfig={spellUserInput}></UserInputsComponent>
         <MetamagicComponent playerConfigs={playerConfigsClone} metamagicOptions={metamagicOptions} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} addToMenuStack={addToMenuStack} setCenterScreenMenu={setCenterScreenMenu}></MetamagicComponent>
         <UseSpellSlotComponent spellcastingLevel={spellcastingLevel} minSpellLevel={menuConfig.spell.level} spellSlotsRemainingForSlotLevel={spellSlotsRemainingForSlotLevel} haveSpellSlotsForNextLevel={haveSpellSlotsForNextLevel} pactSlotsRemaining={pactSlotsRemaining} pactSlotCastLevel={pactSlotCastLevel} hasFreeUses={menuConfig.spell.freeUses} remainingFreeUses={remainingFreeUses} isRitual={isRitual} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseSpellSlotComponent>
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
@@ -196,7 +201,7 @@ function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, menuConf
     }
 
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
-        inputChangeHandler(playerConfigs, "currentStatus", playerConfigsClone.currentStatus);
+        inputChangeHandler(playerConfigs, "", playerConfigsClone);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });
 }
