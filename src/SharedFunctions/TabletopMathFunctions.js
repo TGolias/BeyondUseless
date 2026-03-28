@@ -3091,11 +3091,11 @@ export function doesItemHaveConsumeAction(dndItem) {
     return dndItem && dndItem.consumable && dndItem.consumeEffect;
 }
 
-export function getAdditionalFeatureActionUserInputs(playerConfigs, feature) {
+export function getAdditionalFeatureActionUserInputs(playerConfigs, origin) {
     let userInputs = [];
     findAllConfiguredAspects(playerConfigs, "additionalFeatureActionUserInput", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (aspectValue.conditions) {
-            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, feature });
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { playerConfigForObject, origin });
             if (!conditionsAreMet) {
                 // We did not meet the conditions for this bonus to apply.
                 return;

@@ -182,7 +182,7 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">
-            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUserInput, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={(spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) ? ("magicgunaudio") : (menuConfig.usingOnSelf ? "healaudio" : "selectionaudio")}></RetroButton>
+            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUserInput, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={(spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) ? "magicgunaudio" : (menuConfig.usingOnSelf ? "healaudio" : "selectionaudio")}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => { setCenterScreenMenu({ show: false, menuType: undefined, data: undefined }) }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
@@ -210,25 +210,25 @@ function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUse
         }
     }
 
-    // if (spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) {
-    //     const magicBulletsInput = spellUserInput.find(ui => ui.type === "magicBullets");
-    //     const gunToUseString = menuConfig.userInput[magicBulletsInput.name];
+    if (spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) {
+        const magicBulletsInput = spellUserInput.find(ui => ui.type === "magicBullets");
+        const gunToUseString = menuConfig.userInput[magicBulletsInput.name];
 
-    //     const heldItems = GetHeldItemsWithPlayerItem(playerConfigs.items);
-    //     const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
+        const heldItems = GetHeldItemsWithPlayerItem(playerConfigs.items);
+        const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
 
-    //     const indexOfDash = gunToUseString.indexOf('-');
-    //     const numberOfGunString = gunToUseString.substring(0, indexOfDash);
-    //     const numberOfGun = parseInt(numberOfGunString);
-    //     const indexOfGun = numberOfGun - 1;
-    //     const selectedGun = gunsWithMagicBullets[indexOfGun];
+        const indexOfDash = gunToUseString.indexOf('-');
+        const numberOfGunString = gunToUseString.substring(0, indexOfDash);
+        const numberOfGun = parseInt(numberOfGunString);
+        const indexOfGun = numberOfGun - 1;
+        const selectedGun = gunsWithMagicBullets[indexOfGun];
 
-    //     const newBullets = [...selectedGun.playerItem.bullets];
-    //     const indexToRemove = newBullets.findIndex(x => x.type === "focus");
-    //     newBullets.splice(indexToRemove, 1);
+        const newBullets = [...selectedGun.playerItem.bullets];
+        const indexToRemove = newBullets.findIndex(x => x.type === "focus");
+        newBullets.splice(indexToRemove, 1);
 
-    //     deepCloneToMakeChange(playerConfigsClone, selectedGun.pathToItem, newBullets);
-    // }
+        deepCloneToMakeChange(playerConfigsClone, selectedGun.pathToItem + ".bullets", newBullets);
+    }
 
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
         inputChangeHandler(playerConfigs, "", playerConfigsClone);

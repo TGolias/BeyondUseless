@@ -9,6 +9,8 @@ import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffects
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetRemainingUsesForResource, SetRemainingUsesForResource } from "../../SharedFunctions/ResourcesFunctions";
 import { GetCurrentVariableValue, SetCurrentVariableValue } from "../../SharedFunctions/VariableFunctions";
+import { deepCloneToMakeChange } from "../../SharedFunctions/Utils";
+import { GetHeldItemsWithPlayerItem } from "../../SharedFunctions/EquipmentFunctions";
 
 export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu, menuConfig, menuStateChangeHandler, inputChangeHandler}) {
     const playerConfigsClone = {...playerConfigs};
@@ -25,8 +27,10 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
 
     const controlsDisplay = [];
 
-    let featureActionUserInput = getAdditionalFeatureActionUserInputs(playerConfigsClone, menuConfig.feature);
-    if (menuConfig.featureAction.templateType && menuConfig.featureAction.templateOf && !menuConfig.featureAction.userInput) {
+    let featureActionUserInput = getAdditionalFeatureActionUserInputs(playerConfigsClone, menuConfig.origin);
+    if (menuConfig.featureAction.userInput) {
+        featureActionUserInput = [...featureActionUserInput, ...menuConfig.featureAction.userInput];
+    } else if (menuConfig.featureAction.templateType && menuConfig.featureAction.templateOf) {
         const templateMap = getNameDictionaryForCollection(menuConfig.featureAction.templateType);
         const newFeatureAction = {...templateMap[menuConfig.featureAction.templateOf]};
         featureActionUserInput = [...featureActionUserInput, ...newFeatureAction.userInput];
@@ -201,6 +205,14 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
             </div>
         </>);
     }
+
+    if (featureActionUserInput && featureActionUserInput.some(ui => ui.type === "magicBullets")) {
+        const magicBulletsInput = featureActionUserInput.find(ui => ui.type === "magicBullets");
+        const gunToUseString = menuConfig.userInput[magicBulletsInput.name];
+        if (!gunToUseString) {
+            canUseAction = false;
+        }
+    }
     
 
     return (<>
@@ -212,13 +224,13 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="featureActionMenuHorizontal">
-            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(sessionId, playerConfigs, playerConfigsClone, data, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction || !hasEnoughSpellSlots} buttonSound={menuConfig.usingOnSelf ? "healaudio" : "selectionaudio"}></RetroButton>
+            <RetroButton text={"Use"} onClickHandler={() => {useActionClicked(sessionId, playerConfigs, playerConfigsClone, featureActionUserInput, data, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canUseAction || !hasEnoughSpellSlots} buttonSound={(featureActionUserInput && featureActionUserInput.some(ui => ui.type === "magicBullets")) ? "magicgunaudio" : (menuConfig.usingOnSelf ? "healaudio" : "selectionaudio")}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => {setCenterScreenMenu({ show: false, menuType: undefined, data: undefined })}} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
 }
 
-function useActionClicked(sessionId, playerConfigs, playerConfigsClone, data, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu) {
+function useActionClicked(sessionId, playerConfigs, playerConfigsClone, featureActionUserInput, data, spellSlotsRemainingForSlotLevel, spellSlotChangeAmount, pactSlotsRemaining, pactSlotsChangeAmount, slotLevelPropertyPath, menuConfig, inputChangeHandler, setCenterScreenMenu) {
     if (spellSlotChangeAmount !== 0) {
         // We have any slots for the level we are casting it at.
         if (playerConfigsClone.currentStatus.remainingSpellSlots) {
@@ -238,6 +250,26 @@ function useActionClicked(sessionId, playerConfigs, playerConfigsClone, data, sp
 
     if (pactSlotsChangeAmount !== 0) {
         playerConfigsClone.currentStatus.remainingPactSlots = pactSlotsRemaining + pactSlotsChangeAmount;
+    }
+
+    if (featureActionUserInput && featureActionUserInput.some(ui => ui.type === "magicBullets")) {
+        const magicBulletsInput = featureActionUserInput.find(ui => ui.type === "magicBullets");
+        const gunToUseString = menuConfig.userInput[magicBulletsInput.name];
+
+        const heldItems = GetHeldItemsWithPlayerItem(playerConfigs.items);
+        const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
+
+        const indexOfDash = gunToUseString.indexOf('-');
+        const numberOfGunString = gunToUseString.substring(0, indexOfDash);
+        const numberOfGun = parseInt(numberOfGunString);
+        const indexOfGun = numberOfGun - 1;
+        const selectedGun = gunsWithMagicBullets[indexOfGun];
+
+        const newBullets = [...selectedGun.playerItem.bullets];
+        const indexToRemove = newBullets.findIndex(x => x.type === "focus");
+        newBullets.splice(indexToRemove, 1);
+
+        deepCloneToMakeChange(playerConfigsClone, selectedGun.pathToItem + ".bullets", newBullets);
     }
 
     tryAddOwnActiveEffectOnSelf(sessionId, playerConfigsClone, menuConfig, setCenterScreenMenu, () => {
