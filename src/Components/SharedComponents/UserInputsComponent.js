@@ -275,6 +275,7 @@ const userInputTypes = {
                             calculationForDieType.multiplier[0].value = diceUsedNow + 1
 
                             menuConfig.userInput[singleUserInput.name] = performDiceRollCalculation(playerConfigs, totalDiceCalculation)[""];
+                            menuConfig.userInput[singleUserInput.name + "DiceUsed"] = diceUsedNow;
                             menuStateChangeHandler(menuConfig, "", menuConfig);
                             playAudio("selectionaudio");
                         }
