@@ -3355,6 +3355,14 @@ export function findResourceFromAllResources(playerConfigs, resourceName) {
     findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (Array.isArray(aspectValue)) {
             for (let singleResource of aspectValue) {
+                if (singleResource.conditions) {
+                    const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, singleResource.conditions, { playerConfigForObject });
+                    if (!conditionsAreMet) {
+                        // We did not meet the conditions for this resource to apply.
+                        continue;
+                    }
+                }
+
                 if (!resourceToFind) {
                     if (singleResource.name === resourceName) {
                         if (singleResource.combineGlobalResources) {
@@ -3397,6 +3405,14 @@ export function getAllStandardResourcesForCharacter(playerConfigs) {
     findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (Array.isArray(aspectValue)) {
             for (let singleResource of aspectValue) {
+                if (singleResource.conditions) {
+                    const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, singleResource.conditions, { playerConfigForObject });
+                    if (!conditionsAreMet) {
+                        // We did not meet the conditions for this resource to apply.
+                        continue;
+                    }
+                }
+
                 const resourceToAdd = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
                 allResources.push(resourceToAdd);
             }
@@ -3419,7 +3435,7 @@ function generateStandardResourceFromResource(playerConfigs, originalResource, t
     addResourcesForLevelToUses(newResource.uses.calculation, playerConfigs, originalResource, typeForResource, playerConfigsForResource);
 
     newResource.maxUses = GetMaxUsesForResource(playerConfigs, newResource, playerConfigsForResource);
-    newResource.remainingUses = GetRemainingUsesForResource(playerConfigs, newResource);
+    newResource.remainingUses = GetRemainingUsesForResource(playerConfigs, newResource, playerConfigsForResource);
 
     return newResource;
 }
@@ -3427,17 +3443,29 @@ function generateStandardResourceFromResource(playerConfigs, originalResource, t
 function generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource) {
     let newResource = {...originalResource};
 
+    if (newResource.uses) {
+        newResource.uses = {...newResource.uses};
+    }
+
     delete newResource.subName;
     delete newResource.subDisplayName;
 
     generateNewUsesCalculationIfNotPresent(newResource);
     addResourcesForLevelToUses(newResource.uses.calculation, playerConfigs, originalResource, typeForResource, playerConfigsForResource);
 
-    newResource.subResources = [{ subName: originalResource.subName, maxCalculation: [...newResource.uses.calculation] }];
+    newResource.subResources = [{ subName: originalResource.subName, maxCalculation: [...newResource.uses.calculation], playerConfigsForResource }];
     
     findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (Array.isArray(aspectValue)) {
             for (let innerResource of aspectValue) {
+                if (innerResource.conditions) {
+                    const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, innerResource.conditions, { playerConfigForObject });
+                    if (!conditionsAreMet) {
+                        // We did not meet the conditions for this resource to apply.
+                        continue;
+                    }
+                }
+
                 if (innerResource.combineGlobalResources && originalResource.name === innerResource.name && originalResource.subName !== innerResource.subName) {
                     let innerResourceUsesCalculation = [];
                     if (innerResource?.uses?.calculation) {
@@ -3448,7 +3476,7 @@ function generateGlobalResourceFromResource(playerConfigs, originalResource, typ
 
                     newResource.uses.calculation = [...newResource.uses.calculation, ...innerResourceUsesCalculation];
 
-                    let innerSubResource = { subName: innerResource.subName, maxCalculation: innerResourceUsesCalculation };
+                    let innerSubResource = { subName: innerResource.subName, maxCalculation: innerResourceUsesCalculation, playerConfigsForResource: playerConfigForObject };
                     if (typeFoundOn === "class" || typeFoundOn === "subclass") {
                         // Resources that come from a class or subclass should move to the top of the sublist so that they are restored first (and expended last).
                         newResource.subResources.splice(0, 0, innerSubResource);
@@ -3461,7 +3489,7 @@ function generateGlobalResourceFromResource(playerConfigs, originalResource, typ
     });
 
     newResource.maxUses = GetMaxUsesForResource(playerConfigs, newResource, playerConfigsForResource);
-    newResource.remainingUses = GetRemainingUsesForResource(playerConfigs, newResource);
+    newResource.remainingUses = GetRemainingUsesForResource(playerConfigs, newResource, playerConfigsForResource);
 
     return newResource;
 }

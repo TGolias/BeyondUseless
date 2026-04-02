@@ -33,7 +33,7 @@ export function HasUsedAnyOfResource(playerConfigs, resource) {
     }
 }
 
-export function GetRemainingUsesForResource(playerConfigs, resource) {
+export function GetRemainingUsesForResource(playerConfigs, resource, playerConfigsForResource) {
     if (resource.combineGlobalResources) {
         let remainingUses = 0;
 
@@ -42,7 +42,7 @@ export function GetRemainingUsesForResource(playerConfigs, resource) {
             let amountRemaining = playerConfigs?.currentStatus?.remainingResources ? playerConfigs.currentStatus.remainingResources[resource.name + subName] : undefined;
             if (amountRemaining === undefined) {
                 const maxCalculation = resource.subResources[i].maxCalculation;
-                const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation);
+                const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation, playerConfigsForResource);
                 amountRemaining = maxUsesFromSource;
             }
 
@@ -71,7 +71,7 @@ export function SetRemainingUsesForResource(playerConfigs, newCurrentStatus, res
             for (let i = 0; i < resource.subResources.length; i++) {
                 const subName = resource.subResources[i].subName;
                 const maxCalculation = resource.subResources[i].maxCalculation;
-                const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation);
+                const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation, resource.subResources[i].playerConfigsForResource);
                 let currentAmount = playerConfigs?.currentStatus?.remainingResources[resource.name + subName];
                 if (currentAmount !== undefined) {
                     const targetRestoreAmount = maxUsesFromSource - currentAmount;
@@ -101,7 +101,7 @@ export function SetRemainingUsesForResource(playerConfigs, newCurrentStatus, res
             for (let i = resource.subResources.length - 1; i >= 0; i--) {
                 const subName = resource.subResources[i].subName;
                 const maxCalculation = resource.subResources[i].maxCalculation;
-                const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation);
+                const maxUsesFromSource = performMathCalculation(playerConfigs, maxCalculation, resource.subResources[i].playerConfigsForResource);
                 let currentAmount = playerConfigs?.currentStatus?.remainingResources[resource.name + subName];
                 if (currentAmount === undefined) {
                     currentAmount = maxUsesFromSource;
