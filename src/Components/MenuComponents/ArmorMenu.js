@@ -21,6 +21,9 @@ const rows = [
     {
         name: "Name",
         calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+            if (itemConfig.customName) {
+                return itemConfig.customName;
+            }
             return item.name;
         },
         addOnClick: true,

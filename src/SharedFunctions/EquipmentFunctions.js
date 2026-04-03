@@ -52,7 +52,7 @@ export function GetEquippedItemsWithIndexAndPaths(playerItems) {
         const playerItem = playerItems[i];
         if (playerItem.equipped) {
             const actualItem = getItemFromItemTemplate(itemsDictionary[playerItem.name], itemsDictionary);
-            equippedItems.push({ item: actualItem, pathToItem: '', index: i });
+            equippedItems.push({ item: actualItem, playerItem, pathToItem: '', index: i });
 
             if (playerItem.childItems && actualItem.childItems) {
                 const childItemsEquipped = processChildItemsEquipped(playerItem.childItems, actualItem.childItems, 'items[' + i + ']');
@@ -71,7 +71,7 @@ function processChildItemsEquipped(childItems, dndChildItems, pathToProperty) {
         if (childItem.equipped) {
             const dndChildItem = dndChildItems[i];
             if (IsItemHoldable(dndChildItem)) {
-                childItemsEquipped.push({ item: dndChildItem, pathToItem: pathToProperty, index: i });
+                childItemsEquipped.push({ item: dndChildItem, playerItem: childItem, pathToItem: pathToProperty, index: i });
             }
 
             if (childItem.childItems && dndChildItem.childItems) {

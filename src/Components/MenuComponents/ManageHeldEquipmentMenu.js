@@ -22,6 +22,9 @@ const columns = [
     {
         name: "Name",
         calculateItemValue: (playerConfigs, pathToProperty, item, itemConfig, menuConfig, menuStateChangeHandler, i) => {
+            if (itemConfig.customName) {
+                return itemConfig.customName;
+            }
             return item.name;
         },
         addOnClick: true,
@@ -84,7 +87,7 @@ export function ManageHeldEquipmentMenu({playerConfigs, setCenterScreenMenu, add
                         }
 
                         itemRows.push(<>
-                            <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
+                            <div onClick={() => col.addOnClick ? openMenuForItem(dndItem, addToMenuStack, menuConfig, i, "", setCenterScreenMenu) : {}} className={allClasses}>{col.calculateItemValue(playerConfigs, pathToProperty, dndItem, itemConfig, menuConfig, menuStateChangeHandler, i)}</div>
                         </>);
                     }
                 }

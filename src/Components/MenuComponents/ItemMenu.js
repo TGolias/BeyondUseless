@@ -154,11 +154,26 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
         }
         pathToItemNotes += "items[" + menuConfig.itemIndex + "].notes";
 
+        let pathToItemCustomName = "";
+        if (menuConfig.pathToProperty) {
+            pathToItemCustomName += menuConfig.pathToProperty + ".";
+        }
+        pathToItemCustomName += "items[" + menuConfig.itemIndex + "].customName";
+
         const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
         userInteraction.push(<>
             <div className="itemMenuNotes">
                 <div>Notes</div>
                 <TextInput isNumberValue={false} isMultiline={true} baseStateObject={displayConfigs} pathToProperty={pathToItemNotes} inputHandler={(baseStateObject, pathToProperty, newValue) => {
+                    const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
+                    menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToProperty, newValue);
+                }}></TextInput>
+            </div>
+        </>);
+        userInteraction.push(<>
+            <div>
+                <div>Custom Name</div>
+                <TextInput isNumberValue={false} isMultiline={false} baseStateObject={displayConfigs} pathToProperty={pathToItemCustomName} inputHandler={(baseStateObject, pathToProperty, newValue) => {
                     const newMenuConfig = menuStateChangeHandler(menuConfig, "newPlayerConfigs", displayConfigs);
                     menuStateChangeHandler(newMenuConfig, "newPlayerConfigs." + pathToProperty, newValue);
                 }}></TextInput>
@@ -252,6 +267,16 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
                         if (oldNotes !== newNotes) {
                             changeMade = true;
                             newItemConfig.notes = newNotes;
+                        }
+
+                        const pathToCustomName = pathToItem + ".customName";
+
+                        const oldCustomName = getValueFromObjectAndPath(playerConfigs, pathToCustomName);
+                        const newCustomName = getValueFromObjectAndPath(playerConfigsClone, pathToCustomName);
+
+                        if (oldCustomName !== newCustomName) {
+                            changeMade = true;
+                            newItemConfig.customName = newCustomName;
                         }
                     }
 

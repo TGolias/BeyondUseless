@@ -33,6 +33,9 @@ const rows = [
             onItemClicked(playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i, setCenterScreenMenu);
         },
         calculateValue: (playerConfigs, pathToProperty, inputChangeHandler, item, dndItem, i) => {
+            if (item.customName) {
+                return item.customName;
+            }
             return item.name;
         },
         addClass: "inventoryDisplayName"

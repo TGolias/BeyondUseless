@@ -87,7 +87,7 @@ const userInputTypes = {
             const gunsWithMagicBullets = heldItems.filter(heldItem => heldItem.dndItem.type === "Weapon" && heldItem.dndItem.tags && heldItem.dndItem.tags.includes("Firearm") && heldItem.playerItem.bullets && heldItem.playerItem.bullets.length && ((heldItem.dndItem.properties && heldItem.dndItem.properties.includes("Bullet-Selection")) ? (heldItem.playerItem.bullets.some(bullet => bullet.type === "focus")) : (heldItem.playerItem.bullets[0].type === "focus")));
             const renamedGunsWithMagicBullets = gunsWithMagicBullets.map((gun, index) => {
                 const clonedGun = {...gun.dndItem};
-                clonedGun.uniqueName = (index + 1) + "-" + clonedGun.name;
+                clonedGun.uniqueName = (index + 1) + "-" + (gun.playerItem.customName ?? clonedGun.name);
                 return clonedGun;
             });
             const gunNames = renamedGunsWithMagicBullets.map(gun => gun.uniqueName);

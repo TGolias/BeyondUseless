@@ -12,8 +12,8 @@ const rows = [
         calculateUnarmedStrikeValue: (playerConfigs, unarmedStrike) => {
             return unarmedStrike.name;
         },
-        calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
-            return (weaponAttackCantrip ? weaponAttackCantrip.name + " - " : "") + weapon.name + (isThrown ? " (Thrown)" : "");
+        calculateWeaponValue: (playerConfigs, playerItem, weapon, isThrown, weaponAttackCantrip) => {
+            return (weaponAttackCantrip ? weaponAttackCantrip.name + " - " : "") + (playerItem.customName ?? weapon.name) + (isThrown ? " (Thrown)" : "");
         },
         calculateCantripValue: (playerConfigs, dndCantrip) => {
             return dndCantrip.name;
@@ -31,7 +31,7 @@ const rows = [
                 return addLeadingPlusIfNumericAndPositive(attack.amount);
             }
         },
-        calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
+        calculateWeaponValue: (playerConfigs, playerItem, weapon, isThrown, weaponAttackCantrip) => {
             const attack = calculateWeaponAttackBonus(playerConfigs, weapon, isThrown, weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []);
             return addLeadingPlusIfNumericAndPositive(attack.amount);
         },
@@ -54,7 +54,7 @@ const rows = [
             }
             return "";
         },
-        calculateWeaponValue: (playerConfigs, weapon, isThrown, weaponAttackCantrip) => {
+        calculateWeaponValue: (playerConfigs, playerItem, weapon, isThrown, weaponAttackCantrip) => {
             const amount = calculateWeaponDamage(playerConfigs, weapon, isThrown, false, false, weaponAttackCantrip ? [{ type: "spell", name: weaponAttackCantrip.name, path: "weaponAttack" }] : []);
             return amount;
         },
@@ -140,14 +140,14 @@ function processAllWeapons(playerConfigs, itemName2Item, weaponAttackCantrip, we
             // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
             if (!(dndItem.weaponRange == "Ranged" && dndItem.properties.includes("Thrown"))) {
                 for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, itemWithIndexAndPath.index, itemWithIndexAndPath.pathToItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, false, weaponAttackCantrip)}</div>)
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, itemWithIndexAndPath.index, itemWithIndexAndPath.pathToItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, itemWithIndexAndPath.playerItem, dndItem, false, weaponAttackCantrip)}</div>)
                 }
             }
 
             // If the Weapon is thrown, we do a different calculation for it because the numbers could come out differently based on Fighting Style and other aspects.
             if (dndItem.properties.includes("Thrown")) {
                 for (let row of rows) {
-                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, itemWithIndexAndPath.index, itemWithIndexAndPath.pathToItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, dndItem, true, weaponAttackCantrip)}</div>)
+                    weaponOrDamageCantripRows.push(<div onClick={() => openMenuForItem(dndItem, weaponAttackCantrip, itemWithIndexAndPath.index, itemWithIndexAndPath.pathToItem, setCenterScreenMenu)} className={row.addClass ? "weaponOrDamageCantripRow " + row.addClass : "weaponOrDamageCantripRow"}>{row.calculateWeaponValue(playerConfigs, itemWithIndexAndPath.playerItem, dndItem, true, weaponAttackCantrip)}</div>)
                 }
             }
         }
