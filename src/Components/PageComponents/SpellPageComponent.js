@@ -141,7 +141,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                     
                     if (spell.damage.alternateDamage && spell.damage.alternateDamage.length > 0) {
                         for (let singleAlternateDamage of spell.damage.alternateDamage) {
-                            const additionalDamage = calculateOtherSpellAspectFromCalculation(playerConfigs, spell, castAtLevel, singleAlternateDamage.calculation, "spellDamageBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
+                            const additionalDamage = calculateOtherSpellAspectFromCalculation(playerConfigs, spell, castAtLevel, "spellDamage", singleAlternateDamage.calculation, "spellDamageBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
 
                             alternateDamageRows.push(<>
                                 <div className="spellPageDescription">

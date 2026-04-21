@@ -1449,10 +1449,10 @@ export function calculateSpellSaveDC(playerConfigs, additionalEffects, spell, is
 }
 
 export function calculateOtherSpellAspect(playerConfigs, spell, slotLevel, aspectName, aspectBonusName, additionalEffects, additionalParams = undefined) {
-    return calculateOtherSpellAspectFromCalculation(playerConfigs, spell, slotLevel, spell[aspectName].calculation, aspectBonusName, additionalEffects, additionalParams);
+    return calculateOtherSpellAspectFromCalculation(playerConfigs, spell, slotLevel, aspectName, spell[aspectName].calculation, aspectBonusName, additionalEffects, additionalParams);
 }
 
-export function calculateOtherSpellAspectFromCalculation(playerConfigs, spell, slotLevel, aspectCalculation, aspectBonusName, additionalEffects, additionalParams = undefined) {
+export function calculateOtherSpellAspectFromCalculation(playerConfigs, spell, slotLevel, aspectName, aspectCalculation, aspectBonusName, additionalEffects, additionalParams = undefined) {
     let playerConfigsToUse = playerConfigs;
     let spellToUse = spell;
     if (spell.feature.spellcasting.fromParentFeature) {
@@ -1492,6 +1492,30 @@ export function calculateOtherSpellAspectFromCalculation(playerConfigs, spell, s
         });
     }
 
+    findAllConfiguredAspects(playerConfigsToUse, aspectName + "Transform", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects, ...additionalParams });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let transforms;
+        if (aspectValue.calculation) {
+            transforms = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { spell: spellToUse, spellcastingAbility, spellcastingAbilityModifier, slotLevel, playerConfigForObject, additionalEffects, ...additionalParams });
+        } else {
+            transforms = aspectValue;
+        }
+
+        for (let transform of transforms) {
+            switch (transform) {
+                case "max":
+                    spellAspect = computeHighestPossibleDiceRoll(spellAspect);
+            } 
+        }  
+    });
+
     const amount = convertDiceRollWithTypeToValue(spellAspect);
     if (!amount) {
         return 0;
@@ -1523,6 +1547,30 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
             actionAspect = addDiceObjectsWithTypeTogether(actionAspect, aspectBonus);
         });
     }
+
+    findAllConfiguredAspects(playerConfigs, aspectName + "Transform", additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { featureAction, playerConfigForObject, additionalEffects, ...additionalParams });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let transforms;
+        if (aspectValue.calculation) {
+            transforms = performDiceRollCalculation(aspectPlayerConfigs, aspectValue.calculation, { featureAction, playerConfigForObject, additionalEffects, ...additionalParams });
+        } else {
+            transforms = aspectValue;
+        }
+
+        for (let transform of transforms) {
+            switch (transformType) {
+                case "max":
+                    actionAspect = computeHighestPossibleDiceRoll(actionAspect);
+            } 
+        }  
+    });
 
     const amount = convertDiceRollWithTypeToValue(actionAspect);
     if (!amount) {
@@ -2612,6 +2660,28 @@ export function performDiceRollCalculation(playerConfigs, calculation, parameter
     return diceObject;
 }
 
+export function computeHighestPossibleDiceRoll(diceObjectWithType) {
+    let total = 0;
+    for (let diceType of Object.keys(diceObjectWithType)) {
+        const diceObject = diceObjectWithType[diceType];
+        for (let diceObjectKey of Object.keys(diceObject)) {
+            if (diceObjectKey === "static") {
+                total += diceObject[diceObjectKey];
+            }
+            else if (diceObjectKey.startsWith("d")) {
+                const dieSizeString = diceObjectKey.substring(1);
+                if (isNumeric(dieSizeString)) {
+                    const dieSize = parseInt(dieSizeString);
+                    const highestRoll = dieSize;
+                    const allRolls = diceObject[diceObjectKey] * highestRoll;
+                    total += allRolls;
+                }
+            }
+        }
+    }
+    return total;
+}
+
 export function computeAverageDiceRoll(diceObjectWithType) {
     let total = 0;
     for (let diceType of Object.keys(diceObjectWithType)) {
@@ -2719,6 +2789,10 @@ export function addDiceObjectsTogether(diceObject1, diceObject2) {
 }
 
 export function convertDiceRollWithTypeToValue(diceObjectWithType) {
+    if (isNumeric(diceObjectWithType)) {
+        return diceObjectWithType;
+    }
+
     let valueToReturn = "";
     for (let diceType of Object.keys(diceObjectWithType)) {
         const diceObject = diceObjectWithType[diceType];
