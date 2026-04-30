@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureDesign.css'
 import { SelectList } from "../SimpleComponents/SelectList";
 import { getCollection } from "../../Collections";
-import { calculateAspectCollection, findResource, findResourceFromAllResources, getAllSpellcastingFeatures, getAllSpells, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAspectCollection, findResource, findResourceFromAllResources, getAllLearnedSpells, getAllSpellcastingFeatures, getAllSpells, performBooleanCalculation, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { ChoiceDesign } from "./ChoiceDesign";
 import { getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "../../SharedFunctions/ComponentFunctions";
 import { convertArrayOfStringsToHashMap, convertArrayToDictionary } from "../../SharedFunctions/Utils";
@@ -102,7 +102,9 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
     if (feature.spellcasting) {
         const spellcastingFeatures = getAllSpellcastingFeatures(baseStateObject);
         const alreadyKnownSpells = getAllSpells(baseStateObject, spellcastingFeatures);
+        const alreadyLearnedSpells = getAllLearnedSpells(baseStateObject, spellcastingFeatures);
         const spellName2AlreadyKnownSpell = convertArrayToDictionary(alreadyKnownSpells, "name");
+        const spellName2AlreadyLearnedSpell = convertArrayToDictionary(alreadyLearnedSpells, "name");
 
         const spellcastingAbility = performMathCalculation(baseStateObject, feature.spellcasting.ability.calculation, parameters);
         featureContent.push(<>
@@ -163,6 +165,9 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 if (feature.spellcasting.spellsKnown.validSpellLists && feature.spellcasting.spellsKnown.validSpellLists.length > 0) {
                     validSpells = validSpells.filter(spell => feature.spellcasting.spellsKnown.validSpellLists.some(validSpellList => spell.spellLists.includes(validSpellList)));
                 }
+                if (feature.spellcasting.spellsKnown.validSpellSchools && feature.spellcasting.spellsKnown.validSpellSchools.length > 0) {
+                    validSpells = validSpells.filter(spell => feature.spellcasting.spellsKnown.validSpellSchools.some(validSpellSchools => validSpellSchools.includes(spell.school)));
+                }
                 if (feature.spellcasting.spellsKnown.levelLimit) {
                     const spellLevelLimit = performMathCalculation(baseStateObject, feature.spellcasting.spellsKnown.levelLimit);
                     if (spellLevelLimit) {
@@ -170,7 +175,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                     }
                 }
 
-                const validSpellNames = validSpells.map(cantrip => cantrip.name);
+                const validSpellNames = validSpells.map(spell => spell.name);
 
                 for (let i = 0; i < spellsKnown; i++) {
                     let alreadySelectedSpellName = undefined;
@@ -178,6 +183,98 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                         alreadySelectedSpellName = playerFeatureObject.spells[i];
                     }
                     const filteredSpellNames = validSpellNames.filter(spellName => (alreadySelectedSpellName === spellName) || !spellName2AlreadyKnownSpell[spellName]);
+                    featureContent.push(<>
+                        <SelectList options={filteredSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".spells[" + i + "]"} inputHandler={inputHandler}></SelectList>
+                    </>);
+                }
+            }
+        }
+
+        if (feature.spellcasting.spellsLearned) {
+            let spellsLearned = performMathCalculation(baseStateObject, feature.spellcasting.spellsLearned.calculation, parameters);
+            featureContent.push(<>
+                <div>{spellsLearned} Spell{(spellsLearned > 1 ? "s" : "")} Learned</div>
+            </>);
+
+            const predeterminedSelections = feature.spellcasting.spellsLearned.predeterminedSelections ?? [];
+            for (let predeterminedSelection of predeterminedSelections) {
+                featureContent.push(<>
+                    <div>{rightTriangleUnicode}{predeterminedSelection.spellName}</div>
+                </>);
+            }
+
+            spellsLearned -= predeterminedSelections.length;
+            if (spellsLearned > 0) {
+                let validSpells = getCollection("spells");
+                if (feature.spellcasting.spellsLearned.validSpellLists && feature.spellcasting.spellsLearned.validSpellLists.length > 0) {
+                    validSpells = validSpells.filter(spell => feature.spellcasting.spellsLearned.validSpellLists.some(validSpellList => spell.spellLists.includes(validSpellList)));
+                }
+                if (feature.spellcasting.spellsLearned.validSpellSchools && feature.spellcasting.spellsLearned.validSpellSchools.length > 0) {
+                    validSpells = validSpells.filter(spell => feature.spellcasting.spellsLearned.validSpellSchools.some(validSpellSchools => validSpellSchools.includes(spell.school)));
+                }
+                if (feature.spellcasting.spellsLearned.levelLimit) {
+                    const spellLevelLimit = performMathCalculation(baseStateObject, feature.spellcasting.spellsLearned.levelLimit);
+                    if (spellLevelLimit) {
+                        validSpells = validSpells.filter(spell => spell.level && spell.level <= spellLevelLimit);
+                    }
+                }
+
+                for (let i = 0; i < spellsLearned; i++) {
+                    let alreadySelectedSpellName = undefined;
+                    if (playerFeatureObject && playerFeatureObject.spellsLearned && playerFeatureObject.spellsLearned.length > i) {
+                        alreadySelectedSpellName = playerFeatureObject.spellsLearned[i];
+                    }
+
+                    let validSpellsForIndex = validSpells;
+                    if (feature.spellcasting.spellsLearned.levelLimitByIndex) {
+                        const spellLevelLimit = performMathCalculation(baseStateObject, feature.spellcasting.spellsLearned.levelLimitByIndex, { spellIndex: i });
+                        validSpellsForIndex = validSpellsForIndex.filter(spell => spell.level && spell.level <= spellLevelLimit);
+                    }
+
+                    const validSpellNames = validSpellsForIndex.map(spell => spell.name);
+                    const filteredSpellNames = validSpellNames.filter(spellName => (alreadySelectedSpellName === spellName) || !(spellName2AlreadyKnownSpell[spellName] || spellName2AlreadyLearnedSpell[spellName]));
+
+                    featureContent.push(<>
+                        <SelectList options={filteredSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".spellsLearned[" + i + "]"} inputHandler={inputHandler}></SelectList>
+                    </>);
+                }
+            }
+        }
+
+        if (feature.spellcasting.spellsPrepared) {
+            let spellsPrepared = performMathCalculation(baseStateObject, feature.spellcasting.spellsPrepared.calculation, parameters);
+            featureContent.push(<>
+                <div>{spellsPrepared} Spell{(spellsPrepared > 1 ? "s" : "")} Prepared</div>
+            </>);
+
+            const predeterminedSelections = feature.spellcasting.spellsPrepared.predeterminedSelections ?? [];
+            for (let predeterminedSelection of predeterminedSelections) {
+                featureContent.push(<>
+                    <div>{rightTriangleUnicode}{predeterminedSelection.spellName}</div>
+                </>);
+            }
+
+            spellsPrepared -= predeterminedSelections.length;
+            if (spellsPrepared > 0) {
+                let validSpells = getCollection("spells");
+                if (feature.spellcasting.spellsPrepared.validSpellLists && feature.spellcasting.spellsPrepared.validSpellLists.length > 0) {
+                    validSpells = validSpells.filter(spell => feature.spellcasting.spellsPrepared.validSpellLists.some(validSpellList => spell.spellLists.includes(validSpellList)));
+                }
+                if (feature.spellcasting.spellsPrepared.levelLimit) {
+                    const spellLevelLimit = performMathCalculation(baseStateObject, feature.spellcasting.spellsPrepared.levelLimit);
+                    if (spellLevelLimit) {
+                        validSpells = validSpells.filter(spell => spell.level && spell.level <= spellLevelLimit);
+                    }
+                }
+
+                const validSpellNames = validSpells.map(spell => spell.name);
+
+                for (let i = 0; i < spellsPrepared; i++) {
+                    let alreadySelectedSpellName = undefined;
+                    if (playerFeatureObject && playerFeatureObject.spells && playerFeatureObject.spells.length > i) {
+                        alreadySelectedSpellName = playerFeatureObject.spells[i];
+                    }
+                    const filteredSpellNames = validSpellNames.filter(spellName => (alreadySelectedSpellName === spellName) || (!spellName2AlreadyKnownSpell[spellName] && !spellName2AlreadyLearnedSpell[spellName]));
                     featureContent.push(<>
                         <SelectList options={filteredSpellNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".spells[" + i + "]"} inputHandler={inputHandler}></SelectList>
                     </>);

@@ -2153,7 +2153,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         if (dndBackground.feat) {
             const dndfeat = featMap[dndBackground.feat];
             if (dndfeat) {
-                processFeat(playerConfigs, aspectName, dndBackground.feat, playerConfigs.background, "background", "featMap", { featMap, eldrichinvocationMap }, onAspectFound);
+                processFeat(playerConfigs, aspectName, dndBackground.feat, dndfeat, "background", "featMap", { featMap, eldrichinvocationMap }, onAspectFound);
             }
         }
     }
@@ -3334,6 +3334,98 @@ export function getAllSpells(playerConfigs, spellcastingFeatures) {
                                 spellToAdd.freeUses = performMathCalculation(playerConfigs, spellcasting.spellsKnown.freeUses.calculation);
                             } else if (spellcasting.spellsKnown.freeUses > 0) {
                                 spellToAdd.freeUses = spellcasting.spellsKnown.freeUses;
+                            }
+                        }
+                        addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
+                    }
+                }
+            }
+        }
+
+        if (spellcasting.spellsPrepared) {
+            if (spellcasting.spellsPrepared.predeterminedSelections && spellcasting.spellsPrepared.predeterminedSelections.length > 0) {
+                for (let predeterminedSelection of spellcasting.spellsPrepared.predeterminedSelections) {
+                    // Check that the spell exists before adding it.
+                    if (spellName2Spell[predeterminedSelection.spellName]) {
+                        const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
+                        spellToAdd.feature = spellcastingFeature.feature;
+                        if (predeterminedSelection.freeUses) {
+                            if (predeterminedSelection.freeUses.calculation) {
+                                spellToAdd.freeUses = performMathCalculation(playerConfigs, predeterminedSelection.freeUses.calculation);
+                            } else if (predeterminedSelection.freeUses > 0) {
+                                spellToAdd.freeUses = predeterminedSelection.freeUses;
+                            }
+                        }
+                        addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
+                    }
+                }
+            }
+
+            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel ?? "");
+            const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
+            if (userInputForSpells && userInputForSpells.spells) {
+                for (let spellName of userInputForSpells.spells) {
+                    if (spellName) {
+                        const spellToAdd = {...spellName2Spell[spellName]};
+                        spellToAdd.feature = spellcastingFeature.feature;
+                        if (spellcasting.spellsPrepared.freeUses) {
+                            if (spellcasting.spellsPrepared.freeUses.calculation) {
+                                spellToAdd.freeUses = performMathCalculation(playerConfigs, spellcasting.spellsPrepared.freeUses.calculation);
+                            } else if (spellcasting.spellsPrepared.freeUses > 0) {
+                                spellToAdd.freeUses = spellcasting.spellsPrepared.freeUses;
+                            }
+                        }
+                        addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
+                    }
+                }
+            }
+        }
+    }
+
+    const allPlayerSpells = sortedCantripsCollection.concat(sortedSpellsCollection);
+    return allPlayerSpells;
+}
+
+export function getAllLearnedSpells(playerConfigs, spellcastingFeatures) {
+    // Get all spells built into dictionaries for instant lookup.
+    const spellName2Spell = getNameDictionaryForCollection("spells");
+
+    // Get each of the features with the same spellcasting modifiers together.
+    const sortedCantripsCollection = [];
+    const sortedSpellsCollection = [];
+    for (let spellcastingFeature of spellcastingFeatures) {
+        const spellcasting = spellcastingFeature.feature.spellcasting;
+        if (spellcasting.spellsLearned) {
+            if (spellcasting.spellsLearned.predeterminedSelections && spellcasting.spellsLearned.predeterminedSelections.length > 0) {
+                for (let predeterminedSelection of spellcasting.spellsLearned.predeterminedSelections) {
+                    // Check that the spell exists before adding it.
+                    if (spellName2Spell[predeterminedSelection.spellName]) {
+                        const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
+                        spellToAdd.feature = spellcastingFeature.feature;
+                        if (predeterminedSelection.freeUses) {
+                            if (predeterminedSelection.freeUses.calculation) {
+                                spellToAdd.freeUses = performMathCalculation(playerConfigs, predeterminedSelection.freeUses.calculation);
+                            } else if (predeterminedSelection.freeUses > 0) {
+                                spellToAdd.freeUses = predeterminedSelection.freeUses;
+                            }
+                        }
+                        addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
+                    }
+                }
+            }
+
+            const featurePropertyName = spellcastingFeature.feature.name.replace(/\s/g, "") + (spellcastingFeature.feature.level ?? spellcastingFeature.feature.classLevel ?? "");
+            const userInputForSpells = spellcastingFeature.playerConfigForObject.features ? spellcastingFeature.playerConfigForObject.features[featurePropertyName] : undefined;
+            if (userInputForSpells && userInputForSpells.spells) {
+                for (let spellName of userInputForSpells.spells) {
+                    if (spellName) {
+                        const spellToAdd = {...spellName2Spell[spellName]};
+                        spellToAdd.feature = spellcastingFeature.feature;
+                        if (spellcasting.spellsLearned.freeUses) {
+                            if (spellcasting.spellsLearned.freeUses.calculation) {
+                                spellToAdd.freeUses = performMathCalculation(playerConfigs, spellcasting.spellsLearned.freeUses.calculation);
+                            } else if (spellcasting.spellsLearned.freeUses > 0) {
+                                spellToAdd.freeUses = spellcasting.spellsLearned.freeUses;
                             }
                         }
                         addSpellToSortedCollection(sortedSpellsCollection, spellToAdd);
