@@ -148,17 +148,27 @@ export function ItemMenu({sessionId, playerConfigs, inputChangeHandler, setCente
     }
 
     if (itemsProperty && menuConfig.showNotes) {
-        let pathToItemNotes = "";
+        let pathToItem = ""
         if (menuConfig.pathToProperty) {
-            pathToItemNotes += menuConfig.pathToProperty + ".";
+            pathToItem += menuConfig.pathToProperty;
         }
-        pathToItemNotes += "items[" + menuConfig.itemIndex + "].notes";
+        if (pathToItem.length > 0) {
+            const parentItemConfig = getValueFromObjectAndPath(playerConfigs, pathToItem);
+            const itemName2Item = getNameDictionaryForCollection("items");
+            let parentDndItem = itemName2Item[parentItemConfig.name];
+            parentDndItem = getItemFromItemTemplate(parentDndItem, itemName2Item);
+            if (parentDndItem.childItems) {
+                pathToItem += ".childItems[" + menuConfig.itemIndex + "]";
+            } else {
+                pathToItem += ".items[" + menuConfig.itemIndex + "]";
+            }
+            
+        } else {
+            pathToItem += "items[" + menuConfig.itemIndex + "]";
+        }
 
-        let pathToItemCustomName = "";
-        if (menuConfig.pathToProperty) {
-            pathToItemCustomName += menuConfig.pathToProperty + ".";
-        }
-        pathToItemCustomName += "items[" + menuConfig.itemIndex + "].customName";
+        const pathToItemNotes = pathToItem + ".notes";
+        const pathToItemCustomName = pathToItem + ".customName";
 
         const displayConfigs = menuConfig.newPlayerConfigs ? {...menuConfig.newPlayerConfigs} : {...playerConfigs};
         userInteraction.push(<>
