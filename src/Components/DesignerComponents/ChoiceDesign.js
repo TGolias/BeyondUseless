@@ -41,7 +41,7 @@ const customOptionDisplays = [
     }
 ]
 
-export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerConfigObjectForChoices, inputHandler}) {
+export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerConfigObjectForChoices, inputHandler, parameters = {}}) {
     if (!choiceObject) {
         return (<><div></div></>);
     }
@@ -83,7 +83,7 @@ export function ChoiceDesign({baseStateObject, choiceObject, pathToPlayerConfigO
                 if (isNumeric(choice.multipleSelections)) {
                     numberOfSelections = choice.multipleSelections;
                 } else {
-                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calculation, playerConfigObjectForChoices);
+                    numberOfSelections = performMathCalculation(baseStateObject, choice.multipleSelections.calculation, { ...playerConfigObjectForChoices, ...parameters });
                 }
 
                 const selectLists = [];

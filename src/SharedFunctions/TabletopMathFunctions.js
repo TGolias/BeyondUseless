@@ -5,6 +5,7 @@ import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreNam
 import { GetEquippedItems, GetHeldItems, GetHeldItemsWithPlayerItem, GetOpenHands } from "./EquipmentFunctions";
 import { GetMaxUsesForResource, GetRemainingUsesForResource } from "./ResourcesFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
+import { GetFeaturePropertyNameFromFeature } from "./FeatureFunctions"
 
 const rightTriangleUnicode = '\u25B6';
 
@@ -442,18 +443,32 @@ export function getAllPlayerDNDClasses(playerConfigs) {
 export function getSpellcastingLevel(playerConfigs) {
     let spellcastingLevel = 0;
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+
     for (let i = 0; i < dndClasses.length; i++) {
         const dndClass = dndClasses[i];
         if (dndClass.spellSlotLevelProgression) {
             const classLevels = playerConfigs.classes[i].levels;
-            if (dndClass.spellSlotLevelProgression > 2) {
-                // Round Down. These are from subclass casting.
-                const levelsToAdd = Math.floor(classLevels / dndClass.spellSlotLevelProgression);
-                spellcastingLevel += levelsToAdd;
-            } else {
-                // Round Up. This is a full or half caster.
-                const levelsToAdd = Math.ceil(classLevels / dndClass.spellSlotLevelProgression);
-                spellcastingLevel += levelsToAdd;
+            const levelsToAdd = Math.ceil(classLevels / dndClass.spellSlotLevelProgression);
+            spellcastingLevel += levelsToAdd;
+        }
+
+        // Check for subclasses with Spellcasting
+        if (dndClass.features) {
+            const subclassFeatures = dndClass.features.filter(feature => feature.subclass);
+            if (subclassFeatures) {
+                const subclassesMap = getNameDictionaryForCollection("subclasses");
+                for (let subclassFeature of subclassFeatures) {
+                    const subclassFeaturePropertyName = GetFeaturePropertyNameFromFeature(playerConfigs.classes[i], subclassFeature);
+                    const subclassName = playerConfigs.classes[i].features && playerConfigs.classes[i].features[subclassFeaturePropertyName] ? playerConfigs.classes[i].features[subclassFeaturePropertyName].name : undefined
+                    if (subclassName) {
+                        const subclass = subclassesMap[subclassName];
+                        if (subclass.spellSlotLevelProgression) {
+                            const subclassLevels = playerConfigs.classes[i].levels;
+                            const levelsToAdd = Math.ceil(subclassLevels / subclass.spellSlotLevelProgression);
+                            spellcastingLevel += levelsToAdd;
+                        }
+                    }
+                }
             }
         }
     }
@@ -2119,7 +2134,14 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                             const dndSubclass = subclassMap[selectedSubclass];
                             if (dndSubclass) {
                                 if (dndSubclass[aspectName]) {
-                                    onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
+                                    // This sucks, but we want to do of the class properties for the subclass here: We unfortunetly are setting all subclass configuration on the base class. So let's start with the class then overwrite with any properties from the subclass.
+                                    const actualPlayerConfigForSubclassObject = playerConfigs.classes[i].features[featurePropertyName];
+                                    const psuedoPlayerConfigForSubclassObject = { ...playerConfigs.classes[i] };
+                                    for (const property of Object.keys(actualPlayerConfigForSubclassObject)) {
+                                        psuedoPlayerConfigForSubclassObject[property] = actualPlayerConfigForSubclassObject[property];
+                                    }
+
+                                    onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", psuedoPlayerConfigForSubclassObject);
                                 }
 
                                 if (dndSubclass.choices) {

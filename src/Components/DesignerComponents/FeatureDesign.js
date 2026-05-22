@@ -311,7 +311,7 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
 
     if (feature.choices) {
         featureContent.push(<>
-            <ChoiceDesign baseStateObject={baseStateObject} choiceObject={feature} pathToPlayerConfigObjectForChoices={pathToFeatureProperty} inputHandler={inputHandler}></ChoiceDesign>
+            <ChoiceDesign baseStateObject={baseStateObject} choiceObject={feature} pathToPlayerConfigObjectForChoices={pathToFeatureProperty} inputHandler={inputHandler} parameters={parameters}></ChoiceDesign>
         </>);
     }
 
@@ -331,6 +331,12 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
             <div className="featureSelectList">
                 <SelectList options={subclassesForClassNames} isNumberValue={false} baseStateObject={baseStateObject} pathToProperty={pathToFeatureProperty + ".name"} inputHandler={inputHandler}></SelectList>
             </div>
+        </>);
+    }
+
+    if (featureContent.length === 0) {
+        featureContent.push(<>
+            <div>{rightTriangleUnicode}{feature.name}</div>
         </>);
     }
 

@@ -52,6 +52,8 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
         }
     }
 
+    const resourcesForThisLevel = dndclass.resourcesPerLevel ? dndclass.resourcesPerLevel[classLevel - 1] : {};
+
     const classFeatureRows = [];
     if (dndclass.features) {
         const classFeatures = dndclass.features;
@@ -67,6 +69,15 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
                 if (subclassName) {
                     const subclass = subclassesMap[subclassName];
                     featuresFromSubclasses = [...featuresFromSubclasses, ...subclass.features];
+
+                    if (subclass.resourcesPerLevel) {
+                        const subclassResourcesForThisLevel = subclass.resourcesPerLevel[classLevel - 1];
+                        for (const resource of Object.keys(subclassResourcesForThisLevel)) {
+                            if (resource !== "classLevel") {
+                                resourcesForThisLevel[resource] = subclassResourcesForThisLevel[resource];
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -81,8 +92,6 @@ export function ClassDesign({baseStateObject, inputHandler, classIndex}) {
                 const featurePropertyName = GetFeaturePropertyNameFromFeature(baseStateObject, classFeature);
                 const pathToClassFeatureProperty = "classes[" + classIndex + "].features." + featurePropertyName;
                 const playerClassFeatureObject = playerClassObject.features ? playerClassObject.features[featurePropertyName] : undefined;
-
-                const resourcesForThisLevel = dndclass.resourcesPerLevel ? dndclass.resourcesPerLevel[classLevel - 1] : {};
 
                 classFeatureRows.push(<>
                     <div className="classFeatureHolder">

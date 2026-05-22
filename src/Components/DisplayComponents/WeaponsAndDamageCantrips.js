@@ -2,7 +2,7 @@ import React from 'react';
 import './WeaponsAndDamageCantrips.css';
 import { getCollection, getNameDictionaryForCollection } from '../../Collections';
 import { addLeadingPlusIfNumericAndPositive, playAudio } from '../../SharedFunctions/Utils';
-import { calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate } from '../../SharedFunctions/TabletopMathFunctions';
+import { calculateAttackRollForAttackRollType, calculateOtherSpellAspect, calculateSpellSaveDC, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage, calculateWeaponAttackBonus, calculateWeaponDamage, getAllSpellcastingFeatures, getAllSpells, getItemFromItemTemplate, performBooleanCalculation } from '../../SharedFunctions/TabletopMathFunctions';
 import { GetEquippedItemsWithIndexAndPaths, GetOpenHands } from '../../SharedFunctions/EquipmentFunctions';
 import { RetroButton } from '../SimpleComponents/RetroButton';
 
@@ -135,6 +135,15 @@ function processAllWeapons(playerConfigs, itemName2Item, weaponAttackCantrip, we
     for (let itemWithIndexAndPath of GetEquippedItemsWithIndexAndPaths(playerConfigs.items)) {
         const dndItem = itemWithIndexAndPath.item;
         if (dndItem.type === "Weapon") {
+
+            if (weaponAttackCantrip?.weaponAttack?.conditions) {
+                const conditionMet = performBooleanCalculation(playerConfigs, weaponAttackCantrip?.weaponAttack?.conditions, { weapon: dndItem });
+                if (!conditionMet) {
+                    // This weapon isn't valid for the cantrip. Skip it.
+                    continue;
+                }
+            }
+
             hasWeapons = true;
 
             // Weapons that are "Ranged" and "Thrown" are thrown only. That is the only group that we do not do the non-thrown calculation for.
