@@ -1580,7 +1580,7 @@ export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, 
         }
 
         for (let transform of transforms) {
-            switch (transformType) {
+            switch (transform) {
                 case "max":
                     actionAspect = computeHighestPossibleDiceRoll(actionAspect);
             } 
