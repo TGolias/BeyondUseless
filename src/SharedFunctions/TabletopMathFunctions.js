@@ -1386,7 +1386,7 @@ export function calculateSpellAttack(playerConfigs, additionalEffects, spell, is
 
     if (spellToUse.challengeType.includes("attackRoll")) {
         if (!spellToUse.attackRollIsMelee) {
-            const spellRange = calculateRange(playerConfigsToUse, additionalEffects, spell.range);
+            const spellRange = calculateRange(playerConfigsToUse, additionalEffects, spell.range, { spell });
             // TODO: Need to differentiate between melee and ranged spell attacks.
             if (isNumeric(spellRange) && spellRange > 5) {
                 const miscMap = getNameDictionaryForCollection("misc");
