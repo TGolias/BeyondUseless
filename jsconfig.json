@@ -1,7 +1,13 @@
 {
     "compilerOptions": {
         "jsx": "react",
-        "checkJs": false
+        "checkJs": true,
+        "noImplicitAny": false,
+        "noUncheckedSideEffectImports": false,
+        "exactOptionalPropertyTypes": false,
+        "strictFunctionTypes": false,
+        "strict": false,
+        "noStrictGenericChecks": false
     },
     "exclude": ["node_modules", "**/node_modules/*"]
 }

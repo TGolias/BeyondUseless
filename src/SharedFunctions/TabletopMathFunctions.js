@@ -2119,6 +2119,8 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
             });
         }
 
+        // We will hold onto our subclass features and loop through them later, so that they display in the right place in the menus (after the base class features)
+        const subclassFeatureObjects = []
         if (allDndClassFeatures) {
             for (let j = 0; j < allDndClassFeatures.length; j++) {
                 const classFeature = allDndClassFeatures[j];
@@ -2129,32 +2131,41 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                     processFeature(playerConfigs, aspectName, classFeature, playerConfigs.classes[i], "classes[" + i + "]", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
 
                     if (classFeature.subclass) {
-                        const selectedSubclass = classFeaturePlayerConfig?.name;
-                        if (selectedSubclass) {
-                            const dndSubclass = subclassMap[selectedSubclass];
-                            if (dndSubclass) {
-                                if (dndSubclass[aspectName]) {
-                                    // This sucks, but we want to do of the class properties for the subclass here: We unfortunetly are setting all subclass configuration on the base class. So let's start with the class then overwrite with any properties from the subclass.
-                                    const actualPlayerConfigForSubclassObject = playerConfigs.classes[i].features[featurePropertyName];
-                                    const psuedoPlayerConfigForSubclassObject = { ...playerConfigs.classes[i] };
-                                    for (const property of Object.keys(actualPlayerConfigForSubclassObject)) {
-                                        psuedoPlayerConfigForSubclassObject[property] = actualPlayerConfigForSubclassObject[property];
-                                    }
+                        subclassFeatureObjects.push({ classFeaturePlayerConfig, featurePropertyName })
+                    }
+                }
+            }
+        }
 
-                                    onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", psuedoPlayerConfigForSubclassObject);
-                                }
+        for (const subclassFeatureObject of subclassFeatureObjects) {
+            const classFeaturePlayerConfig = subclassFeatureObject.classFeaturePlayerConfig;
+            const featurePropertyName = subclassFeatureObject.featurePropertyName;
 
-                                if (dndSubclass.choices) {
-                                    findAspectsFromChoice(playerConfigs, dndSubclass, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "subclass", classFeaturePlayerConfig.choices));
-                                }
+            const selectedSubclass = classFeaturePlayerConfig?.name;
+            if (selectedSubclass) {
+                const dndSubclass = subclassMap[selectedSubclass];
+                if (dndSubclass) {
+                    if (dndSubclass[aspectName]) {
+                        // This sucks, but we want to do of the class properties for the subclass here: We unfortunetly are setting all subclass configuration on the base class. So let's start with the class then overwrite with any properties from the subclass.
+                        const actualPlayerConfigForSubclassObject = playerConfigs.classes[i].features[featurePropertyName];
+                        const psuedoPlayerConfigForSubclassObject = { ...playerConfigs.classes[i] };
+                        for (const property of Object.keys(actualPlayerConfigForSubclassObject)) {
+                            psuedoPlayerConfigForSubclassObject[property] = actualPlayerConfigForSubclassObject[property];
+                        }
 
-                                if (dndSubclass.features) {
-                                    // TODO: We really need to unify the logic for looking through features.
-                                    for (const subclassFeature of dndSubclass.features) {
-                                        if (subclassFeature[aspectName]) {
-                                            onAspectFound(playerConfigs, subclassFeature[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
-                                        }
-                                    }
+                        onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", psuedoPlayerConfigForSubclassObject);
+                    }
+
+                    if (dndSubclass.choices) {
+                        findAspectsFromChoice(playerConfigs, dndSubclass, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "subclass", classFeaturePlayerConfig.choices));
+                    }
+
+                    if (dndSubclass.features) {
+                        // TODO: We really need to unify the logic for looking through features.
+                        for (const subclassFeature of dndSubclass.features) {
+                            if (!subclassFeature.classLevel || subclassFeature.classLevel <= playerConfigs.classes[i].levels) {
+                                if (subclassFeature[aspectName]) {
+                                    onAspectFound(playerConfigs, subclassFeature[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
                                 }
                             }
                         }

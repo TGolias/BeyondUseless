@@ -1,4 +1,4 @@
-import { calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllConsumableActionItems, getAllFeatures, getAllSpellcastingFeatures, getItemFromItemTemplate, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAspectCollection, calculateBaseStat, calculateInitiativeBonus, calculatePassivePerception, calculateProficiencyBonus, calculateSize, calculateSpeed, getAllActionFeatures, getAllConsumableActionItems, getAllFeatures, getAllSpellcastingFeatures, getItemFromItemTemplate, getPactSlotLevel, getSpellcastingLevel } from "../../SharedFunctions/TabletopMathFunctions";
 import './Renderer.css';
 import React from "react";
 import { StatDisplay } from "../DisplayComponents/StatDisplay";
@@ -115,12 +115,25 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             name: "Basic Attacks",
             showTab: () => true,
             generateTab: () => {
-                return <>
-                    <div className="outerDiv singleTabContent">
-                        <div>
-                            <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
-                        </div>
+                const divs = [];
+
+                const basicAttacksMenuAddendum = parseStringForBoldMarkup(calculateAddendumAspect(playerConfigs, "basicAttacksMenuAddendum", []));
+                if (basicAttacksMenuAddendum) {
+                    divs.push(<>
+                                <div className="textEntry">
+                                    <div className="textWithLinesWrapper">{basicAttacksMenuAddendum}</div>
+                                </div>
+                            </>);
+                }
+
+                divs.push(<>
+                    <div>
+                        <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
                     </div>
+                </>);
+                
+                return <>
+                    <div className="outerDiv singleTabContent">{divs}</div>
                 </>
             }
         },
