@@ -171,6 +171,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
     let weaponAttackThrownAddendum = undefined;
     let weaponDamageThrown = undefined;
     let lightWeaponDamageThrown = undefined;
+    let damageAddendum = undefined;
 
     let healing = undefined;
     let healingAddendum = undefined;
@@ -215,6 +216,14 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                             cleaveWeaponDamage = calculateWeaponDamage(playerConfigs, item, false, false, true, additionalEffects);
                         }
                     }
+
+                    if (weaponDamage || lightWeaponDamage || cleaveWeaponDamage) {
+                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], additionalEffects, { weapon: item, userInput: data.userInput });
+                        if (damageAddendumString) {
+                            damageAddendum = parseStringForBoldMarkup(damageAddendumString);
+                        }
+                    }
+
                     showItemSummary = true;
                 }
 
@@ -372,6 +381,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             </div>
             <div className="itemPageDescription" style={{display: (cleaveWeaponDamage ? "block" : "none")}}>
                 <div><b>Cleave Damage:</b> {cleaveWeaponDamage}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (damageAddendum ? "block" : "none")}}>
+                <div>{damageAddendum}</div>
             </div>
             <br style={{display: (weaponAttackThrown ? "block" : "none")}}></br>
             <div className="itemPageDescription" style={{display: (weaponAttackThrown ? "block" : "none")}}>

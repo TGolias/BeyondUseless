@@ -1,6 +1,6 @@
 import React from "react";
 import './UnarmedStrikePageComponent.css';
-import { calculateAddendumAspect, calculateRange, calculateSavingThrowTypes, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateRange, calculateSavingThrowTypes, calculateUnarmedAttackBonus, calculateUnarmedAttackDC, calculateUnarmedDamage } from "../../SharedFunctions/TabletopMathFunctions";
 import { parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { getHomePageUrl } from "../../SharedFunctions/Utils";
 import { getNameDictionaryForCollection } from "../../Collections";
@@ -34,6 +34,7 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
     let savingThrowDc = undefined;
     let savingThrowDcAddendum = undefined;
     let unarmedDamage = undefined;
+    let damageAddendum = undefined;
     let debuffDescription = undefined;
 
     if (playerConfigs) {
@@ -61,6 +62,13 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
         if (unarmedStrike.type.includes("damage")) {
             unarmedDamage = calculateUnarmedDamage(playerConfigs);
             unarmedDamage += " Bludgeoning";
+
+            if (unarmedDamage) {
+                const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], [], { unarmedStrike, range });
+                if (damageAddendumString) {
+                    damageAddendum = parseStringForBoldMarkup(damageAddendumString);
+                }
+            }
         }
 
         if (unarmedStrike.type.includes("debuff")) {
@@ -105,6 +113,9 @@ export function UnarmedStrikePageComponent({unarmedStrike, playerConfigs, copyLi
             </div>
             <div className="unarmedAttackPageDescription" style={{display: (unarmedDamage ? "block" : "none")}}>
                 <div><b>Damage:</b> {unarmedDamage}</div>
+            </div>
+            <div className="unarmedAttackPageDescription" style={{display: (damageAddendum ? "block" : "none")}}>
+                <div>{damageAddendum}</div>
             </div>
             <div className="unarmedAttackPageDescription" style={{display: (debuffDescription ? "block" : "none")}}>
                 <div><b>Debuff:</b> {parseStringForBoldMarkup(debuffDescription)}</div>

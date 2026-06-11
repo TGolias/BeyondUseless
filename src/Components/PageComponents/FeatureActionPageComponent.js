@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 import { GetCurrentVariableValue, GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
@@ -46,6 +46,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         };
     }
 
+    let duration = undefined;
+    let durationAddendum = undefined;
     let featureActionDescriptionAddendum = undefined;
     let actionConditionAddendum = undefined;
     let attackRoll = undefined;
@@ -54,6 +56,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let savingThrowDc = undefined;
     let savingThrowDcAddendum = undefined;
     let damage = undefined;
+    let damageAddendum = undefined;
     let healing = undefined;
     let healingAddendum = undefined;
     let restore = undefined
@@ -66,6 +69,13 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let restoreSpellSlot = undefined;
     let restoreResource = undefined;
     let targetNames = undefined;
+
+    duration = calculateDuration(playerConfigs, featureAction.duration, [], { featureAction, range });
+    const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", [], { featureAction, range, duration });
+    if (durationAddendumString) {
+        durationAddendum = parseStringForBoldMarkup(durationAddendumString);
+    }
+
     if (data && playerConfigs) {
         const featureActionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "featureActionDescriptionAddendum", [], { featureAction });
         if (featureActionDescriptionAddendumString) {
@@ -113,7 +123,14 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         }
 
         if (featureAction.type.includes("damage")) {
-            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", [], { userInput: data.userInput });
+            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", [], { userInput: data.userInput });3
+
+            if (damage) {
+                const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], [], { userInput: data.userInput, featureAction, range });
+                if (damageAddendumString) {
+                    damageAddendum = parseStringForBoldMarkup(damageAddendumString);
+                }
+            }
         }
 
         if (featureAction.type.includes("buff")) {
@@ -274,7 +291,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             <div style={{display: (actionCondition ? "block" : "none")}}>{actionCondition}</div>
             <div style={{display: (actionConditionAddendum ? "block" : "none")}}>{actionConditionAddendum}</div>
             <div><b>Range:</b> {range}</div>
-            <div><b>Duration:</b> {featureAction.duration}</div>
+            <div><b>Duration:</b> {duration}</div>
+            <div style={{display: (durationAddendum ? "block" : "none")}}>{durationAddendum}</div>
             <div className="featureActionPageDescription" style={{display: (description.length ? "block" : "none")}}>{description}</div>
             <div className="featureActionPageDescription" style={{display: (featureActionDescriptionAddendum ? "block" : "none")}}>{featureActionDescriptionAddendum}</div>
             <br></br>
@@ -295,6 +313,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="featureActionPageDescription" style={{display: (damage ? "block" : "none")}}>
                 <div><b>Damage:</b> {damage}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: (damageAddendum ? "block" : "none")}}>
+                <div>{damageAddendum}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
