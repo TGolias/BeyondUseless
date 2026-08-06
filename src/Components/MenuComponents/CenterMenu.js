@@ -34,6 +34,7 @@ import { CustomItemMenu } from "./CustomItemMenu";
 import { MoveItemsMenu } from "./MoveItemsMenu";
 import { TransferItemsMenu } from "./TransferItemsMenu";
 import { ResourcesMenu } from "./ResourcesMenu";
+import { AccessibilityMenu } from "./AccessibilityMenu";
 
 const menuCollection = {
     HealthMenu: {
@@ -648,7 +649,24 @@ const menuCollection = {
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
             return (<><ResourcesMenu playerConfigs={playerConfigs} inputChangeHandler={inputChangeHandler} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler} setCenterScreenMenu={setCenterScreenMenu}></ResourcesMenu></>);
         }
-    }
+    },
+    AccessibilityMenu: {
+        // TODO: Font Flavor - Form or Function
+        // Font Size Slider
+        createMenuTitle: (playerConfigs, data, menuConfig) => {
+            const titleName = "Link Cable";
+            return (<>
+                <div className="menuTitleBarTitle">{titleName}</div>
+            </>)
+        },
+        createDefaultMenuConfig: (playerConfigs, data) => {
+            const newItemMenu = {};
+            return newItemMenu;
+        },
+        createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
+            return (<><AccessibilityMenu setCenterScreenMenu={setCenterScreenMenu}></AccessibilityMenu></>);
+        }
+    },
 }
 
 const defaultMenuConfig = {

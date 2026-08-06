@@ -48,6 +48,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
         };
     }
 
+    let actionDescriptionAddendum = undefined;
     let actionConditionAddendum = undefined;
     let showActionSummary = false;
     let buffAmount = undefined;
@@ -58,6 +59,11 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
     let skillsDescription = "";
 
     if (data && playerConfigs) {
+        const actionDescriptionAddendumString = calculateAddendumAspect(playerConfigs, "actionDescriptionAddendum", [], { action });
+        if (actionDescriptionAddendumString) {
+            actionDescriptionAddendum = parseStringForBoldMarkup(actionDescriptionAddendumString);
+        }
+
         const actionConditionAddendumString = calculateAddendumAspect(playerConfigs, "actionConditionAddendum", [], { action });
         if (actionConditionAddendumString) {
             actionConditionAddendum = parseStringForBoldMarkup(actionConditionAddendumString);
@@ -95,6 +101,7 @@ export function ActionPageComponent({action, copyLinkToItem, data, playerConfigs
             <div style={{display: (actionCondition ? "block" : "none")}}>{actionCondition}</div>
             <div style={{display: (actionConditionAddendum ? "block" : "none")}}>{actionConditionAddendum}</div>
             <div className="actionPageDescription">{description}</div>
+            <div className="actionPageDescription" style={{display: (actionDescriptionAddendum ? "block" : "none")}}>{actionDescriptionAddendum}</div>
             <div className="actionPageDescription" style={{display: (skillDescriptionRows.length ? "block" : "none")}}>{skillDescriptionRows}</div>
             <div className="actionPageDescription" style={{display: (conditionsRows.length ? "block" : "none")}}>{conditionsRows}</div>
             <br style={{display: (showActionSummary ? "block" : "none")}}></br>

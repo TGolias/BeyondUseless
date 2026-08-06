@@ -760,6 +760,13 @@ export default function App() {
       }
     },
     {
+      text: "A11Y",
+      clickHandler: () => {
+        setShowStartMenu(false);
+        setCenterScreenMenu({ show: true, menuType: "AccessibilityMenu", overrides: undefined, data: {} });
+      }
+    },
+    {
       text: (isSoundMuted ? "SOUND ON" : "SOUND OFF"),
       clickHandler: () => {
         const newMuteValue = !isSoundMuted;

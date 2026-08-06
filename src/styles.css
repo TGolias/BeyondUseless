@@ -19,6 +19,11 @@ body {
   overscroll-behavior: contain;
 }
 
+/* body * {
+  font-family: 'Helvetica';
+  font-size: 23px;
+} */
+
 h2 {
     font-size: 1.25em;
 }
