@@ -2044,11 +2044,41 @@ function setAspectCollectionFromArrayOrProperty(aspectPlayerConfigs, totalAspect
     }
 }
 
-let findAllConfiguredAspects_collections = undefined;
-let findAllConfiguredAspects_lastAspects = {};
-let findAllConfiguredAspects_levelsDeep = 0;
+let findAllConfiguredAspects_activeEffectsTracking_collections = undefined;
+let findAllConfiguredAspects_activeEffectsTracking_lastAspects = {};
+let findAllConfiguredAspects_activeEffectsTracking_levelsDeep = 0;
 
-function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, onAspectFound) {
+let findAllConfiguredAspects_savedPlayerConfigsString = undefined;
+let findAllConfiguredAspects_savedResponses = {};
+
+function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, onAspectFoundCallback) {
+    // This is all logic to cache calculations we've already completed for each configuration.
+    const playerConfigsString = JSON.stringify(playerConfigs);
+    const aspectPlusAdditionalEffectsString = aspectName + JSON.stringify(additionalEffects);
+    if (findAllConfiguredAspects_savedPlayerConfigsString === playerConfigsString) {
+        if (findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString]) {
+            for (const aspectFound of findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString]) {
+                onAspectFoundCallback(aspectFound.aspectPlayerConfigs, aspectFound.aspectValue, aspectFound.typeFoundOn, aspectFound.playerConfigForObject);
+            }
+            return;
+        }
+    } else {
+        findAllConfiguredAspects_savedPlayerConfigsString = playerConfigsString;
+        findAllConfiguredAspects_savedResponses = {};
+    }
+
+    findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString] = [];
+    const onAspectFound = (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString].push({
+            aspectPlayerConfigs,
+            aspectValue,
+            typeFoundOn,
+            playerConfigForObject
+        });
+
+        onAspectFoundCallback(aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject);
+    }
+
     // TODO: Instead of playerConfigForObject, we can pass multiple parameters and be a bit more specific. This is going to require a lot of work and an overhaul to our configs as well but will make everything so much cleaner and easier to use, write and read.
     const backgroundMap = getNameDictionaryForCollection("backgrounds");
     const speciesMap = getNameDictionaryForCollection("species");
@@ -2269,7 +2299,7 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     // There's likely a better solution than what I have implemented here. We basically don't allow a lower callstack to execute for an aspect if a higher callstack already has.
     // It re-iterates in processActiveEffect, maybe the caching needs to be done in there instead so that caculating out an active effect doesn't take itself into account when doing so?
     // As far as I am aware this hasn't caused any problems yet, so maybe it's fine to leave it like this for now, since it's only for calculating aspects on active effects, and I can't think of examples of active effects affecting other active effects...
-    if (!findAllConfiguredAspects_lastAspects[aspectName]) {
+    if (!findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName]) {
         if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
             const dndConditionsMap = getNameDictionaryForCollection("conditions");
             // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
@@ -2279,15 +2309,15 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
             }
         }
 
-        if (findAllConfiguredAspects_levelsDeep === 0) {
-            findAllConfiguredAspects_collections = {};
+        if (findAllConfiguredAspects_activeEffectsTracking_levelsDeep === 0) {
+            findAllConfiguredAspects_activeEffectsTracking_collections = {};
         }
-        findAllConfiguredAspects_levelsDeep++;
-        findAllConfiguredAspects_lastAspects[aspectName] = true;
+        findAllConfiguredAspects_activeEffectsTracking_levelsDeep++;
+        findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName] = true;
         try {
             if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
                 for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
-                    processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+                    processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
 
                     if (activeEffect.additionalEffects && activeEffect.additionalEffects.length > 0) {
                         processAdditionalEffects(playerConfigs, activeEffect.additionalEffects, "aspects", aspectName, onAspectFound, "activeEffect", activeEffect); 
@@ -2304,20 +2334,20 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                                 }
                             });
 
-                            checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+                            checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
                         }
                     }
                 }
             }
 
             if (playerConfigs.parent) {
-                checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_collections, aspectName, onAspectFound);
+                checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
             }
         } finally {
-            findAllConfiguredAspects_levelsDeep--;
-            delete findAllConfiguredAspects_lastAspects[aspectName];
-            if (findAllConfiguredAspects_levelsDeep === 0) {
-                findAllConfiguredAspects_collections = undefined;
+            findAllConfiguredAspects_activeEffectsTracking_levelsDeep--;
+            delete findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName];
+            if (findAllConfiguredAspects_activeEffectsTracking_levelsDeep === 0) {
+                findAllConfiguredAspects_activeEffectsTracking_collections = undefined;
             }
         }
     }
