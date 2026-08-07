@@ -320,6 +320,7 @@ const menuCollection = {
             newItemMenu.menuText = data.menuText;
             newItemMenu.onOkClicked = data.onOkClicked;
             newItemMenu.options = data.options;
+            newItemMenu.okButtonSound = data.okButtonSound;
             newItemMenu.valueSelected = undefined;
             return newItemMenu;
         },

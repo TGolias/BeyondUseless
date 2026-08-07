@@ -82,7 +82,7 @@ export function HitDiceMenu({playerConfigs, setCenterScreenMenu, menuConfig, men
             <div onClick={() => {
                 if (remainingDiceToExpendNow > 0) {
                     menuStateChangeHandler(menuConfig, "remainingHitDice[" + hitDieType + "]", diceUsedIncludingNow + 1);
-                    playAudio("selectionaudio");
+                    playAudio("hitdiespentaudio");
                 }
             }}>{singleHitDieRows}</div>
         </>)

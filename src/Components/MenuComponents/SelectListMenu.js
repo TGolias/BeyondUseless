@@ -13,7 +13,7 @@ export function SelectListMenu({menuConfig, setCenterScreenMenu, menuStateChange
             </div>
             <div className="centerMenuSeperator"></div>
             <div className="selectListMenuHorizontal">
-                <RetroButton text={"OK"} onClickHandler={() => {
+                <RetroButton text={"OK"} buttonSound={menuConfig.okButtonSound ? menuConfig.okButtonSound : "selectionaudio"} onClickHandler={() => {
                     setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
                     menuConfig.onOkClicked(menuConfig.valueSelected);
                 }} showTriangle={false} disabled={!menuConfig.valueSelected}></RetroButton>

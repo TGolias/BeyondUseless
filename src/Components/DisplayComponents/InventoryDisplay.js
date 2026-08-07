@@ -243,7 +243,7 @@ function addItemsMenu(playerConfigs, inputChangeHandler, setCenterScreenMenu) {
     const allItemNames = allItems.map(item => item.name);
     const itemSelections = ["Custom Item", ...allItemNames];
 
-    setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Item", menuText: "Select the item to add:", options: itemSelections, 
+    setCenterScreenMenu({ show: true, menuType: "SelectListMenu", data: { menuTitle: "Add Item", menuText: "Select the item to add:", okButtonSound: "getitemaudio", options: itemSelections, 
         onOkClicked: (result) => {
             if (result === "Custom Item") {
                 setCenterScreenMenu({ show: true, menuType: "CustomItemMenu", data: { customItem: { id: guidGenerator(), custom: true }, 

@@ -182,7 +182,7 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         <UseOnSelfComponent newPlayerConfigs={playerConfigsClone} oldPlayerConfigs={playerConfigs} menuConfig={menuConfig} menuStateChangeHandler={menuStateChangeHandler}></UseOnSelfComponent>
         <div className="centerMenuSeperator"></div>
         <div className="spellMenuHorizontal">
-            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUserInput, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={(spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) ? "magicgunaudio" : (menuConfig.usingOnSelf ? "healaudio" : "selectionaudio")}></RetroButton>
+            <RetroButton text={"Cast Spell"} onClickHandler={() => {castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUserInput, menuConfig, inputChangeHandler, setCenterScreenMenu)}} showTriangle={false} disabled={!canCastSpell} buttonSound={getSpellSound(menuConfig, spellUserInput)}></RetroButton>
             <RetroButton text={"Cancel"} onClickHandler={() => { setCenterScreenMenu({ show: false, menuType: undefined, data: undefined }) }} showTriangle={false} disabled={false}></RetroButton>
         </div>
     </>);
@@ -234,4 +234,22 @@ function castSpellClicked(sessionId, playerConfigs, playerConfigsClone, spellUse
         inputChangeHandler(playerConfigs, "", playerConfigsClone);
         setCenterScreenMenu({ show: false, menuType: undefined, data: undefined });
     });
+}
+
+function getSpellSound(menuConfig, spellUserInput) {
+    if (menuConfig.spell?.name === "Fireball") {
+        const fireballSoundNumber = Math.floor(Math.random() * 5) + 1;
+        const fireballSoundToPlay = "fireballaudio" + fireballSoundNumber;
+        return fireballSoundToPlay;
+    }
+
+    if (spellUserInput && spellUserInput.some(ui => ui.type === "magicBullets")) {
+        return "magicgunaudio";
+    }
+
+    if (menuConfig.usingOnSelf) {
+        return "restoreaudio";
+    }
+
+    return "castspellaudio";
 }
