@@ -2067,8 +2067,11 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
         findAllConfiguredAspects_savedResponses = {};
     }
 
-    findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString] = [];
     const onAspectFound = (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (!findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString]) {
+            findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString] = [];
+        }
+
         findAllConfiguredAspects_savedResponses[aspectPlusAdditionalEffectsString].push({
             aspectPlayerConfigs,
             aspectValue,
