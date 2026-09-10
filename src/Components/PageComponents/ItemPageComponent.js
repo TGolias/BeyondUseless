@@ -175,6 +175,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
 
     let healing = undefined;
     let healingAddendum = undefined;
+    let tempHp = undefined;
     let restore = undefined;
     let buffAmount = undefined;
     let buffDescription = undefined;
@@ -260,6 +261,10 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                 if (healing) {
                     healingAddendum = calculateAddendumAspects(playerConfigs, ["healingAddendum"], additionalEffects, { userInput: data.userInput });
                 }
+            }
+
+            if (consumeEffect.type.includes("tempHp")) {
+                tempHp = calculateOtherFeatureActionAspect(playerConfigs, consumeEffect, "tempHp", "tempHpBonus", additionalEffects, { userInput: data.userInput });
             }
     
             if (consumeEffect.type.includes("restore")) {
@@ -400,6 +405,9 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
             </div>
             <div className="itemPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
+            </div>
+            <div className="itemPageDescription" style={{display: (healing ? "block" : "none")}}>
+                <div><b>Temporary Hit Points:</b> {tempHp}</div>
             </div>
             <div className="itemPageDescription" style={{display: (healingAddendum ? "block" : "none")}}>
                 <div>{parseStringForBoldMarkup(healingAddendum)}</div>

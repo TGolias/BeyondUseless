@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { FeatureActionPageComponent } from "../PageComponents/FeatureActionPageComponent";
-import { findResource, getAdditionalFeatureActionUserInputs, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateFeatureActionType, findResource, getAdditionalFeatureActionUserInputs, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { UseOnSelfComponent } from "../SharedComponents/UseOnSelfComponent";
 import { UserInputsComponent } from "../SharedComponents/UserInputsComponent";
 import { tryAddOwnActiveEffectOnSelf } from "../../SharedFunctions/ActiveEffectsFunctions";
@@ -89,8 +89,10 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
         }
     }
     
+    const featureActionType = calculateFeatureActionType(playerConfigsClone, menuConfig.featureAction);
+
     // See if there is a restore spell slot.
-    if (menuConfig.featureAction.type.includes("restoreSpellSlot")) {
+    if (featureActionType.includes("restoreSpellSlot")) {
         if (menuConfig.featureAction.restoreSpellSlot.slotType === "pactSlots") {
             const pactSlotLevel = getPactSlotLevel(playerConfigsClone);
             if (pactSlotLevel > 0) {
@@ -150,7 +152,7 @@ export function FeatureActionMenu({sessionId, playerConfigs, setCenterScreenMenu
     }
 
     // See if there is a restore resource.
-    if (menuConfig.featureAction.type.includes("restoreResource")) {
+    if (featureActionType.includes("restoreResource")) {
         const resourcePropertyName = performMathCalculation(playerConfigs, menuConfig.featureAction.restoreResource.resourceName.calculation, { userInput: data.userInput });
         const amountRestored = performMathCalculation(playerConfigs, menuConfig.featureAction.restoreResource.amountRestored.calculation, { userInput: data.userInput });
 
@@ -279,8 +281,9 @@ function useActionClicked(sessionId, playerConfigs, playerConfigsClone, featureA
 }
 
 function pushPlayerConfigChanges(playerConfigs, playerConfigsClone, menuConfig, data, inputChangeHandler) {
-    const featureAction = menuConfig.featureAction
-    if (featureAction.type.includes("setVariable") && 
+    const featureAction = menuConfig.featureAction;
+    const featureActionType = calculateFeatureActionType(playerConfigsClone, featureAction);
+    if (featureActionType.includes("setVariable") && 
         featureAction.setVariable?.variableName?.calculation && 
         featureAction.setVariable?.value?.calculation) {
 

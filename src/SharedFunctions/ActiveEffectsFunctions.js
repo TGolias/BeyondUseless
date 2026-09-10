@@ -3,7 +3,7 @@ import { createNewAlliedCreatureFromStatBlock, createStatBlockMap } from "./Alli
 import { removeConcentrationFromPlayerConfigs } from "./ConcentrationFunctions";
 import { GetAllActiveConnections } from "./LinkedPlayerFunctions";
 import { newActiveEffectMessage } from "./LinkedPlayerMessageFunctions";
-import { calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells, performMathCalculation } from "./TabletopMathFunctions";
+import { calculateFeatureActionType, calculateOtherFeatureActionAspect, calculateOtherSpellAspect, getAllActionFeatures, getAllSpellcastingFeatures, getAllSpells, performMathCalculation } from "./TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap } from "./Utils";
 
 const effectTypes = {
@@ -58,7 +58,8 @@ const effectTypes = {
         },
         getCreatures: (playerConfigsClone, menuConfig) => {
             let creatures = undefined;
-            if (menuConfig.featureAction.type && menuConfig.featureAction.type.includes("creatures")) {
+            const featureActionType = calculateFeatureActionType(playerConfigsClone, menuConfig.featureAction);
+            if (featureActionType && featureActionType.includes("creatures")) {
                 creatures = calculateOtherFeatureActionAspect(playerConfigsClone, menuConfig.featureAction, "creatures", undefined, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
             }
             return creatures;

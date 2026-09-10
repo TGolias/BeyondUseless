@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateFeatureActionType, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 import { GetCurrentVariableValue, GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
@@ -59,6 +59,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
     let damageAddendum = undefined;
     let healing = undefined;
     let healingAddendum = undefined;
+    let tempHp = undefined;
     let restore = undefined
     let buffAmount = undefined;
     let buffDescription = undefined;
@@ -122,7 +123,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             }
         }
 
-        if (featureAction.type.includes("damage")) {
+        const featureActionType = calculateFeatureActionType(playerConfigs, featureAction);
+
+        if (featureActionType.includes("damage")) {
             damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", [], { userInput: data.userInput });3
 
             if (damage) {
@@ -133,7 +136,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             }
         }
 
-        if (featureAction.type.includes("buff")) {
+        if (featureActionType.includes("buff")) {
             if (featureAction.buff.calculation) {
                 const buffAmountString = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "buff", "buffBonus", [], { userInput: data.userInput });
                 if (buffAmountString) {
@@ -143,7 +146,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             buffDescription = featureAction.buff.description;
         }
 
-        if (featureAction.type.includes("debuff")) {
+        if (featureActionType.includes("debuff")) {
             if (featureAction.debuff.calculation) {
                 const debuffAmountString = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "debuff", "debuffBonus", [], { userInput: data.userInput });
                 if (debuffAmountString) {
@@ -166,7 +169,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             }
         }
 
-        if (featureAction.type.includes("healing")) {
+        if (featureActionType.includes("healing")) {
             healing = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "healing", "healingBonus", [], { userInput: data.userInput });
             if (healing) {
                 const healingAddendumString = calculateAddendumAspects(playerConfigs, ["healingAddendum"], [], { userInput: data.userInput });
@@ -176,15 +179,19 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             }
         }
 
-        if (featureAction.type.includes("restore")) {
+        if (featureActionType.includes("tempHp")) {
+            tempHp = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "tempHp", "tempHpBonus", [], { userInput: data.userInput });
+        }
+
+        if (featureActionType.includes("restore")) {
             restore = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "restore", "restoreBonus", [], { userInput: data.userInput });
         }
 
-        if (featureAction.type.includes("creatures")) {
+        if (featureActionType.includes("creatures")) {
             creatures = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "creatures", undefined, [], { userInput: data.userInput });
         }
 
-        if (featureAction.type.includes("setVariable")) {
+        if (featureActionType.includes("setVariable")) {
             let setVariableString = "";
             if (featureAction.setVariable?.variableName?.calculation) {
                 const variableName = performMathCalculation(playerConfigs, featureAction.setVariable.variableName.calculation, { userInput: data.userInput });
@@ -205,7 +212,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             setVariableDescription = parseStringForBoldMarkup(setVariableString);
         }
 
-        if (featureAction.type.includes("restoreSpellSlot")) {
+        if (featureActionType.includes("restoreSpellSlot")) {
             if (featureAction.restoreSpellSlot.slotType === "pactSlots") {
                 const pactSlotLevel = getPactSlotLevel(playerConfigs);
                 if (pactSlotLevel > 0) {
@@ -269,7 +276,7 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             }
         }
 
-        if (featureAction.type.includes("restoreResource")) {
+        if (featureActionType.includes("restoreResource")) {
             const resourcePropertyName = performMathCalculation(playerConfigs, featureAction.restoreResource.resourceName.calculation);
             const amountRestored = performMathCalculation(playerConfigs, featureAction.restoreResource.amountRestored.calculation, { userInput: data.userInput });
 
@@ -322,6 +329,9 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
             </div>
             <div className="spellPageDescription" style={{display: (healingAddendum ? "block" : "none")}}>
                 <div>{healingAddendum}</div>
+            </div>
+            <div className="featureActionPageDescription" style={{display: (healing ? "block" : "none")}}>
+                <div><b>Temporary Hit Points:</b> {tempHp}</div>
             </div>
             <div className="featureActionPageDescription" style={{display: (restore ? "block" : "none")}}>
                 <div><b>Conditions Removed:</b> {restore}</div>

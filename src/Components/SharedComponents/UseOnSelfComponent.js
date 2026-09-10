@@ -1,6 +1,6 @@
 import React from "react";
 import './UseOnSelfComponent.css'
-import { calculateHPMax, calculateOtherFeatureActionAspect, calculateOtherSpellAspect } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateFeatureActionType, calculateHPMax, calculateOtherFeatureActionAspect, calculateOtherSpellAspect } from "../../SharedFunctions/TabletopMathFunctions";
 import { convertArrayOfStringsToHashMap, isNumeric } from "../../SharedFunctions/Utils";
 import { TextInput } from "../SimpleComponents/TextInput";
 import { HPandLVLDisplay } from "../DisplayComponents/HPandLVLDisplay";
@@ -10,7 +10,7 @@ import { ConditionsDisplay } from "../DisplayComponents/ConditionsDisplay";
 export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConfig, menuStateChangeHandler}) {
     let useOnSelfControls = [];
     if (menuConfig.usingOnSelf) {
-        if (doesSpellOrFeatureActionTypeInclude(menuConfig, "healing")) {
+        if (doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, "healing")) {
             const maxHp = calculateHPMax(newPlayerConfigs);
 
             let remainingHp;
@@ -45,7 +45,33 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
             newPlayerConfigs.currentStatus.remainingHp = newRemainingHp;
         }
 
-        if (doesSpellOrFeatureActionTypeInclude(menuConfig, "restore")) {
+        if (doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, "tempHp")) {
+            const tempHpString = calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, "tempHp", "tempHpBonus");
+            if (isNumeric(tempHpString)) {
+                // This is a static value, set it to the heal amount.
+                menuConfig.tempHpAmount = tempHpString ? parseInt(tempHpString) : 0;
+            } else if (tempHpString) {
+                // This is a dynamic string that includes a dice roll, give an input to put the temp hp amount in.
+                useOnSelfControls.push(<>
+                    <div className="useOnSelfComponentHealAmount">
+                        <div>Temp HP Amount</div>
+                        <TextInput isNumberValue={true} baseStateObject={menuConfig} pathToProperty={"tempHpAmount"} inputHandler={menuStateChangeHandler} minimum={0}/>
+                    </div>
+                </>);
+            } else {
+                // There is no value... Set it to 0.
+                menuConfig.tempHpAmount = 0;
+            }
+
+            if (oldPlayerConfigs.currentStatus.tempHp && oldPlayerConfigs.currentStatus.tempHp > menuConfig.tempHpAmount) {
+                // Their current temp HP is already better off than what we're giving them.
+                menuConfig.tempHpAmount = oldPlayerConfigs.currentStatus.tempHp;
+            }
+
+            newPlayerConfigs.currentStatus.tempHp = menuConfig.tempHpAmount;
+        }
+
+        if (doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, "restore")) {
             const restore = calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, "restore", "restoreBonus");
             if (restore) {
                 const allConditionsRestored = restore.split(/, | and | or /g);;
@@ -65,7 +91,8 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
         </>);
     } else {
         menuConfig.healAmount = 0;
-        if (doesSpellOrFeatureActionTypeInclude(menuConfig, "healing") || doesSpellOrFeatureActionTypeInclude(menuConfig, "restore")) {
+        menuConfig.tempHp = 0;
+        if (doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, "healing") || doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, "restore") || doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, "tempHp")) {
             useOnSelfControls.push(<>
                 <RetroButton text={"Use on Self?"} onClickHandler={() => {menuStateChangeHandler(menuConfig, "usingOnSelf", true)}} showTriangle={false} disabled={false}></RetroButton>
             </>);
@@ -75,11 +102,12 @@ export function UseOnSelfComponent({newPlayerConfigs, oldPlayerConfigs, menuConf
     return (<div style={{display: (useOnSelfControls.length ? "flex" : "none")}} className="useOnSelfComponentWrapper">{useOnSelfControls}</div>);
 }
 
-function doesSpellOrFeatureActionTypeInclude(menuConfig, typeToCheck) {
+function doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, typeToCheck) {
     if (menuConfig.spell) {
         return menuConfig.spell.type && menuConfig.spell.type.includes(typeToCheck);
     } else if (menuConfig.featureAction) {
-        return menuConfig.featureAction.type && menuConfig.featureAction.type.includes(typeToCheck);
+        const featureActionType = calculateFeatureActionType(newPlayerConfigs, menuConfig.featureAction);
+        return featureActionType && featureActionType.includes(typeToCheck);
     } else if (menuConfig.item) {
         if (menuConfig.item.consumeEffect) {
             return menuConfig.item.consumeEffect.type && menuConfig.item.consumeEffect.type.includes(typeToCheck);

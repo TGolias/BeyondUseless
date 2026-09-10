@@ -43,10 +43,10 @@ export function FeatureActionsDisplay({playerConfigs, actionFeatures, setCenterS
                     resourceName2Actions[action.name] = [{ action, feature: actionFeature.feature, origin: featureOrigin }];
                 } else {
                     let resourceType;
-                    if (action.restoreResource) {
-                        resourceType = performMathCalculation(playerConfigs, action.restoreResource.resourceName.calculation);
-                    } else {
+                    if (action.cost && action.cost.resourceType) {
                         resourceType = action.cost.resourceType;
+                    } else { // if (action.restoreResource)
+                        resourceType = performMathCalculation(playerConfigs, action.restoreResource.resourceName.calculation);
                     }
 
                     if (!resourceName2Actions[resourceType]) {

@@ -7,6 +7,7 @@ import { ActionPageComponent } from "../PageComponents/ActionPageComponent";
 import { playAudio } from "../../SharedFunctions/Utils";
 import { ItemPageComponent } from "../PageComponents/ItemPageComponent";
 import { CircleButton } from "../SimpleComponents/CircleButton";
+import { calculateFeatureActionType } from "../../SharedFunctions/TabletopMathFunctions";
 
 export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu, menuConfig, menuStateChangeHandler, addToMenuStack}) {
 
@@ -53,12 +54,13 @@ export function ViewMenu({playerConfigs, inputChangeHandler, setCenterScreenMenu
                     }
                     break;
                 case "featureaction":
+                    const featureActionType = calculateFeatureActionType(playerConfigs, menuConfig.featureAction);
                     if (menuConfig.featureAction.resources) {
                         for (let resource of menuConfig.featureAction.resources) {
                             resourcesRow.push(createResourceRow(resource, currentActiveEffect, menuConfig, menuStateChangeHandler));
                         }
                     }
-                    if (menuConfig.featureAction.type && menuConfig.featureAction.type.includes("creatures") && currentActiveEffect.allies) {
+                    if (featureActionType && featureActionType.includes("creatures") && currentActiveEffect.allies) {
                         for (let allyIndex = 0; allyIndex < currentActiveEffect.allies.length; allyIndex++) {
                             resourcesRow.push(createAllyRow(allyIndex, currentActiveEffect, menuConfig.featureAction, menuConfig, menuStateChangeHandler, setCenterScreenMenu, addToMenuStack));
                         }

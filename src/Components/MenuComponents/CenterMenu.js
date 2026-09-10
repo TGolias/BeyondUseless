@@ -115,8 +115,8 @@ const menuCollection = {
             newSpellMenu.userInput = {};
             newSpellMenu.useFreeUse = false;
             newSpellMenu.useRitual = false;
-            newSpellMenu.hpIsChanging = false;
             newSpellMenu.healAmount = 0;
+            newSpellMenu.tempHp = 0;
             newSpellMenu.remainingHitDice = playerConfigs.currentStatus?.remainingHitDice ? {...playerConfigs.currentStatus?.remainingHitDice} : {};
             newSpellMenu.copyLinkToSpell = {};
             return newSpellMenu;
@@ -145,6 +145,8 @@ const menuCollection = {
             newItemMenu.showNotes = data.showNotes;
             newItemMenu.pathToProperty = data.pathToProperty || "";
             newItemMenu.copyLinkToItem = {};
+            newItemMenu.healAmount = 0;
+            newItemMenu.tempHp = 0;
             return newItemMenu;
         },
         createMenuLayout: (sessionId, playerConfigs, setCenterScreenMenu, addToMenuStack, inputChangeHandler, menuConfig, menuStateChangeHandler, showDeathScreen, loadCharacter) => {
@@ -259,8 +261,8 @@ const menuCollection = {
             newItemMenu.origin = data.origin;
             newItemMenu.resource = data.resource;
             newItemMenu.userInput = {};
-            newItemMenu.hpIsChanging = false;
             newItemMenu.healAmount = 0;
+            newItemMenu.tempHp = 0;
             newItemMenu.copyLinkToItem = {};
             return newItemMenu;
         },

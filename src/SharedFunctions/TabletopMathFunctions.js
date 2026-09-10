@@ -586,6 +586,30 @@ export function calculateHeroicInspirationLongRestRecharge(playerConfigs) {
     return shouldRecharge;
 }
 
+export function calculateFeatureActionType(playerConfigs, featureAction) {
+    let featureActionType = [...featureAction.type];
+    findAllConfiguredAspects(playerConfigs, "featureActionAdditionalTypes", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { featureAction, playerConfigForObject });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        let additionalType;
+        if (aspectValue.calculation) {
+            additionalType = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { featureAction, playerConfigForObject });
+        } else {
+            additionalType = [];
+        }
+
+        featureActionType = [...featureActionType, ...additionalType]
+    });
+
+    return featureActionType;
+}
+
 export function calculateHitDiceMap(playerConfigs) {
     const hitDiceMap = {};
 
@@ -1539,8 +1563,8 @@ export function calculateOtherSpellAspectFromCalculation(playerConfigs, spell, s
 }
 
 export function calculateOtherFeatureActionAspect(playerConfigs, featureAction, aspectName, aspectBonusName, additionalEffects, additionalParams = undefined) {
-    // Start with the feature action's calculation
-    let actionAspect = performDiceRollCalculation(playerConfigs, featureAction[aspectName].calculation, { featureAction, ...additionalParams });
+    // Start with the feature action's calculation... unless that feature action aspect isn't there... (such as in the case of types being added using featureActionAdditionalTypes), in which case start with an empty dice object.
+    let actionAspect = featureAction[aspectName] ? performDiceRollCalculation(playerConfigs, featureAction[aspectName].calculation, { featureAction, ...additionalParams }) : {};
     
     if (aspectBonusName) {
         // See if there are additional bonuses to apply to this aspect.
@@ -3742,10 +3766,12 @@ function addResourcesForLevelToUses(calculationArray, playerConfigs, originalRes
             if (dndClass.resourcesPerLevel) {
                 const levels = playerConfigsForResource.levels;
                 const resourcesPerLevel = dndClass.resourcesPerLevel[levels - 1];
-                calculationArray.push({
-                    type: "static",
-                    value: resourcesPerLevel[originalResource.name]
-                });
+                if (resourcesPerLevel[originalResource.name]) {
+                    calculationArray.push({
+                        type: "static",
+                        value: resourcesPerLevel[originalResource.name]
+                    });
+                }
             }
             break;
     }

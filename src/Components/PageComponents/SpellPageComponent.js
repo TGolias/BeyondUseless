@@ -74,6 +74,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let damageAddendum = undefined;
     let healing = undefined;
     let healingAddendum = undefined;
+    let tempHp = undefined;
     let restore = undefined;
     let buffAmount = undefined;
     let buffDescription = undefined;
@@ -201,6 +202,10 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                     }
                 }
 
+                if (spell.type.includes("tempHp")) {
+                    tempHp = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "tempHp", "tempHpBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
+                }
+
                 if (spell.type.includes("restore")) {
                     restore = calculateOtherSpellAspect(playerConfigs, spell, castAtLevel, "restore", "restoreBonus", additionalEffects, { userInput: data.userInput, range, concentration, duration });
                 }
@@ -253,6 +258,9 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             </div>
             <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
                 <div><b>Healing:</b> {healing}</div>
+            </div>
+            <div className="spellPageDescription" style={{display: (healing ? "block" : "none")}}>
+                <div><b>Temporary Hit Points:</b> {tempHp}</div>
             </div>
             <div className="spellPageDescription" style={{display: (healingAddendum ? "block" : "none")}}>
                 <div>{healingAddendum}</div>
