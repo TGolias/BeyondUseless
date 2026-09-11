@@ -117,6 +117,12 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
             generateTab: () => {
                 const divs = [];
 
+                divs.push(<>
+                    <div>
+                        <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
+                    </div>
+                </>);
+
                 const basicAttacksMenuAddendum = parseStringForBoldMarkup(calculateAddendumAspect(playerConfigs, "basicAttacksMenuAddendum", []));
                 if (basicAttacksMenuAddendum) {
                     divs.push(<>
@@ -125,12 +131,6 @@ export function Renderer({playerConfigs, inputChangeHandler, setCenterScreenMenu
                                 </div>
                             </>);
                 }
-
-                divs.push(<>
-                    <div>
-                        <WeaponsAndDamageCantrips playerConfigs={playerConfigs} setCenterScreenMenu={setCenterScreenMenu}></WeaponsAndDamageCantrips>
-                    </div>
-                </>);
                 
                 return <>
                     <div className="outerDiv singleTabContent">{divs}</div>
