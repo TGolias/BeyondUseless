@@ -118,7 +118,12 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 <div>{cantripsKnown} Cantrip{(cantripsKnown > 1 ? "s" : "")} Known</div>
             </>);
 
-            const predeterminedSelections = feature.spellcasting.cantripsKnown.predeterminedSelections ?? [];
+            let predeterminedSelections = feature.spellcasting.cantripsKnown.predeterminedSelections ?? [];
+            if (predeterminedSelections.length > cantripsKnown) {
+                // The predetermined selection section is longer than the current cantrips known: chop off the end because we don't know those spells yet.
+                predeterminedSelections = predeterminedSelections.slice(0, cantripsKnown);
+            }
+
             for (let predeterminedSelection of predeterminedSelections) {
                 featureContent.push(<>
                     <div>{rightTriangleUnicode}{predeterminedSelection.spellName}</div>
@@ -152,7 +157,11 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 <div>{spellsKnown} Spell{(spellsKnown > 1 ? "s" : "")} Known</div>
             </>);
 
-            const predeterminedSelections = feature.spellcasting.spellsKnown.predeterminedSelections ?? [];
+            let predeterminedSelections = feature.spellcasting.spellsKnown.predeterminedSelections ?? [];
+            if (predeterminedSelections.length > spellsKnown) {
+                // The predetermined selection section is longer than the current spells known: chop off the end because we don't know those spells yet.
+                predeterminedSelections = predeterminedSelections.slice(0, spellsKnown);
+            }
             for (let predeterminedSelection of predeterminedSelections) {
                 featureContent.push(<>
                     <div>{rightTriangleUnicode}{predeterminedSelection.spellName}</div>
@@ -196,7 +205,11 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 <div>{spellsLearned} Spell{(spellsLearned > 1 ? "s" : "")} Learned</div>
             </>);
 
-            const predeterminedSelections = feature.spellcasting.spellsLearned.predeterminedSelections ?? [];
+            let predeterminedSelections = feature.spellcasting.spellsLearned.predeterminedSelections ?? [];
+            if (predeterminedSelections.length > spellsLearned) {
+                // The predetermined selection section is longer than the current spells learned: chop off the end because we don't know those spells yet.
+                predeterminedSelections = predeterminedSelections.slice(0, spellsLearned);
+            }
             for (let predeterminedSelection of predeterminedSelections) {
                 featureContent.push(<>
                     <div>{rightTriangleUnicode}{predeterminedSelection.spellName}</div>
@@ -247,7 +260,11 @@ export function FeatureDesign({baseStateObject, inputHandler, feature, playerFea
                 <div>{spellsPrepared} Spell{(spellsPrepared > 1 ? "s" : "")} Prepared</div>
             </>);
 
-            const predeterminedSelections = feature.spellcasting.spellsPrepared.predeterminedSelections ?? [];
+            let predeterminedSelections = feature.spellcasting.spellsPrepared.predeterminedSelections ?? [];
+            if (predeterminedSelections.length > spellsPrepared) {
+                // The predetermined selection section is longer than the current spells prepared: chop off the end because we don't know those spells yet.
+                predeterminedSelections = predeterminedSelections.slice(0, spellsPrepared);
+            }
             for (let predeterminedSelection of predeterminedSelections) {
                 featureContent.push(<>
                     <div>{rightTriangleUnicode}{predeterminedSelection.spellName}</div>

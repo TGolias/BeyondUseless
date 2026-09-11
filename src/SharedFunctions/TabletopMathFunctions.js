@@ -496,6 +496,36 @@ export function getPactSlotLevel(playerConfigs) {
     return spellcastingLevel;
 }
 
+export function getBestSpellcastingFeature(playerConfigs) {
+    // This is patchwork. Some abilities like the "Adept" feats from Arcana Unleashed are ambigous on what modifier you're supposed to use to calculate for the spells you get.
+    // For things like this, for now, we're just going to let them select the "best" spellcasting feature, aka, whichever one has the most levels.
+    let bestSpellcastingFeature;
+    const allSpellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
+    let foundClassSpellcastingFeatures = allSpellCastingFeatures.filter(feature => feature.typeFoundOn === "class");
+    if (foundClassSpellcastingFeatures.length > 0) {
+        let highestLevelClassLevel = 0;
+        for (let spellCastingFeature of foundClassSpellcastingFeatures) {
+            if (highestLevelClassLevel < spellCastingFeature.playerConfigForObject.levels) {
+                highestLevelClassLevel = spellCastingFeature.playerConfigForObject.levels;
+                bestSpellcastingFeature = spellCastingFeature;
+            }
+        }
+    } else {
+        // There are no class spellcasting features... Just pick the first one.
+        bestSpellcastingFeature = allSpellCastingFeatures[0];
+    }
+    return bestSpellcastingFeature;
+}
+
+export function getHighestLevelSpellSlot(playerConfigs) {
+    const spellcastingLevel = getSpellcastingLevel(playerConfigs);
+    const pactSlotLevel = getPactSlotLevel(playerConfigs);
+    if (spellcastingLevel > pactSlotLevel) {
+        return spellcastingLevel;
+    }
+    return pactSlotLevel;
+}
+
 export function calculateHPMax(playerConfigs) {
     const dndClasses = getAllPlayerDNDClasses(playerConfigs);
 
@@ -1981,6 +2011,10 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return getAdditionalBulletTypes(playerConfigs);
         case "additionalSpellcastingConditions":
             return checkAdditionalSpellcastingConditions(playerConfigs);
+        case "highestLevelSpellSlot":
+            return getHighestLevelSpellSlot(playerConfigs);
+        case "bestSpellcastingFeature":
+            return getBestSpellcastingFeature(playerConfigs);
 
     }
 
@@ -2973,7 +3007,11 @@ export function performMathCalculation(playerConfigs, calculation, parameters = 
         }
 
         if (singleCalculation.map) {
-            singleValue = singleValue.map(value => performMathCalculation(playerConfigs, singleCalculation.map, { ...parameters, value }));
+            if (Array.isArray(singleValue)) {
+                singleValue = singleValue.map(value => performMathCalculation(playerConfigs, singleCalculation.map, { ...parameters, value }));
+            } else {
+                singleValue = performMathCalculation(playerConfigs, singleCalculation.map, { ...parameters, value: singleValue });
+            }
         }
 
         return singleValue;
@@ -3372,8 +3410,15 @@ export function getAllSpells(playerConfigs, spellcastingFeatures) {
     for (let spellcastingFeature of spellcastingFeatures) {
         const spellcasting = spellcastingFeature.feature.spellcasting;
         if (spellcasting.cantripsKnown) {
-            if (spellcasting.cantripsKnown.predeterminedSelections && spellcasting.cantripsKnown.predeterminedSelections.length > 0) {
-                for (let predeterminedSelection of spellcasting.cantripsKnown.predeterminedSelections) {
+            let predeterminedSelections = spellcasting.cantripsKnown.predeterminedSelections;
+            if (predeterminedSelections && predeterminedSelections.length > 0) {
+                const cantripsKnown = performMathCalculation(playerConfigs, spellcasting.cantripsKnown.calculation);
+                if (predeterminedSelections.length > cantripsKnown) {
+                    // The predetermined selection section is longer than the current cantrips known: chop off the end because we don't know those spells yet.
+                    predeterminedSelections = predeterminedSelections.slice(0, cantripsKnown);
+                }
+
+                for (let predeterminedSelection of predeterminedSelections) {
                     const cantripToAdd = {...cantripName2Cantrip[predeterminedSelection.spellName]};
                     cantripToAdd.feature = spellcastingFeature.feature;
                     addSpellToSortedCollection(sortedCantripsCollection, cantripToAdd);
@@ -3394,8 +3439,14 @@ export function getAllSpells(playerConfigs, spellcastingFeatures) {
         }
 
         if (spellcasting.spellsKnown) {
-            if (spellcasting.spellsKnown.predeterminedSelections && spellcasting.spellsKnown.predeterminedSelections.length > 0) {
-                for (let predeterminedSelection of spellcasting.spellsKnown.predeterminedSelections) {
+            let predeterminedSelections = spellcasting.spellsKnown.predeterminedSelections;
+            if (predeterminedSelections && predeterminedSelections.length > 0) {
+                const spellsKnown = performMathCalculation(playerConfigs, spellcasting.spellsKnown.calculation);
+                if (predeterminedSelections.length > spellsKnown) {
+                    // The predetermined selection section is longer than the current spells known: chop off the end because we don't know those spells yet.
+                    predeterminedSelections = predeterminedSelections.slice(0, spellsKnown);
+                }
+                for (let predeterminedSelection of predeterminedSelections) {
                     // Check that the spell exists before adding it.
                     if (spellName2Spell[predeterminedSelection.spellName]) {
                         const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
@@ -3433,8 +3484,14 @@ export function getAllSpells(playerConfigs, spellcastingFeatures) {
         }
 
         if (spellcasting.spellsPrepared) {
-            if (spellcasting.spellsPrepared.predeterminedSelections && spellcasting.spellsPrepared.predeterminedSelections.length > 0) {
-                for (let predeterminedSelection of spellcasting.spellsPrepared.predeterminedSelections) {
+            let predeterminedSelections = spellcasting.spellsPrepared.predeterminedSelections;
+            if (predeterminedSelections && predeterminedSelections.length > 0) {
+                const spellsPrepared = performMathCalculation(playerConfigs, spellcasting.spellsPrepared.calculation);
+                if (predeterminedSelections.length > spellsPrepared) {
+                    // The predetermined selection section is longer than the current spells prepared: chop off the end because we don't know those spells yet.
+                    predeterminedSelections = predeterminedSelections.slice(0, spellsPrepared);
+                }
+                for (let predeterminedSelection of predeterminedSelections) {
                     // Check that the spell exists before adding it.
                     if (spellName2Spell[predeterminedSelection.spellName]) {
                         const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};
@@ -3486,8 +3543,14 @@ export function getAllLearnedSpells(playerConfigs, spellcastingFeatures) {
     for (let spellcastingFeature of spellcastingFeatures) {
         const spellcasting = spellcastingFeature.feature.spellcasting;
         if (spellcasting.spellsLearned) {
-            if (spellcasting.spellsLearned.predeterminedSelections && spellcasting.spellsLearned.predeterminedSelections.length > 0) {
-                for (let predeterminedSelection of spellcasting.spellsLearned.predeterminedSelections) {
+            let predeterminedSelections = spellcasting.spellsLearned.predeterminedSelections;
+            if (predeterminedSelections && predeterminedSelections.length > 0) {
+                const spellsLearned = performMathCalculation(playerConfigs, spellcasting.spellsLearned.calculation);
+                if (predeterminedSelections.length > spellsLearned) {
+                    // The predetermined selection section is longer than the current spells learned: chop off the end because we don't know those spells yet.
+                    predeterminedSelections = predeterminedSelections.slice(0, spellsLearned);
+                }
+                for (let predeterminedSelection of predeterminedSelections) {
                     // Check that the spell exists before adding it.
                     if (spellName2Spell[predeterminedSelection.spellName]) {
                         const spellToAdd = {...spellName2Spell[predeterminedSelection.spellName]};

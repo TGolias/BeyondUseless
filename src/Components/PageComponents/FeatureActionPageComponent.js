@@ -2,7 +2,7 @@ import React from "react";
 import './FeatureActionPageComponent.css';
 import { getCapitalizedAbilityScoreName, parseStringForBoldMarkup } from "../../SharedFunctions/ComponentFunctions";
 import { concatStringArrayToAndStringWithCommas, convertHashMapToArrayOfStrings, getHomePageUrl } from "../../SharedFunctions/Utils";
-import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateFeatureActionType, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateAddendumAspect, calculateAddendumAspects, calculateAttackRollForAttackRollType, calculateDuration, calculateFeatureActionType, calculateOtherFeatureActionAspect, calculateRange, calculateSavingThrowTypes, calculateSpellSaveDC, getAllSpellcastingFeatures, getBestSpellcastingFeature, getPactSlotLevel, getSpellcastingLevel, performMathCalculation } from "../../SharedFunctions/TabletopMathFunctions";
 import { getCollection, getNameDictionaryForCollection } from "../../Collections";
 import { GetAllPossibleFeaturesFromObject } from "../../SharedFunctions/FeatureFunctions";
 import { GetCurrentVariableValue, GetVariableDisplayName } from "../../SharedFunctions/VariableFunctions";
@@ -93,15 +93,8 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         let spellcastingFeature = allPossibleFeatures.find(feature => feature.spellcasting);
 
         if (!spellcastingFeature) {
-            const allSpellCastingFeatures = getAllSpellcastingFeatures(playerConfigs);
-            let foundSpellcastingFeature = allSpellCastingFeatures.find(feature => feature.typeFoundOn === "class");
-            if (!foundSpellcastingFeature) {
-                foundSpellcastingFeature = allSpellCastingFeatures[0];
-            }
-
-            if (foundSpellcastingFeature) {
-                spellcastingFeature = foundSpellcastingFeature.feature;
-            }
+            const bestSpellcastingFeature = getBestSpellcastingFeature(playerConfigs);
+            spellcastingFeature = bestSpellcastingFeature.feature;
         }
         featureAction.feature = spellcastingFeature;
 

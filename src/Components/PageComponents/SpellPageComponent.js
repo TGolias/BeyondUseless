@@ -62,6 +62,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
     let castAtLevel = spell.level;
     let freeUses = undefined;
     let spellCastingConditionAddendum = undefined;
+    let componentAddendum = undefined;
     let duration = spell.duration;
     let durationAddendum = undefined;
     let attackRoll = undefined;
@@ -106,6 +107,12 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                 featureName = spellForPlayer.feature.name;
 
                 const concentration = spell.concentration;
+
+                const componentAddendumString = calculateAddendumAspect(playerConfigs, "componentAddendum", additionalEffects, { spell: spell, slotLevel: castAtLevel, range, concentration, duration });
+                if (componentAddendumString) {
+                    componentAddendum = parseStringForBoldMarkup(componentAddendumString);
+                }
+
                 duration = calculateDuration(playerConfigs, spell.duration, additionalEffects, { spell: spell, slotLevel: castAtLevel, range, concentration });
                 const durationAddendumString = calculateAddendumAspect(playerConfigs, "durationAddendum", additionalEffects, { spell: spell, slotLevel: castAtLevel, range, concentration, duration });
                 if (durationAddendumString) {
@@ -225,6 +232,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
             <div style={{display: (spellCastingConditionAddendum ? "block" : "none")}}>{spellCastingConditionAddendum}</div>
             <div><span className="spellPageBold">Range:</span> {range}</div>
             <div><span className="spellPageBold">Components:</span> {componentsString}</div>
+            <div style={{display: (componentAddendum ? "block" : "none")}}>{componentAddendum}</div>
             <div><span className="spellPageBold">Duration:</span> <b>{spell.concentration ? "Concentration" : ""}</b>{spell.concentration ? ", " : ""}{duration}</div>
             <div style={{display: (durationAddendum ? "block" : "none")}}>{durationAddendum}</div>
             <div className="spellPageDescription">{description}</div>
