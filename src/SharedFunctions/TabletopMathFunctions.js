@@ -3590,51 +3590,95 @@ export function findResource(playerConfigs, resourceSource, typeForResource, pla
         resourceSourceResources = resourceSource.aspects.resources;
     }
 
+    // See first if we can find any resource names that are a direct name match by combining the sub names first. This is what lets us reference subgroups in the json.
     for (let originalResource of resourceSourceResources) {
+        if (originalResource.combineGlobalResources && originalResource.subResource) {
+            let fullResourceName = originalResource.name;
+            let innerResource = originalResource.subResource;
+            while (innerResource) {
+                fullResourceName += innerResource.name;
+                innerResource = innerResource.subResource;
+            }
 
+            if (fullResourceName === resourceName) {
+                return generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource, resourceName);
+            }
+        }
+    }
+
+    // We weren't able to find any exact name matches combinining subnames first: meaning it's either a global resource or a standalone.
+    for (let originalResource of resourceSourceResources) {
         if (originalResource.name === resourceName) {
             if (originalResource.combineGlobalResources) {
-                return generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource);
+                return generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource, resourceName);
             } else {
                 return generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource);
             }
-        }
-
-        if (originalResource.combineGlobalResources && (originalResource.name + originalResource.subName) === resourceName) {
-            return generateStandardResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource);
         }
     }
 }
 
 export function findResourceFromAllResources(playerConfigs, resourceName) {
     let resourceToFind = undefined;
+    // See first if we can find any resource names that are a direct name match by combining the sub names first. This is what lets us reference subgroups in the json.
     findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (Array.isArray(aspectValue)) {
             for (let singleResource of aspectValue) {
-                if (singleResource.conditions) {
-                    const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, singleResource.conditions, { playerConfigForObject });
-                    if (!conditionsAreMet) {
-                        // We did not meet the conditions for this resource to apply.
-                        continue;
-                    }
-                }
-
                 if (!resourceToFind) {
-                    if (singleResource.name === resourceName) {
-                        if (singleResource.combineGlobalResources) {
-                            resourceToFind = generateGlobalResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
-                        } else {
-                            resourceToFind = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                    if (singleResource.conditions) {
+                        const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, singleResource.conditions, { playerConfigForObject });
+                        if (!conditionsAreMet) {
+                            // We did not meet the conditions for this resource to apply.
+                            continue;
                         }
                     }
+                  
+                    if (singleResource.combineGlobalResources && singleResource.subResource) {
+                        let fullResourceName = singleResource.name;
+                        let innerResource = singleResource.subResource;
+                        while (innerResource) {
+                            fullResourceName += innerResource.name;
+                            innerResource = innerResource.subResource;
+                        }
 
-                    if (singleResource.combineGlobalResources && (singleResource.name + singleResource.subName) === resourceName) {
-                        resourceToFind = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                        if (fullResourceName === resourceName) {
+                            resourceToFind = generateGlobalResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject, resourceName);
+                        }
                     }
                 }
             }
         }
     });
+
+    if (resourceToFind) {
+        return resourceToFind;
+    }
+
+    // We weren't able to find any exact name matches combinining subnames first: meaning it's either a global resource or a standalone.
+    findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        if (Array.isArray(aspectValue)) {
+            for (let singleResource of aspectValue) {
+                if (!resourceToFind) {
+                    if (singleResource.conditions) {
+                        const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, singleResource.conditions, { playerConfigForObject });
+                        if (!conditionsAreMet) {
+                            // We did not meet the conditions for this resource to apply.
+                            continue;
+                        }
+                    }
+
+                    if (singleResource.name === resourceName) {
+                        if (singleResource.combineGlobalResources) {
+                            resourceToFind = generateGlobalResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject, resourceName);
+                        } else {
+                            resourceToFind = generateStandardResourceFromResource(playerConfigs, singleResource, typeFoundOn, playerConfigForObject);
+                        }
+                    }
+                }
+            }
+        }
+    });
+ 
     return resourceToFind;
 }
 
@@ -3681,10 +3725,19 @@ function generateStandardResourceFromResource(playerConfigs, originalResource, t
     let newResource = {...originalResource};
 
     if (originalResource.combineGlobalResources) {
-        newResource.name = originalResource.name + originalResource.subName;
-        newResource.displayName = originalResource.subDisplayName + " " + originalResource.displayName;
+        newResource.name = originalResource.name;
+        newResource.displayName = originalResource.displayName;
+
+        let innerResource = originalResource.subResource;
+        while (innerResource) {
+            newResource.name = innerResource.name;
+            newResource.displayName = innerResource.displayName;
+
+            innerResource = innerResource.subResource;
+        }
 
         delete newResource.combineGlobalResources;
+        delete newResource.subResource;
     }
 
     generateNewUsesCalculationIfNotPresent(newResource);
@@ -3696,21 +3749,36 @@ function generateStandardResourceFromResource(playerConfigs, originalResource, t
     return newResource;
 }
 
-function generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource) {
+const resourceSortPriority = {
+    class: 1,
+    subclass: 2,
+    feat: 3,
+    homebrew: 4,
+    item: 5
+}
+
+function generateGlobalResourceFromResource(playerConfigs, originalResource, typeForResource, playerConfigsForResource, resourceName) {
     let newResource = {...originalResource};
 
     if (newResource.uses) {
         newResource.uses = {...newResource.uses};
     }
 
-    delete newResource.subName;
-    delete newResource.subDisplayName;
-
     generateNewUsesCalculationIfNotPresent(newResource);
     addResourcesForLevelToUses(newResource.uses.calculation, playerConfigs, originalResource, typeForResource, playerConfigsForResource);
 
-    newResource.subResources = [{ subName: originalResource.subName, maxCalculation: [...newResource.uses.calculation], playerConfigsForResource }];
+    let originalResourceInner = originalResource.subResource;
+    while (originalResourceInner) {
+        newResource.name += originalResourceInner.name;
+        newResource.displayName += " " + originalResourceInner.displayName;
+
+        originalResourceInner = originalResourceInner.subResource;
+    }
+
+    newResource.subResources = [{ subResourceName: newResource.name, maxCalculation: [...newResource.uses.calculation], playerConfigsForResource, typeForResource }];
     
+    delete newResource.subResource;
+
     findAllConfiguredAspects(playerConfigs, "resources", [], (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
         if (Array.isArray(aspectValue)) {
             for (let innerResource of aspectValue) {
@@ -3722,26 +3790,49 @@ function generateGlobalResourceFromResource(playerConfigs, originalResource, typ
                     }
                 }
 
-                if (innerResource.combineGlobalResources && originalResource.name === innerResource.name && originalResource.subName !== innerResource.subName) {
-                    let innerResourceUsesCalculation = [];
-                    if (innerResource?.uses?.calculation) {
-                        innerResourceUsesCalculation = [...innerResource.uses.calculation];
+                if (innerResource.combineGlobalResources && originalResource.name === innerResource.name) {
+                    let originalResourceSub = originalResource.subResource;
+                    let innerResourceSub = innerResource.subResource;
+
+                    let innerName = innerResource.name + innerResourceSub.name;
+
+                    while (originalResourceSub.subResource && innerResourceSub.subResource && originalResourceSub.name === innerResourceSub.name) {
+                        originalResourceSub = originalResourceSub.subResource;
+                        innerResourceSub = innerResourceSub.subResource;
+
+                        innerName += innerResourceSub.name;
                     }
 
-                    addResourcesForLevelToUses(innerResourceUsesCalculation, playerConfigs, originalResource, typeFoundOn, playerConfigForObject);
+                    if (innerName.startsWith(resourceName) && originalResourceSub && innerResourceSub && (originalResourceSub.name !== innerResourceSub.name || innerResourceSub.subResource)) {
+                        while (innerResourceSub.subResource) {
+                            innerResourceSub = innerResourceSub.subResource;
 
-                    newResource.uses.calculation = [...newResource.uses.calculation, ...innerResourceUsesCalculation];
+                            innerName += innerResourceSub.name;
+                        }
 
-                    let innerSubResource = { subName: innerResource.subName, maxCalculation: innerResourceUsesCalculation, playerConfigsForResource: playerConfigForObject };
-                    if (typeFoundOn === "class" || typeFoundOn === "subclass") {
-                        // Resources that come from a class or subclass should move to the top of the sublist so that they are restored first (and expended last).
-                        newResource.subResources.splice(0, 0, innerSubResource);
-                    } else {
+                        let innerResourceUsesCalculation = [];
+                        if (innerResource?.uses?.calculation) {
+                            innerResourceUsesCalculation = [...innerResource.uses.calculation];
+                        }
+
+                        addResourcesForLevelToUses(innerResourceUsesCalculation, playerConfigs, originalResource, typeFoundOn, playerConfigForObject);
+
+                        newResource.uses.calculation = [...newResource.uses.calculation, ...innerResourceUsesCalculation];
+
+                        let innerSubResource = { subResourceName: innerName, maxCalculation: innerResourceUsesCalculation, playerConfigsForResource: playerConfigForObject, typeForResource: typeFoundOn };
                         newResource.subResources.push(innerSubResource);
                     }
                 }
             }
         }
+    });
+
+    newResource.subResources.sort((a, b) => {
+        // Our sorting is such that Resources that come from a class or subclass should move to the top of the sublist so that they are restored first (and expended last), and resources from things like items are expended first and restored last.
+        const aValue = resourceSortPriority[a.typeForResource] ?? 4;
+        const bValue = resourceSortPriority[b.typeForResource] ?? 4;
+        // We actually default to 4 if we can't find something just in case some other type comes flying in here in the future: because items really should be LAST.
+        return aValue - bValue;
     });
 
     newResource.maxUses = GetMaxUsesForResource(playerConfigs, newResource, playerConfigsForResource);
