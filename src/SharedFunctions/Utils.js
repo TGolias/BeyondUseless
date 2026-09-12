@@ -75,7 +75,11 @@ export function getHomePageUrl() {
 
 export function downloadFile(fileName, fileData) {
     const fileDataJson = JSON.stringify(fileData);
-    const blob = new Blob([fileDataJson], { type: "application/json" });
+    downloadFileFromString(fileName, fileDataJson);
+}
+
+export function downloadFileFromString(fileName, fileDataString) {
+    const blob = new Blob([fileDataString], { type: "application/json" });
     const fileUrl = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
     downloadLink.setAttribute("href", fileUrl);
