@@ -219,7 +219,7 @@ export function ItemPageComponent({item, playerConfigs, pathToProperty, copyLink
                     }
 
                     if (weaponDamage || lightWeaponDamage || cleaveWeaponDamage) {
-                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], additionalEffects, { weapon: item, userInput: data.userInput });
+                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum", "weaponDamageAddendum"], additionalEffects, { weapon: item, userInput: data.userInput });
                         if (damageAddendumString) {
                             damageAddendum = parseStringForBoldMarkup(damageAddendumString);
                         }

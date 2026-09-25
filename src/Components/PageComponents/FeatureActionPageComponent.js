@@ -119,10 +119,10 @@ export function FeatureActionPageComponent({featureAction, feature, origin, data
         const featureActionType = calculateFeatureActionType(playerConfigs, featureAction);
 
         if (featureActionType.includes("damage")) {
-            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "spellDamageBonus", [], { userInput: data.userInput });3
+            damage = calculateOtherFeatureActionAspect(playerConfigs, featureAction, "damage", "featureActionDamageBonus", [], { userInput: data.userInput });3
 
             if (damage) {
-                const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], [], { userInput: data.userInput, featureAction, range });
+                const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum", "featureActionDamageAddendum"], [], { userInput: data.userInput, featureAction, range });
                 if (damageAddendumString) {
                     damageAddendum = parseStringForBoldMarkup(damageAddendumString);
                 }

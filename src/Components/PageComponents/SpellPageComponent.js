@@ -159,7 +159,7 @@ export function SpellPageComponent({spell, data, playerConfigs, copyLinkToSpell}
                         }
                     }
                     if (damage || alternateDamageRows.length > 0) {
-                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum"], additionalEffects, { userInput: data.userInput, range, concentration, duration });
+                        const damageAddendumString = calculateAddendumAspects(playerConfigs, ["damageAddendum", "spellDamageAddendum"], additionalEffects, { userInput: data.userInput, range, concentration, duration });
                         if (damageAddendumString) {
                             damageAddendum = parseStringForBoldMarkup(damageAddendumString);
                         }
