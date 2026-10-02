@@ -2,7 +2,7 @@ import merge from "deepmerge-json";
 import { getCollection, getNameDictionaryForCollection } from "../Collections";
 import { TransformDndClassBasedOnMainOrMulticlass } from "./ClassFunctions";
 import { convertNumberToSize, convertSizeToNumber, getCapitalizedAbilityScoreName, getValueFromObjectAndPath } from "./ComponentFunctions";
-import { GetEquippedItems, GetHeldItems, GetHeldItemsWithPlayerItem, GetOpenHands } from "./EquipmentFunctions";
+import { GetEquippedItems, GetEquippedItemsWithIndexAndPaths, GetHeldItems, GetHeldItemsWithPlayerItem, GetOpenHands } from "./EquipmentFunctions";
 import { GetMaxUsesForResource, GetRemainingUsesForResource } from "./ResourcesFunctions";
 import { concatStringArrayToAndStringWithCommas, concatStringArrayToOrStringWithCommas, convertArrayOfStringsToHashMap, convertArrayToDictionary, convertHashMapToArrayOfStrings, isNumeric, isObject } from "./Utils";
 import { GetFeaturePropertyNameFromFeature } from "./FeatureFunctions"
@@ -2005,6 +2005,8 @@ export function calculateAspectCollection(playerConfigs, aspectName) {
             return GetHeldItemsWithPlayerItem(playerConfigs.items);
         case "equippedItems":
             return GetEquippedItems(playerConfigs.items);
+        case "GetEquippedItemsWithIndexAndPaths":
+            return GetEquippedItemsWithIndexAndPaths(playerConfigs.items);
         case "metamagic":
             return getAllSelectedMetamagicOptions(playerConfigs);
         case "additionalBulletTypes":
