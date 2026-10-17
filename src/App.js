@@ -76,11 +76,31 @@ export default function App() {
   const [centerScreenMenu, setCenterScreenMenu] = useState({ show: false, menuType: undefined, data: undefined, overrides: undefined });
   const [addChangesToHistoryTimeout, setAddChangesToHistoryTimeout] = useState(null);
   
+  const url = new URL(decodeURI(window.location.href));
+  const params = new URLSearchParams(url.search);
+  const view = params.get('view');
+  const playerName = params.get('playerName');
+
   useEffect(() => {
     if (needsToLoad) {
       setLoading(true);
       needsToLoad = false;
-      fetchAllCollections().then(() => {
+
+      let singularCollectionToLoad = undefined;
+      if (view && !playerName) {
+        const lowerCaseMode = view.toLowerCase();
+        if (lowerCaseMode) {
+          singularCollectionToLoad = {};
+          singularCollectionToLoad[lowerCaseMode] = true;
+
+          if (lowerCaseMode === "spell") {
+            // load both collections.
+            singularCollectionToLoad['cantrip'] = true;
+          }
+        }
+      }
+
+      fetchAllCollections(singularCollectionToLoad).then(() => {
         setLoading(false);
       });
     }
@@ -102,9 +122,6 @@ export default function App() {
   SetMySessionId(sessionId);
   SetMyPlayerConfigs(playerConfigs);
 
-  const url = new URL(decodeURI(window.location.href));
-  const params = new URLSearchParams(url.search);
-  const view = params.get('view');
   if (view) {
     // First... Hold on if we are loading.
     if (needsToLoad || isLoading) {
@@ -124,7 +141,6 @@ export default function App() {
     }
 
     let linkedPlayer = undefined;
-    const playerName = params.get('playerName');
     if (playerName) {
       if (playerConfigs.name === playerName) {
         linkedPlayer = playerConfigs;

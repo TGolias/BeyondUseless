@@ -432,10 +432,12 @@ export function getAllPlayerDNDClasses(playerConfigs) {
     
     const dndClasses = [];
 
-    for (let i = 0; i < playerConfigs.classes.length; i++) {
-        const playerClass = playerConfigs.classes[i];
-        const dndClass = dndClassDict[playerClass.name];
-        dndClasses.push(dndClass);
+    if (playerConfigs && playerConfigs.classes) {
+        for (let i = 0; i < playerConfigs.classes.length; i++) {
+            const playerClass = playerConfigs.classes[i];
+            const dndClass = dndClassDict[playerClass.name];
+            dndClasses.push(dndClass);
+        }
     }
     return dndClasses;
 }
@@ -2149,116 +2151,119 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
     const eldrichinvocationMap = getNameDictionaryForCollection("eldrichinvocations");
     const subclassMap = getNameDictionaryForCollection("subclasses");
 
-    // Check additional effects first.
-    if (additionalEffects && additionalEffects.length > 0) {
-        processAdditionalEffects(playerConfigs, additionalEffects, "additionalEffects", aspectName, onAspectFound);  
-    }
+    if (playerConfigs) {
 
-    // Check the base player for the aspect.
-    const baseAspectValue = getValueFromObjectAndPath(playerConfigs, aspectName)
-    if (baseAspectValue) {
-        onAspectFound(playerConfigs, baseAspectValue, "player", playerConfigs);
-    }
-
-    // Check the species for the aspect.
-    const dndspecies = speciesMap[playerConfigs.species.name];
-    if (dndspecies) {
-        const speciesAspectValue = getValueFromObjectAndPath(dndspecies, aspectName)
-        if (speciesAspectValue) {
-            onAspectFound(playerConfigs, speciesAspectValue, "species", playerConfigs.species);
+        // Check additional effects first.
+        if (additionalEffects && additionalEffects.length > 0) {
+            processAdditionalEffects(playerConfigs, additionalEffects, "additionalEffects", aspectName, onAspectFound);  
         }
 
-        const allDndSpeciesFeatures = dndspecies?.features ? [...dndspecies.features] : [];
+        // Check the base player for the aspect.
+        const baseAspectValue = getValueFromObjectAndPath(playerConfigs, aspectName)
+        if (baseAspectValue) {
+            onAspectFound(playerConfigs, baseAspectValue, "player", playerConfigs);
+        }
 
-        if (dndspecies.choices) {
-            findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "species[" + playerConfigs.species.name  + "]", playerConfigs.species.choices));
+        // Check the species for the aspect.
+        const dndspecies = speciesMap[playerConfigs.species.name];
+        if (dndspecies) {
+            const speciesAspectValue = getValueFromObjectAndPath(dndspecies, aspectName)
+            if (speciesAspectValue) {
+                onAspectFound(playerConfigs, speciesAspectValue, "species", playerConfigs.species);
+            }
 
-            findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", "features", (aspectValue) => {
-                for (let speciesFeature of aspectValue) {
-                    allDndSpeciesFeatures.push(speciesFeature);
+            const allDndSpeciesFeatures = dndspecies?.features ? [...dndspecies.features] : [];
+
+            if (dndspecies.choices) {
+                findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "species[" + playerConfigs.species.name  + "]", playerConfigs.species.choices));
+
+                findAspectsFromChoice(playerConfigs, dndspecies, "species.choices.", "features", (aspectValue) => {
+                    for (let speciesFeature of aspectValue) {
+                        allDndSpeciesFeatures.push(speciesFeature);
+                    }
+                });
+            }
+            
+            if (allDndSpeciesFeatures) {
+                for (let j = 0; j < allDndSpeciesFeatures.length; j++) {
+                    const speciesFeature = allDndSpeciesFeatures[j];
+                    if (!speciesFeature.level || speciesFeature.level <= playerConfigs.level) {
+                        const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + speciesFeature.level;
+                        processFeature(playerConfigs, aspectName, speciesFeature, playerConfigs.species, "species", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
+                    }
                 }
-            });
+            }
         }
         
-        if (allDndSpeciesFeatures) {
-            for (let j = 0; j < allDndSpeciesFeatures.length; j++) {
-                const speciesFeature = allDndSpeciesFeatures[j];
-                if (!speciesFeature.level || speciesFeature.level <= playerConfigs.level) {
-                    const featurePropertyName = speciesFeature.name.replace(/\s/g, "") + speciesFeature.level;
-                    processFeature(playerConfigs, aspectName, speciesFeature, playerConfigs.species, "species", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
-                }
+        const dndClasses = getAllPlayerDNDClasses(playerConfigs);
+        for (let i = 0; i < dndClasses.length; i++) {
+            const dndClass = TransformDndClassBasedOnMainOrMulticlass(playerConfigs, dndClasses[i]);
+            // Check each of the classes for the aspect.
+            const classAspectValue = dndClass[aspectName];
+            if (classAspectValue) {
+                onAspectFound(playerConfigs, classAspectValue, "class", playerConfigs.classes[i]);
             }
-        }
-    }
-    
-    const dndClasses = getAllPlayerDNDClasses(playerConfigs);
-    for (let i = 0; i < dndClasses.length; i++) {
-        const dndClass = TransformDndClassBasedOnMainOrMulticlass(playerConfigs, dndClasses[i]);
-        // Check each of the classes for the aspect.
-        const classAspectValue = dndClass[aspectName];
-        if (classAspectValue) {
-            onAspectFound(playerConfigs, classAspectValue, "class", playerConfigs.classes[i]);
-        }
 
-        const allDndClassFeatures = dndClass.features ? [...dndClass.features] : [];
+            const allDndClassFeatures = dndClass.features ? [...dndClass.features] : [];
 
-        if (dndClass.choices) {
-            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "class", playerConfigs.classes[i].choices));
+            if (dndClass.choices) {
+                findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "class", playerConfigs.classes[i].choices));
 
-            findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", "features", (aspectValue) => {
-                for (let classFeature of aspectValue) {
-                    allDndClassFeatures.push(classFeature);
-                }
-            });
-        }
+                findAspectsFromChoice(playerConfigs, dndClass, "classes[" + i + "].choices.", "features", (aspectValue) => {
+                    for (let classFeature of aspectValue) {
+                        allDndClassFeatures.push(classFeature);
+                    }
+                });
+            }
 
-        // We will hold onto our subclass features and loop through them later, so that they display in the right place in the menus (after the base class features)
-        const subclassFeatureObjects = []
-        if (allDndClassFeatures) {
-            for (let j = 0; j < allDndClassFeatures.length; j++) {
-                const classFeature = allDndClassFeatures[j];
-                if (!classFeature.classLevel || classFeature.classLevel <= playerConfigs.classes[i].levels) {
-                    const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
-                    const classFeaturePlayerConfig = playerConfigs.classes[i].features ? playerConfigs.classes[i].features[featurePropertyName] : undefined;
+            // We will hold onto our subclass features and loop through them later, so that they display in the right place in the menus (after the base class features)
+            const subclassFeatureObjects = []
+            if (allDndClassFeatures) {
+                for (let j = 0; j < allDndClassFeatures.length; j++) {
+                    const classFeature = allDndClassFeatures[j];
+                    if (!classFeature.classLevel || classFeature.classLevel <= playerConfigs.classes[i].levels) {
+                        const featurePropertyName = classFeature.name.replace(/\s/g, "") + classFeature.classLevel;
+                        const classFeaturePlayerConfig = playerConfigs.classes[i].features ? playerConfigs.classes[i].features[featurePropertyName] : undefined;
 
-                    processFeature(playerConfigs, aspectName, classFeature, playerConfigs.classes[i], "classes[" + i + "]", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
+                        processFeature(playerConfigs, aspectName, classFeature, playerConfigs.classes[i], "classes[" + i + "]", featurePropertyName, { featMap, eldrichinvocationMap }, onAspectFound);
 
-                    if (classFeature.subclass) {
-                        subclassFeatureObjects.push({ classFeaturePlayerConfig, featurePropertyName })
+                        if (classFeature.subclass) {
+                            subclassFeatureObjects.push({ classFeaturePlayerConfig, featurePropertyName })
+                        }
                     }
                 }
             }
-        }
 
-        for (const subclassFeatureObject of subclassFeatureObjects) {
-            const classFeaturePlayerConfig = subclassFeatureObject.classFeaturePlayerConfig;
-            const featurePropertyName = subclassFeatureObject.featurePropertyName;
+            for (const subclassFeatureObject of subclassFeatureObjects) {
+                const classFeaturePlayerConfig = subclassFeatureObject.classFeaturePlayerConfig;
+                const featurePropertyName = subclassFeatureObject.featurePropertyName;
 
-            const selectedSubclass = classFeaturePlayerConfig?.name;
-            if (selectedSubclass) {
-                const dndSubclass = subclassMap[selectedSubclass];
-                if (dndSubclass) {
-                    if (dndSubclass[aspectName]) {
-                        // This sucks, but we want to do of the class properties for the subclass here: We unfortunetly are setting all subclass configuration on the base class. So let's start with the class then overwrite with any properties from the subclass.
-                        const actualPlayerConfigForSubclassObject = playerConfigs.classes[i].features[featurePropertyName];
-                        const psuedoPlayerConfigForSubclassObject = { ...playerConfigs.classes[i] };
-                        for (const property of Object.keys(actualPlayerConfigForSubclassObject)) {
-                            psuedoPlayerConfigForSubclassObject[property] = actualPlayerConfigForSubclassObject[property];
+                const selectedSubclass = classFeaturePlayerConfig?.name;
+                if (selectedSubclass) {
+                    const dndSubclass = subclassMap[selectedSubclass];
+                    if (dndSubclass) {
+                        if (dndSubclass[aspectName]) {
+                            // This sucks, but we want to do of the class properties for the subclass here: We unfortunetly are setting all subclass configuration on the base class. So let's start with the class then overwrite with any properties from the subclass.
+                            const actualPlayerConfigForSubclassObject = playerConfigs.classes[i].features[featurePropertyName];
+                            const psuedoPlayerConfigForSubclassObject = { ...playerConfigs.classes[i] };
+                            for (const property of Object.keys(actualPlayerConfigForSubclassObject)) {
+                                psuedoPlayerConfigForSubclassObject[property] = actualPlayerConfigForSubclassObject[property];
+                            }
+
+                            onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", psuedoPlayerConfigForSubclassObject);
                         }
 
-                        onAspectFound(playerConfigs, dndSubclass[aspectName], "subclass", psuedoPlayerConfigForSubclassObject);
-                    }
+                        if (dndSubclass.choices) {
+                            findAspectsFromChoice(playerConfigs, dndSubclass, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "subclass", classFeaturePlayerConfig.choices));
+                        }
 
-                    if (dndSubclass.choices) {
-                        findAspectsFromChoice(playerConfigs, dndSubclass, "classes[" + i + "].features." + featurePropertyName + ".choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "subclass", classFeaturePlayerConfig.choices));
-                    }
-
-                    if (dndSubclass.features) {
-                        // TODO: We really need to unify the logic for looking through features.
-                        for (const subclassFeature of dndSubclass.features) {
-                            if (!subclassFeature.classLevel || subclassFeature.classLevel <= playerConfigs.classes[i].levels) {
-                                if (subclassFeature[aspectName]) {
-                                    onAspectFound(playerConfigs, subclassFeature[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
+                        if (dndSubclass.features) {
+                            // TODO: We really need to unify the logic for looking through features.
+                            for (const subclassFeature of dndSubclass.features) {
+                                if (!subclassFeature.classLevel || subclassFeature.classLevel <= playerConfigs.classes[i].levels) {
+                                    if (subclassFeature[aspectName]) {
+                                        onAspectFound(playerConfigs, subclassFeature[aspectName], "subclass", playerConfigs.classes[i].features[featurePropertyName]);
+                                    }
                                 }
                             }
                         }
@@ -2266,151 +2271,151 @@ function findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, 
                 }
             }
         }
-    }
 
-    // Check the background for the aspect.
-    const dndBackground = backgroundMap[playerConfigs.background.name];
-    if (dndBackground) {
-        const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName);
-        if (backgroundAspectValue) {
-            onAspectFound(playerConfigs, backgroundAspectValue, "background", playerConfigs.background);
-        }
-
-        if (dndBackground.feat) {
-            const dndfeat = featMap[dndBackground.feat];
-            if (dndfeat) {
-                processFeat(playerConfigs, aspectName, dndBackground.feat, dndfeat, "background", "featMap", { featMap, eldrichinvocationMap }, onAspectFound);
-            }
-        }
-    }
-
-    if (playerConfigs?.statBlocks && playerConfigs.statBlocks.length > 0) {
-        const statBlockMap = getNameDictionaryForCollection("statblocks");
-        for (let statBlock of playerConfigs.statBlocks) {
-            const dndStatBlock = statBlockMap[statBlock];
-            if (dndStatBlock && dndStatBlock.aspects && dndStatBlock.aspects[aspectName]) {
-                onAspectFound(playerConfigs, dndStatBlock.aspects[aspectName], "statblock", dndStatBlock);
+        // Check the background for the aspect.
+        const dndBackground = backgroundMap[playerConfigs.background.name];
+        if (dndBackground) {
+            const backgroundAspectValue = getValueFromObjectAndPath(dndBackground, aspectName);
+            if (backgroundAspectValue) {
+                onAspectFound(playerConfigs, backgroundAspectValue, "background", playerConfigs.background);
             }
 
-            const allStatBlockFeatures = dndStatBlock?.aspects?.features ? [...dndStatBlock.aspects.features] : [];
-            
-            if (allStatBlockFeatures) {
-                for (let i = 0; i < allStatBlockFeatures.length; i++) {
-                    const statBlockFeature = allStatBlockFeatures[i];
-                    if (statBlockFeature && statBlockFeature[aspectName]) {
-                        onAspectFound(playerConfigs, statBlockFeature[aspectName], "feature", statBlockFeature);
-                    }
+            if (dndBackground.feat) {
+                const dndfeat = featMap[dndBackground.feat];
+                if (dndfeat) {
+                    processFeat(playerConfigs, aspectName, dndBackground.feat, dndfeat, "background", "featMap", { featMap, eldrichinvocationMap }, onAspectFound);
                 }
             }
         }
-    }
 
-    if (playerConfigs?.homebrew && playerConfigs.homebrew.length > 0) {
-        const dndHomebrewMap = getNameDictionaryForCollection("homebrew");
-        for (let i = 0; i < playerConfigs.homebrew.length; i++) {
-            const homebrew = playerConfigs.homebrew[i];
-            const dndHomebrew = dndHomebrewMap[homebrew.name];
-            if (dndHomebrew) {
-                const classAspectValue = dndHomebrew[aspectName];
-                if (classAspectValue) {
-                    onAspectFound(playerConfigs, classAspectValue, "homebrew", homebrew);
+        if (playerConfigs?.statBlocks && playerConfigs.statBlocks.length > 0) {
+            const statBlockMap = getNameDictionaryForCollection("statblocks");
+            for (let statBlock of playerConfigs.statBlocks) {
+                const dndStatBlock = statBlockMap[statBlock];
+                if (dndStatBlock && dndStatBlock.aspects && dndStatBlock.aspects[aspectName]) {
+                    onAspectFound(playerConfigs, dndStatBlock.aspects[aspectName], "statblock", dndStatBlock);
                 }
-    
-                const allDndHomebrewFeatures = dndHomebrew.features ? [...dndHomebrew.features] : [];
-    
-                if (dndHomebrew.choices) {
-                    findAspectsFromChoice(playerConfigs, dndHomebrew, "homebrew[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "homebrew", homebrew));
-    
-                    findAspectsFromChoice(playerConfigs, dndHomebrew, "homebrew[" + i + "].choices.", "features", (aspectValue) => {
-                        for (let classFeature of aspectValue) {
-                            allDndHomebrewFeatures.push(classFeature);
-                        }
-                    });
-                }
-    
-                if (allDndHomebrewFeatures) {
-                    for (let j = 0; j < allDndHomebrewFeatures.length; j++) {
-                        const homebrewFeature = allDndHomebrewFeatures[j];
-                        if (homebrewFeature && homebrewFeature[aspectName]) {
-                            onAspectFound(playerConfigs, homebrewFeature[aspectName], "feature", homebrew);
+
+                const allStatBlockFeatures = dndStatBlock?.aspects?.features ? [...dndStatBlock.aspects.features] : [];
+                
+                if (allStatBlockFeatures) {
+                    for (let i = 0; i < allStatBlockFeatures.length; i++) {
+                        const statBlockFeature = allStatBlockFeatures[i];
+                        if (statBlockFeature && statBlockFeature[aspectName]) {
+                            onAspectFound(playerConfigs, statBlockFeature[aspectName], "feature", statBlockFeature);
                         }
                     }
                 }
             }
         }
-    }
 
-    // Check items after homebrew.
-    if (playerConfigs.items) {
-        // Check equipped items for the aspect.
-        const itemsDictionary = getNameDictionaryForCollection("items");
-        for (let item of playerConfigs.items) {
-            if (item.equipped) {
-                const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
-                if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
-                    onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
-                }
-
-                if (item.childItems && dndItem.childItems) {
-                    processChildItems(playerConfigs, item.childItems, dndItem.childItems, aspectName, onAspectFound);
-                }
-            }
-        }
-    }
-
-    // TODO: Right now there's an infinite recursion problem if this is visited more than once. 
-    // There's likely a better solution than what I have implemented here. We basically don't allow a lower callstack to execute for an aspect if a higher callstack already has.
-    // It re-iterates in processActiveEffect, maybe the caching needs to be done in there instead so that caculating out an active effect doesn't take itself into account when doing so?
-    // As far as I am aware this hasn't caused any problems yet, so maybe it's fine to leave it like this for now, since it's only for calculating aspects on active effects, and I can't think of examples of active effects affecting other active effects...
-    if (!findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName]) {
-        if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
-            const dndConditionsMap = getNameDictionaryForCollection("conditions");
-            // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
-            const dndConditionsChecked = {};
-            for (let playerCondition of playerConfigs.currentStatus.conditions) {
-                findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "condition", playerCondition));
-            }
-        }
-
-        if (findAllConfiguredAspects_activeEffectsTracking_levelsDeep === 0) {
-            findAllConfiguredAspects_activeEffectsTracking_collections = {};
-        }
-        findAllConfiguredAspects_activeEffectsTracking_levelsDeep++;
-        findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName] = true;
-        try {
-            if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
-                for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
-                    processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
-
-                    if (activeEffect.additionalEffects && activeEffect.additionalEffects.length > 0) {
-                        processAdditionalEffects(playerConfigs, activeEffect.additionalEffects, "aspects", aspectName, onAspectFound, "activeEffect", activeEffect); 
+        if (playerConfigs?.homebrew && playerConfigs.homebrew.length > 0) {
+            const dndHomebrewMap = getNameDictionaryForCollection("homebrew");
+            for (let i = 0; i < playerConfigs.homebrew.length; i++) {
+                const homebrew = playerConfigs.homebrew[i];
+                const dndHomebrew = dndHomebrewMap[homebrew.name];
+                if (dndHomebrew) {
+                    const classAspectValue = dndHomebrew[aspectName];
+                    if (classAspectValue) {
+                        onAspectFound(playerConfigs, classAspectValue, "homebrew", homebrew);
                     }
-
-                    if (activeEffect.allies) {
-                        for (let ally of activeEffect.allies) {
-                            findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
-                                for (let parentAspectName of Object.keys(parentAspect)) {
-                                    if (parentAspectName === aspectName) {
-                                        const aspectValue = parentAspect[parentAspectName];
-                                        onAspectFound(aspectPlayerConfigs, aspectValue, "ally", ally);
-                                    }
-                                }
-                            });
-
-                            checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
+        
+                    const allDndHomebrewFeatures = dndHomebrew.features ? [...dndHomebrew.features] : [];
+        
+                    if (dndHomebrew.choices) {
+                        findAspectsFromChoice(playerConfigs, dndHomebrew, "homebrew[" + i + "].choices.", aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "homebrew", homebrew));
+        
+                        findAspectsFromChoice(playerConfigs, dndHomebrew, "homebrew[" + i + "].choices.", "features", (aspectValue) => {
+                            for (let classFeature of aspectValue) {
+                                allDndHomebrewFeatures.push(classFeature);
+                            }
+                        });
+                    }
+        
+                    if (allDndHomebrewFeatures) {
+                        for (let j = 0; j < allDndHomebrewFeatures.length; j++) {
+                            const homebrewFeature = allDndHomebrewFeatures[j];
+                            if (homebrewFeature && homebrewFeature[aspectName]) {
+                                onAspectFound(playerConfigs, homebrewFeature[aspectName], "feature", homebrew);
+                            }
                         }
                     }
                 }
             }
+        }
 
-            if (playerConfigs.parent) {
-                checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
+        // Check items after homebrew.
+        if (playerConfigs.items) {
+            // Check equipped items for the aspect.
+            const itemsDictionary = getNameDictionaryForCollection("items");
+            for (let item of playerConfigs.items) {
+                if (item.equipped) {
+                    const dndItem = getItemFromItemTemplate(itemsDictionary[item.name], itemsDictionary);
+                    if (dndItem && (!dndItem.attunement || item.attuned === playerConfigs.name) && dndItem.aspects && dndItem.aspects[aspectName]) {
+                        onAspectFound(playerConfigs, dndItem.aspects[aspectName], "item", item);
+                    }
+
+                    if (item.childItems && dndItem.childItems) {
+                        processChildItems(playerConfigs, item.childItems, dndItem.childItems, aspectName, onAspectFound);
+                    }
+                }
             }
-        } finally {
-            findAllConfiguredAspects_activeEffectsTracking_levelsDeep--;
-            delete findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName];
+        }
+
+        // TODO: Right now there's an infinite recursion problem if this is visited more than once. 
+        // There's likely a better solution than what I have implemented here. We basically don't allow a lower callstack to execute for an aspect if a higher callstack already has.
+        // It re-iterates in processActiveEffect, maybe the caching needs to be done in there instead so that caculating out an active effect doesn't take itself into account when doing so?
+        // As far as I am aware this hasn't caused any problems yet, so maybe it's fine to leave it like this for now, since it's only for calculating aspects on active effects, and I can't think of examples of active effects affecting other active effects...
+        if (!findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName]) {
+            if (playerConfigs?.currentStatus?.conditions && playerConfigs.currentStatus.conditions.length > 0) {
+                const dndConditionsMap = getNameDictionaryForCollection("conditions");
+                // Some conditions cause other conditions, and we don't want to check any condition twice, this will help with that.
+                const dndConditionsChecked = {};
+                for (let playerCondition of playerConfigs.currentStatus.conditions) {
+                    findAspectFromCondition(dndConditionsChecked, dndConditionsMap, playerCondition.name, aspectName, (aspectValue) => onAspectFound(playerConfigs, aspectValue, "condition", playerCondition));
+                }
+            }
+
             if (findAllConfiguredAspects_activeEffectsTracking_levelsDeep === 0) {
-                findAllConfiguredAspects_activeEffectsTracking_collections = undefined;
+                findAllConfiguredAspects_activeEffectsTracking_collections = {};
+            }
+            findAllConfiguredAspects_activeEffectsTracking_levelsDeep++;
+            findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName] = true;
+            try {
+                if (playerConfigs?.currentStatus?.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
+                    for (let activeEffect of playerConfigs.currentStatus.activeEffects) {
+                        processActiveEffect(playerConfigs, playerConfigs, activeEffect, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
+
+                        if (activeEffect.additionalEffects && activeEffect.additionalEffects.length > 0) {
+                            processAdditionalEffects(playerConfigs, activeEffect.additionalEffects, "aspects", aspectName, onAspectFound, "activeEffect", activeEffect); 
+                        }
+
+                        if (activeEffect.allies) {
+                            for (let ally of activeEffect.allies) {
+                                findAllConfiguredAspects(ally, "parentAspects", [], (aspectPlayerConfigs, parentAspect, typeFoundOn, playerConfigForObject) => {
+                                    for (let parentAspectName of Object.keys(parentAspect)) {
+                                        if (parentAspectName === aspectName) {
+                                            const aspectValue = parentAspect[parentAspectName];
+                                            onAspectFound(aspectPlayerConfigs, aspectValue, "ally", ally);
+                                        }
+                                    }
+                                });
+
+                                checkAllyForActiveEffects(playerConfigs, ally, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
+                            }
+                        }
+                    }
+                }
+
+                if (playerConfigs.parent) {
+                    checkParentForActiveEffects(playerConfigs, playerConfigs.parent, findAllConfiguredAspects_activeEffectsTracking_collections, aspectName, onAspectFound);
+                }
+            } finally {
+                findAllConfiguredAspects_activeEffectsTracking_levelsDeep--;
+                delete findAllConfiguredAspects_activeEffectsTracking_lastAspects[aspectName];
+                if (findAllConfiguredAspects_activeEffectsTracking_levelsDeep === 0) {
+                    findAllConfiguredAspects_activeEffectsTracking_collections = undefined;
+                }
             }
         }
     }
