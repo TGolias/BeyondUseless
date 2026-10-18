@@ -154,6 +154,14 @@ export function SpellMenu({sessionId, playerConfigs, addToMenuStack, setCenterSc
         data.castAtLevel = menuConfig.useSpellSlotLevel;
     }
 
+    if (menuConfig.spellSlotLevelIncrease) {
+        if (!data.castAtLevel) {
+            data.castAtLevel = menuConfig.spell.level;
+        }
+
+        data.castAtLevel += menuConfig.spellSlotLevelIncrease;
+    }
+
     if (menuConfig.additionalEffects) {
         data.additionalEffects = menuConfig.additionalEffects;
     }

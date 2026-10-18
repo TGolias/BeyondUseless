@@ -122,7 +122,11 @@ function doesSpellOrFeatureActionTypeInclude(newPlayerConfigs, menuConfig, typeT
 function calculateAspectForSpellOrFeatureAction(newPlayerConfigs, menuConfig, aspectName, aspectBonusName) {
     if (menuConfig.spell) {
         // This is a spell.
-        return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.spell, menuConfig.useSpellSlotLevel, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
+        let slotLevel = menuConfig.useSpellSlotLevel ?? menuConfig.spell;
+        if (menuConfig.spellSlotLevelIncrease) {
+            slotLevel += menuConfig.spellSlotLevelIncrease;
+        }
+        return calculateOtherSpellAspect(newPlayerConfigs, menuConfig.spell, slotLevel, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });
     } else if (menuConfig.featureAction) {
         // This is a feature action.
         return calculateOtherFeatureActionAspect(newPlayerConfigs, menuConfig.featureAction, aspectName, aspectBonusName, menuConfig.additionalEffects ?? [], { userInput: menuConfig.userInput });

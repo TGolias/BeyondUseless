@@ -1953,6 +1953,38 @@ export function getAllAspectOptions(aspectName) {
     return getCollection(aspectName);
 }
 
+export function calculateNumberAspect(playerConfigs, aspectName, additionalEffects, parameters = {}) {
+    let totalAspectValue = undefined;
+
+    findAllConfiguredAspects(playerConfigs, aspectName, additionalEffects, (aspectPlayerConfigs, aspectValue, typeFoundOn, playerConfigForObject) => {
+        let valueToAdd;
+
+        if (aspectValue.conditions) {
+            const conditionsAreMet = performBooleanCalculation(aspectPlayerConfigs, aspectValue.conditions, { ...parameters, playerConfigForObject, additionalEffects });
+            if (!conditionsAreMet) {
+                // We did not meet the conditions for this bonus to apply.
+                return;
+            }
+        }
+
+        if (aspectValue.calculation) {
+            valueToAdd = performMathCalculation(aspectPlayerConfigs, aspectValue.calculation, { ...parameters, playerConfigForObject, additionalEffects });
+        } else {
+            valueToAdd = aspectValue;
+        }
+
+        if (valueToAdd) {
+            if (totalAspectValue) {
+                totalAspectValue += valueToAdd;
+            } else {
+                totalAspectValue = valueToAdd;
+            }
+        }
+    });
+
+    return totalAspectValue;
+}
+
 export function calculateAspectCollection(playerConfigs, aspectName) {
     if (aspectName === "CUSTOM") {
         // Nothing will come back for this anyways, no need to search.

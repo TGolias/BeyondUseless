@@ -3,7 +3,7 @@ import './CenterMenu.css';
 import { RetroButton } from "../SimpleComponents/RetroButton";
 import { HealthMenu } from "./HealthMenu";
 import { getTotalPath } from "../../SharedFunctions/ComponentFunctions";
-import { calculateHPMax } from "../../SharedFunctions/TabletopMathFunctions";
+import { calculateHPMax, calculateNumberAspect } from "../../SharedFunctions/TabletopMathFunctions";
 import { ConfirmationMenu } from "./ConfirmationMenu";
 import { HitDiceMenu } from "./HitDiceMenu";
 import { SpellMenu } from "./SpellMenu";
@@ -108,10 +108,15 @@ const menuCollection = {
             </>)
         },
         createDefaultMenuConfig: (playerConfigs, data) => {
+
+            const spellSlotLevelIncrease = calculateNumberAspect(playerConfigs, "spellSlotLevelIncrease", [], { spell: data.spell });
+
             const newSpellMenu = {};
             newSpellMenu.menuTitle = data.menuTitle;
             newSpellMenu.spell = data.spell;
+            newSpellMenu.additionalEffects = data.additionalEffects;
             newSpellMenu.useSpellSlotLevel = data.spell.level;
+            newSpellMenu.spellSlotLevelIncrease = spellSlotLevelIncrease;
             newSpellMenu.userInput = {};
             newSpellMenu.useFreeUse = false;
             newSpellMenu.useRitual = false;
