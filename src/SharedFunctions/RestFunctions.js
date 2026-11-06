@@ -1,3 +1,4 @@
+import { getNameDictionaryForCollection } from "../Collections";
 import { GetRemainingUsesForResource, HasUsedAnyOfResource, SetRemainingUsesForResource } from "./ResourcesFunctions";
 import { calculateHeroicInspirationLongRestRecharge, getAllStandardResourcesForCharacter } from "./TabletopMathFunctions";
 
@@ -29,17 +30,27 @@ export function SetPlayerLongRested(playerConfigs) {
     // Heroic inspiration sticks around.
     newCurrentStatus.heroicInspiration = playerConfigs.currentStatus?.heroicInspiration || calculateHeroicInspirationLongRestRecharge(playerConfigs);
 
-    // Check if we had the exhaustion condition.
-    const exhaustionCondition = playerConfigs.currentStatus?.conditions?.find(condition => condition.name === "Exhaustion");
-    if (exhaustionCondition) {
-        // Remove an Exhaustion level
-        if (exhaustionCondition.level > 1) {
-            const newExhaustionCondition = {...exhaustionCondition};
-            newExhaustionCondition.level--;
-            newCurrentStatus.conditions = [newExhaustionCondition];
+    // conditions to reduce on long rest.
+    const conditions = playerConfigs.currentStatus?.conditions;
+    if (conditions && conditions.length) {
+        const newConditions = [];
+        const dndConditionsMap = getNameDictionaryForCollection("conditions");
+        for (let i = 0; i < conditions.length; i++) {
+            const condition = conditions[i];
+            const dndCondition = dndConditionsMap[condition.name];
+            if (dndCondition && dndCondition.type && dndCondition.type.includes('level')) {
+                if (dndCondition.levelsToReduceOnLongRest) {
+                    const newLevelCondition = {...condition};
+                    newLevelCondition.level--;
+                    newConditions.push(newLevelCondition);
+                }
+            }
+        }
+
+        if (newConditions.length) {
+            newCurrentStatus.conditions = newConditions;
         }
     }
-
     
     if (playerConfigs.currentStatus.activeEffects && playerConfigs.currentStatus.activeEffects.length > 0) {
         const activeEffectsToKeepAfterLongRest = playerConfigs.currentStatus.activeEffects.filter(effect => {

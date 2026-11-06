@@ -40,10 +40,10 @@ export function SetPlayerRevived(playerConfigs) {
 
     const exhaustionCondition = playerConfigs.currentStatus?.conditions?.find(condition => condition.name === "Exhaustion")
     if (exhaustionCondition) {
-        // Remove an Exhaustion level
-        if (exhaustionCondition.level > 1) {
+        // Exhaustion level 6 kills you. Bring them down to the highest amount that doesn't instantly kill them.
+        if (exhaustionCondition.level > 5) {
             const newExhaustionCondition = {...exhaustionCondition};
-            newExhaustionCondition.level--;
+            newExhaustionCondition.level = 5;
             playerConfigs.currentStatus.conditions = AddOrUpdateCondition(playerConfigs.currentStatus.conditions, newExhaustionCondition) 
         } else {
             playerConfigs.currentStatus.conditions = RemoveConditionByName(playerConfigs.currentStatus.conditions, "Exhaustion")
